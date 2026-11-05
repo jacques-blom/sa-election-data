@@ -1,7 +1,10 @@
 ---
+import Brand from '../components/Brand.astro';
+const title = 'Counted · South African election results';
+const canonical = new URL('/', Astro.url.origin).href;
 ---
 
-<html lang="en">
+<html lang="en-ZA">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -11,11 +14,17 @@
 			name="description"
 			content="An independent project making South African local election results easier to find, understand, and use."
 		/>
-		<title>SA Election Data</title>
+		<title>{title}</title>
+		<link rel="canonical" href={canonical} />
+		<meta property="og:title" content={title} />
+		<meta property="og:site_name" content="Counted" />
+		<meta property="og:description" content="South African election results, made clear." />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:type" content="website" />
 	</head>
 	<body>
 		<main>
-			<p class="wordmark">SA Election Data</p>
+			<div class="wordmark"><Brand /></div>
 			<p class="status">In development</p>
 			<h1>Your area.<br />Your election.<br /><span>A clearer picture.</span></h1>
 			<p class="intro">

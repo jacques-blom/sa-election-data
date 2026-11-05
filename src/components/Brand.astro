@@ -1,0 +1,36 @@
+<a href="/" class="brand" aria-label="Counted home">
+  <img
+    class="brand-icon"
+    src="/brand/counted-icon.svg"
+    width="1117"
+    height="936"
+    alt=""
+    aria-hidden="true"
+  />
+  <span>Counted</span>
+</a>
+
+<style>
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 9px;
+    color: #163a30;
+    font-size: 28px;
+    font-weight: 650;
+    letter-spacing: -1.2px;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .brand-icon { display: block; width: 40px; height: auto; flex-shrink: 0; }
+  @media (max-width: 540px) {
+    .brand { font-size: 24px; gap: 8px; }
+    .brand-icon { width: 34px; }
+  }
+  @media (max-width: 360px) {
+    .brand { font-size: 21px; gap: 7px; }
+    .brand-icon { width: 28px; }
+  }
+</style>

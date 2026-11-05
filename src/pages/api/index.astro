@@ -1,8 +1,9 @@
 ---
 import { Content, getHeadings } from '../../../docs/api.md';
+import Brand from '../../components/Brand.astro';
 
 const sections = getHeadings().filter((heading) => heading.depth === 2);
-const title = 'API documentation · SA Election Data';
+const title = 'API documentation · Counted';
 const description = 'Use South African local election results in your own apps and research. Public endpoints, examples, historical data and source freshness explained.';
 const canonical = new URL('/api', Astro.url.origin).href;
 ---
@@ -17,6 +18,7 @@ const canonical = new URL('/api', Astro.url.origin).href;
     <link rel="canonical" href={canonical} />
     <link rel="alternate" type="text/markdown" href="/api.md" title="API documentation as Markdown" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:site_name" content="Counted" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -25,7 +27,7 @@ const canonical = new URL('/api', Astro.url.origin).href;
   <body>
     <a class="skip" href="#documentation">Skip to documentation</a>
     <header>
-      <a class="brand" href="/">SA Election Data</a>
+      <Brand />
       <nav aria-label="Main navigation">
         <a href="/">Home</a>
         <a href="/api" aria-current="page">API docs</a>
@@ -65,7 +67,6 @@ const canonical = new URL('/api', Astro.url.origin).href;
   .skip { position: absolute; left: 1rem; top: -5rem; padding: 1rem; background: white; z-index: 1; }
   .skip:focus { top: 1rem; }
   header { max-width: 76rem; margin: auto; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid #ced8cd; }
-  .brand { font-size: 1.125rem; font-weight: 750; text-decoration: none; }
   header nav { display: flex; gap: 1.5rem; font-size: 0.9rem; }
   header nav a { text-decoration: none; }
   header nav a[aria-current] { text-decoration: underline; font-weight: 650; }

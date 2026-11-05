@@ -1,6 +1,6 @@
-# ElectionInfo: product and interaction design
+# Counted: product and interaction design
 
-Working name. Updated 5 November 2026. This is a proposed design; features described below are not all implemented.
+Updated 5 November 2026. This is a proposed design; features described below are not all implemented.
 
 The interactive prototype is at `../sa-election-mockups/index.html`. Open it directly or run `python3 -m http.server 4177 --directory ../sa-election-mockups`. All results, historical comparisons, national and province totals, candidates and council allocations in the prototype are fictional. It does not fetch live election data.
 
@@ -12,28 +12,18 @@ Lead with maps, charts and large numbers. Use short labels to explain what they 
 
 ## Name
 
-Use **ElectionInfo** as the working name, with **South African election results** as the descriptor. It explains the subject immediately and also fits councillor and participation guidance after the count. ElectInfo is shorter but less familiar when spoken or read. The existing Belgian site [ElectInfoBE](https://www.electinfo.be/) is another reason to prefer the full word.
+The site is **Counted**, with **South African election results** as the descriptor.
+Jacques registered **counted.co.za** on 5 November 2026. Use Counted consistently
+in the wordmark, page titles, accessible labels and API documentation. Keep the
+existing soft-corner Flag X icon beside the live-text name.
 
-Read-only Vercel registrar availability checks on 5 November 2026 returned:
-
-| Domain | Result |
-| --- | --- |
-| electioninfo.co.za | Available; preferred |
-| electinfo.co.za | Available |
-| saelectionresults.co.za | Available |
-| electiontracker.co.za | Available |
-| electionmap.co.za | Available |
-| electionresultssa.co.za | Available |
-| electionsouthafrica.co.za | Available |
-| electionresults.co.za | Unavailable |
-| electionatlas.co.za | Unavailable |
-| localelections.co.za | Unavailable |
-
-These checks do not reserve a domain. No domain has been purchased. They also do not establish trademark clearance. The current mockup uses ElectionInfo while the name is being considered.
+The existing Workers address remains the live public URL until counted.co.za is
+connected and verified. Internal Worker, D1, queue and bucket names can retain
+`sa-election-data`; those resource names are not the public brand.
 
 ## Visual design
 
-Use warm paper, green-black text, generous spacing and the selected soft-corner Flag X icon. The upper fork combines the South African flag’s green Y, black triangle and gold edging; the blue and red lower arms complete a voting X. Render “ElectionInfo” as live text beside the icon, never as part of a wordmark image. Use the icon alone for favicons and compact placements. Keep the wordmark readable at phone size. Large shapes and numbers establish the hierarchy; labels explain the data without competing with it.
+Use warm paper, green-black text, generous spacing and the selected soft-corner Flag X icon. The upper fork combines the South African flag’s green Y, black triangle and gold edging; the blue and red lower arms complete a voting X. Render “Counted” as live text beside the icon, never as part of a wordmark image. Use the icon alone for favicons and compact placements. Keep the wordmark readable at phone size. Large shapes and numbers establish the hierarchy; labels explain the data without competing with it.
 
 | Element | Direction | Use |
 | --- | --- | --- |

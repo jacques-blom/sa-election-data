@@ -1,4 +1,4 @@
-# SA Election Data API — v1
+# Counted API — v1
 
 The current election is refreshed by a scheduled Cloudflare Worker. Historical
 elections are preserved from the verified backfill. Check `/api/v1/sync` for actual

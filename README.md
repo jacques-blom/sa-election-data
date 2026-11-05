@@ -1,7 +1,10 @@
-# SA Election Data
+# Counted
 
 A personal civic-tech project by Jacques Blom to make South African local election
-results easier to find, understand, and reuse. The name is provisional.
+results easier to find, understand, and reuse.
+
+The public brand is **Counted**. Jacques registered **counted.co.za** on 5 November
+2026; the existing Workers URL remains the live address until the domain is connected.
 
 Public service: [placeholder site](https://sa-election-data.jacques.workers.dev),
 [REST API](https://sa-election-data.jacques.workers.dev/api/v1),
