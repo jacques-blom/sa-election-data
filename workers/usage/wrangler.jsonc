@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "sa-election-data-usage",
+  "account_id": "1644a80d2d9ee897e4a990ce1e8100ee",
+  "main": "index.ts",
+  "compatibility_date": "2026-11-05",
+  "workers_dev": false,
+  "preview_urls": false,
+  "limits": { "cpu_ms": 10 },
+  "d1_databases": [{
+    "binding": "RESULTS_DB",
+    "database_name": "sa-election-data",
+    "database_id": "95ad93f9-e5f0-4a0e-b7c2-74bde7e3b91b",
+    "preview_database_id": "00000000-0000-0000-0000-000000000000",
+    "migrations_dir": "../../migrations"
+  }],
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "head_sampling_rate": 0.01 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.01 }
+  }
+}

@@ -6,6 +6,7 @@
   "compatibility_date": "2026-11-05",
   "compatibility_flags": ["nodejs_compat"],
   "placement": { "mode": "smart" },
+  "r2_buckets": [{ "binding": "RAW_RESULTS", "bucket_name": "sa-election-data-raw" }],
   "d1_databases": [
     {
       "binding": "RESULTS_DB",
@@ -20,7 +21,7 @@
   // Astro generates the production entrypoint and static-assets configuration.
   "observability": {
     "enabled": true,
-    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "logs": { "enabled": true, "head_sampling_rate": 0.01 },
     "traces": { "enabled": true, "head_sampling_rate": 0.01 }
   }
 }

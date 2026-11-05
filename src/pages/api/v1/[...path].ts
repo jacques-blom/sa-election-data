@@ -5,9 +5,10 @@ import type { AreaRecord, Level } from '../../../lib/data/normalize.ts';
 import { resultQuality } from '../../../lib/data/quality.ts';
 import { syncHealth } from '../../../lib/data/sync-health.ts';
 import { matchesIfNoneMatch } from '../../../lib/data/http-cache.ts';
+import { hydrateResults, joinedResults, resultColumns } from '../../../lib/data/packed-results.ts';
 
 const levels: Level[] = ['national', 'province', 'municipality', 'ward', 'voting-district'];
-const joined = `FROM area_results r JOIN source_documents d ON d.id = r.source_id AND d.active_snapshot_id = r.snapshot_id`;
+const joined = joinedResults;
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
   'Access-Control-Allow-Headers': 'If-None-Match', 'Access-Control-Expose-Headers': 'ETag' };
 const caveats = [
@@ -25,6 +26,7 @@ type Row = {
   last_error: string | null; last_modified: string | null;
   sha256: string; fetched_at: string;
   latest_document_reported_at: string | null; latest_document_sha256: string | null; published_at: string | null;
+  source_id: string; bundle_key: string | null;
 };
 
 function area(row: Row) {
@@ -47,8 +49,11 @@ function source(row: Row, live: boolean) {
 
 async function respond(request: Request, value: unknown, status = 200) {
   const body = JSON.stringify(value);
+  const path = new URL(request.url).pathname;
+  const historical = ELECTIONS.some(e => e.status === 'historical' && path.startsWith(`/api/v1/elections/${e.year}`));
+  const ttl = historical ? 86400 : 15;
   const headers = new Headers({ ...cors, 'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': status === 200 ? 'public, max-age=15, s-maxage=15' : 'no-store' });
+    'Cache-Control': status === 200 ? `public, max-age=${ttl}, s-maxage=${ttl}` : 'no-store' });
   const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body));
   const etag = `"${Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join('')}"`;
   headers.set('ETag', etag);
@@ -97,7 +102,8 @@ export const ALL: APIRoute = async ({ params, request, url }) => {
     if (parts.length === 2) {
       const coverage = await db.prepare(`SELECT r.level, COUNT(*) AS areas ${joined} WHERE r.year = ? GROUP BY r.level`).bind(year).all();
       const errors = await db.prepare('SELECT COUNT(*) AS count FROM source_documents WHERE year = ? AND last_error IS NOT NULL').bind(year).first<{ count: number }>();
-      const national = await db.prepare(`SELECT r.payload ${joined} WHERE r.year = ? AND r.level = 'national'`).bind(year).first<{ payload: string }>();
+      const nationalRow = await db.prepare(`SELECT ${resultColumns} ${joined} WHERE r.year = ? AND r.level = 'national'`).bind(year).first<Row>();
+      const national = nationalRow ? (await hydrateResults(db, env.RAW_RESULTS, [nationalRow]))[0] : null;
       const expected = national ? (JSON.parse(national.payload) as AreaRecord['payload']).progress : null;
       return respond(request, { election, coverage: coverage.results, failed_sources: errors?.count ?? 0,
         expected_by_iec_summary: expected,
@@ -136,11 +142,12 @@ export const ALL: APIRoute = async ({ params, request, url }) => {
         areas: result.results.map((row) => ({ ...area(row), results_url: `/api/v1/elections/${year}/areas/${row.level}/${row.area_id}` })) });
     }
     if (parts.length === 5 && levels.includes(parts[3] as Level)) {
-      const row = await db.prepare(`SELECT r.*, d.url, d.last_checked_at, d.last_success_at, d.last_error, d.last_modified, s.sha256, s.fetched_at,
+      let row = await db.prepare(`SELECT ${resultColumns}, s.sha256, s.fetched_at,
         t.last_reported_at AS latest_document_reported_at,t.last_sha256 AS latest_document_sha256,t.last_published_at AS published_at
-        ${joined} JOIN snapshots s ON s.id = r.snapshot_id LEFT JOIN sync_state t ON t.source_id=d.id
+        ${joined} JOIN snapshots s ON s.id = d.active_snapshot_id LEFT JOIN sync_state t ON t.source_id=d.id
         WHERE r.year = ? AND r.level = ? AND r.area_id = ?`).bind(year, parts[3]!, parts[4]!).first<Row>();
       if (!row) return respond(request, { error: 'No imported result for this area', year }, 404);
+      row = (await hydrateResults(db, env.RAW_RESULTS, [row]))[0]!;
       const results = JSON.parse(row.payload) as AreaRecord['payload'];
       const provenance = { ...source(row, election.status === 'provisional'),
         ...(results.parties.some((party) => party.party_name_source === 'iec_party_directory') ? {

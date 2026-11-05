@@ -1,9 +1,12 @@
-import { gunzipSync, gzipSync } from 'node:zlib';
+import { gzipSync } from 'node:zlib';
 import { ELECTIONS, type Source } from '../../src/lib/data/catalogue.ts';
 import { fetchDocument } from '../../src/lib/data/fetch.ts';
-import { normalize, NORMALIZER_VERSION, validateDocument, type AreaRecord } from '../../src/lib/data/normalize.ts';
-import { fingerprint, LIVE_YEAR, parsePartyNames, PARTY_DIRECTORY_URL, sha256, SOURCE_LIMIT } from './helpers.ts';
+import { normalize, NORMALIZER_VERSION, validateDocument } from '../../src/lib/data/normalize.ts';
+import { LIVE_YEAR, parsePartyNames, PARTY_DIRECTORY_URL, sha256, sourceContentHash, SOURCE_LIMIT } from './helpers.ts';
 import { acquireLock, ensureSource, readState, releaseLock, waitForFetchSlot, type SourceState } from './state.ts';
+
+import { archivedRaw, packRecords, prepareRecords, type DirectoryRecord } from './pack.ts';
+import { reserveBudget } from './budget.ts';
 
 export const election = ELECTIONS.find((entry) => entry.year === LIVE_YEAR)!;
 
@@ -22,6 +25,7 @@ export async function partyNames(env: SyncEnv, refresh = false): Promise<Readonl
     const names = parsePartyNames(fetched.body);
     const hash = sha256(fetched.body);
     const metadata = { fetched_at: fetched.checkedAt, sha256: hash, url: PARTY_DIRECTORY_URL };
+    await reserveBudget(env.RESULTS_DB, 'r2_writes', 2);
     await env.RAW_RESULTS.put(`raw/party-directory/${hash}.json.gz`, gzipSync(fetched.body), {
       httpMetadata: { contentType: 'application/gzip' }, customMetadata: metadata,
       onlyIf: { etagDoesNotMatch: '*' },
@@ -35,49 +39,19 @@ export async function partyNames(env: SyncEnv, refresh = false): Promise<Readonl
   }
 }
 
-async function stageRows(db: D1Database, source: Source, snapshotId: string, records: Iterable<AreaRecord>) {
-  let batch: D1PreparedStatement[] = [];
-  let values: (string | number | null)[] = [];
-  let rowCount = 0;
-  let bytes = 0;
-  const appendStatement = () => {
-    if (!rowCount) return;
-    batch.push(db.prepare(`INSERT OR REPLACE INTO area_results
-      (snapshot_id,source_id,year,level,area_id,province_id,municipality_id,ward_id,name,reported_at,payload)
-      VALUES ${Array.from({ length: rowCount }, () => '(?,?,?,?,?,?,?,?,?,?,?)').join(',')}`).bind(...values));
-    values = [];
-    rowCount = 0;
-  };
-  for (const record of records) {
-    const payload = JSON.stringify(record.payload);
-    values.push(snapshotId, source.id, source.year, record.level, record.id, record.provinceId,
-      record.municipalityId, record.wardId, record.name, record.reportedAt, payload);
-    rowCount++;
-    bytes += new TextEncoder().encode(payload).byteLength;
-    // 8 * 11 = 88 bound parameters, below D1's 100-parameter limit.
-    if (rowCount === 8 || bytes >= 512 * 1024) appendStatement();
-    if (batch.length >= 40 || bytes >= 512 * 1024) {
-      await db.batch(batch);
-      batch = [];
-      bytes = 0;
-    }
-  }
-  appendStatement();
-  if (batch.length) await db.batch(batch);
-}
-
 async function markChecked(db: D1Database, source: Source, previous: SourceState, lock: string,
-  checkedAt: string, metadata?: { etag: string | null; lastModified: string | null; reportedAt: string; rawHash: string; rawKey: string }) {
+  checkedAt: string, metadata?: { etag: string | null; lastModified: string | null; reportedAt: string; rawHash: string; rawKey: string; sourceHash: string | null }) {
   const statements = [db.prepare(`UPDATE source_documents SET last_checked_at=?,last_success_at=?,last_error=NULL,
     etag=?,last_modified=? WHERE id=? AND active_snapshot_id IS ?
     AND EXISTS(SELECT 1 FROM sync_locks WHERE name=? AND token=? AND expires_at>?)`)
     .bind(checkedAt, checkedAt, metadata ? metadata.etag : previous.etag, metadata ? metadata.lastModified : previous.last_modified,
       source.id, previous.active_snapshot_id, source.id, lock, new Date().toISOString()),
   db.prepare(`UPDATE sync_state SET last_observed_at=?,consecutive_failures=0,retry_after=NULL,
-    last_reported_at=?,last_sha256=?,last_raw_key=? WHERE source_id=?
+    last_reported_at=?,last_sha256=?,last_raw_key=?,last_source_content_sha256=? WHERE source_id=?
     AND EXISTS(SELECT 1 FROM source_documents WHERE id=? AND last_success_at=?)`)
     .bind(checkedAt, metadata?.reportedAt ?? previous.last_reported_at,
-      metadata?.rawHash ?? previous.last_sha256, metadata?.rawKey ?? previous.last_raw_key, source.id, source.id, checkedAt)];
+      metadata?.rawHash ?? previous.last_sha256, metadata?.rawKey ?? previous.last_raw_key,
+      metadata?.sourceHash ?? previous.last_source_content_sha256, source.id, source.id, checkedAt)];
   const results = await db.batch(statements);
   if (results[0]!.meta.changes !== 1) throw new Error('Lost source publication lease or active snapshot changed');
 }
@@ -87,82 +61,148 @@ export async function refreshSource(env: SyncEnv, source: Source, names: Readonl
   await ensureSource(db, source);
   const lock = await acquireLock(db, source.id);
   if (!lock) throw new Error('Source is already being refreshed');
+  let uploadedKey: string | null = null;
+  let published = false;
   try {
     const previous = await readState(db, source);
-    // The first live fetch must also populate the remote archive, even when the
-    // local backfill's HTTP validators would return 304.
+    const partyDirectoryHash = sha256(JSON.stringify([...names].sort(([a], [b]) => a.localeCompare(b))));
+    const reusable = previous.object_key && previous.normalizer_version === NORMALIZER_VERSION
+      && previous.party_directory_hash === partyDirectoryHash;
+    await reserveBudget(db, 'checks', 1);
     await waitForFetchSlot(db);
-    const fetched = await fetchDocument(source, previous.last_raw_key && previous.active_snapshot_id
+    // Existing D1 snapshots migrate once. A 304 cannot create their result pack.
+    const fetched = await fetchDocument(source, reusable
       ? { etag: previous.etag, lastModified: previous.last_modified } : {}, { maxBytes: SOURCE_LIMIT });
     if (fetched.unchanged) {
       await markChecked(db, source, previous, lock, fetched.checkedAt);
-      // Replay discovery on a 304 too: publication may have succeeded just
-      // before a previous scheduler failed to save its municipality hints.
-      let root: Record<string, unknown> | null = null;
-      if (source.kind === 'summary' && previous.last_raw_key) {
-        const archived = await env.RAW_RESULTS.get(previous.last_raw_key);
-        if (!archived) throw new Error('Validated summary archive is missing');
-        root = validateDocument(JSON.parse(gunzipSync(await archived.arrayBuffer()).toString('utf8')), election, source);
-      }
+      const root = source.kind === 'summary' && previous.last_raw_key
+        ? validateDocument(JSON.parse(await archivedRaw(env.RAW_RESULTS, previous.last_raw_key, previous.raw_length)), election, source) : null;
       return { outcome: 'not_modified', root };
     }
     const rawHash = sha256(fetched.body);
-    const rawKey = `raw/${source.year}/${source.kind}-${source.areaId}/${rawHash}.json.gz`;
-    if (previous.last_sha256 !== rawHash) {
-      await env.RAW_RESULTS.put(rawKey, gzipSync(fetched.body), {
-        httpMetadata: { contentType: 'application/gzip' },
-        customMetadata: { url: source.url, sha256: rawHash, fetched_at: fetched.checkedAt,
-          etag: fetched.etag ?? '', last_modified: fetched.lastModified ?? '' },
-        onlyIf: { etagDoesNotMatch: '*' },
+    if (reusable && rawHash === previous.last_sha256) {
+      await markChecked(db, source, previous, lock, fetched.checkedAt, {
+        etag: fetched.etag, lastModified: fetched.lastModified, reportedAt: previous.last_reported_at!,
+        rawHash, rawKey: previous.last_raw_key!, sourceHash: previous.last_source_content_sha256,
       });
+      // The index must still be replayed after a scheduler retry.
+      const root = source.kind === 'summary'
+        ? validateDocument(JSON.parse(fetched.body), election, source) : null;
+      return { outcome: 'results_unchanged', root };
     }
-    const root = validateDocument(JSON.parse(fetched.body), election, source);
-    // The raw bytes are archived. Release the full response string before the
-    // many asynchronous D1 writes, especially with concurrent metro jobs.
-    fetched.body = '';
+    let root: Record<string, unknown> | null = validateDocument(JSON.parse(fetched.body), election, source);
     const reportedAt = new Date(String(root.ReportDate)).toISOString();
     const previousDate = Math.max(Date.parse(previous.reported_at ?? '') || 0, Date.parse(previous.last_reported_at ?? '') || 0);
     if (Date.parse(reportedAt) < previousDate) throw new Error('Rejected a source snapshot older than the last validated report');
-    const content = fingerprint(normalize(root, source, names));
-    const metadata = { etag: fetched.etag, lastModified: fetched.lastModified, reportedAt, rawHash, rawKey };
-    if (previous.content_snapshot_id === previous.active_snapshot_id && previous.content_sha256 === content.hash) {
-      await markChecked(db, source, previous, lock, fetched.checkedAt, metadata);
-      console.log(JSON.stringify({ event: 'source_checked', source: source.id, outcome: 'results_unchanged' }));
-      return { outcome: 'results_unchanged', root };
+    const sourceHash = sourceContentHash(fetched.body);
+    if (reusable && sourceHash === previous.last_source_content_sha256) {
+      await markChecked(db, source, previous, lock, fetched.checkedAt, {
+        etag: fetched.etag, lastModified: fetched.lastModified, reportedAt, rawHash,
+        rawKey: previous.last_raw_key!, sourceHash,
+      });
+      return { outcome: 'results_unchanged', root: source.kind === 'summary' ? root : null };
+    }
+    await reserveBudget(db, 'decoded_bytes', Buffer.byteLength(fetched.body));
+    const content = prepareRecords(normalize(root, source, names));
+    if (previous.object_key && previous.content_snapshot_id === previous.active_snapshot_id && previous.content_sha256 === content.hash) {
+      let rawKey = previous.last_raw_key!;
+      // Summary discovery contains details absent from the normalized national
+      // rows. Keep its latest validated body for conditional-request replays.
+      if (source.kind === 'summary') {
+        await reserveBudget(db, 'r2_writes', 1);
+        rawKey = `support/${source.year}/latest-summary.json.gz`;
+        await env.RAW_RESULTS.put(rawKey, gzipSync(fetched.body, { level: 1 }), {
+          httpMetadata: { contentType: 'application/gzip' }, customMetadata: { sha256: rawHash },
+        });
+      }
+      await markChecked(db, source, previous, lock, fetched.checkedAt,
+        { etag: fetched.etag, lastModified: fetched.lastModified, reportedAt, rawHash, rawKey, sourceHash });
+      if (!reusable) await db.prepare(`UPDATE result_bundles SET normalizer_version=?,party_directory_hash=?
+        WHERE source_id=? AND object_key=?`).bind(NORMALIZER_VERSION, partyDirectoryHash, source.id, previous.object_key).run();
+      return { outcome: 'results_unchanged', root: source.kind === 'summary' ? root : null };
     }
 
-    // Include the normalized digest too: changed directory labels or parser
-    // output must not mutate an existing raw-file snapshot's derived contents.
-    const snapshotId = `${source.id}:v${NORMALIZER_VERSION}:${rawHash}:${content.hash}`;
-    if (snapshotId !== previous.active_snapshot_id) await stageRows(db, source, snapshotId, normalize(root, source, names));
+    // Exact raw bytes are the first gzip member; each area is separately
+    // compressed and indexed. Both archive and serving data cost one R2 PUT.
+    const raw = gzipSync(fetched.body, { level: 1 });
+    fetched.body = '';
+    if (source.kind === 'municipality') root = null;
+    const pack = packRecords(raw, content);
+    const objectKey = `compact/v1/${source.year}/${source.kind}-${source.areaId}/${rawHash}-${content.hash}.pack`;
+    await reserveBudget(db, 'r2_writes', 1);
+    await env.RAW_RESULTS.put(objectKey, pack.body, {
+      httpMetadata: { contentType: 'application/octet-stream' },
+      customMetadata: { sha256: rawHash, fetched_at: fetched.checkedAt, raw_length: String(pack.rawLength), format: 'election-pack-v1' },
+    });
+    uploadedKey = objectKey;
+    const snapshotId = `${source.id}:v${NORMALIZER_VERSION}:pack1:${rawHash}:${content.hash}`;
+    const directoryId = previous.directory_snapshot_id ?? previous.active_snapshot_id ?? `${source.id}:directory`;
+    const existing = await db.prepare(`SELECT level,area_id AS id,province_id AS provinceId,
+      municipality_id AS municipalityId,ward_id AS wardId,name FROM area_results WHERE source_id=? AND snapshot_id=?`)
+      .bind(source.id, directoryId).all<DirectoryRecord>();
+    const directory = new Map(existing.results.map(row => [`${row.level}:${row.id}`, row]));
     const publishedAt = new Date().toISOString();
-    const result = await db.batch([
+    const guard = `EXISTS(SELECT 1 FROM sync_locks WHERE name=? AND token=? AND expires_at>?)
+      AND EXISTS(SELECT 1 FROM source_documents WHERE id=? AND active_snapshot_id IS ?)`;
+    const fence = [source.id, lock, publishedAt, source.id, previous.active_snapshot_id];
+    const statements: D1PreparedStatement[] = [];
+    for (const { key, directory: row } of content.records) {
+      const old = directory.get(key);
+      directory.delete(key);
+      if (old && Object.entries(row).every(([k, value]) => old[k as keyof DirectoryRecord] === value)) continue;
+      // Only additions, removals or changed area names/relationships write the
+      // directory. Ordinary counting updates never rewrite these rows.
+      statements.push(db.prepare(`INSERT INTO area_results
+        (snapshot_id,source_id,year,level,area_id,province_id,municipality_id,ward_id,name,reported_at,payload)
+        SELECT ?,?,?,?,?,?,?,?,?,?,'{}' WHERE ${guard}
+        ON CONFLICT(snapshot_id,level,area_id) DO UPDATE SET province_id=excluded.province_id,
+          municipality_id=excluded.municipality_id,ward_id=excluded.ward_id,name=excluded.name`)
+        .bind(directoryId, source.id, source.year, row.level, row.id, row.provinceId, row.municipalityId, row.wardId, row.name, reportedAt, ...fence));
+    }
+    for (const row of directory.values()) statements.push(db.prepare(`DELETE FROM area_results
+      WHERE snapshot_id=? AND level=? AND area_id=? AND ${guard}`).bind(directoryId, row.level, row.id, ...fence));
+    statements.push(
       db.prepare(`INSERT OR IGNORE INTO snapshots(id,source_id,year,sha256,fetched_at,reported_at,raw_path,record_count)
-        VALUES (?,?,?,?,?,?,?,?)`).bind(snapshotId, source.id, source.year, rawHash, fetched.checkedAt, reportedAt, rawKey, content.count),
+        VALUES (?,?,?,?,?,?,?,?)`).bind(snapshotId, source.id, source.year, rawHash, fetched.checkedAt, reportedAt, objectKey, content.count),
+      db.prepare(`INSERT INTO result_bundles(source_id,directory_snapshot_id,object_key,raw_length,index_json,normalizer_version,party_directory_hash)
+        SELECT ?,?,?,?,?,?,? WHERE ${guard}
+        ON CONFLICT(source_id) DO UPDATE SET previous_object_key=result_bundles.object_key,
+          previous_index_json=result_bundles.index_json,object_key=excluded.object_key,
+          raw_length=excluded.raw_length,index_json=excluded.index_json,
+          normalizer_version=excluded.normalizer_version,party_directory_hash=excluded.party_directory_hash`)
+        .bind(source.id, directoryId, objectKey, pack.rawLength, pack.indexJson, NORMALIZER_VERSION, partyDirectoryHash, ...fence),
       db.prepare(`UPDATE source_documents SET active_snapshot_id=?,etag=?,last_modified=?,last_checked_at=?,last_success_at=?,last_error=NULL
-        WHERE id=? AND active_snapshot_id IS ?
-        AND EXISTS(SELECT 1 FROM sync_locks WHERE name=? AND token=? AND expires_at>?)
-        AND (SELECT COUNT(*) FROM area_results WHERE snapshot_id=?)=?`)
+        WHERE id=? AND active_snapshot_id IS ? AND EXISTS(SELECT 1 FROM sync_locks WHERE name=? AND token=? AND expires_at>?)`)
         .bind(snapshotId, fetched.etag, fetched.lastModified, fetched.checkedAt, fetched.checkedAt,
-          source.id, previous.active_snapshot_id, source.id, lock, publishedAt, snapshotId, content.count),
+          source.id, previous.active_snapshot_id, source.id, lock, publishedAt),
       db.prepare(`UPDATE sync_state SET content_snapshot_id=?,content_sha256=?,last_observed_at=?,last_reported_at=?,
-        last_sha256=?,last_raw_key=?,last_published_at=?,consecutive_failures=0,retry_after=NULL WHERE source_id=?
-        AND EXISTS(SELECT 1 FROM source_documents WHERE id=? AND active_snapshot_id=? AND last_success_at=?)`)
-        .bind(snapshotId, content.hash, fetched.checkedAt, reportedAt, rawHash, rawKey, publishedAt,
-          source.id, source.id, snapshotId, fetched.checkedAt),
-    ]);
-    if (result[1]!.meta.changes !== 1) throw new Error('Snapshot publication failed: incomplete staging or source changed concurrently');
-    console.log(JSON.stringify({ event: 'snapshot_published', source: source.id, snapshot_id: snapshotId,
-      records: content.count, source_reported_at: reportedAt, published_at: publishedAt }));
+        last_sha256=?,last_raw_key=?,last_source_content_sha256=?,last_published_at=?,consecutive_failures=0,retry_after=NULL WHERE source_id=?
+        AND EXISTS(SELECT 1 FROM source_documents WHERE id=? AND active_snapshot_id=?)`)
+        .bind(snapshotId, content.hash, fetched.checkedAt, reportedAt, rawHash, objectKey, sourceHash, publishedAt, source.id, source.id, snapshotId),
+    );
+    const result = await db.batch(statements);
+    if (result[result.length - 2]!.meta.changes !== 1) throw new Error('Snapshot publication lease or source pointer changed');
+    published = true;
+    // Retain current + previous packs, including their exact raw source bytes.
+    // Earlier raw/ archives are untouched. Deletes have no R2 operation charge.
+    if (previous.previous_object_key?.startsWith('compact/v1/') && previous.previous_object_key !== objectKey) {
+      try { await env.RAW_RESULTS.delete(previous.previous_object_key); }
+      catch (error) { console.error(JSON.stringify({ event: 'pack_cleanup_failed', source: source.id, error: String(error) })); }
+    }
+    console.log(JSON.stringify({ event: 'snapshot_published', storage: 'r2_pack', source: source.id, snapshot_id: snapshotId,
+      records: content.count, pack_bytes: pack.body.length, d1_rows_written: result.reduce((sum, r) => sum + r.meta.rows_written, 0),
+      source_reported_at: reportedAt, published_at: publishedAt }));
     return { outcome: 'published', root };
   } finally {
-    // Keep only active normalized rows. Immutable raw documents and snapshot
-    // metadata remain available; failed staging never appears in API queries.
-    try {
-      await db.prepare(`DELETE FROM area_results WHERE source_id=?
-        AND snapshot_id IS NOT (SELECT active_snapshot_id FROM source_documents WHERE id=?)
-        AND EXISTS(SELECT 1 FROM sync_locks WHERE name=? AND token=? AND expires_at>?)`)
-        .bind(source.id, source.id, source.id, lock, new Date().toISOString()).run();
-    } finally { await releaseLock(db, source.id, lock); }
+    if (uploadedKey && !published) {
+      // A failed transaction must not leak staged blobs or remove a pack another
+      // publisher already made visible. Failed cleanup leaves data, never loss.
+      try {
+        const active = await db.prepare('SELECT 1 AS present FROM result_bundles WHERE object_key=? OR previous_object_key=?')
+          .bind(uploadedKey, uploadedKey).first();
+        if (!active) await env.RAW_RESULTS.delete(uploadedKey);
+      } catch (error) { console.error(JSON.stringify({ event: 'unpublished_pack_cleanup_failed', error: String(error) })); }
+    }
+    await releaseLock(db, source.id, lock);
   }
 }

@@ -14,6 +14,20 @@ const election = ELECTIONS.find((value) => value.year === 2026)!;
 const source = sourceFor(election, '9909');
 const timestamp = '2026-11-05T15:00:00+02:00';
 
+test('reopening a local store preserves data after additive schema migrations', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'election-migration-test-'));
+  try {
+    const first = openStore(directory);
+    first.prepare('INSERT INTO elections VALUES (2026,1887,\'provisional\')').run();
+    first.close();
+    const reopened = openStore(directory);
+    try {
+      assert.equal(reopened.prepare('SELECT COUNT(*) AS n FROM elections').get()!.n, 1);
+      assert.ok(reopened.prepare('PRAGMA table_info(sync_state)').all().some(row => row.name === 'last_source_content_sha256'));
+    } finally { reopened.close(); }
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
 test('SQL export preserves quotes, newlines, Unicode, and SQL-like text as data', () => {
   const db = new DatabaseSync(':memory:');
   try {

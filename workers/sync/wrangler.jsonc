@@ -9,6 +9,7 @@
   "preview_urls": false,
   "triggers": { "crons": ["* * * * *"] },
   "limits": { "cpu_ms": 30000 },
+  "tail_consumers": [{ "service": "sa-election-data-usage" }],
   "d1_databases": [{
     "binding": "RESULTS_DB",
     "database_name": "sa-election-data",

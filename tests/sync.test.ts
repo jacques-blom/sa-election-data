@@ -3,16 +3,20 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { gunzipSync } from 'node:zlib';
 import { getPlatformProxy } from 'wrangler';
 import { sourceFor } from '../src/lib/data/catalogue.ts';
+import { migrateD1 } from '../scripts/lib/migrations.ts';
 import { fetchDocument, UpstreamError } from '../src/lib/data/fetch.ts';
 import { normalize } from '../src/lib/data/normalize.ts';
 import { syncHealth } from '../src/lib/data/sync-health.ts';
-import { fingerprint, retrySeconds, type RefreshJob } from '../workers/sync/helpers.ts';
+import { fingerprint, sourceContentHash, retrySeconds, refreshJobs, type RefreshJob } from '../workers/sync/helpers.ts';
+import { archivedRaw } from '../workers/sync/pack.ts';
+import { hydrateResults, joinedResults, resultColumns } from '../src/lib/data/packed-results.ts';
+import { budgetPeriod, SYNC_LIMITS, BudgetExhausted, reserveBudget, cpuBudgetReady } from '../workers/sync/budget.ts';
+import { recordImporterCpu } from '../workers/usage/index.ts';
 import { election, refreshSource } from '../workers/sync/publish.ts';
 import { enqueueDue, scheduledSync } from '../workers/sync/schedule.ts';
-import { acquireLock, clearPending, readState, recordFailure, releaseLock, waitForFetchSlot } from '../workers/sync/state.ts';
+import { acquireLock, clearPending, ensureSource, readState, recordFailure, releaseLock, waitForFetchSlot } from '../workers/sync/state.ts';
 
 const source = sourceFor(election, '9909');
 const initialTime = '2026-11-05T13:00:00Z';
@@ -39,6 +43,15 @@ test('backoff respects Retry-After and bounds exponential retries', () => {
   assert.equal(retrySeconds(new Error('outage'), 10), 900);
 });
 
+test('source fingerprints ignore valid report clocks and preserve invalid dates and quoted text', () => {
+  const first = JSON.stringify(fixture());
+  assert.equal(sourceContentHash(first), sourceContentHash(JSON.stringify(fixture('2026-11-05T13:02:00Z'))));
+  assert.notEqual(sourceContentHash(first), sourceContentHash(JSON.stringify(fixture(initialTime, 29))));
+  assert.notEqual(sourceContentHash(first), sourceContentHash(JSON.stringify(fixture('invalid'))));
+  const quoted = (time: string) => JSON.stringify({ Name: `A \"ReportDate\":\"${time}\" party` });
+  assert.notEqual(sourceContentHash(quoted(initialTime)), sourceContentHash(quoted('2026-11-05T13:02:00Z')));
+});
+
 test('live ingestion uses isolated D1/R2 bindings and preserves publication integrity', async (t) => {
   const directory = mkdtempSync(join(tmpdir(), 'election-sync-test-'));
   const proxy = await getPlatformProxy<SyncEnv>({ configPath: 'workers/sync/wrangler.jsonc',
@@ -47,9 +60,9 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
   const sent: RefreshJob[] = [];
   const env: SyncEnv = { ...proxy.env, RESULT_JOBS: {
     metrics: async () => ({ backlogCount: sent.length, backlogBytes: 0 }),
-    send: async (body) => { sent.push(body as RefreshJob); return { metadata: { metrics: { backlogCount: sent.length, backlogBytes: 0 } } }; },
+    send: async (body) => { sent.push(...refreshJobs(body)!); return { metadata: { metrics: { backlogCount: sent.length, backlogBytes: 0 } } }; },
     sendBatch: async (messages) => {
-      for (const message of messages) sent.push(message.body as RefreshJob);
+      for (const message of messages) sent.push(...refreshJobs(message.body)!);
       return { metadata: { metrics: { backlogCount: sent.length, backlogBytes: 0 } } };
     },
   } };
@@ -71,6 +84,7 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
     for (const file of readdirSync('migrations').filter((name) => name.endsWith('.sql')).sort()) {
       await db.batch(readFileSync(`migrations/${file}`, 'utf8').split(';').map((sql) => sql.trim()).filter(Boolean).map((sql) => db.prepare(sql)));
     }
+    await migrateD1(db); // Reopening an existing store must tolerate additive columns.
     await db.prepare('INSERT INTO elections VALUES (2026,1887,\'provisional\')').run();
     const names = new Map<string, string>();
     let firstId: string | null = null;
@@ -80,8 +94,7 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       const state = await readState(db, source);
       firstId = state.active_snapshot_id;
       assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM area_results').first<{ n: number }>())!.n, 3);
-      const archive = await env.RAW_RESULTS.get(state.last_raw_key!);
-      assert.equal(gunzipSync(await archive!.arrayBuffer()).toString(), JSON.stringify(document));
+      assert.equal(await archivedRaw(env.RAW_RESULTS, state.last_raw_key!, state.raw_length), JSON.stringify(document));
       const uploaded = (await env.RAW_RESULTS.head(state.last_raw_key!))!.uploaded.toISOString();
       assert.equal((await refreshSource(env, source, names)).outcome, 'results_unchanged');
       assert.equal((await env.RAW_RESULTS.head(state.last_raw_key!))!.uploaded.toISOString(), uploaded);
@@ -89,6 +102,7 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
     });
 
     await t.test('clock-only regeneration retains the result snapshot and advances observed source time', async () => {
+      const beforeBytes = await db.prepare('SELECT SUM(decoded_bytes) AS bytes FROM sync_budget').first();
       document = fixture('2026-11-05T13:02:00Z');
       etag = 'clock-only';
       assert.equal((await refreshSource(env, source, names)).outcome, 'results_unchanged');
@@ -96,6 +110,10 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       assert.equal(state.active_snapshot_id, firstId);
       assert.equal(state.last_reported_at, '2026-11-05T13:02:00.000Z');
       assert.equal(state.reported_at, '2026-11-05T13:00:00.000Z');
+      assert.deepEqual(await db.prepare('SELECT SUM(decoded_bytes) AS bytes FROM sync_budget').first(), beforeBytes);
+      document = fixture('2026-11-05T13:02:00Z');
+      document.WardResults[0]!.ReportDate = 'invalid';
+      await assert.rejects(refreshSource(env, source, names), /Invalid ReportDate/);
       document = fixture('2026-11-05T13:01:00Z', 29);
       await assert.rejects(refreshSource(env, source, names), /older/);
       assert.equal((await readState(db, source)).active_snapshot_id, firstId);
@@ -111,8 +129,12 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       await db.prepare('DROP TRIGGER fail_publication').run();
       assert.equal((await refreshSource(env, source, names)).outcome, 'published');
       assert.notEqual((await readState(db, source)).active_snapshot_id, firstId);
-      const row = await db.prepare("SELECT payload FROM area_results WHERE level='municipality'").first<{ payload: string }>();
-      assert.equal(JSON.parse(row!.payload).parties[0].votes.source_total, 29);
+      const rows = await db.prepare(`SELECT ${resultColumns} ${joinedResults} WHERE r.level='municipality'`).all<{
+        level: 'municipality'; area_id: string; source_id: string; bundle_key: string; payload: string;
+        reported_at: string; name: string;
+      }>();
+      const row = (await hydrateResults(db, env.RAW_RESULTS, rows.results))[0]!;
+      assert.equal(JSON.parse(row.payload).parties[0].votes.source_total, 29);
     });
 
     await t.test('conditional requests update freshness and outages keep the last good snapshot', async () => {
@@ -165,6 +187,20 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       assert.ok(slots[2]! - slots[1]! >= 450);
     });
 
+    await t.test('a recently checked legacy source is still queued for compact migration', async () => {
+      const legacy = sourceFor(election, '9908');
+      await ensureSource(db, legacy);
+      await db.prepare('UPDATE source_documents SET active_snapshot_id=?,last_success_at=? WHERE id=?')
+        .bind('legacy-bootstrap', new Date().toISOString(), legacy.id).run();
+      await db.prepare('UPDATE sync_state SET content_snapshot_id=? WHERE source_id=?').bind('legacy-bootstrap', legacy.id).run();
+      const before = sent.length;
+      await enqueueDue(env);
+      assert.ok(sent.slice(before).some(job => job.municipalityId === '9908'));
+      for (const job of sent.slice(before)) await clearPending(db, sourceFor(election, job.municipalityId).id, job.token);
+      await db.batch([db.prepare('DELETE FROM sync_state WHERE source_id=?').bind(legacy.id),
+        db.prepare('DELETE FROM source_documents WHERE id=?').bind(legacy.id)]);
+    });
+
     await t.test('summary failures do not stop reconciliation of known municipalities', async () => {
       await env.RAW_RESULTS.put('support/party-directory/current.json', JSON.stringify([{ ID: 7, PartyFullName: 'Example party' }]), {
         customMetadata: { fetched_at: new Date().toISOString() },
@@ -179,6 +215,64 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
     await t.test('oversized source bodies are rejected before publication', async () => {
       httpStatus = 200;
       await assert.rejects(fetchDocument(source, {}, { maxBytes: 32 }), /document limit/);
+    });
+
+    await t.test('a counting update never rewrites directory rows and retains only two source packs', async () => {
+      httpStatus = 200;
+      const before = await db.prepare('SELECT * FROM area_results ORDER BY area_id').all();
+      for (const [time, votes] of [['2026-11-05T13:04:00Z', 31], ['2026-11-05T13:05:00Z', 32]] as const) {
+        document = fixture(time, votes);
+        await refreshSource(env, source, names);
+      }
+      assert.deepEqual((await db.prepare('SELECT * FROM area_results ORDER BY area_id').all()).results, before.results);
+      const objects = await env.RAW_RESULTS.list({ prefix: 'compact/v1/2026/municipality-9909/' });
+      assert.equal(objects.objects.length, 2);
+      const state = await readState(db, source);
+      assert.equal(await archivedRaw(env.RAW_RESULTS, state.last_raw_key!, state.raw_length), JSON.stringify(document));
+    });
+
+    await t.test('party-directory changes invalidate identical-file shortcuts without publishing unused labels', async () => {
+      const before = (await readState(db, source)).active_snapshot_id;
+      assert.equal((await refreshSource(env, source, new Map([['7', 'Unused label']]))).outcome, 'results_unchanged');
+      assert.equal((await readState(db, source)).active_snapshot_id, before);
+      document = fixture('2026-11-05T13:06:00Z', 32);
+      document.PartyBallotResults[0]!.Name = '';
+      assert.equal((await refreshSource(env, source, new Map([['7', 'First directory name']]))).outcome, 'published');
+      const first = (await readState(db, source)).active_snapshot_id;
+      assert.equal((await refreshSource(env, source, new Map([['7', 'Corrected directory name']]))).outcome, 'published');
+      assert.notEqual((await readState(db, source)).active_snapshot_id, first);
+      assert.equal(lastHeaders!.get('If-None-Match'), null);
+    });
+
+    await t.test('CPU telemetry gates ingestion, fails closed when stale, and ignores unrelated workers', async () => {
+      assert.equal(await cpuBudgetReady(db), false);
+      await recordImporterCpu(db, [{ scriptName: 'sa-election-data-sync', cpuTime: 1.1 },
+        { scriptName: 'sa-election-data-sync', cpuTime: 2.3 }, { scriptName: 'unrelated', cpuTime: 1000 }]);
+      assert.equal((await db.prepare('SELECT SUM(cpu_ms) AS cpu FROM sync_budget').first<{cpu:number}>())!.cpu, 5);
+      assert.equal(await cpuBudgetReady(db), true);
+      await db.prepare("UPDATE sync_budget SET cpu_meter_seen_at='2000-01-01'").run();
+      assert.equal(await cpuBudgetReady(db), false);
+      await recordImporterCpu(db, [{ scriptName: 'sa-election-data-sync', cpuTime: 0 }]);
+      assert.equal(await cpuBudgetReady(db), true);
+      await assert.rejects(recordImporterCpu(db, [{ scriptName: 'sa-election-data-sync', cpuTime: NaN }]), /Invalid CPU/);
+    });
+
+    await t.test('budget reservations are atomic and exhaustion preserves the published result', async () => {
+      // Crossing a date/month boundary does not create a second allowance.
+      const yesterday = budgetPeriod(new Date(Date.now() - 86400_000));
+      await db.prepare('INSERT INTO sync_budget(period,checks) VALUES (?,?)').bind(yesterday, SYNC_LIMITS.checks - 1).run();
+      await db.prepare('UPDATE sync_budget SET checks=0 WHERE period=?').bind(budgetPeriod()).run();
+      const attempts = await Promise.allSettled([reserveBudget(db, 'checks', 1), reserveBudget(db, 'checks', 1)]);
+      assert.equal(attempts.filter(r => r.status === 'fulfilled').length, 1);
+      const failed = attempts.find(r => r.status === 'rejected') as PromiseRejectedResult;
+      assert.ok(failed.reason instanceof BudgetExhausted);
+      const previous = (await readState(db, source)).active_snapshot_id;
+      await assert.rejects(refreshSource(env, source, names), BudgetExhausted);
+      assert.equal((await readState(db, source)).active_snapshot_id, previous);
+      assert.equal((await syncHealth(db)).status, 'budget_paused');
+      await db.prepare('UPDATE sync_budget SET cpu_ms=? WHERE period=?').bind(SYNC_LIMITS.cpu_ms, budgetPeriod()).run();
+      assert.equal(await cpuBudgetReady(db), false);
+      assert.equal((await syncHealth(db)).ingestion_budget.usage!.exhausted_resource, 'cpu_ms');
     });
   } finally {
     mocked.mock.restore();

@@ -7,7 +7,11 @@ export type SourceState = {
   reported_at: string | null; last_success_at: string | null;
   content_snapshot_id: string | null; content_sha256: string | null;
   last_reported_at: string | null; last_sha256: string | null; last_raw_key: string | null;
+  last_source_content_sha256: string | null;
   pending_token: string | null; hint_sha256: string | null; consecutive_failures: number;
+  object_key: string | null; previous_object_key: string | null;
+  directory_snapshot_id: string | null; raw_length: number | null;
+  normalizer_version: number | null; party_directory_hash: string | null;
 };
 
 export async function ensureSource(db: D1Database, source: Source) {
@@ -20,9 +24,11 @@ export async function ensureSource(db: D1Database, source: Source) {
 
 export async function readState(db: D1Database, source: Source) {
   const value = await db.prepare(`SELECT d.active_snapshot_id,d.etag,d.last_modified,d.last_success_at,
-    s.reported_at,t.content_snapshot_id,t.content_sha256,t.last_reported_at,t.last_sha256,t.last_raw_key,
-    t.pending_token,t.hint_sha256,t.consecutive_failures FROM source_documents d
+    s.reported_at,t.content_snapshot_id,t.content_sha256,t.last_reported_at,t.last_sha256,t.last_raw_key,t.last_source_content_sha256,
+    t.pending_token,t.hint_sha256,t.consecutive_failures,
+    b.object_key,b.previous_object_key,b.directory_snapshot_id,b.raw_length,b.normalizer_version,b.party_directory_hash FROM source_documents d
     LEFT JOIN snapshots s ON s.id=d.active_snapshot_id LEFT JOIN sync_state t ON t.source_id=d.id
+    LEFT JOIN result_bundles b ON b.source_id=d.id
     WHERE d.id=?`).bind(source.id).first<SourceState>();
   if (!value) throw new Error(`Source not registered: ${source.id}`);
   return value;

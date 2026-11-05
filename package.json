@@ -14,7 +14,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "cf:types": "wrangler types && wrangler types sync-worker-configuration.d.ts --config workers/sync/wrangler.jsonc --env-interface SyncEnv --include-runtime false",
+    "cf:types": "wrangler types && wrangler types sync-worker-configuration.d.ts --config workers/sync/wrangler.jsonc --env-interface SyncEnv --include-runtime false && wrangler types usage-worker-configuration.d.ts --config workers/usage/wrangler.jsonc --env-interface UsageEnv --include-runtime false",
     "data:ingest": "node scripts/ingest.ts",
     "data:reprocess": "node scripts/reprocess.ts",
     "data:load": "node scripts/load-local.ts",
@@ -24,7 +24,9 @@
     "deploy": "pnpm build && wrangler deploy --profile personal",
     "sync:dev": "wrangler dev --config workers/sync/wrangler.jsonc --test-scheduled",
     "sync:dry-run": "wrangler deploy --config workers/sync/wrangler.jsonc --dry-run",
-    "sync:deploy": "wrangler deploy --config workers/sync/wrangler.jsonc --profile personal"
+    "sync:deploy": "wrangler deploy --config workers/sync/wrangler.jsonc --profile personal",
+    "usage:report": "node scripts/usage.ts",
+    "usage:deploy": "wrangler deploy --config workers/usage/wrangler.jsonc --profile personal"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.4",

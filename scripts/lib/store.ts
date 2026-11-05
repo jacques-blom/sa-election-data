@@ -1,17 +1,22 @@
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Election, Source } from '../../src/lib/data/catalogue.ts';
 import type { AreaRecord } from '../../src/lib/data/normalize.ts';
 import { NORMALIZER_VERSION } from '../../src/lib/data/normalize.ts';
+import { addedColumn, migrationFiles } from './migrations.ts';
 
 export const DATA_DIR = resolve('.data');
 export function openStore(directory = DATA_DIR) {
   mkdirSync(directory, { recursive: true });
   const db = new DatabaseSync(resolve(directory, 'elections.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');
-  for (const file of readdirSync('migrations').filter((name) => name.endsWith('.sql')).sort()) {
-    db.exec(readFileSync(resolve('migrations', file), 'utf8'));
+  for (const file of migrationFiles()) {
+    for (const sql of file.statements) {
+      const added = addedColumn(sql);
+      if (added && db.prepare(`PRAGMA table_info(${added.table})`).all().some(row => row.name === added.column)) continue;
+      db.exec(sql);
+    }
   }
   return db;
 }

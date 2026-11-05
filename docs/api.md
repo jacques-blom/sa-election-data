@@ -92,7 +92,8 @@ often reflect later regeneration of the files, not the date of the election.
 
 `latest_document_reported_at` and `latest_document_sha256` describe the latest
 validated source document. `published_at` is when changed results were made
-visible in D1. When the IEC regenerates only timestamps, the immutable result
+visible through the API. Live payloads use indexed R2 packs; D1 holds their
+publication pointers and the area directory. When the IEC regenerates only timestamps, the immutable result
 snapshot and its `area_reported_at` remain unchanged; the latest-document fields
 advance. `null` publication/observation fields on historical backfills mean that
 the live publisher did not create those records.
@@ -105,6 +106,20 @@ check; municipality, ward and voting-district results after fifteen minutes.
 `stale_after_seconds` gives the applicable threshold. Failed checks keep the last
 good results with `refresh_failed`. `/api/v1/sync` reports degraded health if the
 scheduler or any sources fall behind, or upstream backoff is active.
+
+`budget_paused` means an ingestion operation allowance was exhausted. The last
+published results remain available and retain their real timestamps. The sync
+endpoint exposes the rolling 32-day counters, measured importer CPU and its
+telemetry heartbeat. Sync pauses if the CPU meter is stale. These are not an
+account-wide billing cap. Current API responses cache for 15 seconds, historical
+responses for 24 hours. The Worker also uses the edge Cache API to avoid repeated
+D1 and R2 work. Conditional requests still use ETags.
+
+Raw-byte retention is bounded: each live source keeps its current and previous
+published pack, including the exact IEC document. Older snapshot IDs, hashes and
+timestamps remain in the provenance catalogue, but their raw files may have
+expired. Clock-only municipality rebuilds update observation metadata without
+creating another archived pack. Existing historical archives are unchanged.
 
 ### Ballots and party lists
 

@@ -1,6 +1,7 @@
 import { DETAIL_DISCOVERY_SUPPLEMENTS, sourceFor } from '../../src/lib/data/catalogue.ts';
 import { discoverMunicipalities } from '../../src/lib/data/normalize.ts';
-import { hintHash, LIVE_YEAR, PENDING_TIMEOUT_MS, RECHECK_MS, type RefreshJob } from './helpers.ts';
+import { hintHash, LIVE_YEAR, PENDING_TIMEOUT_MS, RECHECK_MS, JOBS_PER_MESSAGE, type RefreshJob, type RefreshBatch } from './helpers.ts';
+import { reserveBudget } from './budget.ts';
 import { election, partyNames, refreshSource } from './publish.ts';
 import { acquireLock, backoffSeconds, clearPending, ensureSource, recordFailure, releaseLock } from './state.ts';
 
@@ -38,6 +39,7 @@ export async function enqueueDue(env: SyncEnv) {
     AND (s.retry_after IS NULL OR s.retry_after<=?)
     AND (s.pending_token IS NULL OR s.pending_since<=?)
     AND (d.last_success_at IS NULL OR d.last_success_at<=? OR s.content_snapshot_id IS NULL
+      OR NOT EXISTS(SELECT 1 FROM result_bundles b WHERE b.source_id=d.id)
       OR s.hint_sha256 IS NOT s.applied_hint_sha256)
     ORDER BY (s.hint_sha256 IS NOT s.applied_hint_sha256) DESC,COALESCE(d.last_success_at,'') ASC,d.id`)
     .bind(LIVE_YEAR, now, pendingCutoff, cutoff).all<{ id: string; area_id: string; hint_sha256: string | null }>();
@@ -52,7 +54,12 @@ export async function enqueueDue(env: SyncEnv) {
     const ready = jobs.filter((_, i) => claimed[i]!.meta.changes === 1);
     if (!ready.length) continue;
     try {
-      await env.RESULT_JOBS.sendBatch(ready.map((body) => ({ body, contentType: 'json' as const })));
+      const messages: { body: RefreshBatch; contentType: 'json' }[] = [];
+      for (let i = 0; i < ready.length; i += JOBS_PER_MESSAGE) {
+        messages.push({ body: { version: 1, jobs: ready.slice(i, i + JOBS_PER_MESSAGE) }, contentType: 'json' });
+      }
+      await reserveBudget(db, 'queue_messages', messages.length);
+      await env.RESULT_JOBS.sendBatch(messages);
       enqueued += ready.length;
     } catch (error) {
       // A failed send must not suppress this source until the pending timeout.

@@ -68,7 +68,7 @@ window was 16:10–16:13 SAST on 2026-11-05.
 Use this bootstrap flow for initial loading, not to overwrite an actively updating
 database with an old export. Historical raw gzip snapshots remain in the devbox
 archive; the SQL file contains their provenance and relative paths, not their raw
-documents. All new live fetches are archived in R2 before publication. Subsequent
+documents. Changed live results are packed with their exact source bytes in R2 before publication. Compact retention keeps the current and previous source versions. Subsequent
 live updates are written by the ingestion Worker,
 not by repeatedly importing this bootstrap file. Cloudflare documents the SQL
 import flow and its 5 GiB file limit in its
@@ -113,16 +113,20 @@ on the site at `/api` (HTML) and `/api.md` (Markdown).
    Each municipality becomes due for an independent check after ten minutes,
    catching detail changes the index did not reveal, including corrections to
    completed municipalities. A failed summary fetch does not prevent these checks.
-3. Store each fetched document and response metadata in R2 before publication.
-   Validate with the shared parser. Compare normalized result fields separately from
-   generation timestamps, so clock-only rebuilds do not rewrite every D1 row or
-   create misleading "votes changed" events.
+3. Validate with the shared parser and compare normalized results separately from
+   generation timestamps. Pack changed results and exact source bytes into one R2
+   object with an index for individual-area range reads. Identical files and
+   clock-only rebuilds skip publication; they update freshness metadata.
 4. Serialize publication per source and use a compare-and-swap on its active
    version. A D1 lease prevents concurrent publication of the same source;
-   bounded row batches stage the snapshot before a transactional pointer switch.
+   the complete R2 object is uploaded before a transactional D1 pointer/index switch.
+   Existing directory rows are reused. A normal publication writes six D1 rows;
+   the number of wards and voting districts does not multiply that cost.
    Retried jobs are harmless. Reject reports older than the last validated
    document, including timestamp-only rebuilds; allow newer downward corrections.
-5. Serve versioned results from D1. Public API responses cache for 15 seconds.
+5. Serve live results using D1 directory/pointer lookups and small R2 range reads.
+   Historical results continue to use D1. The Worker caches successful API responses
+   for 15 seconds for live data and 24 hours for historical data.
    `/api/v1/sync` exposes the heartbeat and latest publication. A future browser
    results UI can poll this lightweight endpoint every 15–30 seconds;
    client traffic never increases requests to the IEC. SSE can follow later.
@@ -145,9 +149,10 @@ All resources belong to the personal Blom Media LLC account:
 
 - `sa-election-data`: Astro SSR Worker, public read-only API and placeholder site.
 - `sa-election-data-sync`: scheduled/queue Worker with public HTTP routes disabled.
+- `sa-election-data-usage`: private Tail Worker recording importer CPU for budget enforcement.
 - `sa-election-data`: the existing D1 database, shared by both Workers.
-- `sa-election-data-raw`: private R2 bucket for live gzip snapshots and the party directory.
-- `sa-election-data-refresh`: up to three concurrent jobs, one message per consumer invocation.
+- `sa-election-data-raw`: private R2 bucket for indexed result packs, exact source bytes and the party directory.
+- `sa-election-data-refresh`: three concurrent consumers; up to eight source jobs per message, processed sequentially.
 - `sa-election-data-failed`: dead-letter queue after five retries.
 
 The public service is at <https://sa-election-data.jacques.workers.dev>.
@@ -159,13 +164,24 @@ Apply additive schema changes before deploying code that reads them:
 
 ```sh
 pnpm exec wrangler d1 execute RESULTS_DB --remote --profile personal --config wrangler.jsonc --file migrations/0002_sync.sql --yes
+pnpm exec wrangler d1 execute RESULTS_DB --remote --profile personal --config wrangler.jsonc --file migrations/0003_compact_results.sql --yes
+pnpm exec wrangler d1 execute RESULTS_DB --remote --profile personal --config wrangler.jsonc --file migrations/0004_cpu_budget.sql --yes
+pnpm exec wrangler d1 execute RESULTS_DB --remote --profile personal --config wrangler.jsonc --file migrations/0005_source_fingerprint.sql --yes
 pnpm check
 pnpm test
 pnpm sync:dry-run
 pnpm deploy:dry-run
-pnpm sync:deploy
+pnpm usage:deploy
 pnpm deploy
+pnpm sync:deploy
 ```
+
+Deploy the compatible public reader before the compact publisher. Once sources
+have migrated, do not roll back to the old D1-only reader/publisher. Keep the new
+reader and fix or roll forward the publisher instead.
+
+See [the operating budget](cost-budget.md) for operation ceilings and bounded raw
+retention. Budget exhaustion pauses ingestion and is visible in sync health.
 
 Cron changes can take up to fifteen minutes to propagate. Watch
 `/api/v1/sync` and the ingestion Worker's logs for real runs rather than treating

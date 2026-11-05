@@ -4,6 +4,7 @@ dist/
 .astro/
 worker-configuration.d.ts
 sync-worker-configuration.d.ts
+usage-worker-configuration.d.ts
 
 # local Workers state and generated deployment configuration
 .wrangler/

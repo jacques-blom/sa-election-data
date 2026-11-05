@@ -13,12 +13,12 @@ Public service: [placeholder site](https://sa-election-data.jacques.workers.dev)
 
 This repository currently contains an Astro SSR application configured for
 Cloudflare Workers, a local importer for IEC municipal election results from
-2000–2026, a read-only REST API backed by D1, and a scheduled ingestion Worker for
+2000–2026, a read-only REST API backed by D1 and indexed R2 result files, and a scheduled ingestion Worker for
 the 2026 count. The historical backfill was loaded and verified in local D1 and
 Jacques's personal Cloudflare D1 database. The public site is a placeholder;
 the results explorer, geographic lookup and Recent updates feed remain to be built.
 
-See [ingestion and live updates](docs/ingestion.md) and the
+See the [$5 operating budget](docs/cost-budget.md), [ingestion and live updates](docs/ingestion.md) and the
 [API contract](docs/api.md). The browsable `/api` page and agent-friendly `/api.md`
 are generated from that same Markdown source. Raw snapshots and imported databases live in
 `.data/` and `.wrangler/`, outside Git.

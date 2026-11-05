@@ -1,7 +1,7 @@
-import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { getPlatformProxy } from 'wrangler';
 import { openStore } from './lib/store.ts';
+import { migrateD1 } from './lib/migrations.ts';
 
 const db = openStore();
 // This API emulates bindings locally. Remote bindings are explicitly disabled.
@@ -16,10 +16,7 @@ function insert(table: string, row: Record<string, unknown>, mode: 'IGNORE' | 'R
 }
 
 try {
-  for (const file of readdirSync('migrations').filter((name) => name.endsWith('.sql')).sort()) {
-    const statements = readFileSync(resolve('migrations', file), 'utf8').split(';').map((sql) => sql.trim()).filter(Boolean);
-    await target.batch(statements.map((sql) => target.prepare(sql)));
-  }
+  await migrateD1(target);
   const existing = await target.prepare('SELECT id, active_snapshot_id FROM source_documents').all<{ id: string; active_snapshot_id: string | null }>();
   const active = new Map(existing.results.map((row) => [row.id, row.active_snapshot_id]));
   for (const election of db.prepare('SELECT * FROM elections ORDER BY year DESC').all()) {

@@ -12,16 +12,28 @@ export function sha256(value: string) {
   return createHash('sha256').update(value).digest('hex');
 }
 
+// Use only after JSON parsing/validation. Preserve every byte except valid
+// ReportDate string values. Invalid dates, votes, names and all other fields
+// change this hash and must pass the full normalizer before being accepted.
+export function sourceContentHash(body: string) {
+  return sha256(body.replace(/("ReportDate"\s*:\s*)"([^"\\]*)"/g,
+    (match, key: string, value: string) => Number.isFinite(Date.parse(value)) ? `${key}""` : match));
+}
+
+export function recordHash({ reportedAt: _reportedAt, ...record }: AreaRecord) {
+  const payload = { ...record.payload, parties: [...record.payload.parties].sort((a, b) =>
+    a.source_entry_id.localeCompare(b.source_entry_id)) };
+  return sha256(JSON.stringify({ ...record, payload }));
+}
+
 // Normalize one row at a time. Metro documents are too large to keep a second
 // complete normalized copy in a 128 MiB Worker isolate.
 export function fingerprint(records: Iterable<AreaRecord>) {
   const hashes = new Map<string, string>();
-  for (const { reportedAt: _reportedAt, ...record } of records) {
+  for (const record of records) {
     const key = `${record.level}:${record.id}`;
     if (hashes.has(key)) throw new Error(`Duplicate area in source: ${key}`);
-    const payload = { ...record.payload, parties: [...record.payload.parties].sort((a, b) =>
-      a.source_entry_id.localeCompare(b.source_entry_id)) };
-    hashes.set(key, sha256(JSON.stringify({ ...record, payload })));
+    hashes.set(key, recordHash(record));
   }
   if (!hashes.size) throw new Error('Source contains no area results');
   return { hash: sha256(JSON.stringify([...hashes].sort(([a], [b]) => a.localeCompare(b)))), count: hashes.size };
@@ -52,6 +64,16 @@ export function parsePartyNames(body: string) {
 }
 
 export type RefreshJob = { municipalityId: string; token: string; hint: string | null; enqueuedAt: string };
+export type RefreshBatch = { version: 1; jobs: RefreshJob[] };
+export const JOBS_PER_MESSAGE = 8;
+
+// Accept old individual jobs while the existing queue drains during rollout.
+export function refreshJobs(value: unknown): RefreshJob[] | null {
+  if (isRefreshJob(value)) return [value];
+  const batch = value as Partial<RefreshBatch> | null;
+  return batch?.version === 1 && Array.isArray(batch.jobs) && batch.jobs.length > 0
+    && batch.jobs.length <= JOBS_PER_MESSAGE && batch.jobs.every(isRefreshJob) ? batch.jobs : null;
+}
 
 export function isRefreshJob(value: unknown): value is RefreshJob {
   if (!value || typeof value !== 'object') return false;
