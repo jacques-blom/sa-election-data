@@ -6,19 +6,47 @@ polling health and timestamps; a running service does not guarantee fresh upstre
 All endpoints are public, read-only GET requests. JSON responses support CORS,
 ETag/If-None-Match and a 15-second cache lifetime.
 
+## Quick start
+
+No API key or account is needed. The base URL is
+`https://sa-election-data.jacques.workers.dev/api/v1`.
+
+List the available elections:
+
+```sh
+curl 'https://sa-election-data.jacques.workers.dev/api/v1/elections'
+```
+
+Find a municipality, then follow its `results_url` to get votes, party rows,
+progress and source information:
+
+```js
+const base = 'https://sa-election-data.jacques.workers.dev';
+const response = await fetch(`${base}/api/v1/elections/2026/areas?level=municipality&limit=5`);
+if (!response.ok) throw new Error(`API returned ${response.status}`);
+const page = await response.json();
+console.log(page.areas); // Each area includes its results_url.
+```
+
+You can also [open the municipality list](/api/v1/elections/2026/areas?level=municipality&limit=5)
+or [view Witzenberg's results](/api/v1/elections/2026/areas/municipality/9909)
+directly in your browser.
+
 ## Endpoints
 
-- `/api/v1` — API information and caveats.
-- `/api/v1/sync` — scheduler heartbeat, source freshness, pending jobs, failures and latest publication.
-- `/api/v1/elections` — imported elections and source health.
-- `/api/v1/elections/2026` — coverage and the IEC's expected area counts.
-- `/api/v1/elections/2026/areas?level=municipality` — browse municipalities.
-- `/api/v1/elections/2026/areas?level=ward&municipality_id=9909` — browse a municipality's wards.
-- `/api/v1/elections/2026/areas?level=voting-district&ward_id=10202001` — browse voting districts.
-- `/api/v1/elections/2026/areas/municipality/9909` — Witzenberg results.
-- `/api/v1/elections/2026/areas/ward/10202001` — a ward's published results.
-- `/api/v1/elections/2026/areas/national/ZA` — national summary, including its coverage limitations.
-- `/api/v1/elections/2026/sources` — source URLs, successful checks, and refresh failures.
+- [`/api/v1`](/api/v1) — API information and caveats.
+- [`/api/v1/sync`](/api/v1/sync) — scheduler heartbeat, source freshness, pending jobs, failures and latest publication.
+- [`/api/v1/elections`](/api/v1/elections) — imported elections and source health.
+- [`/api/v1/elections/2026`](/api/v1/elections/2026) — coverage and the IEC's expected area counts.
+- [`/api/v1/elections/2026/areas?level=municipality`](/api/v1/elections/2026/areas?level=municipality) — browse municipalities.
+- [`/api/v1/elections/2026/areas?level=ward&municipality_id=9909`](/api/v1/elections/2026/areas?level=ward&municipality_id=9909) — browse a municipality's wards.
+- [`/api/v1/elections/2026/areas?level=voting-district&ward_id=10202001`](/api/v1/elections/2026/areas?level=voting-district&ward_id=10202001) — browse voting districts.
+- [`/api/v1/elections/2026/areas/municipality/9909`](/api/v1/elections/2026/areas/municipality/9909) — Witzenberg results.
+- [`/api/v1/elections/2026/areas/ward/10202001`](/api/v1/elections/2026/areas/ward/10202001) — a ward's published results.
+- [`/api/v1/elections/2026/areas/national/ZA`](/api/v1/elections/2026/areas/national/ZA) — national summary, including its coverage limitations.
+- [`/api/v1/elections/2026/sources`](/api/v1/elections/2026/sources) — source URLs, successful checks, and refresh failures.
+
+## Filters and pagination
 
 Substitute 2000, 2006, 2011, 2016 or 2021 for historical elections. Area-list levels
 are `national`, `province`, `municipality`, `ward`, and `voting-district`.
@@ -27,7 +55,34 @@ Area lists can filter by `province_id`, `municipality_id`, and `ward_id`.
 IDs are the IEC's IDs **within that election**. A matching ID does not establish
 that two elections used the same boundary.
 
+List responses include `limit`, `offset` and `total`. Increase `offset` by `limit`
+to fetch the next page; stop when `offset + limit >= total`. Area lists return
+an `areas` array, and source lists return a `sources` array.
+
+## Caching and errors
+
+Use GET to read data, HEAD for response headers, and OPTIONS for CORS preflight.
+Browser JavaScript can access the API from any origin. Save a response's `ETag`
+and send it as `If-None-Match` on the next request; a `304 Not Modified` response
+has no body, so reuse your saved data. Polling more often than the 15-second cache
+lifetime will not make the upstream count update sooner.
+
+| Status | Meaning |
+| --- | --- |
+| `200` | Successful request; the response body is JSON. |
+| `304` | The cached response is still current. |
+| `400` | Invalid level, filter or pagination parameter. |
+| `404` | Unknown endpoint, election or area. |
+| `405` | Unsupported HTTP method. Use GET, HEAD or OPTIONS. |
+| `503` | Results are temporarily unavailable. Retry later. |
+
+Error responses for `400`, `404` and `503` include an `error` message. A successful
+response can still contain stale results: check `source.freshness` and source
+timestamps rather than relying on HTTP status alone.
+
 ## Reading results correctly
+
+### Freshness and provenance
 
 `source` identifies the original IEC URL, immutable snapshot, area's report
 timestamp, HTTP Last-Modified, latest check, latest successful check, and any
@@ -51,6 +106,8 @@ check; municipality, ward and voting-district results after fifteen minutes.
 good results with `refresh_failed`. `/api/v1/sync` reports degraded health if the
 scheduler or any sources fall behind, or upstream backoff is active.
 
+### Ballots and party lists
+
 `votes.source_total` is the IEC's published total, often combining multiple
 ballots. `votes.ward` and `votes.pr` retain the separate fields when present.
 `null` means the field was unavailable; it must not be read as zero. No turnout
@@ -68,6 +125,8 @@ entry is treated as an aggregate. When old result files omit names,
 `party_name_source: iec_party_directory` identifies names resolved from the
 [directory used by the IEC dashboard](https://results.elections.org.za/dashboards/lge/MapsJason/2016/PartyList.js).
 These are directory labels, not independently reconstructed historical names.
+
+### Progress and data quality
 
 `progress` reports completed/expected counts only where the source supplies a
 positive expected count. Placeholder zero/negative fields become null. Synthetic

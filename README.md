@@ -6,7 +6,7 @@ results easier to find, understand, and reuse. The name is provisional.
 Public service: [placeholder site](https://sa-election-data.jacques.workers.dev),
 [REST API](https://sa-election-data.jacques.workers.dev/api/v1),
 [sync health](https://sa-election-data.jacques.workers.dev/api/v1/sync), and
-[API documentation](https://sa-election-data.jacques.workers.dev/api.md).
+[API documentation](https://sa-election-data.jacques.workers.dev/api).
 
 This repository currently contains an Astro SSR application configured for
 Cloudflare Workers, a local importer for IEC municipal election results from
@@ -16,7 +16,8 @@ Jacques's personal Cloudflare D1 database. The public site is a placeholder;
 the results explorer, geographic lookup and Recent updates feed remain to be built.
 
 See [ingestion and live updates](docs/ingestion.md) and the
-[API contract](public/api.md). Raw snapshots and imported databases live in
+[API contract](docs/api.md). The browsable `/api` page and agent-friendly `/api.md`
+are generated from that same Markdown source. Raw snapshots and imported databases live in
 `.data/` and `.wrangler/`, outside Git.
 
 ## Local development

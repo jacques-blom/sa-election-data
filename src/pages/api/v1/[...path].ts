@@ -77,7 +77,7 @@ export const ALL: APIRoute = async ({ params, request, url }) => {
     const db = env.RESULTS_DB;
     if (!parts.length) {
       const health = await syncHealth(db);
-      return respond(request, { version: 'v1', documentation: '/api.md', elections: '/api/v1/elections',
+      return respond(request, { version: 'v1', documentation: '/api.md', documentation_html: '/api', elections: '/api/v1/elections',
         sync: '/api/v1/sync', refresh_mode: health.refresh_mode, sync_status: health.status, caveats });
     }
     if (parts[0] === 'sync' && parts.length === 1) return respond(request, await syncHealth(db));

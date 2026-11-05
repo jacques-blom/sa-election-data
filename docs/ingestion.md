@@ -100,7 +100,8 @@ counts. All upstream errors remain visible in `/api/v1/elections/{year}/sources`
 The API also reports arithmetic discrepancies in the source rather than fixing
 votes to make totals match. Ballot papers are not unique voters. Progress zeros
 at ward/VD level are often placeholders. Boundaries change between elections.
-See [the API contract](../public/api.md) for field semantics and limitations.
+See [the API contract](api.md) for field semantics and limitations, also available
+on the site at `/api` (HTML) and `/api.md` (Markdown).
 
 ## Production update pipeline
 
