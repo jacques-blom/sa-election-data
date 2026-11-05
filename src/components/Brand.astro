@@ -1,36 +1,56 @@
+---
+import flagIcon from '../../public/brand/counted-icon.svg?raw';
+---
+
 <a href="/" class="brand" aria-label="Counted home">
-  <img
-    class="brand-icon"
-    src="/brand/counted-icon.svg"
-    width="1117"
-    height="936"
-    alt=""
-    aria-hidden="true"
-  />
-  <span>Counted</span>
+  <span class="brand-icon" aria-hidden="true" set:html={flagIcon} />
+  <span class="brand-wordmark">Counted<span class="brand-stop" aria-hidden="true"></span></span>
 </a>
 
 <style>
+  @font-face {
+    font-family: 'Counted Wordmark';
+    src: url('/fonts/SpaceGrotesk.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+  }
   .brand {
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
-    gap: 9px;
+    gap: 10px;
     color: #163a30;
-    font-size: 28px;
-    font-weight: 650;
-    letter-spacing: -1.2px;
-    line-height: 1;
     text-decoration: none;
     white-space: nowrap;
   }
-  .brand-icon { display: block; width: 40px; height: auto; flex-shrink: 0; }
+  .brand-wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: 'Counted Wordmark', system-ui, sans-serif;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.065em;
+    line-height: 1;
+  }
+  .brand-stop {
+    width: 0.15em;
+    height: 0.15em;
+    margin-left: 0.075em;
+    border-radius: 30%;
+    background: #b58524;
+  }
+  .brand-icon { display: block; width: 44px; aspect-ratio: 1117 / 936; flex-shrink: 0; }
+  .brand .brand-icon :global(svg) { display: block; width: 100%; height: auto; }
+  .brand:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; border-radius: 3px; }
   @media (max-width: 540px) {
-    .brand { font-size: 24px; gap: 8px; }
-    .brand-icon { width: 34px; }
+    .brand { gap: 8px; }
+    .brand-wordmark { font-size: 28px; }
+    .brand-icon { width: 36px; }
   }
   @media (max-width: 360px) {
-    .brand { font-size: 21px; gap: 7px; }
-    .brand-icon { width: 28px; }
+    .brand { gap: 7px; }
+    .brand-wordmark { font-size: 26px; }
+    .brand-icon { width: 32px; }
   }
 </style>
