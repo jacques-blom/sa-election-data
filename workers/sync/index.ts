@@ -1,0 +1,46 @@
+import { sourceFor } from '../../src/lib/data/catalogue.ts';
+import { isRefreshJob, type RefreshJob } from './helpers.ts';
+import { election, partyNames, refreshSource } from './publish.ts';
+import { scheduledSync } from './schedule.ts';
+import { backoffSeconds, clearPending, readState, recordFailure } from './state.ts';
+
+export default {
+  async scheduled(_controller, env) {
+    await scheduledSync(env);
+  },
+  async queue(batch, env) {
+    for (const message of batch.messages) {
+      if (!isRefreshJob(message.body)) {
+        console.error(JSON.stringify({ event: 'invalid_refresh_job', message_id: message.id }));
+        message.retry();
+        continue;
+      }
+      const job: RefreshJob = message.body;
+      const source = sourceFor(election, job.municipalityId);
+      try {
+        const state = await readState(env.RESULTS_DB, source);
+        if (state.pending_token !== job.token) { message.ack(); continue; }
+        const backoff = await backoffSeconds(env.RESULTS_DB);
+        if (backoff) {
+          if (message.attempts >= 6) await clearPending(env.RESULTS_DB, source.id, job.token);
+          message.retry({ delaySeconds: Math.min(86_400, backoff) });
+          continue;
+        }
+        // Publication is locked per source; a shared D1 slot limits IEC requests
+        // across all three consumers and the independent summary scheduler.
+        const names = await partyNames(env);
+        const result = await refreshSource(env, source, names);
+        await clearPending(env.RESULTS_DB, source.id, job.token, job.hint);
+        console.log(JSON.stringify({ event: 'refresh_job_completed', source: source.id, outcome: result.outcome,
+          queue_age_seconds: Math.round((Date.now() - Date.parse(job.enqueuedAt)) / 1000) }));
+        message.ack();
+      } catch (error) {
+        const delay = await recordFailure(env.RESULTS_DB, source, error, message.attempts);
+        // Cloudflare moves the sixth failed delivery to the configured DLQ.
+        // Release the source so the reconciliation loop can recover it later.
+        if (message.attempts >= 6) await clearPending(env.RESULTS_DB, source.id, job.token);
+        message.retry({ delaySeconds: delay });
+      }
+    }
+  },
+} satisfies ExportedHandler<SyncEnv, unknown>;

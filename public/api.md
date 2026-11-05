@@ -1,12 +1,15 @@
 # SA Election Data API — v1
 
-This is a local development API. Automatic live polling is not deployed yet.
+The current election is refreshed by a scheduled Cloudflare Worker. Historical
+elections are preserved from the verified backfill. Check `/api/v1/sync` for actual
+polling health and timestamps; a running service does not guarantee fresh upstream data.
 All endpoints are public, read-only GET requests. JSON responses support CORS,
 ETag/If-None-Match and a 15-second cache lifetime.
 
 ## Endpoints
 
 - `/api/v1` — API information and caveats.
+- `/api/v1/sync` — scheduler heartbeat, source freshness, pending jobs, failures and latest publication.
 - `/api/v1/elections` — imported elections and source health.
 - `/api/v1/elections/2026` — coverage and the IEC's expected area counts.
 - `/api/v1/elections/2026/areas?level=municipality` — browse municipalities.
@@ -31,6 +34,22 @@ timestamp, HTTP Last-Modified, latest check, latest successful check, and any
 refresh error. `checked_recently` describes our fetch, not when the IEC last
 counted a vote. Compare the source timestamps too. Historical report timestamps
 often reflect later regeneration of the files, not the date of the election.
+
+`latest_document_reported_at` and `latest_document_sha256` describe the latest
+validated source document. `published_at` is when changed results were made
+visible in D1. When the IEC regenerates only timestamps, the immutable result
+snapshot and its `area_reported_at` remain unchanged; the latest-document fields
+advance. `null` publication/observation fields on historical backfills mean that
+the live publisher did not create those records.
+
+The summary is checked every minute. Changed municipalities are queued promptly;
+every municipality is also due for an independent check after ten minutes, even
+if the summary does not change. Queue processing and upstream backoff can add
+delay. Summary results become `stale` after three minutes without a successful
+check; municipality, ward and voting-district results after fifteen minutes.
+`stale_after_seconds` gives the applicable threshold. Failed checks keep the last
+good results with `refresh_failed`. `/api/v1/sync` reports degraded health if the
+scheduler or any sources fall behind, or upstream backoff is active.
 
 `votes.source_total` is the IEC's published total, often combining multiple
 ballots. `votes.ward` and `votes.pr` retain the separate fields when present.

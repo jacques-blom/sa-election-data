@@ -40,9 +40,9 @@ pnpm data:ingest --years 2026
 pnpm data:load
 ```
 
-Run one loader at a time. No continuous polling process, production Cron Trigger,
-Queue, or R2 bucket has been started or created. A separate personal-account D1
-database has been created and backfilled; these local commands do not refresh it.
+Run one local loader at a time. These commands do not refresh the remote D1
+database. The separate production ingestion Worker owns updates to the current
+election there; do not run a second remote publisher against it.
 
 ## Moving the backfill to personal Cloudflare D1
 
@@ -58,16 +58,18 @@ The verified bootstrap was imported into the personal-account D1 database on
 pnpm exec wrangler d1 execute RESULTS_DB --remote --profile personal --file .data/exports/bootstrap.sql
 ```
 
-The remote database contains 150,566 current area-result rows across six elections,
-1,353 active source documents, and 2,912 snapshot metadata records. All coverage
-counts and active source snapshot IDs match the local database. The imported
-database is about 989 MB. Treat this as a snapshot, not an automatically refreshing
-live service. The 2026 fetch window was 16:10–16:13 SAST on 2026-11-05.
+At bootstrap, the remote database contained 150,566 current area-result rows across
+six elections, 1,353 active source documents, and 2,912 snapshot metadata records.
+All coverage counts and active source snapshot IDs matched the local database. The imported
+database was about 989 MB. These counts describe the bootstrap, before automated
+sync; current snapshot IDs and metadata counts will change. The initial 2026 fetch
+window was 16:10–16:13 SAST on 2026-11-05.
 
 Use this bootstrap flow for initial loading, not to overwrite an actively updating
-database with an old export. Raw gzip snapshots still need uploading to R2 separately;
-the SQL file contains their provenance and relative archive paths, not the raw
-documents. Subsequent live updates should be written by the ingestion Worker,
+database with an old export. Historical raw gzip snapshots remain in the devbox
+archive; the SQL file contains their provenance and relative paths, not their raw
+documents. All new live fetches are archived in R2 before publication. Subsequent
+live updates are written by the ingestion Worker,
 not by repeatedly importing this bootstrap file. Cloudflare documents the SQL
 import flow and its 5 GiB file limit in its
 [D1 import guide](https://developers.cloudflare.com/d1/best-practices/import-export-data/).
@@ -100,27 +102,33 @@ votes to make totals match. Ballot papers are not unique voters. Progress zeros
 at ward/VD level are often placeholders. Boundaries change between elections.
 See [the API contract](../public/api.md) for field semantics and limitations.
 
-## Production update design (not deployed)
+## Production update pipeline
 
 1. A Workers Cron Trigger checks the small current-election index every minute.
-   It rediscovers areas and compares municipality report timestamps/progress.
+   It rediscovers areas and compares municipality result/progress fingerprints,
+   excluding generated report timestamps.
 2. Changed municipalities become idempotent Queue jobs, with bounded concurrency,
    conditional GETs, timeouts and exponential backoff respecting Retry-After.
-   A full reconciliation sweep at least every ten minutes catches detail changes
-   the index did not reveal, including corrections to completed municipalities.
+   Each municipality becomes due for an independent check after ten minutes,
+   catching detail changes the index did not reveal, including corrections to
+   completed municipalities. A failed summary fetch does not prevent these checks.
 3. Store each fetched document and response metadata in R2 before publication.
-   Validate with the shared parser. Compare actual result fields separately from
+   Validate with the shared parser. Compare normalized result fields separately from
    generation timestamps, so clock-only rebuilds do not rewrite every D1 row or
    create misleading "votes changed" events.
 4. Serialize publication per source and use a compare-and-swap on its active
-   version. Stage changed rows, then switch the source pointer. Retried jobs are
-   harmless. Reject older source reports; allow newer downward corrections.
+   version. A D1 lease prevents concurrent publication of the same source;
+   bounded row batches stage the snapshot before a transactional pointer switch.
+   Retried jobs are harmless. Reject reports older than the last validated
+   document, including timestamp-only rebuilds; allow newer downward corrections.
 5. Serve versioned results from D1. Public API responses cache for 15 seconds.
-   The browser can poll our lightweight version endpoint every 15–30 seconds;
+   `/api/v1/sync` exposes the heartbeat and latest publication. A future browser
+   results UI can poll this lightweight endpoint every 15–30 seconds;
    client traffic never increases requests to the IEC. SSE can follow later.
 6. Track successful-fetch age, source-report age, queue lag, validation failures,
-   and reconciliation gaps. Alert on sustained failures; show the last good data
-   with a stale/error label. Send exhausted jobs to a dead-letter queue.
+   and reconciliation gaps in structured logs and `/api/v1/sync`. Keep the last good
+   data with a stale/error label. Exhausted jobs go to a dead-letter queue and
+   become eligible for later reconciliation. External alert delivery is not configured.
 
 This provides near-real-time publication, not a direct count-room stream. The
 IEC describes its dashboard updates as every 5–10 minutes. Our initial target is
@@ -130,10 +138,77 @@ reconciliation sweep can take longer. National/provincial and municipality files
 can have different source timestamps; expose that rather than imply a single
 simultaneous national snapshot.
 
-Before production: provision personal R2/Queue resources,
-implement the scheduled worker and queue consumer, verify reuse terms, and test
-source outages, duplicate/out-of-order jobs, cache freshness and load. No Fudge
-account or GitHub remote is used.
+### Resources and operations
+
+All resources belong to the personal Blom Media LLC account:
+
+- `sa-election-data`: Astro SSR Worker, public read-only API and placeholder site.
+- `sa-election-data-sync`: scheduled/queue Worker with public HTTP routes disabled.
+- `sa-election-data`: the existing D1 database, shared by both Workers.
+- `sa-election-data-raw`: private R2 bucket for live gzip snapshots and the party directory.
+- `sa-election-data-refresh`: up to three concurrent jobs, one message per consumer invocation.
+- `sa-election-data-failed`: dead-letter queue after five retries.
+
+The public service is at <https://sa-election-data.jacques.workers.dev>.
+Live health is at <https://sa-election-data.jacques.workers.dev/api/v1/sync>.
+The account needs Workers Paid for this importer; the Free plan's 10 ms Cron
+CPU limit is insufficient for parsing and validating the result documents.
+
+Apply additive schema changes before deploying code that reads them:
+
+```sh
+pnpm exec wrangler d1 execute RESULTS_DB --remote --profile personal --config wrangler.jsonc --file migrations/0002_sync.sql --yes
+pnpm check
+pnpm test
+pnpm sync:dry-run
+pnpm deploy:dry-run
+pnpm sync:deploy
+pnpm deploy
+```
+
+Cron changes can take up to fifteen minutes to propagate. Watch
+`/api/v1/sync` and the ingestion Worker's logs for real runs rather than treating
+a successful deployment as evidence of successful ingestion. Initial catch-up
+queues all known municipalities; source freshness improves as this queue drains.
+
+`scheduled_polling` describes the configured mechanism; the separate health
+status can still be `degraded`. Summary source freshness expires after three
+minutes, detail freshness after fifteen. Source report time and successful check
+time remain separate. A regenerated timestamp does not publish new result rows.
+
+The source fetch has a 30-second timeout and a 24 MiB uncompressed limit in the
+Worker (the largest observed 2026 document is about 17.5 MB). Processing normalizes
+one row at a time and releases raw response strings before D1 writes to bound
+memory. A shared D1 throttle caps IEC request starts at two per second across
+the scheduler and consumers. HTTP 429/503 responses trigger shared backoff; Retry-After is respected,
+with delayed queue retries. A source pending for over an hour can be reclaimed if
+a message was lost; normally retries or reconciliation recover it sooner.
+
+Use Cloudflare Worker logs for `source_refresh_failed`, `snapshot_published` and
+`scheduler_completed`, and inspect the dead-letter queue for exhausted jobs.
+After fixing a persistent source error, the scheduled reconciliation can retry it
+without replacing the last-good results. To stop polling, remove the sync Cron
+Trigger and pause queue delivery before changing publication state. No GitHub
+remote is configured and nothing has been pushed to GitHub.
+
+### Launch verification — 2026-11-05
+
+At 18:17 SAST, `/api/v1/sync` reported `healthy`: all 214 current-election source
+documents had been automatically refreshed, with zero failed or overdue sources
+and an empty pending queue. Coverage remained 213 municipalities, 4,485 wards and
+23,696 voting districts, plus the national and nine provincial summaries.
+Multiple real Cron Trigger and Queue invocations were observed in production.
+
+All six election years were checked over the public API, including CORS,
+conditional GET/304, method restrictions and pagination errors. Cloudflare's
+compressed responses use weak ETags; the API accepts them correctly. The 17.5 MB
+Johannesburg source was processed in the Workers runtime, and its live R2 archive
+was downloaded and verified against the checksum exposed by the API.
+
+The public API/placeholder deployment was built from an isolated copy because
+unfinished front-end work was arriving concurrently in the shared repository.
+That UI work was preserved in the workspace. The launch verification captures a
+point in time; consult the live health endpoint for current operating status.
 
 Sources: [IEC results home](https://results.elections.org.za/),
 [IEC municipal dashboard](https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx),

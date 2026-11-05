@@ -3,11 +3,17 @@
 A personal civic-tech project by Jacques Blom to make South African local election
 results easier to find, understand, and reuse. The name is provisional.
 
+Public service: [placeholder site](https://sa-election-data.jacques.workers.dev),
+[REST API](https://sa-election-data.jacques.workers.dev/api/v1),
+[sync health](https://sa-election-data.jacques.workers.dev/api/v1/sync), and
+[API documentation](https://sa-election-data.jacques.workers.dev/api.md).
+
 This repository currently contains an Astro SSR application configured for
 Cloudflare Workers, a local importer for IEC municipal election results from
-2000–2026, and a read-only REST API backed by D1. The same backfill has been loaded
-and verified in local D1 and Jacques's personal Cloudflare D1 database. The results website,
-geographic lookup, and automated production polling are still to be built.
+2000–2026, a read-only REST API backed by D1, and a scheduled ingestion Worker for
+the 2026 count. The historical backfill was loaded and verified in local D1 and
+Jacques's personal Cloudflare D1 database. The public site is a placeholder;
+the results explorer, geographic lookup and Recent updates feed remain to be built.
 
 See [ingestion and live updates](docs/ingestion.md) and the
 [API contract](public/api.md). Raw snapshots and imported databases live in
@@ -33,12 +39,16 @@ Workers runtime and do not require a Cloudflare login.
 | `pnpm build` | Build the production Worker and static assets |
 | `pnpm preview` | Serve the production build locally |
 | `pnpm deploy:dry-run` | Build and validate the deployment bundle without uploading |
+| `pnpm deploy` | Deploy the public API and placeholder site to the personal account |
+| `pnpm sync:dry-run` | Validate the scheduled ingestion Worker |
+| `pnpm sync:deploy` | Deploy the ingestion Worker and every-minute Cron Trigger |
+| `pnpm sync:dev` | Run ingestion locally with Wrangler's scheduled-event test endpoint |
 | `pnpm cf:types` | Regenerate types after changing Wrangler bindings |
 | `pnpm data:ingest --years all` | Backfill public IEC feeds for 2000–2026 locally |
 | `pnpm data:ingest` | Refresh the current election in the local archive |
 | `pnpm data:load` | Publish imported snapshots to the local D1 emulator |
-| `pnpm data:export` | Produce a SQL backfill file for a future remote D1 import |
-| `pnpm test` | Check ingestion validation, corrections, and snapshot integrity |
+| `pnpm data:export` | Produce an initial SQL backfill; never overwrite a live database with it |
+| `pnpm test` | Check validation, publication rollback, retries, corrections and reconciliation using isolated local D1/R2 |
 
 `astro.config.mjs` enables SSR by default. `wrangler.jsonc` holds the source
 Workers configuration; Astro generates the production configuration and entrypoint
@@ -47,7 +57,9 @@ during the build. Edit the source configuration, not files in `dist/` or `.wrang
 Sessions and runtime image processing are disabled, so the starter does not need
 KV or Cloudflare Images. The real personal-account D1 ID is configured, while
 `preview_database_id` preserves the separate local emulator database.
-R2 and the automated ingestion resources have not been provisioned.
+`workers/sync/wrangler.jsonc` configures the separate ingestion Worker, private
+R2 archive, refresh queue and dead-letter queue. It has no public HTTP endpoint.
+Tests disable remote bindings and use temporary local databases and buckets.
 Keep local secrets in `.dev.vars`; this file and `.env*` are
 ignored by Git. Generated Worker types are also ignored and recreated by
 `pnpm check` or `pnpm cf:types`.
@@ -68,8 +80,10 @@ in `wrangler.jsonc`. The `sa-election-data` D1 database
 All 30 year/area-level coverage counts and all 1,353 active source snapshot IDs
 were checked against the local database after import.
 
-The Worker has not been deployed and automatic polling is not running.
-`pnpm deploy` explicitly selects the `personal` profile when ready to publish.
+Both deployment commands explicitly select the `personal` profile. The ingestion
+Worker polls the summary every minute and reconciles municipality details after
+ten minutes. `/api/v1/sync` shows the actual heartbeat, backlog, failures and source
+freshness. Logs and traces are enabled on both Workers.
 Check `pnpm exec wrangler whoami` before future remote operations.
 An exported `CLOUDFLARE_API_TOKEN` takes precedence over profiles;
 use only personal-account credentials in this project's shell and future CI.

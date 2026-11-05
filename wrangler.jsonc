@@ -5,6 +5,7 @@
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-11-05",
   "compatibility_flags": ["nodejs_compat"],
+  "placement": { "mode": "smart" },
   "d1_databases": [
     {
       "binding": "RESULTS_DB",
