@@ -259,6 +259,12 @@ history with `gitleaks git . --redact` and staged changes with
 `gitleaks git . --pre-commit --staged --redact`. The scanner configuration only
 exempts three exact public map filenames that resemble API keys.
 
+## License
+
+Counted's original code and documentation are licensed under the [MIT License](LICENSE),
+copyright © 2026 Jacques Blom. Third-party data and assets are not relicensed by
+this license.
+
 IEC results, government boundary data, party logos, fonts and map assets retain
 their source attribution and applicable terms. See [map attribution](docs/maps.md#sources-and-attribution),
 [the API source notes](docs/api.md) and the bundled font licenses. Their inclusion
