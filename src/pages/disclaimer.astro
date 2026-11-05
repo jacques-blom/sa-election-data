@@ -1,0 +1,24 @@
+---
+import Site from '../layouts/Site.astro';
+---
+
+<Site title="Disclaimer" description="Counted is a personal project made for fun. Always verify information with official sources.">
+  <div class="page-top"><h1>Disclaimer</h1></div>
+  <section class="card disclaimer">
+    <p>I’m Jacques Blom, and I created Counted for fun as a personal project. It is an independent, unofficial way to explore South African election results, and is not affiliated with or endorsed by the Electoral Commission of South Africa (IEC).</p>
+
+    <h2>No guarantees or liability</h2>
+    <p>This website, its API, data, maps, estimates and tools are provided “as is” and “as available”. Information may contain errors, be incomplete or be out of date. I make no guarantees about its accuracy, completeness, reliability or availability.</p>
+    <p>To the fullest extent permitted by law, I accept no liability for any loss, damage or other consequence arising from using this project or relying on any information it provides. You use it at your own risk. Nothing in this disclaimer excludes liability that cannot legally be excluded.</p>
+
+    <h2>Always check official sources</h2>
+    <p>Always verify information with the relevant official sources before relying on it or making a decision. Check election results against the <a href="https://results.elections.org.za/">IEC’s official results</a>, and use the <a href="https://registertovote.elections.org.za/">IEC’s voter portal</a> to check your registration and voting station.</p>
+    <p>Results may be provisional, and estimates or coalition scenarios on Counted are not official outcomes. A map or address match here does not confirm where you are registered or entitled to vote. If this project differs from an official source, rely on the official source.</p>
+  </section>
+</Site>
+
+<style>
+  .disclaimer { max-width: 48rem; line-height: 1.75; }
+  .disclaimer h2 { margin-top: 2rem; }
+  .disclaimer p:last-child { margin-bottom: 0; }
+</style>
