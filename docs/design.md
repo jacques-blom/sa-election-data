@@ -25,7 +25,7 @@ connected and verified. Internal Worker, D1, queue and bucket names can retain
 
 Use warm paper, green-black text, generous spacing and the selected soft-corner Flag X icon. The upper fork combines the South African flag’s green Y, black triangle and gold edging; the blue and red lower arms complete a voting X. Render “Counted” as live text beside the icon, never as part of a wordmark image. Use the icon alone for favicons and compact placements. Keep the wordmark readable at phone size. Large shapes and numbers establish the hierarchy; labels explain the data without competing with it.
 
-The shared wordmark uses bold Space Grotesk with tight spacing and a small gold full stop. The full stop is decorative; the accessible name remains “Counted home”. `Brand.astro` imports the trusted SVG master as raw markup and embeds it in the server-rendered page, so the logo needs no separate image request. Keep the wordmark as selectable live text, and retain the original SVG file for favicons and downloads.
+The shared wordmark uses bold Space Grotesk with tight spacing, followed by a smaller `.co.za` suffix at 60% opacity. The suffix shares the baseline and remains readable on phones. The accessible name is “Counted.co.za home”. `Brand.astro` imports the trusted SVG master as raw markup and embeds it in the server-rendered page, so the logo needs no separate image request. Keep the wordmark as selectable live text, and retain the original SVG file for favicons and downloads.
 
 | Element | Direction | Use |
 | --- | --- | --- |

@@ -2,9 +2,9 @@
 import flagIcon from '../../public/brand/counted-icon.svg?raw';
 ---
 
-<a href="/" class="brand" aria-label="Counted home">
+<a href="/" class="brand" aria-label="Counted.co.za home">
   <span class="brand-icon" aria-hidden="true" set:html={flagIcon} />
-  <span class="brand-wordmark">Counted<span class="brand-stop" aria-hidden="true"></span></span>
+  <span class="brand-wordmark">Counted<span class="brand-domain">.co.za</span></span>
 </a>
 
 <style>
@@ -33,12 +33,12 @@ import flagIcon from '../../public/brand/counted-icon.svg?raw';
     letter-spacing: -0.065em;
     line-height: 1;
   }
-  .brand-stop {
-    width: 0.15em;
-    height: 0.15em;
-    margin-left: 0.075em;
-    border-radius: 30%;
-    background: #b58524;
+  .brand-domain {
+    margin-left: 0.035em;
+    font-size: 0.58em;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    opacity: 0.6;
   }
   .brand-icon { display: block; width: 44px; aspect-ratio: 1117 / 936; flex-shrink: 0; }
   .brand .brand-icon :global(svg) { display: block; width: 100%; height: auto; }
