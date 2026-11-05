@@ -1,0 +1,15 @@
+{
+  "source": "SVG redraw of the approved soft-corner Flag X; 5 November 2026",
+  "master": "counted-icon.svg",
+  "width": 1117,
+  "height": 936,
+  "palette": {
+    "green": "#347E65",
+    "gold": "#DEB251",
+    "charcoal": "#263E34",
+    "blue": "#5287BE",
+    "coral": "#CD6D5D"
+  },
+  "wordmark": "Live text; never part of the icon image",
+  "rasterFiles": "Generated from the SVG master"
+}

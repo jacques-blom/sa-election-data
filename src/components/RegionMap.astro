@@ -1,0 +1,11 @@
+---
+import type { FixedMapOptions } from '../lib/maps/fixed-types.ts';
+import '../styles/fixed-map.css';
+interface Props { options:FixedMapOptions; title:string; href?:string; caption?:string; compact?:boolean }
+const {options,title,href='/map',caption,compact=false}=Astro.props;
+---
+<figure id={`region-map-${options.level}-${options.id ?? 'national'}`} class:list={['region-map',{compact}]} data-region-map data-options={JSON.stringify(options)}>
+  <div class="region-map-canvas" role="region" aria-label={title}></div><p class="region-map-status" role="status">Loading map…</p>
+  <figcaption><span>{caption??title}</span><a href={href}>Explore map ↗</a></figcaption>
+</figure>
+<script>import '../lib/maps/fixed-loader.ts';</script>

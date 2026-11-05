@@ -1,0 +1,13 @@
+title = "Counted secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public map archive filenames are R2 object keys, not credentials"
+regexTarget = "secret"
+regexes = [
+  '''^voting-districts-2026-20261105\.pmtiles$''',
+  '''^wards-2026-20261105\.pmtiles$''',
+  '''^south-africa-20261105\.pmtiles$''',
+]

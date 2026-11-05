@@ -1,0 +1,17 @@
+---
+import { estimateCaution, type AvailableSeats } from '../lib/seats/allocation.ts';
+import { formatTime, type Result } from '../lib/places/results.ts';
+interface Props { seats: AvailableSeats; result: Result }
+const { seats, result } = Astro.props;
+---
+<details class="seat-method"><summary>How these seats are worked out</summary>
+  {seats.status === 'estimated' ? <>
+    <p>{estimateCaution} This is a calculation using the current count, not a forecast of the final result.</p>
+    <p>We reserve the IEC’s reported independent ward seats, then divide the combined party votes by the remaining council seats, discard the fraction and add one. Whole quotas receive seats first, followed by the largest remainders. A tied remainder favours the party with more votes; an unresolved tie leaves the estimate unavailable.</p>
+    <p>A party keeps its reported ward seats. Where those exceed its proportional allocation, we recalculate the remaining seats for the other parties. We assume parties can fill their estimated seats. We do not predict unfinished ward contests, additional independent wins, unopposed-ward adjustments or candidate-list shortages. The remaining districts may vote differently.</p>
+    <p>Ward seats reported: {seats.reportedWardSeats} of {seats.expectedWardSeats}. The IEC’s complete allocation replaces this estimate when its totals reconcile.</p>
+    <p>Method: <a href="https://www.dpsa.gov.za/ethicsofficerguide/resources/lg/Municipal%20Structures%20Act_up%20to%20Nov2022.pdf">Municipal Structures Act, Schedule 1, items 12, 13 and 16 ↗</a>.</p>
+  </> : <p>These are the ward and PR seats published by the IEC. The party totals add up to all {seats.total} council seats. Results remain provisional; a seat majority does not establish a governing agreement or who will become mayor.</p>}
+  <p>IEC result time: {formatTime(result.source.reportedAt)} · <a href={result.source.url}>Source figures ↗</a></p>
+</details>
+<style>.seat-method{margin-top:18px;color:var(--muted);font-size:12px}.seat-method p{line-height:1.7}.seat-method summary{color:var(--ink)}</style>

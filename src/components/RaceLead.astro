@@ -1,0 +1,21 @@
+---
+import { formatNumber, partyStyle, type ballotResults } from '../lib/places/results.ts';
+import PartyLogo from './PartyLogo.astro';
+interface Props { data: ReturnType<typeof ballotResults> }
+const { data } = Astro.props;
+const leader = data.leader;
+---
+<div class="race-lead">
+  <div><span class="race-label">{leader ? 'Leading' : data.tied ? 'Tied' : 'Result so far'}</span>
+    <strong class="party-identity">{leader && <PartyLogo party={leader}/>}<span class="party-identity-text">{leader ? leader.candidate_name ?? partyStyle(leader.party_name)[0] : data.tied ? 'Level on votes' : data.total === 0 ? 'Awaiting votes' : 'Lead unavailable'}</span></strong>
+    {leader?.candidate_name && <span class="race-party">{partyStyle(leader.party_name)[0]}</span>}
+  </div>
+  {leader && <div class="race-share">{leader.share!.toFixed(1)}<small>%</small></div>}
+  {data.leadVotes !== null && <p class="race-margin">Ahead by <strong>{formatNumber(data.leadVotes)} votes</strong> of {data.runnerUp?.candidate_name ?? partyStyle(data.runnerUp!.party_name)[0]}.</p>}
+</div>
+<style>
+  .race-lead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 22px;padding:23px 0;margin-bottom:22px;border-bottom:1px solid var(--line)}
+  .race-label{display:block;font-size:10px;color:var(--muted);margin-bottom:10px}.race-lead>div>strong{font-size:29px;letter-spacing:-1px;line-height:1.2;overflow-wrap:anywhere;font-weight:550}.race-lead i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:9px;vertical-align:middle}.race-party{display:block;font-size:12px;color:var(--muted);margin-top:8px}.race-share{font-size:50px;line-height:1;letter-spacing:-2px;text-align:right;align-self:center;white-space:nowrap;font-variant-numeric:tabular-nums}.race-share small{font-size:23px}.race-margin{grid-column:1/-1;font-size:11px;color:var(--muted);line-height:1.7;margin:0}.race-margin strong{color:var(--ink);font-weight:550}
+  @media(max-width:540px){.race-lead{gap:14px}.race-lead>div>strong{font-size:24px}.race-share{font-size:40px}.race-share small{font-size:19px}}
+  @media(max-width:360px){.race-lead>div>strong{font-size:21px}.race-share{font-size:34px}}
+</style>

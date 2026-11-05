@@ -1,0 +1,21 @@
+---
+import '../styles/site.css';
+import '../styles/design.css';
+import '../styles/party-logos.css';
+import Brand from '../components/Brand.astro';
+interface Props { title: string; description: string; noindex?: boolean; canonicalPath?: string; liveResults?: boolean }
+const { title, description, noindex = false, canonicalPath = Astro.url.pathname, liveResults = false } = Astro.props;
+const canonical = new URL(canonicalPath, Astro.url.origin).href;
+---
+<!doctype html><html lang="en-ZA"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>{title} · Counted</title><meta name="description" content={description}/><link rel="canonical" href={canonical}/>
+<meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow'}/><meta property="og:site_name" content="Counted"/><meta property="og:title" content={`${title} · Counted`}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/><meta property="og:type" content="website"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="64x64" href="/brand/favicon-64.png"/>
+<link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg"/>
+<link rel="preload" href="/fonts/SpaceGrotesk.ttf" as="font" type="font/ttf" crossorigin/>
+</head><body><a class="skip" href="#main">Skip to results</a><header class="header"><div class="header-inner">
+<Brand />
+<nav class="nav" aria-label="Main navigation"><a href="/" class:list={{active: Astro.url.pathname === '/' || Astro.url.pathname.startsWith('/2026/')}} aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>Results</a><a href="/map" class:list={{active: Astro.url.pathname === '/map'}} aria-current={Astro.url.pathname === '/map' ? 'page' : undefined}>Explore map</a><a href="/find-address" aria-current={Astro.url.pathname === "/find-address" ? "page" : undefined}>Find my ward</a></nav></div></header>
+<main id="main" data-live-results={liveResults ? '' : undefined}><slot/></main><footer class="footer"><div><p><strong>Counted</strong> · South African election results</p><p>Independent civic project · IEC results are provisional.</p>{liveResults && <p id="live-results-status" role="status" hidden></p>}</div><div class="footer-links"><a href="/api">API & data docs</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">IEC source ↗</a></div></footer></body></html>
+<script>import '../lib/live/results.ts';</script>

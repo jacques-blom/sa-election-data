@@ -1,0 +1,37 @@
+---
+import { progressLabel, type progressOf } from '../lib/overview/results.ts';
+import { formatNumber } from '../lib/places/results.ts';
+
+interface Props {
+  progress: NonNullable<ReturnType<typeof progressOf>>;
+  variant?: 'inline' | 'bar';
+  class?: string;
+}
+const { progress, variant = 'inline', class: className } = Astro.props;
+const label = progressLabel(progress);
+---
+{variant === 'inline' ? <span class:list={['reporting-progress-inline', className]}>
+  <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+    <circle class="reporting-ring-track" cx="10" cy="10" r="8"/>
+    <circle class="reporting-ring-value" cx="10" cy="10" r="8" pathLength="100" stroke-dasharray={`${progress.percent} 100`} transform="rotate(-90 10 10)"/>
+  </svg>
+  <strong>{label}</strong>
+</span> : <progress
+  class:list={['reporting-progress-bar', className]}
+  max={progress.expected}
+  value={progress.completed}
+  aria-label="Voting districts reporting"
+  aria-valuetext={`${label} · ${formatNumber(progress.completed)} of ${formatNumber(progress.expected)} voting districts reporting`}
+>{label}</progress>}
+
+<style>
+  .reporting-progress-inline{display:inline-flex;align-items:center;gap:.4em;vertical-align:middle;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .reporting-progress-inline svg{display:block;width:1.4em;height:1.4em;min-width:14px;min-height:14px;flex-shrink:0;fill:none;stroke-width:3}
+  .reporting-ring-track{stroke:var(--sage,#e7eddb)}
+  .reporting-ring-value{stroke:var(--indigo,#587994)}
+  .reporting-progress-inline strong{font-size:inherit;font-weight:600;color:var(--indigo,#587994)}
+  .reporting-progress-bar{display:block;appearance:none;width:100%;height:6px;overflow:hidden;border:0;border-radius:6px;background:var(--sage,#e7eddb);color:var(--indigo,#587994)}
+  .reporting-progress-bar::-webkit-progress-bar{background:var(--sage,#e7eddb)}
+  .reporting-progress-bar::-webkit-progress-value{background:var(--indigo,#587994);border-radius:6px}
+  .reporting-progress-bar::-moz-progress-bar{background:var(--indigo,#587994);border-radius:6px}
+</style>

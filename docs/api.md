@@ -157,6 +157,12 @@ Impossible negative seat counts become null in the normalized `seats` fields.
 Their original values remain in `source_anomalies`, also collected under `quality`.
 Raw source snapshots retain every original field.
 
+The website's **Estimated council seats** view is a separate calculation from the
+current count. API `seats` fields remain source-reported allocations and may be
+partial; they are never replaced by estimates. See the repository's
+`docs/seats.md` for the model's assumptions and validation rules. A complete,
+reconciled IEC allocation takes precedence in the website and coalition playground.
+
 The dashboard feeds used here do not supply a complete separate dataset for
 district-council ballots. National and provincial summaries are source-reported
 snapshots, not an artificial sum of municipalities fetched at different times.
@@ -167,3 +173,26 @@ snapshots, not an artificial sum of municipalities fetched at different times.
 and its public JSON documents. These .js URLs contain JSON and are parsed as
 data, never executed. No IEC API credentials are used. This project is independent
 of the IEC. Source URLs and checksums are included for verification.
+
+## Named places and boundaries
+
+Search the South African place directory with
+[`/api/v1/places?q=Calvinia&page=1`](/api/v1/places?q=Calvinia&page=1).
+Responses include `total`, a page size of 60, and compact place records with
+name, province, municipality, geographic bounds and canonical result-page URL.
+An empty query returns the metros. Names and aliases can be combined with a
+province to distinguish places sharing a name.
+
+[`/api/v1/places/calvinia`](/api/v1/places/calvinia) includes the place's
+many-to-many ward/municipality relationships and the current result snapshots.
+[`/2026/places/calvinia.md`](/2026/places/calvinia.md) presents the same scope and
+figures as Markdown. A town page reports whole overlapping wards, not a
+calculated town-only vote total. These mappings use statistical main-place
+boundaries labelled 2016 and electoral ward boundaries for 2026.
+
+`/api/v1/geometry/:level/:id` returns a GeoJSON feature for `province`,
+`municipality`, `ward`, `voting-district` or `town`. Electoral IDs are IEC IDs;
+town IDs are Stats SA main-place codes. Boundaries are simplified geographic
+context, not proof of voter registration. Place search caches for five minutes,
+result endpoints for fifteen seconds, and geometry for one day. Source and
+status fields must accompany any result presentation.

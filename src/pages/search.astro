@@ -1,0 +1,16 @@
+---
+import Site from '../layouts/Site.astro';
+import Search from '../components/Search.astro';
+import { env } from 'cloudflare:workers';
+import { searchDirectory } from '../lib/places/directory.ts';
+import { placeUrl } from '../lib/places/catalogue.ts';
+const q=(Astro.url.searchParams.get('q')??'').slice(0,100).trim();
+const page=Math.max(1,Math.min(334,Number.parseInt(Astro.url.searchParams.get('page')??'1',10)||1));
+let data:Awaited<ReturnType<typeof searchDirectory>>={places:[],total:0};let failed=false;
+try{data=await searchDirectory(env.GEOGRAPHY_DB??env.RESULTS_DB,q,60,(page-1)*60);}catch{failed=true;Astro.response.status=503;}
+if(q&&data.total===1&&data.places[0])return Astro.redirect(placeUrl(data.places[0]),302);
+---
+<Site title="Find your area" description="Find South African election results by town, city or municipality." noindex><div class="page-top"><div><h1>Find your area</h1></div></div><Search query={q}/><div class="section-heading"><h2>{q?`${data.total} results for “${q}”`:'Explore the metros'}</h2></div>
+<div class="cards">{data.places.map(p=><a class="card place-card" href={placeUrl(p)}><span class="eyebrow">{p.province} · {p.kind}</span><h3>{p.name}</h3>{p.municipalityName !== p.name && <p>{p.municipalityName}</p>}</a>)}</div>
+{data.places.length===0&&<section class="empty"><h2>{failed?'Area search is temporarily unavailable.':'No matching area found.'}</h2><p>Try a different name, search an address or explore the map.</p><div class="links"><a href="/find-address">Search by address →</a><a href="/map">Explore map →</a></div></section>}
+<nav class="links" aria-label="Search pages">{page>1&&<a href={`/search?q=${encodeURIComponent(q)}&page=${page-1}`}>← Previous</a>}{page*60<data.total&&<a href={`/search?q=${encodeURIComponent(q)}&page=${page+1}`}>More areas →</a>}</nav></Site>

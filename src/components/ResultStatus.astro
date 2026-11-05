@@ -1,0 +1,21 @@
+---
+import { progressOf, progressLabel, resultDelay } from '../lib/overview/results.ts';
+import { formatNumber, type Result } from '../lib/places/results.ts';
+import ReportingProgress from './ReportingProgress.astro';
+
+interface Props { result: Result; showProgress?: boolean }
+const { result, showProgress = true } = Astro.props;
+const progress = progressOf(result);
+const delay = resultDelay(result);
+---
+{showProgress && <div class="result-progress">
+  <p>{progress ? <><strong>{progressLabel(progress)}</strong> of districts reporting <span>· {formatNumber(progress.completed)} of {formatNumber(progress.expected)}</span></> : 'Reporting progress unavailable'}</p>
+  {progress && <ReportingProgress progress={progress} variant="bar"/>}
+</div>}
+{delay && <p class="notice" role="status">{delay}</p>}
+
+<style>
+  .result-progress{margin:16px 0;color:var(--muted);font-size:11px;line-height:1.6}
+  .result-progress p{margin:0 0 7px}.result-progress strong{color:var(--ink)}
+  .result-progress span{display:inline-block}
+</style>

@@ -1,0 +1,10 @@
+---
+import { partyLogo, type PartyIdentity } from '../lib/parties/logos.ts';
+interface Props { party: PartyIdentity; size?: 'small' | 'medium' }
+const { party, size = 'medium' } = Astro.props;
+const src = partyLogo(party);
+const pixels = size === 'small' ? 22 : 30;
+---
+<span class:list={['party-logo', `party-logo--${size}`, { 'party-logo--fallback': !src }]} aria-hidden="true">
+  {src && <img src={src} alt="" width={pixels} height={pixels} loading="lazy" decoding="async"/>}
+</span>

@@ -1,0 +1,33 @@
+---
+import { env } from 'cloudflare:workers';
+import Site from '../../../layouts/Site.astro';
+import RegionMap from '../../../components/RegionMap.astro';
+import ResultChart from '../../../components/ResultChart.astro';
+import { getVotingDistrictResults,type Result } from '../../../lib/places/results.ts';
+import { joinedResults } from '../../../lib/data/packed-results.ts';
+import { administrative } from '../../../lib/maps/administrative.ts';
+import { wardNumber } from '../../../lib/places/catalogue.ts';
+import { mapLink } from '../../../lib/maps/config.ts';
+type DistrictBoundary={ward_id:string;minx:number;miny:number;maxx:number;maxy:number};
+const id=Astro.params.id??'';let result:Result|null=null;let boundary:DistrictBoundary|null=null;let failed=false;
+if(/^\d{8,10}$/.test(id))try{
+ const [district,area,geometry]=await Promise.all([
+  getVotingDistrictResults(env.RESULTS_DB,id,env.RAW_RESULTS),
+  env.RESULTS_DB.prepare(`SELECT r.ward_id ${joinedResults} WHERE r.year=2026 AND r.level='voting-district' AND r.area_id=?`).bind(id).first<{ward_id:string}>(),
+  (env.GEOGRAPHY_DB??env.RESULTS_DB).prepare("SELECT minx,miny,maxx,maxy FROM map_geometries WHERE level='voting-district' AND id=?").bind(id).first<Omit<DistrictBoundary,'ward_id'>>(),
+ ]);
+ result=district;
+ boundary=area&&geometry?{...area,...geometry}:null;
+}catch{failed=true;}
+Astro.response.status=failed?503:result?200:404;
+Astro.response.headers.set('Cache-Control',result?'public, max-age=15, s-maxage=15':'no-store');
+const parent=result?.municipalityId?administrative.municipalities[result.municipalityId]:null;
+const title=result?.name.replace(/^\d+\s*-\s*/,'')??'Voting district unavailable';
+const ballot=Astro.url.searchParams.get('ballot')==='ward'?'ward':'pr';
+---
+<Site liveResults={Astro.response.status !== 404} title={`${title} — 2026 election results`} description={`Election results for voting district ${id}, with party vote shares and reporting progress.`} noindex>
+<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">South Africa</a>{parent&&<><span>/</span><a href={parent.url}>{parent.name}</a></>}{boundary&&<><span>/</span><a href={`/2026/wards/${boundary.ward_id}`}>Ward {wardNumber(boundary.ward_id)}</a></>}</nav>
+{result?<><div class="page-top"><div><p class="eyebrow">Voting district {id} · 2026</p><h1>{title}</h1></div></div>
+
+<ResultChart result={result} ballot={ballot}/>{boundary&&<RegionMap options={{level:'voting-district',id,bbox:[boundary.minx,boundary.miny,boundary.maxx,boundary.maxy]}} title={`${title} voting district boundary`} href={mapLink(parent?.slug??'south-africa',boundary.ward_id)} caption="Voting district boundary. This does not confirm your registered voting station."/>}<div class="links">{boundary&&<a href={`/2026/wards/${boundary.ward_id}`}>Whole ward result →</a>}</div></>:<section class="empty"><h1>{title}</h1><p>{failed?'Please try again shortly.':'Try another district or browse the map.'}</p><a href="/map">Explore map →</a></section>}
+</Site>

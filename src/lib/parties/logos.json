@@ -1,0 +1,4156 @@
+{
+  "source": "https://results.elections.org.za/dashboards/lge/MapsJason/2016/PartyList.js",
+  "directorySha256": "c49140ee049cb940fe364c5e56c24753fae85f9c59789c57395a2aa00f8c7bec",
+  "fetchedAt": "2026-11-05T19:01:53.203Z",
+  "year": 2026,
+  "logos": {
+    "2": {
+      "name": "UNITED CHRISTIAN DEMOCRATIC PARTY",
+      "src": "/parties/2-4c621488bb18.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UCDP.PNG",
+      "sha256": "4c621488bb181b1b7a7dc67c95a5ada757ff77ced6af0484ca8a7f5df2356a75",
+      "width": 45,
+      "height": 45
+    },
+    "3": {
+      "name": "INKATHA FREEDOM PARTY",
+      "src": "/parties/3-87358d449a79.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IFP.PNG",
+      "sha256": "87358d449a790c6d22fc7a95e430aa9b82c52f0c02b32685c309bd516cd45f19",
+      "width": 45,
+      "height": 45
+    },
+    "4": {
+      "name": "VRYHEIDSFRONT PLUS | FREEDOM FRONT PLUS",
+      "src": "/parties/4-6db581f331d7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/VF%20PLUS.PNG",
+      "sha256": "6db581f331d7a18e71930f7de1ed6da7afbf7d47b792202a96c17862a45760c3",
+      "width": 45,
+      "height": 45
+    },
+    "6": {
+      "name": "UNITED DEMOCRATIC MOVEMENT",
+      "src": "/parties/6-3d5c48b207be.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UDM.PNG",
+      "sha256": "3d5c48b207be02d6ade03d9519156666a3491485223730c02c74cb6e3fb580f1",
+      "width": 45,
+      "height": 45
+    },
+    "7": {
+      "name": "AFRICAN NATIONAL CONGRESS",
+      "src": "/parties/7-7595b9779df2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ANC.PNG",
+      "sha256": "7595b9779df2d73be5f4a385b4d1b38ce736f48a804105ddf38046f668bbd944",
+      "width": 45,
+      "height": 45
+    },
+    "8": {
+      "name": "PAN AFRICANIST CONGRESS OF AZANIA",
+      "src": "/parties/8-7392cf603bda.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PAC.PNG",
+      "sha256": "7392cf603bda79c12dea4d29f2310e6d061349a00230df827d4187945c4052b2",
+      "width": 45,
+      "height": 45
+    },
+    "17": {
+      "name": "AZANIAN PEOPLE'S ORGANISATION",
+      "src": "/parties/17-0a29641fe16f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AZAPO.PNG",
+      "sha256": "0a29641fe16f45c7ccbbfedd29e93f6de48cf3df25798f8232c93399fdeda9ec",
+      "width": 45,
+      "height": 45
+    },
+    "18": {
+      "name": "AFRICAN CHRISTIAN DEMOCRATIC PARTY",
+      "src": "/parties/18-f4467deeb01b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACDP.PNG",
+      "sha256": "f4467deeb01b7987242f355c2a4f8648e314b2005a3ce019faab778862a74a46",
+      "width": 45,
+      "height": 45
+    },
+    "28": {
+      "name": "XIMOKO PARTY",
+      "src": "/parties/28-db48d634870c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/XP.PNG",
+      "sha256": "db48d634870c96cf3c584e3e3fe7874cb60413f8dba6f18591ef626b2bf8f397",
+      "width": 45,
+      "height": 45
+    },
+    "29": {
+      "name": "SINDAWONYE PROGRESSIVE PARTY",
+      "src": "/parties/29-ab826e5179a2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SPP.PNG",
+      "sha256": "ab826e5179a2eb0b28b3ba04fb53a231bdcc47c686077fa2b36a0a7307a5aa85",
+      "width": 45,
+      "height": 45
+    },
+    "31": {
+      "name": "MINORITY FRONT",
+      "src": "/parties/31-e882c289d84c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MF.PNG",
+      "sha256": "e882c289d84c99b193685f5c2362c96b8ebcf9c84bca081cb4122c996fe18981",
+      "width": 45,
+      "height": 45
+    },
+    "45": {
+      "name": "INDEPENDENT CIVIC ORGANISATION OF SOUTH AFRICA",
+      "src": "/parties/45-afa65cd0313c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ICOSA.PNG",
+      "sha256": "afa65cd0313cd4ba36cc8c00324bc34087804379858ac0e943fdfd3121851bb6",
+      "width": 45,
+      "height": 45
+    },
+    "52": {
+      "name": "DEMOCRATIC ALLIANCE",
+      "src": "/parties/52-bc288db9a683.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DA.PNG",
+      "sha256": "bc288db9a68380e5701eecd0e8331c45d416003637d6ecdbbcdd8cde83a0251b",
+      "width": 45,
+      "height": 45
+    },
+    "55": {
+      "name": "DIKWANKWETLA PARTY OF SOUTH AFRICA",
+      "src": "/parties/55-01151343abab.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DPSA.PNG",
+      "sha256": "01151343abab7825a8f168513f3cd4eae42ad71dec5729e2bbf030f5b9bb82b6",
+      "width": 45,
+      "height": 45
+    },
+    "84": {
+      "name": "BREEDEVALLEI ONAFHANKLIK",
+      "src": "/parties/84-5d51b000325a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BO.PNG",
+      "sha256": "5d51b000325ac0b03131c4458d99726a8691d39a8c6ce0121fb901e95f60a894",
+      "width": 45,
+      "height": 45
+    },
+    "284": {
+      "name": "NATIONAL DEMOCRATIC CONVENTION",
+      "src": "/parties/284-6c1933c99a40.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NADECO.PNG",
+      "sha256": "6c1933c99a40817e5f2c1cfa174b4766b8a308dcb5ec8de25500fd98112de344",
+      "width": 45,
+      "height": 45
+    },
+    "311": {
+      "name": "TRULY ALLIANCE",
+      "src": "/parties/311-51e978dbdf35.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TA.PNG",
+      "sha256": "51e978dbdf350d85bc95e1c0e298906e039b96974d071a3a4cd7f1df7b9a59d5",
+      "width": 45,
+      "height": 45
+    },
+    "321": {
+      "name": "PEOPLE'S DEMOCRATIC MOVEMENT",
+      "src": "/parties/321-b19bb17b5067.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PDM.PNG",
+      "sha256": "b19bb17b5067b51833effff3434fc6d4342c0448239e176e66593e5ee997f8d5",
+      "width": 45,
+      "height": 45
+    },
+    "326": {
+      "name": "INDEPENDENT RATEPAYERS ASSOCIATION OF SA",
+      "src": "/parties/326-308248ec9894.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IRASA.PNG",
+      "sha256": "308248ec9894bf49d5c1a08deb746c4a56cefdc7f06a26aba747561506aa4328",
+      "width": 45,
+      "height": 45
+    },
+    "330": {
+      "name": "AFRICAN INDEPENDENT CONGRESS",
+      "src": "/parties/330-d2eb89669db5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AIC.PNG",
+      "sha256": "d2eb89669db5053c77f27334f7bc558c5b3e07ac151e841f6cd50381af8c75ac",
+      "width": 45,
+      "height": 45
+    },
+    "445": {
+      "name": "SOUTH AFRICAN COMMUNIST PARTY",
+      "src": "/parties/445-29b2b9771071.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SACP.PNG",
+      "sha256": "29b2b97710716593b003c1f8df0a75f49cc300163b3331abd7624f061f5ca538",
+      "width": 45,
+      "height": 45
+    },
+    "447": {
+      "name": "AL JAMA-AH",
+      "src": "/parties/447-1acf7eb90fdb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ALJAMA.PNG",
+      "sha256": "1acf7eb90fdba5ce3447a9cbd00dc0cc4ef8c00b4c9f072ab093b4cfdf18aa6f",
+      "width": 45,
+      "height": 45
+    },
+    "450": {
+      "name": "AFRICAN PEOPLE'S CONVENTION",
+      "src": "/parties/450-3ecf9893a5ab.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/APC.PNG",
+      "sha256": "3ecf9893a5ab46802e4fb75d6654239e881ff5d98427a296c0f7343d818b1598",
+      "width": 45,
+      "height": 45
+    },
+    "467": {
+      "name": "CAPE INDEPENDENCE PARTY / KAAPSE ONAFHANKLIKHEIDS PARTY",
+      "src": "/parties/467-3bfbfce07440.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CAPEXIT.PNG",
+      "sha256": "3bfbfce074402ae9052c689822c4533e48a8dacd247a352669b37987624e2ae4",
+      "width": 45,
+      "height": 45
+    },
+    "472": {
+      "name": "NEW DEMOCRATIC PARTY/ NUWE DEMOKRATIESE PARTY",
+      "src": "/parties/472-01f0687de6ff.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NDP.PNG",
+      "sha256": "01f0687de6ff7672e75647406359cccd85e53cba9f7f44b31ed45735414a0556",
+      "width": 45,
+      "height": 45
+    },
+    "499": {
+      "name": "CONGRESS OF THE PEOPLE",
+      "src": "/parties/499-f36d1705920e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/COPE.PNG",
+      "sha256": "f36d1705920ea87e0cdcd02e386e070cab3222a7088edaa4bfed183b683add6e",
+      "width": 45,
+      "height": 45
+    },
+    "565": {
+      "name": "DEMOCRATIC ASSOCIATION OF WITZENBERG INDEPENDENCE",
+      "src": "/parties/565-f3b963bf804b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DAWI.PNG",
+      "sha256": "f3b963bf804b90148f52b8cb70758ccabb7cbd951ecc4d1f12dfab59a9268f01",
+      "width": 45,
+      "height": 45
+    },
+    "568": {
+      "name": "UNITED RESIDENTS FRONT",
+      "src": "/parties/568-e4d36d8f5aaf.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/URF.PNG",
+      "sha256": "e4d36d8f5aafa0d55371157b8cf77d62d158c899d52713480fa6dd3a1644e8fb",
+      "width": 45,
+      "height": 45
+    },
+    "577": {
+      "name": "MERAFONG CIVIC ASSOCIATION",
+      "src": "/parties/577-d664e7de7aca.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MECA.PNG",
+      "sha256": "d664e7de7acab6bd353dc8eeeb9971939323385ad61c3dcb666e539daee4b833",
+      "width": 45,
+      "height": 45
+    },
+    "591": {
+      "name": "NATIONAL FREEDOM PARTY",
+      "src": "/parties/591-af10397b3ccf.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NFP.PNG",
+      "sha256": "af10397b3ccf199d9494decff6bc74d5282ed04bd9cbf0081df09ec1405525ca",
+      "width": 45,
+      "height": 45
+    },
+    "593": {
+      "name": "DEMOCRATIC NEW CIVIC ASSOCIATION",
+      "src": "/parties/593-b7ee09c74570.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DNCAWC024.PNG",
+      "sha256": "b7ee09c74570dffe1d5b59d2758f24eebe76f3f013244ca04a746fc7dfd96420",
+      "width": 45,
+      "height": 45
+    },
+    "603": {
+      "name": "SOUTH AFRICAN MAINTENANCE AND ESTATE BENEFICIARIES ASSOCIATI",
+      "src": "/parties/603-2eb116f668af.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAMEBA.PNG",
+      "sha256": "2eb116f668afa2d805e87a36b023df106d6ebc7c3a255dbd03b1858e86470168",
+      "width": 45,
+      "height": 45
+    },
+    "609": {
+      "name": "PLAASLIKE BESORGDE INWONERS",
+      "src": "/parties/609-a5408f878963.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PBIWC044.PNG",
+      "sha256": "a5408f8789634689bec3ed8d653ea0ab924bf63021ae59f265bd6e6c66bf23aa",
+      "width": 45,
+      "height": 45
+    },
+    "610": {
+      "name": "CIVIC INDEPENDENT",
+      "src": "/parties/610-a90c3865dde5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CI.PNG",
+      "sha256": "a90c3865dde5644a98aa907a74deee761acc0ead94f2261659ebd8c9c293af3c",
+      "width": 45,
+      "height": 45
+    },
+    "619": {
+      "name": "MPUMALANGA PARTY",
+      "src": "/parties/619-2b8c3cc6e7c6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MPLIM472.PNG",
+      "sha256": "2b8c3cc6e7c6640eb7a244a3dd30fa30bbfb4913e66b3d56d29b465fd0f3cddc",
+      "width": 45,
+      "height": 45
+    },
+    "630": {
+      "name": "CAPE MUSLIM CONGRESS",
+      "src": "/parties/630-296be9bc67b9.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CMCCPT.PNG",
+      "sha256": "296be9bc67b9dbf46d5e337b2b387897a4ceae54236da80f70580a1f0f7b8dd8",
+      "width": 45,
+      "height": 45
+    },
+    "649": {
+      "name": "SOCIALIST CIVIC MOVEMENT",
+      "src": "/parties/649-1d7fe3637eef.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SCM.PNG",
+      "sha256": "1d7fe3637eefd164aaea97c2817b65676065399295a4898f1b10a9e413b46da2",
+      "width": 45,
+      "height": 45
+    },
+    "651": {
+      "name": "BETTER RESIDENTS ASSOCIATION",
+      "src": "/parties/651-6a3acc681efc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BRA.PNG",
+      "sha256": "6a3acc681efc817751adcbb0b0fc7155e601fff0ed1a9f49ba4bd8a83198cf4d",
+      "width": 45,
+      "height": 45
+    },
+    "660": {
+      "name": "KZN INDEPENDENCE",
+      "src": "/parties/660-f2a94fd7e41e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KZNI.PNG",
+      "sha256": "f2a94fd7e41e74c0dec6fd6fa28b9f5db33ed4a2e51fa14abeb5bc72726f2d6d",
+      "width": 45,
+      "height": 45
+    },
+    "924": {
+      "name": "NATIONAL INDEPENDENT PARTY",
+      "src": "/parties/924-56c1391ce84a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NIP.PNG",
+      "sha256": "56c1391ce84ae734f3d0d3496e2dcef11f4a6d86b9322cb6b68330a1f32fd30f",
+      "width": 45,
+      "height": 45
+    },
+    "926": {
+      "name": "MALETSWAI CIVIC ASSOCIATION",
+      "src": "/parties/926-1a0c9220e209.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR926.PNG",
+      "sha256": "1a0c9220e2099f4507879205cf164f443c58bb8d92ef6856b5d8069fb92ebac7",
+      "width": 45,
+      "height": 45
+    },
+    "928": {
+      "name": "POELANO REVELATION PARTY",
+      "src": "/parties/928-95c8e1e13983.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PRP.PNG",
+      "sha256": "95c8e1e13983fadeeec46044c39178932f16d09540d7cd52e77f2e34a9a0c9fd",
+      "width": 45,
+      "height": 45
+    },
+    "929": {
+      "name": "INTERNATIONAL REVELATION CONGRESS",
+      "src": "/parties/929-ff192a9cce2c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IRC.PNG",
+      "sha256": "ff192a9cce2c237da6bce63ef3c3a956b62d5d3676330206f54b6a618d1115d8",
+      "width": 45,
+      "height": 45
+    },
+    "932": {
+      "name": "BOLSHEVIKS PARTY OF SOUTH AFRICA",
+      "src": "/parties/932-a86da1d768a6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BPSA.PNG",
+      "sha256": "a86da1d768a686237290d116127ce095414dfbf4beccc940ef8d7ceede3c1d29",
+      "width": 45,
+      "height": 45
+    },
+    "938": {
+      "name": "AGANG SOUTH AFRICA",
+      "src": "/parties/938-1668c4ac7229.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AGANG%20SA.PNG",
+      "sha256": "1668c4ac7229c6ea91cae098b8e13876dcb53d1fc87b5b64dd2cdaf18b6bc834",
+      "width": 45,
+      "height": 45
+    },
+    "944": {
+      "name": "DEMOCRATIC LABOUR PARTY",
+      "src": "/parties/944-2cd29b956a85.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DLP.PNG",
+      "sha256": "2cd29b956a85039ceeee9a0599fc0f0e8d900566ce665ce9e471aec8057b8c87",
+      "width": 45,
+      "height": 45
+    },
+    "945": {
+      "name": "ECONOMIC FREEDOM FIGHTERS",
+      "src": "/parties/945-6e3140d6c860.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/EFF.PNG",
+      "sha256": "6e3140d6c860dad8873fe95a247a3328a94a34cfac8c8bfa912dc4b1ce19bbf5",
+      "width": 45,
+      "height": 45
+    },
+    "957": {
+      "name": "PATRIOTIC ALLIANCE",
+      "src": "/parties/957-809ca55cdf3a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PA.PNG",
+      "sha256": "809ca55cdf3a3539f02f2968bb3d190b716243d487ba652ac3608033e46b9b9c",
+      "width": 45,
+      "height": 45
+    },
+    "958": {
+      "name": "SOUTH AFRICAN POLITICAL ASSOCIATION",
+      "src": "/parties/958-e645a38731ac.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAPA.PNG",
+      "sha256": "e645a38731ac4df697a34a148f12c2a5af4747a11aafc1952da2498877d3f6fa",
+      "width": 45,
+      "height": 45
+    },
+    "962": {
+      "name": "UNEMPLOYMENT MOVEMENT SA",
+      "src": "/parties/962-97a34d026d95.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UMSA.PNG",
+      "sha256": "97a34d026d9541118f17e0aeb3411613fcdc1a0b018467ec00f71b6e804a03da",
+      "width": 45,
+      "height": 45
+    },
+    "973": {
+      "name": "ALTERNATIVE AFRICAN ALLEGIANCE",
+      "src": "/parties/973-71de8bcf2c28.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AAAJHB.PNG",
+      "sha256": "71de8bcf2c2833924c983457ed2145ff6cb15beb55f8683a5f9c7b3cea2850dd",
+      "width": 45,
+      "height": 45
+    },
+    "997": {
+      "name": "AFRICAN PEOPLE'S SOCIALIST PARTY",
+      "src": "/parties/997-4ec3860399fd.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/APSP.PNG",
+      "sha256": "4ec3860399fd5f9e0ce4e1f81d50767bc2ce0e5e8186dd771fcf283cdae44631",
+      "width": 45,
+      "height": 45
+    },
+    "998": {
+      "name": "AFRICAN MANTUNGWA COMMUNITY",
+      "src": "/parties/998-2226404dd535.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AC.PNG",
+      "sha256": "2226404dd53502d5e1b8ed75ef6eacc452d3bf9f44f55f40da50fa3f4d694092",
+      "width": 45,
+      "height": 45
+    },
+    "999": {
+      "name": "INDEPENDENT PARTY",
+      "src": "/parties/999-49b095481cf4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IPNW372.PNG",
+      "sha256": "49b095481cf4ff6fe5767bc2304166d43284fdc74c9bfd4ade339e8bb2093305",
+      "width": 45,
+      "height": 45
+    },
+    "1004": {
+      "name": "SIZWE UMMAH NATION",
+      "src": "/parties/1004-bc6677704244.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SUN.PNG",
+      "sha256": "bc66777042447a12cbffc7c5aabbcc2bb6688314811293f37341e7fe30ba9d68",
+      "width": 45,
+      "height": 45
+    },
+    "1013": {
+      "name": "PEOPLE'S REVOLUTIONARY MOVEMENT",
+      "src": "/parties/1013-86f395e4f5f4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PRM.PNG",
+      "sha256": "86f395e4f5f4da2cbf8f7f936efb9809cc0b7362b851e23185547d1096244506",
+      "width": 45,
+      "height": 45
+    },
+    "1017": {
+      "name": "DIENSLEWERINGS PARTY",
+      "src": "/parties/1017-c15aade3e646.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DLRPWC031.PNG",
+      "sha256": "c15aade3e646a4f6e9ea64b319d9afdaff9613abfaee44ad10857a5df3a342a6",
+      "width": 45,
+      "height": 45
+    },
+    "1020": {
+      "name": "STERKSPRUIT CIVIC ASSOCIATION",
+      "src": "/parties/1020-fa0a314200fc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CIVICEC141.PNG",
+      "sha256": "fa0a314200fc50a73d839265a476db73ce672d3e1f86a0e93d77aeed344de269",
+      "width": 45,
+      "height": 45
+    },
+    "1021": {
+      "name": "SALDANHA BAY RESIDENTS ALLIANCE",
+      "src": "/parties/1021-c2ebb99110e8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SRA-SIA.PNG",
+      "sha256": "c2ebb99110e8f78afa5fd7cf97287abcad24f806b33a3dfb8a3006107743bd8e",
+      "width": 45,
+      "height": 45
+    },
+    "1025": {
+      "name": "ANSWER FOR COMMUNITY",
+      "src": "/parties/1025-fd319fcf5b79.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AFCLIM472.PNG",
+      "sha256": "fd319fcf5b79e9649edeaa2fc89f1615d7d32ae55f832e257ab1c96d5a94d390",
+      "width": 45,
+      "height": 45
+    },
+    "1027": {
+      "name": "ALL UNEMPLOYMENT LABOUR ALLIANCE",
+      "src": "/parties/1027-946b614ef651.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AULAFS194.PNG",
+      "sha256": "946b614ef651ddd1290012ffba9c41d594baecbd7ae5352d825d45eb66115df1",
+      "width": 45,
+      "height": 45
+    },
+    "1030": {
+      "name": "NATIONAL PEOPLES AMBASSADORS",
+      "src": "/parties/1030-3778f069b620.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NPA.PNG",
+      "sha256": "3778f069b6204d849d3f35b9538ba43e7ebf8958e184d7052f8af0158fc8a05f",
+      "width": 45,
+      "height": 45
+    },
+    "1035": {
+      "name": "MSUKALIGWA PEOPLE FIRST",
+      "src": "/parties/1035-72819831b54d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MPF.PNG",
+      "sha256": "72819831b54db57fad2a0185026bdfedba8bff426e60ddc1be1a35b77b5e5f97",
+      "width": 45,
+      "height": 45
+    },
+    "1036": {
+      "name": "DEMOCRATIC LIBERAL CONGRESS",
+      "src": "/parties/1036-29ae7c1d08a4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DLC.PNG",
+      "sha256": "29ae7c1d08a47b5ae7066214af9f32eeb2901874fe7f8c4551fc4d0fa3660d10",
+      "width": 45,
+      "height": 45
+    },
+    "1041": {
+      "name": "SHOSHOLOZA PROGRESSIVE PARTY",
+      "src": "/parties/1041-921cd6a3ca67.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SHOSH.PNG",
+      "sha256": "921cd6a3ca67664ddc6e5cd00e128c00afc671d3b16e8d3a8db1aa34570818bb",
+      "width": 45,
+      "height": 45
+    },
+    "1044": {
+      "name": "LANGERBERG INDEPENDENT PARTY",
+      "src": "/parties/1044-995cebf41ada.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LIPWC026.PNG",
+      "sha256": "995cebf41adad9b70a72825e11e9efce0a375054ebb7e48f21ba9b0a8217d303",
+      "width": 45,
+      "height": 45
+    },
+    "1047": {
+      "name": "AFRICAN ALLIANCE CONGRESS",
+      "src": "/parties/1047-fc90f342e364.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AAC.PNG",
+      "sha256": "fc90f342e36407a879942f69ef73c7a8e4859a7233c0719d257c96012c2ed36f",
+      "width": 45,
+      "height": 45
+    },
+    "1051": {
+      "name": "MINORITIES OF SOUTH AFRICA",
+      "src": "/parties/1051-b32eb235ba1f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MOSA.PNG",
+      "sha256": "b32eb235ba1f1cacfa4eab722228091109c1114559c0a55973adc342c3d036a7",
+      "width": 45,
+      "height": 45
+    },
+    "1052": {
+      "name": "ACTIVE UNITED FRONT",
+      "src": "/parties/1052-19bc3cc2bc9e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AUFWC047.PNG",
+      "sha256": "19bc3cc2bc9efd981f8afde579ed343c8367b565295c3c995ecb7a5ade8adee3",
+      "width": 45,
+      "height": 45
+    },
+    "1057": {
+      "name": "WITZENBERG AKSIE",
+      "src": "/parties/1057-f5accd919fdc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/WAWC022.PNG",
+      "sha256": "f5accd919fdc5faac030f5cb690841729a52077491c27c6e62d4cc8ac6d79aff",
+      "width": 45,
+      "height": 45
+    },
+    "1058": {
+      "name": "DEMOCRATIC COMMUNITY MOVEMENT",
+      "src": "/parties/1058-f4b0abd0a18c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DCMMP325.PNG",
+      "sha256": "f4b0abd0a18c4a7ea0ceeb4632c8466990b6e91d8cb4827d70b878306da7cad7",
+      "width": 45,
+      "height": 45
+    },
+    "1059": {
+      "name": "AFRICAN UNEMPLOYED CONGRESS",
+      "src": "/parties/1059-7b78cb160882.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AUC.PNG",
+      "sha256": "7b78cb1608824c58a4fef7b6f04c3d88da4691e1f28078a17aadc76556084108",
+      "width": 45,
+      "height": 45
+    },
+    "1061": {
+      "name": "KHOISAN REVOLUTION",
+      "src": "/parties/1061-dcfde0403463.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KSR.PNG",
+      "sha256": "dcfde04034635fe1d8556948c11f53748b94f268a58ee9dff0ccdd2ab0d79013",
+      "width": 45,
+      "height": 45
+    },
+    "1064": {
+      "name": "RAND WEST PEOPLES PARTY",
+      "src": "/parties/1064-9ce1a955d291.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RWPP.PNG",
+      "sha256": "9ce1a955d29134ff939dff7b935cfb842858f6f3a36462c52631826d61f876bb",
+      "width": 45,
+      "height": 45
+    },
+    "1065": {
+      "name": "AGENDA TO CITIZENRY GOVERNORS",
+      "src": "/parties/1065-d2f7a500ea6f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACG.PNG",
+      "sha256": "d2f7a500ea6f949c1c03a6a50a7d69c7c5a98eb15c5dc95471bae2094b458d18",
+      "width": 45,
+      "height": 45
+    },
+    "1066": {
+      "name": "THABAZIMBI RESIDENTS ASSOCIATION",
+      "src": "/parties/1066-da7d53f8528c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TRALIM361.PNG",
+      "sha256": "da7d53f8528c42aaf2bdd90945b2359accdcdbe8601a7d7df2884353420dbe18",
+      "width": 45,
+      "height": 45
+    },
+    "1068": {
+      "name": "UNITED DEMOCRATS",
+      "src": "/parties/1068-a54364740b80.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UD.PNG",
+      "sha256": "a54364740b80f5c394c5c09904847d0d8882bf7ada4f397b60fc2171551c7075",
+      "width": 45,
+      "height": 45
+    },
+    "1074": {
+      "name": "AZANIA PEACEFUL REVOLUTION",
+      "src": "/parties/1074-b7fe4156ec8f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AZANIA.PNG",
+      "sha256": "b7fe4156ec8fbe66dc097d06e841d6c0f5b26218c3e8e05350d865952a5362db",
+      "width": 45,
+      "height": 45
+    },
+    "1075": {
+      "name": "ABAFUNA INGUBO YESKHETHU PARTY",
+      "src": "/parties/1075-08a1e670fde1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/INGUBO.PNG",
+      "sha256": "08a1e670fde11d722c9275673cfb6a6839154072ee9e87f8e5e16c17be656b12",
+      "width": 45,
+      "height": 45
+    },
+    "1080": {
+      "name": "SINGUKUKHANYA KWEZWE CHRISTIAN PARTY",
+      "src": "/parties/1080-c3216d9fbdc5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SKCPMP307.PNG",
+      "sha256": "c3216d9fbdc5799fc240f12b777aefb467f8cb9b3e4dfaa3014db9e4c5da9a1b",
+      "width": 45,
+      "height": 45
+    },
+    "1081": {
+      "name": "MODIMOLLE - MOOKGOPHONG PARTY",
+      "src": "/parties/1081-39bd51235867.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MMPLIM368.PNG",
+      "sha256": "39bd5123586795da3ea6a32516ef77b06578b6786570086220c015819fbc438c",
+      "width": 45,
+      "height": 45
+    },
+    "1083": {
+      "name": "CIVIC WARRIORS",
+      "src": "/parties/1083-0dd155c0fb52.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1083.PNG",
+      "sha256": "0dd155c0fb52cc238722baba93bd9f84d581f2cc3a82ea0b2765494ea3d2509c",
+      "width": 45,
+      "height": 45
+    },
+    "1085": {
+      "name": "MTHATHA RATEPAYERS AND RESIDENTS ASSOCIATION",
+      "src": "/parties/1085-29861e2f69e5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MRRAEC157.PNG",
+      "sha256": "29861e2f69e57c46cc477d181097920b2e1cc2251f9838063ad6877b0f28179c",
+      "width": 45,
+      "height": 45
+    },
+    "1091": {
+      "name": "LIMPOPO RESIDENTS ASSOCIATION",
+      "src": "/parties/1091-d500f01a63f8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LIRALIM332.PNG",
+      "sha256": "d500f01a63f81edf1d6d04c569f61ce54dda6c268bede67c8a3963de652eff93",
+      "width": 45,
+      "height": 45
+    },
+    "1103": {
+      "name": "GAMAGARA COMMUNITY FORUM",
+      "src": "/parties/1103-1b474ffa9c41.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GCFNC453.PNG",
+      "sha256": "1b474ffa9c417dbe6c86faf3e579bc6242873a8026dca657eee016362009bfd5",
+      "width": 45,
+      "height": 45
+    },
+    "1104": {
+      "name": "SOCIALIST AGENDA OF DISPOSSESSED AFRICANS",
+      "src": "/parties/1104-9631e101f37d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SADA.PNG",
+      "sha256": "9631e101f37dfc61b63261a6b488c55d98f8b2a6beea18f42deadb86822d0401",
+      "width": 45,
+      "height": 45
+    },
+    "1105": {
+      "name": "KAROO DEMOCRATIC FORCE",
+      "src": "/parties/1105-fe0287e0f6a2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KDFWC053.PNG",
+      "sha256": "fe0287e0f6a2798e082263a3417f7ff0b68ebfe00a13742649d12492717d31ba",
+      "width": 45,
+      "height": 45
+    },
+    "1107": {
+      "name": "ORGANISATION FOR DEMOCRACY AND FREEDOM",
+      "src": "/parties/1107-719a83fefb67.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ODF.PNG",
+      "sha256": "719a83fefb67e548348030ad37ff6b84f47bcc1c6ba2dcf44ca32965f72b6ac9",
+      "width": 45,
+      "height": 45
+    },
+    "1119": {
+      "name": "ADVIESKANTOOR",
+      "src": "/parties/1119-e9d671b716e5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1119.PNG",
+      "sha256": "e9d671b716e5f5c47b81880b0755f59eb38da7b30f8a03868ed268373bf198cd",
+      "width": 45,
+      "height": 45
+    },
+    "1127": {
+      "name": "METSIMAHOLO COMMUNITY ASSOCIATION",
+      "src": "/parties/1127-2aa71b8355b1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MCAFS204.PNG",
+      "sha256": "2aa71b8355b17741cb642d9aa4bd4c1f368e7b7bbf188c1c68e1c366acd59cf4",
+      "width": 45,
+      "height": 45
+    },
+    "1128": {
+      "name": "PALMRIDGE COMMUNITY FORUM",
+      "src": "/parties/1128-2383ed5db3be.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PALCOFEKU.PNG",
+      "sha256": "2383ed5db3be8afc11f7cefc31139cb7d2581f048ce3cb217dff5823e0d01c72",
+      "width": 45,
+      "height": 45
+    },
+    "1131": {
+      "name": "AFRICAN FREEDOM PARTY",
+      "src": "/parties/1131-f2438a1dc9bf.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AFP.PNG",
+      "sha256": "f2438a1dc9bfd1db4f71ac166c345feb33bea36df450ae99ff49630cd7d67878",
+      "width": 45,
+      "height": 45
+    },
+    "1135": {
+      "name": "INDEPENDENT PEOPLE'S PARTY",
+      "src": "/parties/1135-6bbf035bdffa.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IPPETH.PNG",
+      "sha256": "6bbf035bdffad23060ef78ff0b0d7a83f114b4ba93a1be369583be1a28603ddd",
+      "width": 45,
+      "height": 45
+    },
+    "1136": {
+      "name": "SERVICE TO OUR PEOPLE'S PARTY",
+      "src": "/parties/1136-1db13a584fe8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/STOPP.PNG",
+      "sha256": "1db13a584fe8b8e76df1e78ff0a58e78821ff9b95dc80c5cc4fc08cda54206b6",
+      "width": 45,
+      "height": 45
+    },
+    "1260": {
+      "name": "ECONOMIC EMANCIPATION FORUM",
+      "src": "/parties/1260-77986fd9977f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ECOFORUM.PNG",
+      "sha256": "77986fd9977fa9af49e255168956d71f27fe8efa6d300545257c36aec8300f5c",
+      "width": 45,
+      "height": 45
+    },
+    "1274": {
+      "name": "AFRICAN SECURITY CONGRESS",
+      "src": "/parties/1274-8543442ea4d3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ASC.PNG",
+      "sha256": "8543442ea4d308fdf948643ca985681b0e6eaa489eb93304ed6ee15f50c601d6",
+      "width": 45,
+      "height": 45
+    },
+    "1281": {
+      "name": "AFRICAN COVENANT",
+      "src": "/parties/1281-79c7dce77669.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACO.PNG",
+      "sha256": "79c7dce77669896dd40da74d9feec5e6ecd94124e727920e5f7e867325c9bfe8",
+      "width": 45,
+      "height": 45
+    },
+    "1285": {
+      "name": "GAZANKULU LIBERATION CONGRESS",
+      "src": "/parties/1285-289a9854ae89.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GLC.PNG",
+      "sha256": "289a9854ae89023e18b06801eae2bdeed2471151c3912ef0be41ff87e0d1be84",
+      "width": 45,
+      "height": 45
+    },
+    "1286": {
+      "name": "JUSTICE AND EMPLOYMENT PARTY",
+      "src": "/parties/1286-565032bce561.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/JEP.PNG",
+      "sha256": "565032bce56114376dcbd30f159dabd4867e58e294297e26ab2a649d0889ff33",
+      "width": 45,
+      "height": 45
+    },
+    "1287": {
+      "name": "AFRICA REDEMPTION DEMOCRACY",
+      "src": "/parties/1287-6577b6a36017.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARD.PNG",
+      "sha256": "6577b6a360170571430ffcd9aa192d8bbb6e1d55c3b81de18d3c764394e7e264",
+      "width": 45,
+      "height": 45
+    },
+    "1289": {
+      "name": "PARTY OF ACTION",
+      "src": "/parties/1289-8a3d82fdc7b3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/POA.PNG",
+      "sha256": "8a3d82fdc7b35f92fcd12157842491b70d27bf6e1a9a05bde35a53fddffdf695",
+      "width": 45,
+      "height": 45
+    },
+    "1292": {
+      "name": "AFRICAN DEMOCRATIC CHANGE",
+      "src": "/parties/1292-70165c354b54.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ADEC.PNG",
+      "sha256": "70165c354b54a2e8415bc994ea0a0f8e6735c5c19e9045270fcf83d88e3debb5",
+      "width": 45,
+      "height": 45
+    },
+    "1294": {
+      "name": "AFRICAN ECONOMIC TRANSFORMERS",
+      "src": "/parties/1294-b19a1306a8f8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AET.PNG",
+      "sha256": "b19a1306a8f8191c070d8057ad650a41f89adea0700ed5b432edd876bab93b91",
+      "width": 45,
+      "height": 45
+    },
+    "1298": {
+      "name": "MOVEMENT DEMOCRATIC CONGRESS",
+      "src": "/parties/1298-a8ff83d161c0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MDC.PNG",
+      "sha256": "a8ff83d161c0cbaa31da6d1ebe705adf3235478eca73dfbb638f6ec107c61c3a",
+      "width": 45,
+      "height": 45
+    },
+    "1303": {
+      "name": "KHOI-SAN HEAVENLY PARTY",
+      "src": "/parties/1303-0c62c549f6e4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KSHPWC011.PNG",
+      "sha256": "0c62c549f6e4b944fb2972b7a9eaf3e8259d515f6812bc11fdcd7fb2bd354d41",
+      "width": 45,
+      "height": 45
+    },
+    "1305": {
+      "name": "AFRICAN RENAISSANCE UNITY",
+      "src": "/parties/1305-a68862f4ee3f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARU.PNG",
+      "sha256": "a68862f4ee3fc4523669f75e156fe37f22144a86bc93097c3b922bd871a58319",
+      "width": 45,
+      "height": 45
+    },
+    "1307": {
+      "name": "NATIONAL PEOPLE'S FRONT",
+      "src": "/parties/1307-7003a8e75ae4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NAPF.PNG",
+      "sha256": "7003a8e75ae4e3e8ed92d73cf4e246da19a190cca894f577b34e74d288abe962",
+      "width": 45,
+      "height": 45
+    },
+    "1311": {
+      "name": "SOUTH AFRICAN PEOPLES MOVEMENT",
+      "src": "/parties/1311-8dfd198ef6ee.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAPM.PNG",
+      "sha256": "8dfd198ef6eef857a31b4a64721e8bf019856e8cdc6bcb2c677c9d596872d6f7",
+      "width": 45,
+      "height": 45
+    },
+    "1318": {
+      "name": "AFRICAN TRANSFORMATION MOVEMENT",
+      "src": "/parties/1318-f1e319f96b38.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ATM.PNG",
+      "sha256": "f1e319f96b385ba0005c0492b6ab136db3dcd7f01af5981a1c6566a2f5d2fe32",
+      "width": 45,
+      "height": 45
+    },
+    "1324": {
+      "name": "ARUSHA ECONOMIC COALITION",
+      "src": "/parties/1324-8b23ab66a63d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARECO.PNG",
+      "sha256": "8b23ab66a63ddc10e4aa4192774a1a79baf3e11cb426f9f1a1a92602a7787eaa",
+      "width": 45,
+      "height": 45
+    },
+    "1329": {
+      "name": "AFRICA'S NEW DAWN",
+      "src": "/parties/1329-566a5a256a5f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ANDSA.PNG",
+      "sha256": "566a5a256a5fc4d6b453634d879a32ac8e14b8a277d77b19eac45e7672f338fa",
+      "width": 45,
+      "height": 45
+    },
+    "1330": {
+      "name": "FEDERAL PARTY SA",
+      "src": "/parties/1330-e307ec918011.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/FPSA.PNG",
+      "sha256": "e307ec9180117a323166b09be4e543b15a6829e1f99e15aaa369fb74e6d59fb5",
+      "width": 45,
+      "height": 45
+    },
+    "1331": {
+      "name": "SOCIALIST REVOLUTIONARY WORKERS PARTY",
+      "src": "/parties/1331-20e371d1ea38.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SRWP.PNG",
+      "sha256": "20e371d1ea3850df510271c0a5a709acb796340be43ab78f736f2eda424562f3",
+      "width": 45,
+      "height": 45
+    },
+    "1335": {
+      "name": "PEOPLE'S MOVEMENT FOR CHANGE",
+      "src": "/parties/1335-c942af3c37c0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PMC.PNG",
+      "sha256": "c942af3c37c081e20efc3bf68cd799bf9da7bd0d45ddf5b09e45097bede1ce81",
+      "width": 45,
+      "height": 45
+    },
+    "1338": {
+      "name": "MOVEMENT FOR TOTAL LIBERATION",
+      "src": "/parties/1338-9d8d69d42924.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MTL.PNG",
+      "sha256": "9d8d69d429242d8d72705a3ca34509a0634ba1991983f6ddf271e23a15317c7c",
+      "width": 45,
+      "height": 45
+    },
+    "1352": {
+      "name": "LAND PARTY",
+      "src": "/parties/1352-b8eba9d20354.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LAND.PNG",
+      "sha256": "b8eba9d20354a84e7427f10cb6385d9cd8c82260b01097fae4258d6ab18c0171",
+      "width": 45,
+      "height": 45
+    },
+    "1354": {
+      "name": "FREE DEMOCRATS",
+      "src": "/parties/1354-36e5a4fbd1a3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/FREE%20DEMS.PNG",
+      "sha256": "36e5a4fbd1a3330c3ef1956ea63c0f729e402db59dfec3aaa628cebafe2f7aed",
+      "width": 45,
+      "height": 45
+    },
+    "1357": {
+      "name": "AFRIKAN ALLIANCE OF SOCIAL DEMOCRATS",
+      "src": "/parties/1357-d48b26ffe5ed.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AASD.PNG",
+      "sha256": "d48b26ffe5eda7064d458e6b946972e6325a88d89948019c7a08d29c49dd8b72",
+      "width": 45,
+      "height": 45
+    },
+    "1360": {
+      "name": "SPECTRUM NATIONAL PARTY",
+      "src": "/parties/1360-c72125ab159b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SNP.PNG",
+      "sha256": "c72125ab159b02c16675d4dfa4741cf332b198034828a8b63d6739697f2b4fd8",
+      "width": 45,
+      "height": 45
+    },
+    "1362": {
+      "name": "ORGANIC HUMANITY MOVEMENT",
+      "src": "/parties/1362-ad0af2eb7d08.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/OHM.PNG",
+      "sha256": "ad0af2eb7d0827ac91395fa7f06c1db4ddd95097e21da42b762cd19562215fa0",
+      "width": 45,
+      "height": 45
+    },
+    "1367": {
+      "name": "MAGOSHI SWARANANG MOVEMENT",
+      "src": "/parties/1367-d65c573d465f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MSM.PNG",
+      "sha256": "d65c573d465fe9905008fea4ec572d040ce8361ef769428216b6b65fddb5345f",
+      "width": 45,
+      "height": 45
+    },
+    "1368": {
+      "name": "GOOD",
+      "src": "/parties/1368-b67343d6b43b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GOOD.PNG",
+      "sha256": "b67343d6b43b55a0f6a83f92c93d688477b3085bde59b4a15d94ea5decb3ee5b",
+      "width": 45,
+      "height": 45
+    },
+    "1370": {
+      "name": "AFRICAN CONTENT MOVEMENT",
+      "src": "/parties/1370-3e5cc7806ef7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACM.PNG",
+      "sha256": "3e5cc7806ef7d5c9c451b6bb79e142b855a257899eabc57424e9714d8a40be31",
+      "width": 45,
+      "height": 45
+    },
+    "1377": {
+      "name": "PEOPLE'S FREEDOM PARTY",
+      "src": "/parties/1377-6e2a52f24937.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PFP.PNG",
+      "sha256": "6e2a52f24937b2ce643b385b89fe773b819decca009efa8713962eb21c5648e3",
+      "width": 45,
+      "height": 45
+    },
+    "1381": {
+      "name": "SAKHISIZWE CONVENTION",
+      "src": "/parties/1381-169f0088f430.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/S.C..PNG",
+      "sha256": "169f0088f430435ff6d198973d1305152066140e170a0315c7d4a861c0f41099",
+      "width": 45,
+      "height": 45
+    },
+    "1391": {
+      "name": "SOUTH AFRICA FIRST",
+      "src": "/parties/1391-c4d5fb9b2d43.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAF.PNG",
+      "sha256": "c4d5fb9b2d4381e6fe744719d221cf99f0fb91982c885cb0e48a39d635ad4dde",
+      "width": 45,
+      "height": 45
+    },
+    "1394": {
+      "name": "KNOW YOUR NEIGHBOUR",
+      "src": "/parties/1394-5093d7c530bc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KYN.PNG",
+      "sha256": "5093d7c530bc42d80b9fadcf9f4eb471fabbaf60970863dacb720d78a642b9ac",
+      "width": 45,
+      "height": 45
+    },
+    "1395": {
+      "name": "WITZENBERG ONAFHANKLIKE DEMOKRATIESE PARTY",
+      "src": "/parties/1395-cbf62b165e84.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/WIDWC022.PNG",
+      "sha256": "cbf62b165e8450271e4fd4c6c614d846025d7e7a4463ed68d914ce153481cd2e",
+      "width": 45,
+      "height": 45
+    },
+    "1472": {
+      "name": "IZWE LETHU PARTY",
+      "src": "/parties/1472-1057a3c62b03.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/I.L.P.PNG",
+      "sha256": "1057a3c62b030752584320706a0cec226b41eff2c449bc32cd6827aa179e68ab",
+      "width": 45,
+      "height": 45
+    },
+    "1473": {
+      "name": "ACTIVE CITIZENS COALITION",
+      "src": "/parties/1473-c5b25a0bab21.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACC.PNG",
+      "sha256": "c5b25a0bab21fbe9738d6fa5261cab824af3f87fce00de976411729ec9095406",
+      "width": 45,
+      "height": 45
+    },
+    "1474": {
+      "name": "KNYSNA INDEPENDENT MOVEMENT",
+      "src": "/parties/1474-8afd1a2987f4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KIMWC048.PNG",
+      "sha256": "8afd1a2987f4d5d21a9ee13fa0766373dd60cc2fd3782ce7a125be93bc6ccf3e",
+      "width": 45,
+      "height": 45
+    },
+    "1475": {
+      "name": "NATIONAL COMMUNIST CONGRESS",
+      "src": "/parties/1475-38c73a5f1762.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NCC.PNG",
+      "sha256": "38c73a5f176284e243de175b4405ca34028336bce013524825084975da9d44c5",
+      "width": 45,
+      "height": 45
+    },
+    "1477": {
+      "name": "CHANGE PARTY",
+      "src": "/parties/1477-de9f43e480ac.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CHANGE.PNG",
+      "sha256": "de9f43e480ac87641b243050c5970ed63638f92dd42d73f3853b3b2f2d7862a6",
+      "width": 45,
+      "height": 45
+    },
+    "1483": {
+      "name": "MORETELE INDEPENDENT CIVIC ORGANIZATION",
+      "src": "/parties/1483-5f43ef11d84c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MICO.PNG",
+      "sha256": "5f43ef11d84c181990f60c87d0437f9ccec287dcbf76ba443d8927c4fba7b16e",
+      "width": 45,
+      "height": 45
+    },
+    "1484": {
+      "name": "AZANIAN INDEPENDENT COMMUNITY MOVEMENT",
+      "src": "/parties/1484-6dde02204330.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AICMNW373.PNG",
+      "sha256": "6dde02204330aefffd02b8481a40e3727cc471d9c8692c89d046bafc6c0e740e",
+      "width": 45,
+      "height": 45
+    },
+    "1486": {
+      "name": "UNITED SOUTH AFRICA",
+      "src": "/parties/1486-72a461e7b09f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/USA.PNG",
+      "sha256": "72a461e7b09fc6748c35782219d1f9319118b61f0c81410a36fb4de059f9b4e4",
+      "width": 45,
+      "height": 45
+    },
+    "1488": {
+      "name": "ABANTU BATHO CONGRESS",
+      "src": "/parties/1488-30c30972aeeb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ABC.PNG",
+      "sha256": "30c30972aeeba7b3e990d7a78567b5bda99273bf3c1ca67d640f6e29233ac24f",
+      "width": 45,
+      "height": 45
+    },
+    "1491": {
+      "name": "US THE PEOPLE",
+      "src": "/parties/1491-bf8af4b7ff82.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/US.PNG",
+      "sha256": "bf8af4b7ff82f77d6c4bb45fe723ff6997637bd39db351c8d6f185f324bd4cb1",
+      "width": 45,
+      "height": 45
+    },
+    "1492": {
+      "name": "NATIONAL COLOURED CONGRESS",
+      "src": "/parties/1492-9fb74268bcaa.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CCCCPT.PNG",
+      "sha256": "9fb74268bcaa95bf43432528fc1a70478e7cdaf1b59c1e3d75dee256ad53ca74",
+      "width": 45,
+      "height": 45
+    },
+    "1493": {
+      "name": "TSOGANG CIVIC MOVEMENT",
+      "src": "/parties/1493-c4c47bd3e566.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TSOGANGNW371.PNG",
+      "sha256": "c4c47bd3e566248b7e289ae7b042d819a28c43612e106b0d57a5af049980bfa2",
+      "width": 45,
+      "height": 45
+    },
+    "1494": {
+      "name": "MOQHAKA COMMUNITY FORUM",
+      "src": "/parties/1494-eade10f6256b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1494.PNG",
+      "sha256": "eade10f6256b6d56b94082a7596b2a8be6a191b8454a90736e86db85afd95737",
+      "width": 45,
+      "height": 45
+    },
+    "1495": {
+      "name": "RISE UP AFRICA / TSOGA AFRICA",
+      "src": "/parties/1495-0e761dfa9358.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RUA.PNG",
+      "sha256": "0e761dfa935802c47f84fb7da7ccc8548a5a9ddc3bfceb582a62d9f2db1087d2",
+      "width": 45,
+      "height": 45
+    },
+    "1497": {
+      "name": "COMMUNITY FREEDOM PARTY",
+      "src": "/parties/1497-982ef17211ab.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CFP.PNG",
+      "sha256": "982ef17211ab2281931d179aa3587715a12ab0840f81a7d268f4774855989b06",
+      "width": 45,
+      "height": 45
+    },
+    "1498": {
+      "name": "KINGDOM COVENANT DEMOCRATIC PARTY",
+      "src": "/parties/1498-ce0bddd27b42.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KCDP.PNG",
+      "sha256": "ce0bddd27b42bb59c8731619b9680490dae590d73e8c747f98d98f7280f4e321",
+      "width": 45,
+      "height": 45
+    },
+    "1499": {
+      "name": "AZANIA RESIDENT PARTY",
+      "src": "/parties/1499-61f83e684437.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARP..PNG",
+      "sha256": "61f83e6844374a51d232dd9ccaea0b7e5e40bd23023c36d1fbfe5a5b2d3a4fc5",
+      "width": 45,
+      "height": 45
+    },
+    "1500": {
+      "name": "NATIONAL ALLIANCE",
+      "src": "/parties/1500-3bfff92b7eaa.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NANMA.PNG",
+      "sha256": "3bfff92b7eaa87bd5946810144c212f1b52486290dce9404cd558e69843b7e4c",
+      "width": 45,
+      "height": 45
+    },
+    "1502": {
+      "name": "DENNILTON RESIDENTS ASSOCIATION",
+      "src": "/parties/1502-58aa688824c6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DRALIM472.PNG",
+      "sha256": "58aa688824c65f046269e460aa747f0af304262d0adc50a582fba36981c87b43",
+      "width": 45,
+      "height": 45
+    },
+    "1504": {
+      "name": "MOVEMENT FOR AFRICAN CONVENTION",
+      "src": "/parties/1504-a6ba79a34892.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAC.PNG",
+      "sha256": "a6ba79a34892fccfa2187b60e03ac8e508443f8f72140dea677885c34d014e30",
+      "width": 45,
+      "height": 45
+    },
+    "1508": {
+      "name": "LEPHALALE RESIDENTS PARTY",
+      "src": "/parties/1508-90ac90d77f8a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/L.R.PLIM362.PNG",
+      "sha256": "90ac90d77f8af3a5153aff0498e293612e62e47bdd098523751615e6d2e74636",
+      "width": 45,
+      "height": 45
+    },
+    "1509": {
+      "name": "MAPSIXTEEN CIVIC MOVEMENT",
+      "src": "/parties/1509-01fd5a4002bb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAP16FS194.PNG",
+      "sha256": "01fd5a4002bb9f1ff8b7c16db86b3ab7a21786cd54f1d5b26f263240a4561cff",
+      "width": 49,
+      "height": 49
+    },
+    "1510": {
+      "name": "MORETELE PEOPLES PARTY",
+      "src": "/parties/1510-9baa095426bb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MPPMP316.PNG",
+      "sha256": "9baa095426bbc925695c15ef2a682c3dca74b82b1308c91fb16546249a3e216f",
+      "width": 45,
+      "height": 45
+    },
+    "1511": {
+      "name": "ACTIONSA",
+      "src": "/parties/1511-bdc1db1e95a2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACTIONSA.PNG",
+      "sha256": "bdc1db1e95a23bc194cc62dee29554fc0787302a8f0187f85848ceb3662de3cf",
+      "width": 45,
+      "height": 45
+    },
+    "1512": {
+      "name": "MERAFONG AGENTS OF CHANGE",
+      "src": "/parties/1512-3989293ad644.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAOC.PNG",
+      "sha256": "3989293ad644f4aced45bf7b702be3b758d0d995c976f602ef01355e6be2397e",
+      "width": 45,
+      "height": 45
+    },
+    "1514": {
+      "name": "AFRICAN PEOPLE FIRST",
+      "src": "/parties/1514-8b8507195030.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/APF.PNG",
+      "sha256": "8b85071950302126e801e88c16ff6196c7d0832fac4a0083abf3a1b8d467ae00",
+      "width": 45,
+      "height": 45
+    },
+    "1515": {
+      "name": "AFRICAN UNIFIED MOVEMENT",
+      "src": "/parties/1515-f1b70b3694ca.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AUM.PNG",
+      "sha256": "f1b70b3694caed24e08bcc7b9ed4a074d643e2fa096ea0414f38bd8546a5a9b4",
+      "width": 45,
+      "height": 45
+    },
+    "1521": {
+      "name": "ARONA",
+      "src": "/parties/1521-e26fd5a5f3fa.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARONA.PNG",
+      "sha256": "e26fd5a5f3fa55b124c695895d64f2f1d7393cebf114d89dc5ec4f44ba6be4d2",
+      "width": 45,
+      "height": 45
+    },
+    "1522": {
+      "name": "EDEN UNITED PEOPLE'S PARTY",
+      "src": "/parties/1522-db3bac2b5eae.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/EUPP.PNG",
+      "sha256": "db3bac2b5eae5e09e8f98ad08c4d0e983a2bbcbc366e9c1992b98c7d3517c0b0",
+      "width": 45,
+      "height": 45
+    },
+    "1523": {
+      "name": "AFRICA RESTORATION ALLIANCE",
+      "src": "/parties/1523-3faab31dda42.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARA.PNG",
+      "sha256": "3faab31dda42b84a628bac0ce1cf8d7481c9ea0239a99cf213ffa3a115ef4c38",
+      "width": 45,
+      "height": 45
+    },
+    "1524": {
+      "name": "PLETT DEMOCRATIC CONGRESS",
+      "src": "/parties/1524-a9c8df61ba5d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PDCWC047.PNG",
+      "sha256": "a9c8df61ba5d7bcc2d9ddc80687f7f2e729b681217ccc792e3810fb162e0355e",
+      "width": 45,
+      "height": 45
+    },
+    "1526": {
+      "name": "ACTIVISTS MOVEMENT OF SOUTH AFRICA",
+      "src": "/parties/1526-2324a27fc5f8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AMSA.PNG",
+      "sha256": "2324a27fc5f8e5ef02b536920fdb15a136940b7ce309c8a912153dfa2ad9d369",
+      "width": 45,
+      "height": 45
+    },
+    "1528": {
+      "name": "AFRICAN PEOPLE'S MOVEMENT",
+      "src": "/parties/1528-22876d30d001.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/APEMO.PNG",
+      "sha256": "22876d30d001ca5d0e2311c55fd0c6a7d07d64e6882fbce0983a72e88b5d53b1",
+      "width": 45,
+      "height": 45
+    },
+    "1531": {
+      "name": "ABLE LEADERSHIP",
+      "src": "/parties/1531-c4d55ca4d2b7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AL..PNG",
+      "sha256": "c4d55ca4d2b725d6b0e9aac08d760956fa0b1e1e95a0e7e2ca553871f3679cba",
+      "width": 45,
+      "height": 45
+    },
+    "1532": {
+      "name": "FORUM FOR DEMOCRATS",
+      "src": "/parties/1532-eede58af4907.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/FFD.PNG",
+      "sha256": "eede58af4907960626b8f994826ec95c8e03406d680f3145b165bc90cb434004",
+      "width": 45,
+      "height": 45
+    },
+    "1538": {
+      "name": "ABANTU INTEGRITY MOVEMENT",
+      "src": "/parties/1538-c132d509d652.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AIMNMA.PNG",
+      "sha256": "c132d509d652a3352513f2723d73c6a79f64086e020e64eb3eb61c71cf997c34",
+      "width": 45,
+      "height": 45
+    },
+    "1539": {
+      "name": "AMALGAMATED RAINBOW MOVEMENT",
+      "src": "/parties/1539-06387dbc5eb5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARM.PNG",
+      "sha256": "06387dbc5eb5b4cb226264b0b04a5011778f81526d1576fb7438a2a0edd5f37b",
+      "width": 45,
+      "height": 45
+    },
+    "1540": {
+      "name": "BATHO PELE MOVEMENT",
+      "src": "/parties/1540-44443e9778d5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BPM.PNG",
+      "sha256": "44443e9778d5b99cb4579e332e4dcaff3a5692181baa84cf3e946ea38b3b55ea",
+      "width": 45,
+      "height": 45
+    },
+    "1542": {
+      "name": "UNITED CULTURAL MOVEMENT",
+      "src": "/parties/1542-6a4e712d8b78.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UCM.PNG",
+      "sha256": "6a4e712d8b7862b1d285a71728106944dd0bf702682d9074562e5ac1ad41ba30",
+      "width": 45,
+      "height": 45
+    },
+    "1543": {
+      "name": "INDEPENDENT ALLIANCE",
+      "src": "/parties/1543-f6745d871e67.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IA.PNG",
+      "sha256": "f6745d871e67f2f739f1e88bfb75e8396416ed5f0936da8f792e98526699e1c6",
+      "width": 44,
+      "height": 44
+    },
+    "1544": {
+      "name": "AFRICAN HEART CONGRESS",
+      "src": "/parties/1544-d6f7dc609506.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AHC.PNG",
+      "sha256": "d6f7dc6095063eb360d80e4d43e3add23369306f5261307a6ae6c2e64ebf6c10",
+      "width": 45,
+      "height": 45
+    },
+    "1545": {
+      "name": "SETSOTO SERVICE DELIVERY FORUM",
+      "src": "/parties/1545-f73deee31713.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SSDFFS191.PNG",
+      "sha256": "f73deee31713cce4dcd6a13f29d8f42793915c3a82f1aeb0758f8dcb05420c95",
+      "width": 45,
+      "height": 45
+    },
+    "1547": {
+      "name": "THABAZIMBI FORUM FOR SERVICE DELIVERY",
+      "src": "/parties/1547-6ca4589bdca9.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TFSDLIM361.PNG",
+      "sha256": "6ca4589bdca934bbcf66f3a4fe129fcb5d15514822d43ce8418df57326e9d4b9",
+      "width": 45,
+      "height": 45
+    },
+    "1553": {
+      "name": "SOUTH AFRICA MY HOME RESIDENTS ASSOCIATION",
+      "src": "/parties/1553-a605cb6083a9.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAHRA.PNG",
+      "sha256": "a605cb6083a918a6557565be48677c04d27cd38c576c6e3ed9613ffc079e129f",
+      "width": 45,
+      "height": 45
+    },
+    "1556": {
+      "name": "TRANSFORMATIVE YES MOVEMENT",
+      "src": "/parties/1556-266e22a6ef8c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TYM.PNG",
+      "sha256": "266e22a6ef8cf9daccf943ba868d3b5c92be1eb9905b41c213448b7976b40235",
+      "width": 45,
+      "height": 45
+    },
+    "1558": {
+      "name": "MIDDELBURG AND HENDRINA RESIDENTS FRONT",
+      "src": "/parties/1558-4c8249c494f8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MHRFMP313.PNG",
+      "sha256": "4c8249c494f82f1572eb5838ff131e660f4874a6ddd1fae04c13e3eadf904ce0",
+      "width": 45,
+      "height": 45
+    },
+    "1559": {
+      "name": "DEFENDERS OF THE PEOPLE",
+      "src": "/parties/1559-da546da724bf.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DOPLIM355.PNG",
+      "sha256": "da546da724bf6582db55386ab94583f6c14d88bbd2787c16ca4861c988b13a4b",
+      "width": 45,
+      "height": 45
+    },
+    "1565": {
+      "name": "CONGREGATIONAL CHRISTIAN UNITY",
+      "src": "/parties/1565-6ee99a8bfd67.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CCUKZN282.PNG",
+      "sha256": "6ee99a8bfd672650ea4f0628413fb043f95ba2783ee1334cf36e00d27c784a40",
+      "width": 45,
+      "height": 45
+    },
+    "1572": {
+      "name": "AFRICAN DEMOCRATS",
+      "src": "/parties/1572-3901f43d99fd.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/A.D.PNG",
+      "sha256": "3901f43d99fdb1daf380c3f56f8c446aa65ae0ac380532a49e1eda337a32cdab",
+      "width": 45,
+      "height": 45
+    },
+    "1578": {
+      "name": "VAAL PARTY",
+      "src": "/parties/1578-2a3ac916bb49.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/VAAL.PNG",
+      "sha256": "2a3ac916bb494ed4d0b4512e0dc59351d2df53f2e28d22556a6fbba4889ddc17",
+      "width": 45,
+      "height": 45
+    },
+    "1579": {
+      "name": "PROGRESSIVE COMMUNITY MOVEMENT",
+      "src": "/parties/1579-2b3fa389b0f0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PCMDC12.PNG",
+      "sha256": "2b3fa389b0f025ab07109d63f9640727c381a2613fe872641c71a58b09b97b4c",
+      "width": 45,
+      "height": 45
+    },
+    "1582": {
+      "name": "IKHWEZI POLITICAL MOVEMENT",
+      "src": "/parties/1582-85cf1aa5b044.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IPMWC047.PNG",
+      "sha256": "85cf1aa5b04468b6292676e7d07005d263c16a3f3f25333395d4779ae4b0cb34",
+      "width": 45,
+      "height": 45
+    },
+    "1585": {
+      "name": "WITZENBERG PARTY",
+      "src": "/parties/1585-53a9ca28d968.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/WP.PNG",
+      "sha256": "53a9ca28d968f5aecf249072f11a9c895e1846ff86787eea46b4e1a396b5e0b0",
+      "width": 45,
+      "height": 45
+    },
+    "1586": {
+      "name": "NALA COMMUNITY FORUM",
+      "src": "/parties/1586-23e676a4a456.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/N.C.FFS185.PNG",
+      "sha256": "23e676a4a456ed6aeefd89f64cb86cd39549914538c93104344acd744402852a",
+      "width": 45,
+      "height": 45
+    },
+    "1588": {
+      "name": "ABAHLALI BASE MKHANYAKUDE MOVEMENT",
+      "src": "/parties/1588-d320a51284e6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ABMMKZN271.PNG",
+      "sha256": "d320a51284e6ca5c6fb264acce38bc6f8e1bc66a96c9275ec84fc932b827781f",
+      "width": 45,
+      "height": 45
+    },
+    "1590": {
+      "name": "REPUBLICAN CONFERENCE OF TSHWANE",
+      "src": "/parties/1590-3465e1132bbc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RCTSH.PNG",
+      "sha256": "3465e1132bbca6f55dd18a7daae0a8b0cb83aff7635adc2bef21c43f711c4e9a",
+      "width": 45,
+      "height": 45
+    },
+    "1592": {
+      "name": "PONGOLA PEOPLE'S PARTY",
+      "src": "/parties/1592-821e439b0fb6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PPPKZN262.PNG",
+      "sha256": "821e439b0fb6a19de57b5c87f69fd674207c6adedb71e6569ea02388e3e885ec",
+      "width": 45,
+      "height": 45
+    },
+    "1595": {
+      "name": "INDEPENDENT CITIZENS MOVEMENT",
+      "src": "/parties/1595-4f76ac86c9a1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ICM.PNG",
+      "sha256": "4f76ac86c9a1a0d6f642b8d62a2fd25b039b4829433fe6fdc0589a4bef8e27d7",
+      "width": 45,
+      "height": 45
+    },
+    "1597": {
+      "name": "SAAMSTAAN SUID-AFRIKA",
+      "src": "/parties/1597-4dc87b0ab4de.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ISASSA.PNG",
+      "sha256": "4dc87b0ab4deb3af59fc7b4b8968f77a00d2cea77b52a7edd01bc8b521d7be95",
+      "width": 45,
+      "height": 45
+    },
+    "1600": {
+      "name": "LEKWA COMMUNITY FORUM",
+      "src": "/parties/1600-348042b6174c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LCFMP305.PNG",
+      "sha256": "348042b6174cbd20569bfc3a006b441f56c5d65fc20fdd9421d1874d3603a0a2",
+      "width": 45,
+      "height": 45
+    },
+    "1606": {
+      "name": "BUSHBUCKRIDGE LOCALS MOVEMENT",
+      "src": "/parties/1606-718dade73b15.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BLOM.PNG",
+      "sha256": "718dade73b1552b4191be78730e2a9da4a43f9f9dfe8f6e84ed8b2eaa7944360",
+      "width": 45,
+      "height": 45
+    },
+    "1616": {
+      "name": "NAMAKWA CIVIC MOVEMENT",
+      "src": "/parties/1616-bebd77e3a577.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NCMNC062.PNG",
+      "sha256": "bebd77e3a5779945435106c4aee969f491c2146e18b1ee9e05e18a9f2ed41c5d",
+      "width": 45,
+      "height": 45
+    },
+    "1619": {
+      "name": "AFRICAN INDEPENDENT PEOPLE'S ORGANISATION",
+      "src": "/parties/1619-3b557ad60b86.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AIPOMP315.PNG",
+      "sha256": "3b557ad60b86683a3474ff4dd9ec42a7d446bfea4c77aac4c4d19b453a77fa5e",
+      "width": 45,
+      "height": 45
+    },
+    "1620": {
+      "name": "TIKWANA YOUTH POWER",
+      "src": "/parties/1620-0567ef666849.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TYPFS183.PNG",
+      "sha256": "0567ef6668498b1333ddad805f4e55795ffbfd715a99ee65bbf750e994fb335e",
+      "width": 45,
+      "height": 45
+    },
+    "1621": {
+      "name": "NATIONAL ECONOMIC FIGHTERS",
+      "src": "/parties/1621-ca32837acd10.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NEF.PNG",
+      "sha256": "ca32837acd102fdabc7719138378fed4d7d35b99c9fe8813e73e0c27c913c152",
+      "width": 45,
+      "height": 45
+    },
+    "1623": {
+      "name": "SOUTH AFRICAN ROYAL KINGDOMS ORGANIZATION",
+      "src": "/parties/1623-917a223108bb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SARKO.PNG",
+      "sha256": "917a223108bb9db372752451f47facb42932bee59e674103bb7740ca9c5bee46",
+      "width": 45,
+      "height": 45
+    },
+    "1624": {
+      "name": "KANNALAND INDEPENDENT PARTY",
+      "src": "/parties/1624-46435919011b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1624.PNG",
+      "sha256": "46435919011bc78e27dbc7c3cf3187808820aba2034592fa8c4513abd6557974",
+      "width": 45,
+      "height": 45
+    },
+    "1629": {
+      "name": "AARON",
+      "src": "/parties/1629-925e186302ce.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AARON.PNG",
+      "sha256": "925e186302ce6460c4489080895765e91bbccfd52f6c2863668e3b5536f62a07",
+      "width": 45,
+      "height": 45
+    },
+    "1631": {
+      "name": "DEMOCRATIC PEOPLE'S ALTERNATIVE",
+      "src": "/parties/1631-41dc814f3def.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/D.P.ACPT.PNG",
+      "sha256": "41dc814f3defdee836e4a5c1709e5f9d721a983049304f335589817aa47d858a",
+      "width": 45,
+      "height": 45
+    },
+    "1634": {
+      "name": "SIYATHEMBA COMMUNITY MOVEMENT",
+      "src": "/parties/1634-4ec2fd862a1c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SGBDC7.PNG",
+      "sha256": "4ec2fd862a1c3e8725436f3973315ef3d1e79decbdf8604f3feaf431a173bd4f",
+      "width": 45,
+      "height": 45
+    },
+    "1636": {
+      "name": "THE INDEPENDENTS",
+      "src": "/parties/1636-7dae7ac425f4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1636.PNG",
+      "sha256": "7dae7ac425f4aa0bde51c1afad0ff620a04129d271ee947341f570cb0a822866",
+      "width": 45,
+      "height": 45
+    },
+    "1638": {
+      "name": "CEDERBERG FIRST RESIDENTS ASSOCIATION",
+      "src": "/parties/1638-f8f28bc1bc85.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CEWC012.PNG",
+      "sha256": "f8f28bc1bc85b95bb2962ad8c3b36fca3c9694ae779347302fe09f776e83a8ed",
+      "width": 45,
+      "height": 45
+    },
+    "1641": {
+      "name": "METSIMAHOLO PROGRESSIVE PEOPLE FORUM",
+      "src": "/parties/1641-ae594a9b45af.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MPPFFS204.PNG",
+      "sha256": "ae594a9b45af53fb6251af0a768d4455c5af8e19d17172f4cdda4ddee8c60edf",
+      "width": 45,
+      "height": 45
+    },
+    "1643": {
+      "name": "AFRICAN VOICE PROGRESSIVE PARTY",
+      "src": "/parties/1643-55fd51af6cf1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AVPP.PNG",
+      "sha256": "55fd51af6cf145c8ca63fb7f54d5c10384c7c79dffac004a92408c9e5339a561",
+      "width": 45,
+      "height": 45
+    },
+    "1644": {
+      "name": "UNITED INDEPENDENT MOVEMENT",
+      "src": "/parties/1644-293b785a27bb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UIM.PNG",
+      "sha256": "293b785a27bb2ac27918d7994a7faba6c62afb3d1c544f57964d740331ede8b8",
+      "width": 45,
+      "height": 45
+    },
+    "1649": {
+      "name": "MAKANA CITIZENS FRONT",
+      "src": "/parties/1649-185b76f8ede1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAKANAEC104.PNG",
+      "sha256": "185b76f8ede1f2e2d1ea1990a5f6e93704376fba346d1780cb5e204c86bb557c",
+      "width": 45,
+      "height": 45
+    },
+    "1652": {
+      "name": "SOCIALIST ECONOMIC FREEDOM MOVEMENT",
+      "src": "/parties/1652-4489e4a5a6db.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SEFMGT423.PNG",
+      "sha256": "4489e4a5a6db473c2a096254232f8e9f668b44e06f3500c302223244acdbc1b5",
+      "width": 45,
+      "height": 45
+    },
+    "1654": {
+      "name": "CONCERN",
+      "src": "/parties/1654-0538431d1ec2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CONCERNTSH.PNG",
+      "sha256": "0538431d1ec22817e74337508be065e4024756448879c278073d2b19b9705af2",
+      "width": 45,
+      "height": 45
+    },
+    "1655": {
+      "name": "DIKGATLONG INDEPENDED FORUM",
+      "src": "/parties/1655-fdf7d9711202.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/D.I.FNC092.PNG",
+      "sha256": "fdf7d9711202585f1f8d2ddd66d7bc8bc67a8745d3666a16c3407563f1112eb7",
+      "width": 45,
+      "height": 45
+    },
+    "1657": {
+      "name": "KAREEBERG CIVIC MOVEMENT",
+      "src": "/parties/1657-17567e8eb17c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KCMNC074.PNG",
+      "sha256": "17567e8eb17c48bf3d0f896f5d71dd3e28cfb30309b6d2ce34ddfcfab364c6ac",
+      "width": 45,
+      "height": 45
+    },
+    "1659": {
+      "name": "SOL- PLAATJIE SERVICE DELIVERY FORUM",
+      "src": "/parties/1659-3534f3260084.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SPSDFNC091.PNG",
+      "sha256": "3534f32600846189d6f652cfa44abb8f2ab1e864f04321356b74a6aebd25f977",
+      "width": 45,
+      "height": 45
+    },
+    "1664": {
+      "name": "HOPE FOR THE FUTURE",
+      "src": "/parties/1664-b08abb5314be.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/HFTFNC082.PNG",
+      "sha256": "b08abb5314be0730cc129d770ef28ade391da6fe073535b6061ec5ae9a9af378",
+      "width": 45,
+      "height": 45
+    },
+    "1693": {
+      "name": "ACTIVE AFRICAN CHRISTIANS UNITED MOVEMENT",
+      "src": "/parties/1693-3db5efe9a962.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AACUM.PNG",
+      "sha256": "3db5efe9a962b57e49d1b4aa9640c9315e3e276ee3c7409984dc20956dc03d4f",
+      "width": 45,
+      "height": 45
+    },
+    "1701": {
+      "name": "GAP FIXERS OF SOUTH AFRICA",
+      "src": "/parties/1701-a3b32bd55559.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GFSAKZN434.PNG",
+      "sha256": "a3b32bd55559cdaee4272b7fc6887b993be5e3734f789e30db37dc03722214d4",
+      "width": 45,
+      "height": 45
+    },
+    "1702": {
+      "name": "ABOVE MASSIVE CONSTITUENCY",
+      "src": "/parties/1702-8feaec678c5c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ABMCDC44.PNG",
+      "sha256": "8feaec678c5c7460a4cd21cb24dde6c0661e2a46e27590d30843eb670f90c92a",
+      "width": 45,
+      "height": 45
+    },
+    "1703": {
+      "name": "AFRO NATIVES",
+      "src": "/parties/1703-c3e5990efa3f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AFNA.PNG",
+      "sha256": "c3e5990efa3fe0194b40a7d60c9dc9e2acbc67aad534a06c6b9481dbe3609f7e",
+      "width": 45,
+      "height": 45
+    },
+    "1707": {
+      "name": "UNITED AFRICANS TRANSFORMATION",
+      "src": "/parties/1707-6d219fbd2c32.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UAT.PNG",
+      "sha256": "6d219fbd2c32149ba21eb23f188bdac15c3c4b514c7f5dca1e5291f477d99132",
+      "width": 45,
+      "height": 45
+    },
+    "1710": {
+      "name": "SAVE DITSOBOTLA MOVEMENT",
+      "src": "/parties/1710-53b26d47a265.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SEDIMO.PNG",
+      "sha256": "53b26d47a265a3cd061c0bfe7851188ce3c01e5e87ccd6bc36bc6fa82c6a5c88",
+      "width": 45,
+      "height": 45
+    },
+    "1711": {
+      "name": "BUILD ONE SOUTH AFRICA",
+      "src": "/parties/1711-99562ef8914f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BOSA.PNG",
+      "sha256": "99562ef8914f37d3356a5691165b9529278d19024005bc1c399741cbae90a393",
+      "width": 45,
+      "height": 45
+    },
+    "1712": {
+      "name": "VAAL RIVER CITY DEMOCRATIC MOVEMENT",
+      "src": "/parties/1712-66e45b7fe5a4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/VDM.PNG",
+      "sha256": "66e45b7fe5a46370c39f7cb70cbe06298d72bbf80bbbaaf768b2ae20efce8867",
+      "width": 45,
+      "height": 45
+    },
+    "1720": {
+      "name": "AFRICAN ECONOMIC FREEDOM",
+      "src": "/parties/1720-654b555d13ae.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AEF.PNG",
+      "sha256": "654b555d13ae126f0ea292ff3c28b4b21503f77f835d2edbf5d38686a7bc3404",
+      "width": 45,
+      "height": 45
+    },
+    "1724": {
+      "name": "ASSEGAAI INDEPENDENT MOVEMENT OF SOUTH AFRICA",
+      "src": "/parties/1724-1f5ff03776e8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AIMSA.PNG",
+      "sha256": "1f5ff03776e8b14ebbc007a06f4fc4e23ea08a93a34fb1e8ab27b21c9947c1fd",
+      "width": 45,
+      "height": 45
+    },
+    "1728": {
+      "name": "ACTION ALLIANCE DEVELOPMENT PARTY",
+      "src": "/parties/1728-b006364a63c6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AADP.PNG",
+      "sha256": "b006364a63c68baf20e1fb3c8ffc6e42a9b4c0cd96d2066b037d996ce2927996",
+      "width": 45,
+      "height": 45
+    },
+    "1730": {
+      "name": "EKHETHU PEOPLES PARTY",
+      "src": "/parties/1730-1c95cd3c68de.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/EKHETHU.PNG",
+      "sha256": "1c95cd3c68de70d3d88a0e95eb573806b7a9b684538908fdaf36216f9ebdd9a7",
+      "width": 45,
+      "height": 45
+    },
+    "1737": {
+      "name": "ILISO LABANTU MOVEMENT FOR SOCIAL CHANGE",
+      "src": "/parties/1737-3aca798d73a8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ILISO.PNG",
+      "sha256": "3aca798d73a824e5eed4dd1dd4d0243e8025fffae618d4b595c11eb3e340aeba",
+      "width": 45,
+      "height": 45
+    },
+    "1738": {
+      "name": "RUSTENBURG PEOPLE'S PARTY",
+      "src": "/parties/1738-559e95de334f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RPPDC37.PNG",
+      "sha256": "559e95de334f67e93d5f520ad1872ddd4f372ce285212b1a963430a2bd665ea4",
+      "width": 45,
+      "height": 45
+    },
+    "1740": {
+      "name": "AFRICAN CONGRESS FOR TRANSFORMATION",
+      "src": "/parties/1740-606afdd3accb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACT.PNG",
+      "sha256": "606afdd3accb84f3b9774f470ef9e4daf439a284abb972eb0fe44dd59b89b0d1",
+      "width": 45,
+      "height": 45
+    },
+    "1744": {
+      "name": "NORTHERN CAPE COMMUNITIES MOVEMENT",
+      "src": "/parties/1744-8e6da1e90250.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NCCM.PNG",
+      "sha256": "8e6da1e90250898f7d1c06069f24723606dc746b219af2b099a9cff5e1515f1b",
+      "width": 45,
+      "height": 45
+    },
+    "1745": {
+      "name": "NATIONAL COMMUNITY LIBERATION",
+      "src": "/parties/1745-ddaec7f0792c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NACOL.PNG",
+      "sha256": "ddaec7f0792c5b8597de0d1af8bceee693063e49a616e6896b7d49803ee0d0cc",
+      "width": 45,
+      "height": 45
+    },
+    "1748": {
+      "name": "UMKHONTO WESIZWE PARTY",
+      "src": "/parties/1748-a7886fbe2542.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MKP.PNG",
+      "sha256": "a7886fbe25425f54310cd8e113257e5c0a051a741d95b1fdd269aee98448d0d9",
+      "width": 45,
+      "height": 45
+    },
+    "1749": {
+      "name": "ALL CITIZENS PARTY",
+      "src": "/parties/1749-85454b087b92.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACP.PNG",
+      "sha256": "85454b087b92e126a89e792a0eb594cd75d515b06b16f5f3379e25d9affa6959",
+      "width": 45,
+      "height": 45
+    },
+    "1751": {
+      "name": "FREEDOM IN SOUTH AFRICA",
+      "src": "/parties/1751-9c74cfb0ba01.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/FISA.PNG",
+      "sha256": "9c74cfb0ba01d41794992069f6b2374068cb91c6a9e89b22163d623916fb42ed",
+      "width": 45,
+      "height": 45
+    },
+    "1754": {
+      "name": "ALLIANCE OF CITIZENS FOR CHANGE",
+      "src": "/parties/1754-6b68f807ae0a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/A.C.C.PNG",
+      "sha256": "6b68f807ae0a6322d0c6b412bb75d2bebe9e93dfe06bd68c011c309cc9c47b5d",
+      "width": 45,
+      "height": 45
+    },
+    "1755": {
+      "name": "RISE MZANSI",
+      "src": "/parties/1755-bbc5d66dc429.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RISE.PNG",
+      "sha256": "bbc5d66dc429ca571e57ca3632d2d5d0c43e5f94665adfac18c5677318768b8d",
+      "width": 45,
+      "height": 45
+    },
+    "1757": {
+      "name": "AFRICAN PEOPLES PROGRESSION",
+      "src": "/parties/1757-61128d5e2952.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/APPEIR.PNG",
+      "sha256": "61128d5e29527acd95c86aa3c99a84e5e74a9d766afa66d14a1888018ed93934",
+      "width": 45,
+      "height": 45
+    },
+    "1758": {
+      "name": "OPERATION DUDULA",
+      "src": "/parties/1758-fe06ea4a5f49.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/O.D.PNG",
+      "sha256": "fe06ea4a5f49c73de1417a4cdc1f3260a3aa51cb885941ad86ed56b8a1331f3b",
+      "width": 45,
+      "height": 45
+    },
+    "1765": {
+      "name": "TRUTH AND SOLIDARITY MOVEMENT",
+      "src": "/parties/1765-a31ae286163f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TRUTH.PNG",
+      "sha256": "a31ae286163fc2d04b90124e1d80b99dc212fea9319ba7ac78f53cc99e5cf348",
+      "width": 45,
+      "height": 45
+    },
+    "1770": {
+      "name": "OUR LAST HOPE",
+      "src": "/parties/1770-2fb70688c966.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/OLH.PNG",
+      "sha256": "2fb70688c966d1df477cd38be7533b5ebe185370cf8ac7e3b0a0833eeeb45d24",
+      "width": 45,
+      "height": 45
+    },
+    "1772": {
+      "name": "KOMANI PROGRESS ACTION",
+      "src": "/parties/1772-a604da2c94a0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KPA.PNG",
+      "sha256": "a604da2c94a017447392ad94a6384bf1ff39c83893868c486ac5e0e72cc96e1b",
+      "width": 45,
+      "height": 45
+    },
+    "1773": {
+      "name": "SOUTH AFRICAN MASS MOVEMENT",
+      "src": "/parties/1773-9da48d3825a3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAMMO.PNG",
+      "sha256": "9da48d3825a3a0855d56d2ca8101e6f69dd9111dea14f78b0668c45ce05b9d9e",
+      "width": 45,
+      "height": 45
+    },
+    "1775": {
+      "name": "AFRICAN MOVEMENT CONGRESS",
+      "src": "/parties/1775-204208d901b4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AMC.ROY..PNG",
+      "sha256": "204208d901b4775edd9b6e8b78c999d2ad1484313e36b0456a0a14b42cc16ad7",
+      "width": 45,
+      "height": 45
+    },
+    "1776": {
+      "name": "WOMEN AND YOUTH ORGANISATION",
+      "src": "/parties/1776-7a6785b212d7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/WAYO.PNG",
+      "sha256": "7a6785b212d77d6c0cc3768fbdd79ca2103ffa368705b9922377743dee75d38f",
+      "width": 45,
+      "height": 45
+    },
+    "1781": {
+      "name": "AFRIKA UNITE CONGRESS",
+      "src": "/parties/1781-59a3d83a2277.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MA%20AFRIKA.PNG",
+      "sha256": "59a3d83a22776a9a6c22789084a603a37479b5535b1eb273ae53d1197a2e0342",
+      "width": 45,
+      "height": 45
+    },
+    "1782": {
+      "name": "ALL AFRICAN ALLIED CONGRESS",
+      "src": "/parties/1782-087a4959b168.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AAAC.PNG",
+      "sha256": "087a4959b1680cda52d0ed7678c5dda5135bba8067e54f124d19a556f61799a6",
+      "width": 45,
+      "height": 45
+    },
+    "1783": {
+      "name": "ALL AFRICAN ALLIANCE MOVEMENT",
+      "src": "/parties/1783-692111de28d8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AAAM.PNG",
+      "sha256": "692111de28d8b1ada7470e4174ebad8ead469af71e36840c8cb2285791fb5a5b",
+      "width": 45,
+      "height": 45
+    },
+    "1790": {
+      "name": "ECONOMIC LIBERATORS FORUM SOUTH AFRICA",
+      "src": "/parties/1790-0ed7f53d7fd2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ELF-SA.PNG",
+      "sha256": "0ed7f53d7fd2dd5a9845678f8c589b35f3ce9d0e7a7065ba003148f7ce679aa1",
+      "width": 45,
+      "height": 45
+    },
+    "1795": {
+      "name": "AMALGAMATED CONCERNED RESIDENTS ASSOCIATION",
+      "src": "/parties/1795-4a2ba83cdf61.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACRA.PNG",
+      "sha256": "4a2ba83cdf61d55d812ad7d60c0565d9f1fad154dd494aa5cbff230af9ecd3db",
+      "width": 45,
+      "height": 45
+    },
+    "1802": {
+      "name": "LABOUR PARTY OF SOUTH AFRICA",
+      "src": "/parties/1802-037c61386dad.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LABOUR.PNG",
+      "sha256": "037c61386dada1fea317113e22d925924d52e7c6dfbbfbc12f00d1903f761a08",
+      "width": 45,
+      "height": 45
+    },
+    "1803": {
+      "name": "ARISE AFRIKA ARISE INDEPENDENT CONGRESS",
+      "src": "/parties/1803-e21b1bea1d30.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AAAIC.PNG",
+      "sha256": "e21b1bea1d30e65a3def3a96e79d0aaff67a5f70d46fbf4b25369313e995462a",
+      "width": 45,
+      "height": 45
+    },
+    "1817": {
+      "name": "RESTORATION COMMUNITY FORUM",
+      "src": "/parties/1817-16c6e61de870.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RCFNW371.PNG",
+      "sha256": "16c6e61de87040b18eec05e1185c8a4dcefe3db7d0d59536b4f408799a8d67d7",
+      "width": 45,
+      "height": 45
+    },
+    "1843": {
+      "name": "KHOI ABORIGINAL PARTY",
+      "src": "/parties/1843-21c531dbe0e0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/K.A.PDC3.PNG",
+      "sha256": "21c531dbe0e084d88e9e25c02ad9601b9880c6d3c7aff6cb90d3004ce60db247",
+      "width": 45,
+      "height": 45
+    },
+    "1845": {
+      "name": "INDIAN CONGRESS PARTY",
+      "src": "/parties/1845-885844c871d6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/INDIANCP.PNG",
+      "sha256": "885844c871d694db669b6c416432d42e4d2b872f658676d083a4a02dd527dd26",
+      "width": 45,
+      "height": 45
+    },
+    "1846": {
+      "name": "UMKHUMBI WESIZWE ORGANISATION",
+      "src": "/parties/1846-e081fd69acf1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UWOKZN435.PNG",
+      "sha256": "e081fd69acf184b2f996e5fffdf22bffb01c4e27152e11595500d1e47a762408",
+      "width": 45,
+      "height": 45
+    },
+    "1847": {
+      "name": "UNITED DEVELOPMENT FORUM",
+      "src": "/parties/1847-d5fe43d29526.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UD4DC20.PNG",
+      "sha256": "d5fe43d29526f64b8fac0a94b3e5633c23ac8e32b4af0f4f38a370be2beb971f",
+      "width": 45,
+      "height": 45
+    },
+    "1848": {
+      "name": "1860NIC CONGRESS",
+      "src": "/parties/1848-c185e9486862.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/1860NICCKZN435.PNG",
+      "sha256": "c185e94868626fbdeb06e01a63645666fd65a3bb35e759ce57fac30c763ee0be",
+      "width": 45,
+      "height": 45
+    },
+    "1849": {
+      "name": "BUILD A BETTER SOUTH AFRICA",
+      "src": "/parties/1849-b20ab7d08a91.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BABSA.PNG",
+      "sha256": "b20ab7d08a91001280abcae852416ab75ed4bfca675bb38730e3a93a74e46b8c",
+      "width": 45,
+      "height": 45
+    },
+    "1850": {
+      "name": "UNITED RESIDENT'S PARTY",
+      "src": "/parties/1850-93d97eb18062.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/URP.PNG",
+      "sha256": "93d97eb180628e3eea66bbdb09c29f7a11dbefd65b18681460a47d25070ddde5",
+      "width": 45,
+      "height": 45
+    },
+    "1851": {
+      "name": "AZANIAN GROUND FORCES",
+      "src": "/parties/1851-fb5d8b88275d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AGF.PNG",
+      "sha256": "fb5d8b88275d26dbeac9b751b18c3a7a02acab1c0c3e4f7ccf5a5b3fe486e8c4",
+      "width": 45,
+      "height": 45
+    },
+    "1853": {
+      "name": "BATHOBOHLE POLITICAL PARTY",
+      "src": "/parties/1853-482ba6969f00.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BP.PNG",
+      "sha256": "482ba6969f00c46ac8a478f1825e2f5a23c52475aa84da6da9a09a1afe0b4310",
+      "width": 45,
+      "height": 45
+    },
+    "1855": {
+      "name": "HUCONOMICS JUSTICE",
+      "src": "/parties/1855-770110cd2849.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/H.JGT485.PNG",
+      "sha256": "770110cd2849ec55ff0b1839652d5eddfa58165edc30cf48bd2885be1a2f215c",
+      "width": 45,
+      "height": 45
+    },
+    "1857": {
+      "name": "PATRIOTIC SOUTH AFRICANS",
+      "src": "/parties/1857-16f26dd579b4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PATSADC12.PNG",
+      "sha256": "16f26dd579b44396ddddad53afe8ae7ebc2ab7eaa4b0e5bf9cfd8d2e518fc018",
+      "width": 45,
+      "height": 45
+    },
+    "1858": {
+      "name": "TAU DIA RORA CULTURAL AND TRADITIONAL LEKGOTLA",
+      "src": "/parties/1858-7c7d1730ddc0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DITAU.PNG",
+      "sha256": "7c7d1730ddc0d8cc661e1ed01c42778e35cf61c7d1424f64cefc9ee323bf4a34",
+      "width": 45,
+      "height": 45
+    },
+    "1859": {
+      "name": "KINGDOM AMBASSADORS MOVEMENT",
+      "src": "/parties/1859-58a5039892e4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KAMDC20.PNG",
+      "sha256": "58a5039892e4b15561b78e6f96d195bed3565a682908ffef18dfe11c6b933720",
+      "width": 45,
+      "height": 45
+    },
+    "1861": {
+      "name": "GAZA NATIONAL CONGRESS",
+      "src": "/parties/1861-66a5024cdea1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/G.N.C..PNG",
+      "sha256": "66a5024cdea167bd157f731bb26e6c433e0622b50a7058ed8b1b27817d69b77f",
+      "width": 45,
+      "height": 45
+    },
+    "1863": {
+      "name": "SERVICE DELIVERY PARTY",
+      "src": "/parties/1863-4e67e6cd0d14.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SDP.PNG",
+      "sha256": "4e67e6cd0d141fd6ba0a75a0e574fdbdfd41b8bed487a808def615423ae97adc",
+      "width": 45,
+      "height": 45
+    },
+    "1866": {
+      "name": "NEW FORCE",
+      "src": "/parties/1866-7af19aaf1f7f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NFDC38.PNG",
+      "sha256": "7af19aaf1f7f0949a23ff9bb5f08b2940c836b573f502bcf3947bdd2ed2c8b1d",
+      "width": 45,
+      "height": 45
+    },
+    "1867": {
+      "name": "ON THE MOVE",
+      "src": "/parties/1867-f4682204c2fe.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/OTM.PNG",
+      "sha256": "f4682204c2fe1dd5e5ad0f1782b0ed96b25f7a93ba89a20bd998d5c0d3763d46",
+      "width": 45,
+      "height": 45
+    },
+    "1869": {
+      "name": "NO STRESS PARTY",
+      "src": "/parties/1869-ee7db69c0a22.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NSPDC29.PNG",
+      "sha256": "ee7db69c0a22c02fb5cbdd76066dc11ae9fd490f9355a82fcfbea030bc7e4541",
+      "width": 45,
+      "height": 45
+    },
+    "1870": {
+      "name": "ACTIVE CITIZENS OF SOUTH AFRICA",
+      "src": "/parties/1870-5c94e002f022.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACSA.PNG",
+      "sha256": "5c94e002f022b3159f2e741da4850b60066850e0a963f9b414b588770ccec04a",
+      "width": 45,
+      "height": 45
+    },
+    "1872": {
+      "name": "JOZINI CONGRESS",
+      "src": "/parties/1872-d7357747a760.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/JC.PNG",
+      "sha256": "d7357747a7602a204eabc775a9101ef7ba1551c252399629363498872020eec0",
+      "width": 45,
+      "height": 45
+    },
+    "1874": {
+      "name": "DEMOCRATIC MOVEMENT",
+      "src": "/parties/1874-99f9155d59eb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DM.PNG",
+      "sha256": "99f9155d59eb07b3cc709b0130436d6215e40f3f1098d0737e94eebaa7be750a",
+      "width": 45,
+      "height": 45
+    },
+    "1876": {
+      "name": "LANGEBERG RATEPAYERS ASSOCIATION",
+      "src": "/parties/1876-cc421f79079d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LARA.PNG",
+      "sha256": "cc421f79079d8acc5a7435f1115cd92ae952291b39413044c42bc1552222a2fe",
+      "width": 45,
+      "height": 45
+    },
+    "1880": {
+      "name": "VUKA SA",
+      "src": "/parties/1880-c24f2c4be7f5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/VSA.PNG",
+      "sha256": "c24f2c4be7f50b6b8aaf3eff8747d5893bb4c78a7f27ff4958fdfa7f122b0f11",
+      "width": 45,
+      "height": 45
+    },
+    "1883": {
+      "name": "LETHABONG SERVICE MOVEMENT",
+      "src": "/parties/1883-4b760fbd1a96.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/L.S.M.PNG",
+      "sha256": "4b760fbd1a963d3e7c5d99f3589ecfda3f02cf1e93de2fadb3fb5d685865e731",
+      "width": 45,
+      "height": 45
+    },
+    "1888": {
+      "name": "PURPLE PARTY IKAGENG",
+      "src": "/parties/1888-33934a0bdad9.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PURPLE.PNG",
+      "sha256": "33934a0bdad9f8ebd331c832c510b4e44fda61e3552c91b779db19c8c4c19328",
+      "width": 45,
+      "height": 45
+    },
+    "1889": {
+      "name": "INDEPENDENT LEKWA PARTY",
+      "src": "/parties/1889-f3dff2eaef11.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ILP.PNG",
+      "sha256": "f3dff2eaef11454fe18edb531b684bc62794d4ee7ca96e4118e538300cdfd01e",
+      "width": 45,
+      "height": 45
+    },
+    "1891": {
+      "name": "NALA PROGRESSIVE MOVEMENT",
+      "src": "/parties/1891-481e1ed0df9c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NPM.PNG",
+      "sha256": "481e1ed0df9c1badb1e2995973e97d2896bcdcd918797a441130753c5d9e96be",
+      "width": 45,
+      "height": 45
+    },
+    "1893": {
+      "name": "LIMPOPO INDEPENDENT MOVEMENT ALLIANCE",
+      "src": "/parties/1893-057692ef8118.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LIMA.PNG",
+      "sha256": "057692ef8118ddef983b1512018bfdccaa19444b560da9995474f1aed2ed9592",
+      "width": 45,
+      "height": 45
+    },
+    "1896": {
+      "name": "UMPHAKATHI KAI ONE PARTY",
+      "src": "/parties/1896-2800392fce5a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1896.PNG",
+      "sha256": "2800392fce5a3dc9ac55f9dbbe95b0cf2460d1c97c4165f649d2b965839625f4",
+      "width": 45,
+      "height": 45
+    },
+    "1898": {
+      "name": "SAKK MILITARY VETERANS PARTY",
+      "src": "/parties/1898-2fe23d4e0cb5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAKKMVP.PNG",
+      "sha256": "2fe23d4e0cb5e359242a79e90b0d23950637fa3a772bed9fa199e778e6cbdbae",
+      "width": 45,
+      "height": 45
+    },
+    "1900": {
+      "name": "HENDRINA UNITED COMMUNITY DEVELOPMENT",
+      "src": "/parties/1900-592261215792.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/H.U.C.D.PNG",
+      "sha256": "5922612157928fba846b266429387364ff2dc5cab66dad556c8453b6a9560663",
+      "width": 45,
+      "height": 45
+    },
+    "1902": {
+      "name": "GREAT KEI COMMUNITY MOVEMENT",
+      "src": "/parties/1902-bf56cf30ff11.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GKCM.PNG",
+      "sha256": "bf56cf30ff11854d7b5aac0c37bb3d6c6aec161836cf641a47a1712b419dfff7",
+      "width": 45,
+      "height": 45
+    },
+    "1906": {
+      "name": "EIGHTEEN TWELVE MOVEMENT",
+      "src": "/parties/1906-c90699a99a44.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/E.T.M.PNG",
+      "sha256": "c90699a99a4445729d67fd85aaef3c9aa1178fbf3192fc50867304e7013b3fa7",
+      "width": 45,
+      "height": 45
+    },
+    "1908": {
+      "name": "NEWCASTLE AND DISTRICT RESIDENTS FORUM",
+      "src": "/parties/1908-7270f7cd7b3e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NDRF.PNG",
+      "sha256": "7270f7cd7b3eea830e954de79f04bba63f32b3637a15c28a6cc7cc069468196e",
+      "width": 45,
+      "height": 45
+    },
+    "1909": {
+      "name": "AFRIKA MAYIBUYE MOVEMENT",
+      "src": "/parties/1909-e9a2fa9e1f9f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAYIBUYE.PNG",
+      "sha256": "e9a2fa9e1f9f91f665ed8472a00c71faa844c35865d9eaeb368fb3c256c80a94",
+      "width": 45,
+      "height": 45
+    },
+    "1910": {
+      "name": "INSIKA YESIZWE PARTY",
+      "src": "/parties/1910-c0666a3549a2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ISP.PNG",
+      "sha256": "c0666a3549a2126a6945f036714852891c398857ef02e2ce2571f71d13fc065c",
+      "width": 45,
+      "height": 45
+    },
+    "1911": {
+      "name": "MO-AFRICA PARTY",
+      "src": "/parties/1911-082886692823.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1911.PNG",
+      "sha256": "082886692823489a96290c621951c3316ee2297a160c241d6c90b1c2399d1fe3",
+      "width": 45,
+      "height": 45
+    },
+    "1912": {
+      "name": "DBOKKE",
+      "src": "/parties/1912-954631d7e873.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DBOKKE.PNG",
+      "sha256": "954631d7e87351453fdd44a11fb3ceb93bd51aa117e607b9f32b542cf486046c",
+      "width": 45,
+      "height": 45
+    },
+    "1916": {
+      "name": "VHEMBE INDEPENDENT PARTY (MUSIKITEDZI)",
+      "src": "/parties/1916-c8a6ca99b6ab.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/VIP.PNG",
+      "sha256": "c8a6ca99b6abfd4bda70bef1b5b7f508b3573569d4d970af666a1d80701001e9",
+      "width": 45,
+      "height": 45
+    },
+    "1918": {
+      "name": "IMPUQUKO EZWENILETHU",
+      "src": "/parties/1918-315903ea4a8b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/I.Q.Z.PNG",
+      "sha256": "315903ea4a8b84996451cb9c58843f6166a8662c770268202873f22262b99add",
+      "width": 45,
+      "height": 45
+    },
+    "1920": {
+      "name": "UNITED PROGRESSIVE PEOPLE ALLIANCE",
+      "src": "/parties/1920-93e1634c49aa.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UPPA.PNG",
+      "sha256": "93e1634c49aac9d989a92667eef9e6bd16f6a3d38560c18441e26ac317d58738",
+      "width": 45,
+      "height": 45
+    },
+    "1922": {
+      "name": "JOHN TAOLO GAETSEWE RE IKEMETSE",
+      "src": "/parties/1922-ffcee8a95cc1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/JTGR.PNG",
+      "sha256": "ffcee8a95cc12f09fd01cee97d06fc7dcffeff6c4684df4a601253e72a1adec2",
+      "width": 45,
+      "height": 45
+    },
+    "1924": {
+      "name": "AFRICAN SPEAR MOVEMENT",
+      "src": "/parties/1924-f260ec5215d3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ASM.PNG",
+      "sha256": "f260ec5215d343a79b61553081b53ee733a632bb4aa6554c2a43fa68edba2a2f",
+      "width": 45,
+      "height": 45
+    },
+    "1927": {
+      "name": "MKHONTO ILEMBE PARTY",
+      "src": "/parties/1927-e15dec98e531.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MLP.PNG",
+      "sha256": "e15dec98e5313f4437061e565354f709ce945968d2856054c07518b0f9301bc4",
+      "width": 45,
+      "height": 45
+    },
+    "1929": {
+      "name": "AFRICAN ECONOMIC MOVEMENT",
+      "src": "/parties/1929-fe4bac26c42b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AEM.PNG",
+      "sha256": "fe4bac26c42bf7923cf9be379c2b53d7e654efff771f809823fac44607342fdb",
+      "width": 45,
+      "height": 45
+    },
+    "1932": {
+      "name": "PEOPLE OF JOBURG",
+      "src": "/parties/1932-fd848b6a35d4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/POJ.PNG",
+      "sha256": "fd848b6a35d4ca45b079cb13b837dc78f22a9e099e01747ece91b5a7de85375e",
+      "width": 45,
+      "height": 45
+    },
+    "1933": {
+      "name": "BRIDGTON CIVIC ASSOCIATION",
+      "src": "/parties/1933-f36c6ce76e12.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BCA.PNG",
+      "sha256": "f36c6ce76e129989c20c9bc8a3e67cefa3884d99ba71d1af00edf26694cc16f7",
+      "width": 45,
+      "height": 45
+    },
+    "1935": {
+      "name": "GAZA DEMOCRATIC FRONT",
+      "src": "/parties/1935-ca93c5204c60.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GAZA.PNG",
+      "sha256": "ca93c5204c60ae94e227707eb744137f153db81e9cb06d8f88d3f57f3a88156c",
+      "width": 45,
+      "height": 45
+    },
+    "1936": {
+      "name": "RESTORATION SA",
+      "src": "/parties/1936-30c149be8c1b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RESTORSA.PNG",
+      "sha256": "30c149be8c1b7d529657a39950b81f241f1f55f51092d8a11b0b2c4e3a5cef6d",
+      "width": 45,
+      "height": 45
+    },
+    "1941": {
+      "name": "UTLWANG VOICE OF THE PEOPLE",
+      "src": "/parties/1941-d94f64ef4820.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/U.V.P..PNG",
+      "sha256": "d94f64ef48208cfbcc95388f584f20b51541219b69c038bc0efdc6be4ab502d1",
+      "width": 45,
+      "height": 45
+    },
+    "1948": {
+      "name": "SECURITY PERSONNEL PARTY OF SOUTH AFRICA",
+      "src": "/parties/1948-cdc23cca2e9e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SPPSA.PNG",
+      "sha256": "cdc23cca2e9e59b9185ca047a243a198455ce5c47e71cff0244f8ff837373a96",
+      "width": 45,
+      "height": 45
+    },
+    "1950": {
+      "name": "MOUNT FLETCHER COMMUNITY VOICE",
+      "src": "/parties/1950-03fdec9887c3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MFCV.PNG",
+      "sha256": "03fdec9887c345b8fbc372809f6289d9326927866c1b617f86c3507724693163",
+      "width": 45,
+      "height": 45
+    },
+    "1951": {
+      "name": "ECONOMIC REDRESS MOVEMENT",
+      "src": "/parties/1951-c553f1442530.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ERM.PNG",
+      "sha256": "c553f14425307d766a6d9216d4a40c19dc1de327d20e525f557a011f598b629e",
+      "width": 45,
+      "height": 45
+    },
+    "1952": {
+      "name": "MAWUSA MOVEMENT PARTY",
+      "src": "/parties/1952-e69991597fce.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAWUSA.PNG",
+      "sha256": "e69991597fcea4021e0e4e9c049fe9669db727a640f78351e84d80be9da0c3f5",
+      "width": 45,
+      "height": 45
+    },
+    "1955": {
+      "name": "MAGAENG",
+      "src": "/parties/1955-0d19de678a18.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAGAENG.PNG",
+      "sha256": "0d19de678a1891a2861f5db1ca7df1b2544b03cbfd0a96b2dd6a628985bc96c5",
+      "width": 45,
+      "height": 45
+    },
+    "1957": {
+      "name": "COMMUNITY FIRST PARTY",
+      "src": "/parties/1957-907cf24c4412.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PIKGRAAF.PNG",
+      "sha256": "907cf24c4412b526faf9171c439800782f531aac8a905da876e856685aa6a6c0",
+      "width": 45,
+      "height": 45
+    },
+    "1960": {
+      "name": "RISE TSANTSABANE COMMUNITIES",
+      "src": "/parties/1960-d22eede95a3f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RTC.PNG",
+      "sha256": "d22eede95a3fef69960bc477cc3cba35e484281537a6cd88a88930784b62d00f",
+      "width": 45,
+      "height": 45
+    },
+    "1962": {
+      "name": "ABORIGINAL WARRIORS 4 ECONOMIC HOPE!",
+      "src": "/parties/1962-2ee3da7ccbd2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AWEH!.PNG",
+      "sha256": "2ee3da7ccbd2befbd9f5f6679929821e200c0e8563f027274d12e7fbeb78cfaa",
+      "width": 45,
+      "height": 45
+    },
+    "1963": {
+      "name": "REFORM ALLIANCE OF SOUTH AFRICA",
+      "src": "/parties/1963-5e9e36f4e5dd.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RASA.PNG",
+      "sha256": "5e9e36f4e5dde8f29d320ee2a2b204b2cd51623d6bc111f0cc8da0f691c2d5da",
+      "width": 45,
+      "height": 45
+    },
+    "1964": {
+      "name": "ETHEKWINI RATEPAYERS POLITICAL MOVEMENT",
+      "src": "/parties/1964-7bf569687f7f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ERPM.PNG",
+      "sha256": "7bf569687f7f58d5ce6aab5fe6cba4f6f106233b99d4ed23be2377b193d63740",
+      "width": 45,
+      "height": 45
+    },
+    "1965": {
+      "name": "YA BAAGI FORUM",
+      "src": "/parties/1965-b6d759bb43a5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/YBF.PNG",
+      "sha256": "b6d759bb43a57e6dfbbd5fca8a693d6be04ce092dc1dc83875f9dc8f69ccac3b",
+      "width": 45,
+      "height": 45
+    },
+    "1966": {
+      "name": "UNITED DEMOCRATIC FRONT PARTY",
+      "src": "/parties/1966-f66333bf333b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR1966.PNG",
+      "sha256": "f66333bf333b4cb40362f271eef138b117b323bf5f5d3e6b592679375422f3aa",
+      "width": 45,
+      "height": 45
+    },
+    "1968": {
+      "name": "ONE LOVE ALLIANCE",
+      "src": "/parties/1968-fd043560f57c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/OLA.PNG",
+      "sha256": "fd043560f57cd7e95a2339c1843d9e7ec25df998b176aad9b0848b26a1d42fe1",
+      "width": 45,
+      "height": 45
+    },
+    "1969": {
+      "name": "DIKGATLONG RESIDENTS CONVENTION",
+      "src": "/parties/1969-e1ee544abba5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DRC.PNG",
+      "sha256": "e1ee544abba5e70c8d1a83f6c5eb480f43177aebccc2c5cfc845ca4489d475a8",
+      "width": 45,
+      "height": 45
+    },
+    "1971": {
+      "name": "MATLOSANA SERVICE DELIVERY MOVEMENT",
+      "src": "/parties/1971-01906ff893ed.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MSDM.PNG",
+      "sha256": "01906ff893ed9f80d24c6fbd9ca18dda8a480c563cc6319c13dac7ac45fe38a4",
+      "width": 45,
+      "height": 45
+    },
+    "1972": {
+      "name": "ALLIANCE OF CHANGE",
+      "src": "/parties/1972-dc795315610f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AOC.PNG",
+      "sha256": "dc795315610f280f711cfff236e87a09f1230c2379b235d56bc9ba49398d3780",
+      "width": 45,
+      "height": 45
+    },
+    "1973": {
+      "name": "PEOPLE'S VOICE PARTY",
+      "src": "/parties/1973-7ada62d559a1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PVP.PNG",
+      "sha256": "7ada62d559a16a719c1d9f3a0e75691149d8558f79cec4ff7ddb1648b2e5f74b",
+      "width": 45,
+      "height": 45
+    },
+    "1974": {
+      "name": "SERVICE MOVEMENT FOR METSIMAHOLO",
+      "src": "/parties/1974-7072326c8f1a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SMM.PNG",
+      "sha256": "7072326c8f1a9fff6a9cc22de732f03c54d2c9de89b0310a862d67f4ae88cd8f",
+      "width": 45,
+      "height": 45
+    },
+    "1976": {
+      "name": "PEOPLE'S PROGRESSIVE PARTY",
+      "src": "/parties/1976-451769ce8d23.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PEOPLESA.PNG",
+      "sha256": "451769ce8d23fa79502a74f4523e1194df01d8ddb925a2e47f82dbe818d0ed62",
+      "width": 45,
+      "height": 45
+    },
+    "1977": {
+      "name": "PEOPLE'S FIRST UNITED",
+      "src": "/parties/1977-cda7a6f34549.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PFU.PNG",
+      "sha256": "cda7a6f345497c4d083032480f231fea81b34abf176f02c8e76269124572767d",
+      "width": 45,
+      "height": 45
+    },
+    "1979": {
+      "name": "ACTIVE CITIZENRY TAUNG ASSOCIATION",
+      "src": "/parties/1979-e498f8f645c2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACTA.PNG",
+      "sha256": "e498f8f645c232a64b6c0ec82e512c207236b121d17056d9b8f354c5a763fe36",
+      "width": 45,
+      "height": 45
+    },
+    "1980": {
+      "name": "PROGRESSIVE CIVIC ORGANISATION",
+      "src": "/parties/1980-26e44264a0c6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PCO.PNG",
+      "sha256": "26e44264a0c6227fdbb53cbe0bdd07a618463aaedea77d15b0244e953045ecbd",
+      "width": 45,
+      "height": 45
+    },
+    "1983": {
+      "name": "GREATER TSANTSABANE COMMUNITY FRONT",
+      "src": "/parties/1983-c90cc4ea2a1b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GTCF.PNG",
+      "sha256": "c90cc4ea2a1bccbd8e42d6e611dd186532cc4d743e650073e8060d87eea72f49",
+      "width": 45,
+      "height": 45
+    },
+    "1985": {
+      "name": "FORUM FOR SOUTH AFRICA",
+      "src": "/parties/1985-3ea699e8a0ae.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/FORUM4SA.PNG",
+      "sha256": "3ea699e8a0ae1525af091789c87c83873b31a86f51eb3fb6a028f32739145fd1",
+      "width": 45,
+      "height": 45
+    },
+    "1986": {
+      "name": "AFRICAN LABOUR CONVENTION",
+      "src": "/parties/1986-f7884d3e2432.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ALC.PNG",
+      "sha256": "f7884d3e2432f50bca8777570fbcbb4367a20ac0f70d8855f8355f51f7476a4f",
+      "width": 45,
+      "height": 45
+    },
+    "1989": {
+      "name": "BETTER ZOLANI",
+      "src": "/parties/1989-ab17b4f6bae7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BZ.PNG",
+      "sha256": "ab17b4f6bae7149cd2439bf109e4ec5cebc26babb60993cb28b98234790643fb",
+      "width": 45,
+      "height": 45
+    },
+    "1991": {
+      "name": "ONE MERAFONG ORGANISATION",
+      "src": "/parties/1991-285ea240d855.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/OMO.PNG",
+      "sha256": "285ea240d85598648402639d6b85b96f7ebe198e2395b6d211352528421714f8",
+      "width": 45,
+      "height": 45
+    },
+    "1993": {
+      "name": "MODIMOLLE MOOKGOPHONG VAALWATER ALMA ROADTAN PARTY",
+      "src": "/parties/1993-49dff54652d9.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MMVAR.PNG",
+      "sha256": "49dff54652d948d17ab65fd12a28bce7015df3388d9262999630556e15a47b52",
+      "width": 45,
+      "height": 45
+    },
+    "1994": {
+      "name": "FEZILE DABI CIVIC MOVEMENT",
+      "src": "/parties/1994-cc0527d362bb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/FDCM.PNG",
+      "sha256": "cc0527d362bba8795c69dbd7be105ddf99c82b2b904579bcf5f396d5557abba3",
+      "width": 45,
+      "height": 45
+    },
+    "1995": {
+      "name": "THE WINNERS MOVEMENT PARTY",
+      "src": "/parties/1995-73ea10bd388b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TWMP.PNG",
+      "sha256": "73ea10bd388b97ee0175739a91cfdff0b2377ab593450155b53f4a10db4f8b02",
+      "width": 45,
+      "height": 45
+    },
+    "1999": {
+      "name": "GOVAN MBEKI MUNICIPALITY RATEPAYERS MOVEMENT",
+      "src": "/parties/1999-1457bac9a388.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GMMRM.PNG",
+      "sha256": "1457bac9a38855ba6931fa0bf1953116bd7a4bfb666343f158b457f22836383d",
+      "width": 45,
+      "height": 45
+    },
+    "2002": {
+      "name": "BADIREDI BA SETŠHABA",
+      "src": "/parties/2002-6048c12ca9d7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BBS.PNG",
+      "sha256": "6048c12ca9d726a4ed85ffc0589a46c7e10e115a9e5d0c59e365c72670ca758d",
+      "width": 45,
+      "height": 45
+    },
+    "2003": {
+      "name": "AFRICAN TRADITIONAL CONGRES",
+      "src": "/parties/2003-1dd3558dfa22.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/A.T.C..PNG",
+      "sha256": "1dd3558dfa223892fb25e17a27234e871ac3053527e9743d7d192bb27052ee7a",
+      "width": 45,
+      "height": 45
+    },
+    "2005": {
+      "name": "AFRICA PEOPLE COALITION PARTY",
+      "src": "/parties/2005-7aec6bdcafd1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/APCPARTY.PNG",
+      "sha256": "7aec6bdcafd170fe3683d5365fcdb60d966eef315cad14201d245c5da1fb23a8",
+      "width": 45,
+      "height": 45
+    },
+    "2006": {
+      "name": "INDEPENDENT COUNCILLORS",
+      "src": "/parties/2006-92528f90c8f1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IND.PNG",
+      "sha256": "92528f90c8f11190136a53808af80bdc7f84a41da702eb354616d7b8e6710e8b",
+      "width": 45,
+      "height": 45
+    },
+    "2007": {
+      "name": "COMMUNITY FIRST ALLIANCE",
+      "src": "/parties/2007-9343adbac574.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CFA.PNG",
+      "sha256": "9343adbac574c73f9381edb7d3dfb9837d6b20a48defb4d2bdabe1bbb2a00b97",
+      "width": 45,
+      "height": 45
+    },
+    "2008": {
+      "name": "AMANDLA MATLA PARTY",
+      "src": "/parties/2008-e3377f7e7eec.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AMP.PNG",
+      "sha256": "e3377f7e7eecfea5669bfc2f1f9a3b39c795ce43b0053496a026da8301ff58b3",
+      "width": 45,
+      "height": 45
+    },
+    "2010": {
+      "name": "TRUE REFORMATION PARTY",
+      "src": "/parties/2010-eef70ced27eb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TRP.PNG",
+      "sha256": "eef70ced27ebb04bfb4521ede23bff38b85fc68645afe5f0c4ba246ba2de0ca2",
+      "width": 45,
+      "height": 45
+    },
+    "2011": {
+      "name": "AFRICAN LIBERATION MOVEMENT",
+      "src": "/parties/2011-5c55b86b25fe.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ALM.PNG",
+      "sha256": "5c55b86b25fe1abe702a7993fd49c872c19e905cf74edec1dfb25558bc7800bb",
+      "width": 45,
+      "height": 45
+    },
+    "2012": {
+      "name": "HOFMEYR COMMUNITY DEVELOPMENT FORUM",
+      "src": "/parties/2012-a08fd9105150.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/HCDF.PNG",
+      "sha256": "a08fd9105150d441bf0f8a49b9dde41a185082d3db737eee95b642a8bb825648",
+      "width": 45,
+      "height": 45
+    },
+    "2016": {
+      "name": "PEOPLE'S CONSENT PARTY",
+      "src": "/parties/2016-6644363446cb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PCP.PNG",
+      "sha256": "6644363446cb4fb6d3e5e5be3f95a5bec19ba49c00bc06b7a4d8f36dc8e308f0",
+      "width": 45,
+      "height": 45
+    },
+    "2018": {
+      "name": "COMBAT",
+      "src": "/parties/2018-b47ec44dd708.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/COMBAT.PNG",
+      "sha256": "b47ec44dd7084c73b4428e148104df1017f640aaaf8186af00d7150a072fd7ab",
+      "width": 45,
+      "height": 45
+    },
+    "2023": {
+      "name": "AHGAMAN",
+      "src": "/parties/2023-8659c767dbae.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AGM.PNG",
+      "sha256": "8659c767dbae05a7d66f53848a47b9d860b0e2da027b8c6071a58f32ed66fc7e",
+      "width": 45,
+      "height": 45
+    },
+    "2024": {
+      "name": "ALLIANCE FOR SOCIAL EQUITY",
+      "src": "/parties/2024-d637c6539c73.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ASE.PNG",
+      "sha256": "d637c6539c7377b945df4b484eacf7b2d0a071b4adbfddf070a618d04be82083",
+      "width": 45,
+      "height": 45
+    },
+    "2026": {
+      "name": "SIYANCUMA INDEPENDENT FORUM",
+      "src": "/parties/2026-9d1191b77dc6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SIF.PNG",
+      "sha256": "9d1191b77dc648ad7bb15df72882953642644d2839619aa98a162d34bb5650e0",
+      "width": 45,
+      "height": 45
+    },
+    "2027": {
+      "name": "SIYANQOBA INDEPENDENT PARTY",
+      "src": "/parties/2027-3bed6027b9de.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SIP.PNG",
+      "sha256": "3bed6027b9de9298b80238786f1e669d103830b4664bf050bf69dcf62060eb2d",
+      "width": 45,
+      "height": 45
+    },
+    "2028": {
+      "name": "BAAGI",
+      "src": "/parties/2028-2326dc09542d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2028.PNG",
+      "sha256": "2326dc09542d0bbf6abba91780354379baa103649f1d81b24306a2241aed3767",
+      "width": 45,
+      "height": 45
+    },
+    "2031": {
+      "name": "SOUTH AFRICA FOR SOUTH AFRICANS",
+      "src": "/parties/2031-2fd55ea2b394.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SA4SA.PNG",
+      "sha256": "2fd55ea2b394185defd7310441bfd41e7135aa629876b7703705b224fc749bf5",
+      "width": 45,
+      "height": 45
+    },
+    "2032": {
+      "name": "SISONKE SOLIDARITY MOVEMENT",
+      "src": "/parties/2032-499fc419ebcb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SSM.PNG",
+      "sha256": "499fc419ebcbf465a6b81931d832e2c0322c4e167af6d178a190dae528835ccd",
+      "width": 45,
+      "height": 45
+    },
+    "2033": {
+      "name": "A SHALL-X PARTY",
+      "src": "/parties/2033-6efec89cf3c5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SHALL-X.PNG",
+      "sha256": "6efec89cf3c56f86fe8f34a6e7aa4428cd84bdca8321009a538885c7d1365ee8",
+      "width": 45,
+      "height": 45
+    },
+    "2035": {
+      "name": "DITSHABA KOPANO RESIDENTS MOVEMENT",
+      "src": "/parties/2035-c3a21034519d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DKRM.PNG",
+      "sha256": "c3a21034519dbc2d843099bdad28637e48acf158a91d1d6ebcb4d9e9321ece2b",
+      "width": 45,
+      "height": 45
+    },
+    "2036": {
+      "name": "CONGRESS OF MASILONYANA",
+      "src": "/parties/2036-c9b7d99b9d94.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/COM.PNG",
+      "sha256": "c9b7d99b9d946bb4db2712575f3b0f0027570bc39aa3af3c28cf1b657cbebf37",
+      "width": 45,
+      "height": 45
+    },
+    "2037": {
+      "name": "LEPHALALE PEOPLE’S PARTY",
+      "src": "/parties/2037-34738ded0761.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LPP.PNG",
+      "sha256": "34738ded07614725c1b8de9a0fcad7e36d409ae9b743c8abcf58036379141398",
+      "width": 45,
+      "height": 45
+    },
+    "2038": {
+      "name": "MZANSI CHRISTIAN PARTY",
+      "src": "/parties/2038-22fbcf56cc31.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MCP.PNG",
+      "sha256": "22fbcf56cc31fbd0b85cbdf2bb0f6737304de49fc151f85bda8990a0521e2847",
+      "width": 45,
+      "height": 45
+    },
+    "2039": {
+      "name": "MOSHABI PARTY",
+      "src": "/parties/2039-eb08f7078894.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MOSHABI.PNG",
+      "sha256": "eb08f7078894477447f2658d2e3bb3b55250de75b6a8eb3891e4e64eee1f65f1",
+      "width": 45,
+      "height": 45
+    },
+    "2040": {
+      "name": "RESIDENT DEVELOPMENT",
+      "src": "/parties/2040-41384001abcc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RD.PNG",
+      "sha256": "41384001abcc440390ac8f0eb4f82f83f87fb6b40cdba94591c4ea5cb24f0824",
+      "width": 45,
+      "height": 45
+    },
+    "2041": {
+      "name": "MBOMBELA YEBAHLALI RESIDENCE",
+      "src": "/parties/2041-98270cf0777f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MYR.PNG",
+      "sha256": "98270cf0777ff808d7e5a658629ce91c332f7578cde2469fc20ef16c0548e438",
+      "width": 45,
+      "height": 45
+    },
+    "2042": {
+      "name": "NYONI PROGRESS PARTY",
+      "src": "/parties/2042-09573da0678e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NPP.PNG",
+      "sha256": "09573da0678e5129a419501ccbcb3e77bede05411635551a621bd3712d6c6dda",
+      "width": 45,
+      "height": 45
+    },
+    "2045": {
+      "name": "BANA BA MOBU",
+      "src": "/parties/2045-f6d2f8004272.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BBM.PNG",
+      "sha256": "f6d2f8004272013b20013b18233509215596c31d0abe6bd8da1591b04a488832",
+      "width": 45,
+      "height": 45
+    },
+    "2046": {
+      "name": "POSTOLA",
+      "src": "/parties/2046-11634424848f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/P.PNG",
+      "sha256": "11634424848f9288d3bb7512c45784588caf45d0ee4ffb273978d8e63322354f",
+      "width": 45,
+      "height": 45
+    },
+    "2048": {
+      "name": "HOPE OF RESIDENTS",
+      "src": "/parties/2048-4aad0e7b7e26.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/HOPE.PNG",
+      "sha256": "4aad0e7b7e26788cf19e33b1366a7df09b923cf782fd99c2ef35af58a3e51287",
+      "width": 45,
+      "height": 45
+    },
+    "2049": {
+      "name": "NATIONAL RESTORATION PARTY",
+      "src": "/parties/2049-4bc12794689b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NRP.PNG",
+      "sha256": "4bc12794689befdba3fa22eb8ccdb7d09257388e0a79c35c0068133317ed9fd2",
+      "width": 45,
+      "height": 45
+    },
+    "2050": {
+      "name": "MIGEU YA KASI",
+      "src": "/parties/2050-80f2f405d274.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MIGEU.PNG",
+      "sha256": "80f2f405d2746a04361e5c9e37d4d7980507a5613cb1177b66c913244477524a",
+      "width": 45,
+      "height": 45
+    },
+    "2051": {
+      "name": "ONAFHANKLIK",
+      "src": "/parties/2051-dfea9ee3d272.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2051.PNG",
+      "sha256": "dfea9ee3d2729cf89b770e0091e812dfe71cc21de09fe7111d45c7440548c314",
+      "width": 45,
+      "height": 45
+    },
+    "2052": {
+      "name": "BOPHUTHATSWANA CIVIL MOVEMENT",
+      "src": "/parties/2052-cb84f944c2f5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2052.PNG",
+      "sha256": "cb84f944c2f5d65884b3736b7de3605c11918ebd32d9085301da0e9f85f26beb",
+      "width": 45,
+      "height": 45
+    },
+    "2053": {
+      "name": "ASIHLANGANENI CIVIC MOVEMENT",
+      "src": "/parties/2053-109b9ffcbee4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ASCO.PNG",
+      "sha256": "109b9ffcbee4d427cb40cd2882a7f19d2c4df72de61a07cb46cad3283c37352e",
+      "width": 45,
+      "height": 45
+    },
+    "2054": {
+      "name": "KNOW YOUR POWER",
+      "src": "/parties/2054-87b48320b915.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KYP.PNG",
+      "sha256": "87b48320b915b0da8affb3eea18d6a83b871fd0b85d48890c4be2c5b1d865038",
+      "width": 45,
+      "height": 45
+    },
+    "2055": {
+      "name": "SUCCESS AFRICAN MOVEMENT",
+      "src": "/parties/2055-1d92fd17329a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2055.PNG",
+      "sha256": "1d92fd17329adbf88cf6f2bc0354f7075e9b76ababa386d1f84e52d5292a264f",
+      "width": 45,
+      "height": 45
+    },
+    "2056": {
+      "name": "BAAHI CIVIC MOVEMENT",
+      "src": "/parties/2056-afd2e865c806.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BCMT.PNG",
+      "sha256": "afd2e865c8068f74ca06b1acce666c8eaa6b892fe692af7e769b2015748714cd",
+      "width": 45,
+      "height": 45
+    },
+    "2058": {
+      "name": "AFRICAN DEMOCRATICAL PARTY",
+      "src": "/parties/2058-9357edbf50be.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ADP.PNG",
+      "sha256": "9357edbf50be035b207e0e2fdd982fc52c14706d7a368ed9a0745c4cde2a2608",
+      "width": 45,
+      "height": 45
+    },
+    "2061": {
+      "name": "AFRICAN UNITED PARTY",
+      "src": "/parties/2061-81f806887bb7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AUP.PNG",
+      "sha256": "81f806887bb71fd0293bbca48a589dcd472fbe9e18e860ca0d82b78ea1a18b38",
+      "width": 45,
+      "height": 45
+    },
+    "2062": {
+      "name": "LEPHALALE UNITED MOVEMENT",
+      "src": "/parties/2062-0e3d9d23fe19.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LUM.PNG",
+      "sha256": "0e3d9d23fe19dfe3f9de0f5acfdb3b7bc53856ad81e3c769baf8648de7ba248d",
+      "width": 45,
+      "height": 45
+    },
+    "2063": {
+      "name": "AFRICAN RISING MOVEMENT",
+      "src": "/parties/2063-39a3a02e5417.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AKANI.PNG",
+      "sha256": "39a3a02e54176b951994d4919884c16308593696cdfff44465cdd683952ae6c2",
+      "width": 45,
+      "height": 45
+    },
+    "2064": {
+      "name": "MZANSI CITIZENS’ MOVEMENT",
+      "src": "/parties/2064-e3af2746cddb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MCM.PNG",
+      "sha256": "e3af2746cddb32d4671a15f08aa065a518cc02f1183c8da31b3674ed9ea78e5a",
+      "width": 45,
+      "height": 45
+    },
+    "2065": {
+      "name": "BARBERTON COMMUNITY PARTY",
+      "src": "/parties/2065-91ebdd3aa6d3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BTCP.PNG",
+      "sha256": "91ebdd3aa6d3d93d1b19cefe33b8e3680291e7c38ea949e47824d58e5e55dc04",
+      "width": 45,
+      "height": 45
+    },
+    "2066": {
+      "name": "BORN TO WIN",
+      "src": "/parties/2066-5c96343509d7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BTW.PNG",
+      "sha256": "5c96343509d7b6573e00e6ab5201f2ae6c2fff61cc347d5dab4dc5f837091466",
+      "width": 45,
+      "height": 45
+    },
+    "2067": {
+      "name": "PEOPLE'S POWER",
+      "src": "/parties/2067-942e0db2ae09.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/P.P.PNG",
+      "sha256": "942e0db2ae0968933a14347aabcbd1c24ecf83372390ccbbd8c02ccd6c4edccd",
+      "width": 45,
+      "height": 45
+    },
+    "2069": {
+      "name": "ABORIGINAL GORILLA FIGHTERS",
+      "src": "/parties/2069-6e629c9a41b8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ABGF.PNG",
+      "sha256": "6e629c9a41b827395ed4f027ddb170a65283d4a1a8ad8529f29d8a474a0b8bff",
+      "width": 45,
+      "height": 45
+    },
+    "2070": {
+      "name": "NON ALIGNED CIVIC MOVEMENT",
+      "src": "/parties/2070-e2823f777975.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NACM.PNG",
+      "sha256": "e2823f77797530dc39dc3ac822d3badcd47d6d2ea53aef5542d44747869a1a20",
+      "width": 45,
+      "height": 45
+    },
+    "2072": {
+      "name": "VOICE FOR CHANGE",
+      "src": "/parties/2072-33df842abd86.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/VFC.PNG",
+      "sha256": "33df842abd86280031101c89d07f4c4e86bfaf2e5c64fcd443a3763dff6c545c",
+      "width": 45,
+      "height": 45
+    },
+    "2074": {
+      "name": "BELA BELA ALLIANSIE",
+      "src": "/parties/2074-c442eb750b55.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BBA.PNG",
+      "sha256": "c442eb750b55d4a22dc1c0099b3c5fd194941b816e4ae8689bd1d28f81318d22",
+      "width": 45,
+      "height": 45
+    },
+    "2075": {
+      "name": "ORDINARY PEOPLE CAMPAIGN",
+      "src": "/parties/2075-848aa015fc00.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/OPC.PNG",
+      "sha256": "848aa015fc006b5945a5f0db924b8e112c3d1ba201323a1082e7a1619348d759",
+      "width": 45,
+      "height": 45
+    },
+    "2077": {
+      "name": "BATHO MOVEMENT",
+      "src": "/parties/2077-47cfc94f5c6f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BATHO.PNG",
+      "sha256": "47cfc94f5c6f57047322598fdd14af7b62a5d4a4ab2f7d798e83404c5da12a5b",
+      "width": 45,
+      "height": 45
+    },
+    "2078": {
+      "name": "KGETLENG PEOPLE'S FORUM",
+      "src": "/parties/2078-c2b30e5465a5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KPF.PNG",
+      "sha256": "c2b30e5465a5bd192572f1e27f2f16ba03fc5b9d539b6d0966617bb7e9c0aff2",
+      "width": 45,
+      "height": 45
+    },
+    "2079": {
+      "name": "CONCERNED POTCHEFSTROOM RESIDENTS",
+      "src": "/parties/2079-b223be5e8b25.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CPR.PNG",
+      "sha256": "b223be5e8b25c33750776961fdc4c62d56e906ad67b452337c4edfb3806a7802",
+      "width": 45,
+      "height": 45
+    },
+    "2080": {
+      "name": "LOCAL ECONOMIC MOVEMENT",
+      "src": "/parties/2080-db9c9526650d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/L.E.M..PNG",
+      "sha256": "db9c9526650ddd0172aa7a8cda587e38f3a82e9331650d152ea9ca887ef1a2ae",
+      "width": 45,
+      "height": 45
+    },
+    "2081": {
+      "name": "BATHO PELE COMMUNITY ASSOCIATION",
+      "src": "/parties/2081-7566247aef37.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BPCA.PNG",
+      "sha256": "7566247aef37fa480b4fcf90b8f151acc42bd2f523c84b3598456c40845e3476",
+      "width": 45,
+      "height": 45
+    },
+    "2082": {
+      "name": "ACTIVISTS FOR THE RESTORATION OF THE KAROO",
+      "src": "/parties/2082-c4d766ab4838.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARK.PNG",
+      "sha256": "c4d766ab4838628abb24c3c45f6aa92bd338d02887ea7d15215b095bdd621fe6",
+      "width": 45,
+      "height": 45
+    },
+    "2083": {
+      "name": "LEPHALALE COMMUNITY ASSOCIATION",
+      "src": "/parties/2083-f71066defdbf.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LECOMA.PNG",
+      "sha256": "f71066defdbfd0908ccc1d01dcb7c92ce72022b705b7b87f3eb02d0f609075ca",
+      "width": 45,
+      "height": 45
+    },
+    "2084": {
+      "name": "DITIRELO BATHONG PARTY",
+      "src": "/parties/2084-bcbaed0a960b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/DBP.PNG",
+      "sha256": "bcbaed0a960bb59421d7055406240881dfbe309419877494997c4430fdad0eaf",
+      "width": 45,
+      "height": 45
+    },
+    "2085": {
+      "name": "HOME OF INDEPENDENCE",
+      "src": "/parties/2085-e4430eb778e7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/H.O.I..PNG",
+      "sha256": "e4430eb778e706b0478407efdcf0defab65d78912412e7ad100470700efa4e35",
+      "width": 45,
+      "height": 45
+    },
+    "2086": {
+      "name": "PEOPLE'S MANDATE PARTY",
+      "src": "/parties/2086-ec553b0f9659.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PMP.PNG",
+      "sha256": "ec553b0f96596e29baace25c65d6a61049b5a3b2ed083fe7e88453074153931d",
+      "width": 45,
+      "height": 45
+    },
+    "2087": {
+      "name": "MANTSOPA PEOPLE'S PARLIAMENT",
+      "src": "/parties/2087-a0d84be59fa7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MNPP.PNG",
+      "sha256": "a0d84be59fa75622683d2a3092ac24017c56a51220da7985a818adacc2d7ad29",
+      "width": 45,
+      "height": 45
+    },
+    "2090": {
+      "name": "SOLIDARITY ACTION COMMITTEE COLLECTIVE",
+      "src": "/parties/2090-ad30dd180143.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SACC.PNG",
+      "sha256": "ad30dd18014345fbdd2748da0b46b8424ec4193d0ae8a6d49ca4507bee0c0f73",
+      "width": 45,
+      "height": 45
+    },
+    "2091": {
+      "name": "AFRICAN ROYAL RAINBOW CONGRESS",
+      "src": "/parties/2091-5bb9b16b5f50.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARRC..PNG",
+      "sha256": "5bb9b16b5f50a128a957e66a0270d1583413f8f442d8b1d86b46303c21beea45",
+      "width": 45,
+      "height": 45
+    },
+    "2094": {
+      "name": "KNYSNA CIVIC ALLIANCE",
+      "src": "/parties/2094-6b2a4250cb11.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KCA.PNG",
+      "sha256": "6b2a4250cb11a45a4a1996d6c54fa9494b91f10913251c65518a4da7f5a08583",
+      "width": 45,
+      "height": 45
+    },
+    "2095": {
+      "name": "ALL NATIVES OF SOUTH AFRICA",
+      "src": "/parties/2095-d54f5ae34f3a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ANOSA.PNG",
+      "sha256": "d54f5ae34f3a624119aaadd95bf44ad57d307df790fe6affecbcb1abbbecf5b8",
+      "width": 45,
+      "height": 45
+    },
+    "2096": {
+      "name": "TSOGANG MADIBENG",
+      "src": "/parties/2096-b746eb40e3b6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TM.PNG",
+      "sha256": "b746eb40e3b6a5179cf64b404b429974ac01a9ee9d685b294161fbb3bcf89497",
+      "width": 45,
+      "height": 45
+    },
+    "2097": {
+      "name": "HOPEFUL LEADERS DEMOCRATS",
+      "src": "/parties/2097-fc80e59335c3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/HLD.PNG",
+      "sha256": "fc80e59335c3abfdc19f7f701be2598838dbdf8df9c429e9cd20073cf1641f91",
+      "width": 45,
+      "height": 45
+    },
+    "2098": {
+      "name": "MAYIBUYE CIVIC MOVEMENT",
+      "src": "/parties/2098-bdce054a99f2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2098.PNG",
+      "sha256": "bdce054a99f27e9cc6f08efae60db9d0782365572718a3a7def45df482241618",
+      "width": 45,
+      "height": 45
+    },
+    "2099": {
+      "name": "AMALGAMATED STEVE TSHWETE.",
+      "src": "/parties/2099-ec6584f5975a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AST..PNG",
+      "sha256": "ec6584f5975a7a7fe642f873237ef6d3cf976c199392292454a966bd1f24c8b8",
+      "width": 45,
+      "height": 45
+    },
+    "2100": {
+      "name": "GAZANKULU NATIONAL PARTY",
+      "src": "/parties/2100-3db0803fa256.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GAZANKUL.PNG",
+      "sha256": "3db0803fa256eb79ed627321a015353a41fe84bfddace05a191601843fce9bb4",
+      "width": 45,
+      "height": 45
+    },
+    "2101": {
+      "name": "RESTORE AZANIA MOVEMENT",
+      "src": "/parties/2101-6126675f74a4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RAM.PNG",
+      "sha256": "6126675f74a408982da3b53450c66f4bdefeffdc429bc245df67ee848f74555c",
+      "width": 45,
+      "height": 45
+    },
+    "2102": {
+      "name": "MARULENG COMMUNITIES MOVEMENT",
+      "src": "/parties/2102-dc9b1cd7a558.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MCMPARTY.PNG",
+      "sha256": "dc9b1cd7a558d1fcb9de50786960cf8339046a858db5bf936db030d5d2c45306",
+      "width": 45,
+      "height": 45
+    },
+    "2105": {
+      "name": "BELIEVERS VOICE PARTY",
+      "src": "/parties/2105-c54fe9e25d39.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BVP.PNG",
+      "sha256": "c54fe9e25d391554d45c632ef3afe798ef865940d93619646b2e1e50a54a9ef7",
+      "width": 45,
+      "height": 45
+    },
+    "2106": {
+      "name": "CIVIC MOVEMENT FOR PROGRESSIVE CITIZENS",
+      "src": "/parties/2106-7b2acb34bbb1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CMPC.PNG",
+      "sha256": "7b2acb34bbb181fdf6b3366bd0a50378756e1b8481fff438aa3104420664bba8",
+      "width": 45,
+      "height": 45
+    },
+    "2107": {
+      "name": "BAKGETHWA LIBERATION MOVEMENT",
+      "src": "/parties/2107-c5bc98e68532.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BLM.PNG",
+      "sha256": "c5bc98e68532052eac7bb7a8aeee0270bfb671645b85782a620e1fd61d10aa33",
+      "width": 45,
+      "height": 45
+    },
+    "2108": {
+      "name": "AMANDLA AWETHU MOVEMENT",
+      "src": "/parties/2108-12e432a32947.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AAM.PNG",
+      "sha256": "12e432a3294746d20aa5c87268e6a3515fb69fd96dd324780b5d2244d575cd1d",
+      "width": 45,
+      "height": 45
+    },
+    "2109": {
+      "name": "CHOOSE CX",
+      "src": "/parties/2109-4c7336ee9d04.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CCX.PNG",
+      "sha256": "4c7336ee9d049bec83d26c3f3ff524ea5bafb3c1b013c67ee4baacf7d5580fa5",
+      "width": 45,
+      "height": 45
+    },
+    "2111": {
+      "name": "ALLIANCE FOR A NEW SOUTH AFRICA",
+      "src": "/parties/2111-ab72fa1d05e7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ANSA.PNG",
+      "sha256": "ab72fa1d05e75400d93e4bbe7f5292a4f3ee9c5f2c0f93572126a766b3a8e790",
+      "width": 45,
+      "height": 45
+    },
+    "2112": {
+      "name": "AFRICAN RESTORATION MOVEMENT",
+      "src": "/parties/2112-349c069c2ba8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARM.JBS.PNG",
+      "sha256": "349c069c2ba84b95dc3b0c18afa98d9341c5b7859fbff2e387f11a5c3e167681",
+      "width": 45,
+      "height": 45
+    },
+    "2114": {
+      "name": "QINA MHLALI QINA",
+      "src": "/parties/2114-3d61a8d59afb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/QINA.PNG",
+      "sha256": "3d61a8d59afb1053b095c8ada660f4696a3e3053fd64df68af2b5144db05524b",
+      "width": 45,
+      "height": 45
+    },
+    "2115": {
+      "name": "AFRICAN FORWARD CONGRESS",
+      "src": "/parties/2115-6de59b9a8a3b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2115.PNG",
+      "sha256": "6de59b9a8a3b10ddd34da4f2dd216b7a7de8923c9030eb0c8a6160d9b704d4cc",
+      "width": 45,
+      "height": 45
+    },
+    "2117": {
+      "name": "UNITED PEOPLE",
+      "src": "/parties/2117-d493313548b0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2117.PNG",
+      "sha256": "d493313548b07b038d2e6dec00a5b35a8ccdad77db00213b83a93184cea83289",
+      "width": 45,
+      "height": 45
+    },
+    "2119": {
+      "name": "SOUTH AFRICAN PARTY",
+      "src": "/parties/2119-e441e324bb62.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/S.A.P..PNG",
+      "sha256": "e441e324bb628241aeed841cae0bc5b6eccc0e24c82f48c664de187a0e39bd8d",
+      "width": 45,
+      "height": 45
+    },
+    "2120": {
+      "name": "AFRICAN CULTURAL IDENTITY MOVEMENT",
+      "src": "/parties/2120-81e76c6715dd.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ACIM.PNG",
+      "sha256": "81e76c6715dda64423574e86ef9832c3ad3f1be22bda6a47cfae75dd7fc11bfe",
+      "width": 45,
+      "height": 45
+    },
+    "2121": {
+      "name": "LEKWA LIBERATION MOVEMENT",
+      "src": "/parties/2121-ed2e9e1602b4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LLM.PNG",
+      "sha256": "ed2e9e1602b49968663aa080a738c597c9bbb291bc6cf4db20eb2ad904dd3a53",
+      "width": 45,
+      "height": 45
+    },
+    "2123": {
+      "name": "THINA BAHLALI PEOPLE'S MOVEMENT",
+      "src": "/parties/2123-dc38d6f7ac63.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TBPM.PNG",
+      "sha256": "dc38d6f7ac63ae4887fd1409ed86fb10a38e3881d801f119d12f176338d957e7",
+      "width": 45,
+      "height": 45
+    },
+    "2124": {
+      "name": "PEOPLE’S POWER FREEDOM PARTY",
+      "src": "/parties/2124-af08a3d30de7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PPF.PNG",
+      "sha256": "af08a3d30de7dd012cb9d3f7070314b62f9b8976b6127d30be328ee6ccb66a0f",
+      "width": 45,
+      "height": 45
+    },
+    "2125": {
+      "name": "BLACK AND WHITE SOCIETY",
+      "src": "/parties/2125-1f5d591c9f86.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BAWS.PNG",
+      "sha256": "1f5d591c9f86da0cd7f8d38d4d76862f2954f31a0cf19f6f16c346920fa83b92",
+      "width": 45,
+      "height": 45
+    },
+    "2127": {
+      "name": "MAJUBA PROGRESSIVE MOVEMENT",
+      "src": "/parties/2127-24753a240be2.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MPM.PNG",
+      "sha256": "24753a240be2b19dd8baa5921d45fd87090ea1cf7de59da0c1fc577054a4b651",
+      "width": 45,
+      "height": 45
+    },
+    "2129": {
+      "name": "PEOPLE'S CHOICE",
+      "src": "/parties/2129-764e93071913.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2129.PNG",
+      "sha256": "764e93071913a1cccc7c718591e8292508061751ad232bb2f76785e145340466",
+      "width": 45,
+      "height": 45
+    },
+    "2130": {
+      "name": "AFRICAN INDEPENDENT NATIONAL DEMOCRATIC CAUCUS",
+      "src": "/parties/2130-1e7a92bd5d5f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AINDC.PNG",
+      "sha256": "1e7a92bd5d5f83add7a8f1ca4c207e09d48a697ba1bff9d69270f70fc5e10319",
+      "width": 45,
+      "height": 45
+    },
+    "2131": {
+      "name": "BOPA SECHABA COMMUNITY MOVEMENT",
+      "src": "/parties/2131-132c44c98070.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BSCM.PNG",
+      "sha256": "132c44c980702d1f7d5be3fa2f74afd4c664a21bd95a443bdb73419058963109",
+      "width": 45,
+      "height": 45
+    },
+    "2132": {
+      "name": "4TH GENERATION MOVEMENT",
+      "src": "/parties/2132-31a7340e781f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/4TH%20GEN.PNG",
+      "sha256": "31a7340e781f42e1581061803025774892c50e797035db569140374b5d5fe742",
+      "width": 45,
+      "height": 45
+    },
+    "2133": {
+      "name": "NEXT GENERATION GOVERNMENT",
+      "src": "/parties/2133-a7f4c2e4b0cf.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NGG.PNG",
+      "sha256": "a7f4c2e4b0cf5d0ec9330570497267407cefc6e43c2ddc265af4f688ae73c9ec",
+      "width": 45,
+      "height": 45
+    },
+    "2134": {
+      "name": "BUMBANA MZANSI",
+      "src": "/parties/2134-f4ae62cf35a3.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/B.M..PNG",
+      "sha256": "f4ae62cf35a3255655103fe5268424514fc72a66353dd1d25f406eedfe18adfc",
+      "width": 45,
+      "height": 45
+    },
+    "2135": {
+      "name": "ETHICAL LEADERS MOVEMENT",
+      "src": "/parties/2135-b9e00ea61874.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ELM.PNG",
+      "sha256": "b9e00ea61874e41a49c27d9579c11343e4aaa5b73366c1cea742bc387357f5dd",
+      "width": 45,
+      "height": 45
+    },
+    "2136": {
+      "name": "SOUTH AFRICAN RESIDENTS ASSOCIATION",
+      "src": "/parties/2136-e6119db53d15.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAREA.PNG",
+      "sha256": "e6119db53d15f59f3ee39e51f3ae5f6997d3ba3b967c794a079caf7bd43a3678",
+      "width": 45,
+      "height": 45
+    },
+    "2138": {
+      "name": "MOVEMENT OF RESIDENTS PARTY",
+      "src": "/parties/2138-2c9787ab2781.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MRP.PNG",
+      "sha256": "2c9787ab2781459b73e1164e4030cc762be3e86ff8d89d0e99e483f08d7b015b",
+      "width": 45,
+      "height": 45
+    },
+    "2139": {
+      "name": "COMMUNITY ALLIANCE SA",
+      "src": "/parties/2139-d4b9102ddb38.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CASA.PNG",
+      "sha256": "d4b9102ddb388b8021b8ec2cdf6b000e1e366ee616cb02b961b3c32772066438",
+      "width": 45,
+      "height": 45
+    },
+    "2140": {
+      "name": "KNYSNA FIRST",
+      "src": "/parties/2140-d03c7a3c7e0c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KF.PNG",
+      "sha256": "d03c7a3c7e0cbb6ac34e055bb959dbb6d40855c29bc7e1c8ec7a4046a3005db2",
+      "width": 45,
+      "height": 45
+    },
+    "2141": {
+      "name": "IMSTAYING",
+      "src": "/parties/2141-c23c8d2ab901.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IMS.PNG",
+      "sha256": "c23c8d2ab90148e639bc849f1e7ebb4ddbf96d25315389ddc73652bc3bc2b58d",
+      "width": 45,
+      "height": 45
+    },
+    "2142": {
+      "name": "LANGEBERG FIRST",
+      "src": "/parties/2142-3e68ee70d0a0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/L1.PNG",
+      "sha256": "3e68ee70d0a08964efe1139ecc8f0608f2454f29afa4bd180982499378fc2f99",
+      "width": 45,
+      "height": 45
+    },
+    "2144": {
+      "name": "MAHLO PEOPLE’S MOVEMENT",
+      "src": "/parties/2144-47b7722e30f4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2144.PNG",
+      "sha256": "47b7722e30f4173cc60d283b231fc2d5b96552f8c13f147637a6f8d576121bd3",
+      "width": 45,
+      "height": 45
+    },
+    "2145": {
+      "name": "BAKANANA PELE CAMPAIGN",
+      "src": "/parties/2145-7c00f01be865.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BAKANAPC.PNG",
+      "sha256": "7c00f01be86566a86635bdc588957274aec7e49ed55fd77db5b598b8a6929af9",
+      "width": 45,
+      "height": 45
+    },
+    "2146": {
+      "name": "INKULULEKO YABANTU MOVEMENT",
+      "src": "/parties/2146-513ba3b87e94.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IYM.PNG",
+      "sha256": "513ba3b87e94965b075eb571f4e821cd35fbe662f44bd610278e75afced8b4d0",
+      "width": 45,
+      "height": 45
+    },
+    "2147": {
+      "name": "AFRICAN SOLUTION",
+      "src": "/parties/2147-40d711a2320e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/A.S.PNG",
+      "sha256": "40d711a2320e2f93ada4e442ffabcb0fa5bf2fb0600fa03cf60030c20d867c0d",
+      "width": 45,
+      "height": 45
+    },
+    "2148": {
+      "name": "NATIONAL ECONOMIC FREEDOM ALLIANCE",
+      "src": "/parties/2148-5bca44c671cb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NEFA.PNG",
+      "sha256": "5bca44c671cb5d162726e06ef5796909e2b6c474e89dd6753bcb9a04665558f7",
+      "width": 45,
+      "height": 45
+    },
+    "2149": {
+      "name": "SOUTH AFRICAN PEOPLE’S CIVIC ORGANIZATION",
+      "src": "/parties/2149-21dcf133133c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAPCO.PNG",
+      "sha256": "21dcf133133c65115acf405f44a061f6e682c55f2819e69e163e230fe0222625",
+      "width": 45,
+      "height": 45
+    },
+    "2150": {
+      "name": "PEP (POWER ECONOMY TO THE PEOPLE PARTY)",
+      "src": "/parties/2150-79c678a3959e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PEP.PNG",
+      "sha256": "79c678a3959edcc390ca68a2e819bfedce5477078a607bb05f3f4779127fa92d",
+      "width": 45,
+      "height": 45
+    },
+    "2152": {
+      "name": "AFRICAN REVOLUTIONARY COUNCIL",
+      "src": "/parties/2152-9e900a0dd3cc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ARC.PNG",
+      "sha256": "9e900a0dd3cc4d39de66596413181960581ae93d768a3dbff3e49bc8db14aabc",
+      "width": 45,
+      "height": 45
+    },
+    "2153": {
+      "name": "EMPATHY IN ACTION",
+      "src": "/parties/2153-e2752d62285f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/EIA.PNG",
+      "sha256": "e2752d62285fcfdefcff0ece43a7d4c84eaca516775e3cc825980299db136e39",
+      "width": 45,
+      "height": 45
+    },
+    "2157": {
+      "name": "LEPHALALE NEW GENERATION MOVEMENT",
+      "src": "/parties/2157-671bd928f2d9.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LNGM.PNG",
+      "sha256": "671bd928f2d98c6bbe978adb5418245d10e02351ad2ec39af85650a721e09da8",
+      "width": 45,
+      "height": 45
+    },
+    "2158": {
+      "name": "SIBANYE (WE ARE ONE)",
+      "src": "/parties/2158-d2e2f43f448a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SWO.PNG",
+      "sha256": "d2e2f43f448a941ac028ee74d118787a3cb802b6193c98e0ba5b44ab076f854e",
+      "width": 45,
+      "height": 45
+    },
+    "2159": {
+      "name": "MOLEMOLE INDEPENDENT VOICE",
+      "src": "/parties/2159-ff68699210c0.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MIV.PNG",
+      "sha256": "ff68699210c0903fb4c0de91f62a0924156063fb6996116067e8290be780da8c",
+      "width": 45,
+      "height": 45
+    },
+    "2161": {
+      "name": "PROGRESSIVE TSHWANE ALLIANCE-PTA012",
+      "src": "/parties/2161-f7cc77cef6ae.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PTA012.PNG",
+      "sha256": "f7cc77cef6aee330eb84c8edefaa4cbb0c7800f91eaaf67a412ecdf879484985",
+      "width": 45,
+      "height": 45
+    },
+    "2163": {
+      "name": "COMMUNITY FIRST MOVEMENT",
+      "src": "/parties/2163-4393bc271bd8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CFM.PNG",
+      "sha256": "4393bc271bd822b68cf199f7c53d0b75949b1df0033bde6a99c6c5423307198d",
+      "width": 45,
+      "height": 45
+    },
+    "2164": {
+      "name": "PUSH FOR CHANGE",
+      "src": "/parties/2164-1eb759c5beff.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PFC.PNG",
+      "sha256": "1eb759c5beff1ae4e04750699081bfff9df7d70c6cbd98151063e7f884823c6d",
+      "width": 45,
+      "height": 45
+    },
+    "2165": {
+      "name": "LENTSWE LA SETJHABA",
+      "src": "/parties/2165-487a7daad8e7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LENTSWE.PNG",
+      "sha256": "487a7daad8e723523b666f7448b08cc9105c4c602a4ab533d90073441d6585e8",
+      "width": 45,
+      "height": 45
+    },
+    "2167": {
+      "name": "ACTIVE BUSINESS AND CIVIL SOCIETY PARTY",
+      "src": "/parties/2167-72f816691124.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ABCSP.PNG",
+      "sha256": "72f816691124400bcbfa15d33f4b789e5c85507fde27d488a101c33192d757fb",
+      "width": 45,
+      "height": 45
+    },
+    "2168": {
+      "name": "KIMBERLEY ACTION GROUP",
+      "src": "/parties/2168-f994b1680e35.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KAG.PNG",
+      "sha256": "f994b1680e35835b3327cabfd13735647fae1318c93c8a8b69ed029662d4b25f",
+      "width": 45,
+      "height": 45
+    },
+    "2169": {
+      "name": "GODS JUSTICE AND DEVELOPMENT PARTY",
+      "src": "/parties/2169-3c078b9d5ae1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/GJDP.PNG",
+      "sha256": "3c078b9d5ae140fad211f06e8877d29be3dd59456e38cda3f502db046963f438",
+      "width": 45,
+      "height": 45
+    },
+    "2170": {
+      "name": "MANGAUNG SEVEN PEOPLE'S VOICE",
+      "src": "/parties/2170-dd2ed6fa7e02.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MSPV.PNG",
+      "sha256": "dd2ed6fa7e02ce6491b6f59cc104bc3ad96e04fed8728a82941a9daca242374f",
+      "width": 45,
+      "height": 45
+    },
+    "2171": {
+      "name": "NATIONAL DIALOGUE FRONT",
+      "src": "/parties/2171-d3677048b3c6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NDF.PNG",
+      "sha256": "d3677048b3c6d6299d881ba155f07226f08714b0b8d57b8c1cf76a8efbad3344",
+      "width": 45,
+      "height": 45
+    },
+    "2172": {
+      "name": "JOYA WEB3 COMMUNITY MOVEMENT",
+      "src": "/parties/2172-ea84bbc42eaa.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/JOYA.PNG",
+      "sha256": "ea84bbc42eaa71191631a27a9a37a7e36cd770884da0dd67c347fc3535b6ffdb",
+      "width": 45,
+      "height": 45
+    },
+    "2173": {
+      "name": "ALLIED INDEPENDENTS UMBRELLA",
+      "src": "/parties/2173-cc4a8e2c3611.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UMBRELLA.PNG",
+      "sha256": "cc4a8e2c3611c65bedc6e9dc3be285bf2dd58278ec8b03b487e2c7b6ebaba350",
+      "width": 45,
+      "height": 45
+    },
+    "2174": {
+      "name": "REBUILDING OUR OWN SOUTH AFRICA",
+      "src": "/parties/2174-309db82dde0f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ROOSA.PNG",
+      "sha256": "309db82dde0f4141bf89383d8952aaf9d93e07eb01f3343d7ea2162e7564d9fc",
+      "width": 45,
+      "height": 45
+    },
+    "2175": {
+      "name": "PRO SOUTH AFRICA",
+      "src": "/parties/2175-1985dabe5762.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PRO%20SA.PNG",
+      "sha256": "1985dabe57628736e15538ecf8f9a4672c1c0beb409a38db745e047ed275aaf1",
+      "width": 45,
+      "height": 45
+    },
+    "2176": {
+      "name": "LEKWA TEEMANENG DEVELOPMENT PARTY",
+      "src": "/parties/2176-43e6f17ee88f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LTDP.PNG",
+      "sha256": "43e6f17ee88fb16f1371d24b94b417d8f6ae8a0a1eae63b870a1c8b326bca6ee",
+      "width": 45,
+      "height": 45
+    },
+    "2177": {
+      "name": "PONGOLA CIVIC FORUM",
+      "src": "/parties/2177-a98a27992166.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PCF.PNG",
+      "sha256": "a98a279921669c22d366494868f04cd7644210f03250c6381cf011b694334395",
+      "width": 45,
+      "height": 45
+    },
+    "2178": {
+      "name": "REGION 7 NEW GENERATION PARTY",
+      "src": "/parties/2178-98c26c4b9225.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NEGEPA7.PNG",
+      "sha256": "98c26c4b9225f97da55e077253b31d193e173ffd84a3830bb12e3486547230ba",
+      "width": 45,
+      "height": 45
+    },
+    "2180": {
+      "name": "THINA BANTU MOVEMENT",
+      "src": "/parties/2180-6f1f028e399d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TBM.PNG",
+      "sha256": "6f1f028e399d6d0e5cd6c521b446a1401a245e22a8ef2f8b91f514e0ee70e6b4",
+      "width": 45,
+      "height": 45
+    },
+    "2181": {
+      "name": "NDLAMBE CITIZENS MOVEMENT",
+      "src": "/parties/2181-70096d502646.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2181.PNG",
+      "sha256": "70096d5026460807c8de450be8c0d1c61b7f63f5d92c31cbcc41573bbf20c067",
+      "width": 45,
+      "height": 45
+    },
+    "2182": {
+      "name": "KOPANO MOVEMENT",
+      "src": "/parties/2182-4c366c428dde.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/KOPANO.PNG",
+      "sha256": "4c366c428ddefd9a6f6de609c7bbe619556d20709922427265a77317eda8fccc",
+      "width": 45,
+      "height": 45
+    },
+    "2184": {
+      "name": "PROGRESSIVE COMMUNITY ALLIANCE MOVEMENT",
+      "src": "/parties/2184-93cc7b996c1d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PCAM.PNG",
+      "sha256": "93cc7b996c1d09a9159f63e9b2b0d9774289a714eb71dbe8902a83100244350b",
+      "width": 45,
+      "height": 45
+    },
+    "2185": {
+      "name": "YOUTH PARTY",
+      "src": "/parties/2185-4cdb215d2375.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/YP.PNG",
+      "sha256": "4cdb215d2375e6bdbe77b275005da8cf1fe249dd3e2b9b97c8d2c774a0176f99",
+      "width": 45,
+      "height": 45
+    },
+    "2186": {
+      "name": "AMALGAMATED NATIONAL FORUM",
+      "src": "/parties/2186-0fae9cc33f5b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ANF.PNG",
+      "sha256": "0fae9cc33f5b06e8a86dbb1937934847c7a7ebd9692c152462e625c8bc5a53f3",
+      "width": 45,
+      "height": 45
+    },
+    "2188": {
+      "name": "AFRICAN LIBERATION ALLIANCE MOVEMENT",
+      "src": "/parties/2188-61aa2a9a6db8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ALAM.PNG",
+      "sha256": "61aa2a9a6db8e4e50b7de2e3f2af738be6282243b94310078f1b051bdaa1f713",
+      "width": 45,
+      "height": 45
+    },
+    "2190": {
+      "name": "THE MOVEMENT FOR SOCIAL JUSTICE",
+      "src": "/parties/2190-48b8dc44bd77.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MSJ.PNG",
+      "sha256": "48b8dc44bd77c39309fc5f511ef9d2481d5a8c255fe8d98d85aa87dd6ad36c64",
+      "width": 45,
+      "height": 45
+    },
+    "2191": {
+      "name": "MOPANI RESIDENTS ASSOCIATION",
+      "src": "/parties/2191-f5baac3727d4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2191.PNG",
+      "sha256": "f5baac3727d4c58c329cae4edf1efb544b067536c8422fda7af54d6adad9663b",
+      "width": 45,
+      "height": 45
+    },
+    "2192": {
+      "name": "BA-PHALABORWA COMMUNITY PARTY",
+      "src": "/parties/2192-ae9745ead488.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR2192.PNG",
+      "sha256": "ae9745ead488e57c79c0fa0dfac7b90385dc0373e87446934b1ce2905552790e",
+      "width": 45,
+      "height": 45
+    },
+    "2193": {
+      "name": "UNITY MZANSE",
+      "src": "/parties/2193-d0c29a470c8b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UM.PNG",
+      "sha256": "d0c29a470c8b0d0753320703c2a1c01ca9d2d892d124fd0d0105ffaef5fe5ef6",
+      "width": 45,
+      "height": 45
+    },
+    "2198": {
+      "name": "MAKANA UNITED CIVIC MOVEMENT",
+      "src": "/parties/2198-696cf24ce53b.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MUCM.PNG",
+      "sha256": "696cf24ce53b5954abb3369a67954d0dd055aaa430b17239d65bedf45b4e4a85",
+      "width": 45,
+      "height": 45
+    },
+    "2199": {
+      "name": "STRETFORD WILDEBEESFONTEIN ELECTED CIVIC ORGANISATION",
+      "src": "/parties/2199-ca63ef9d463f.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/STREWECO.PNG",
+      "sha256": "ca63ef9d463f75e5d3109ae8bee1a843fae39c642f9d26c2c9400cea981a5128",
+      "width": 45,
+      "height": 45
+    },
+    "2200": {
+      "name": "SEBOTHA COMMUNITY PARTY",
+      "src": "/parties/2200-efc0fce37120.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SCP.PNG",
+      "sha256": "efc0fce37120040f8b2f72d279e2bc785506b56dab71bcd15723a080f76a9dd4",
+      "width": 45,
+      "height": 45
+    },
+    "2201": {
+      "name": "INDEPENDENT RURAL PARTY",
+      "src": "/parties/2201-abdf1b36680e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IRP.PNG",
+      "sha256": "abdf1b36680e74f2cdb7a583ea242935b515936c25f83ece9a95dde92e17b982",
+      "width": 45,
+      "height": 45
+    },
+    "2202": {
+      "name": "BOTLHALE PARTY",
+      "src": "/parties/2202-70c77e8c5f8d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BLP.PNG",
+      "sha256": "70c77e8c5f8d7ff051fc12c357d35798e3cbdd69d1a182c873220d4af1ef8d66",
+      "width": 45,
+      "height": 45
+    },
+    "2204": {
+      "name": "SOUTH AFRICAN PEOPLES PARTY",
+      "src": "/parties/2204-7f0145ea391e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAPP.PNG",
+      "sha256": "7f0145ea391ee0b737d646f9d23fb673052fe18a98beca1ae59b3d6b3a6c16db",
+      "width": 45,
+      "height": 45
+    },
+    "3204": {
+      "name": "UMPHAKATHI WARONA",
+      "src": "/parties/3204-c736a8cfd7dc.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR3204.PNG",
+      "sha256": "c736a8cfd7dc878592770929128fd232f5931f58e28c535aa020aadb98ee0ca8",
+      "width": 45,
+      "height": 45
+    },
+    "3205": {
+      "name": "ABANTU BEZWELETHU CONGRESS DEMOCRACY",
+      "src": "/parties/3205-ec270d993243.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/A.B.C.D..PNG",
+      "sha256": "ec270d993243db19cef6c09e675bb04626d1f2b8392c756fde12afc81a2a2c1a",
+      "width": 45,
+      "height": 45
+    },
+    "3206": {
+      "name": "NGCOBO YETHU CIVIC ORGANIZATION",
+      "src": "/parties/3206-509db4ac9d83.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NYCO.PNG",
+      "sha256": "509db4ac9d83ad76738dd837ff3350b18c348d73fc328e2e2bfb4365328b34a0",
+      "width": 45,
+      "height": 45
+    },
+    "3207": {
+      "name": "BAMMU CONGRESS",
+      "src": "/parties/3207-e9e370124ddb.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BAMMU.PNG",
+      "sha256": "e9e370124ddbfeea592814fc8d3b4eb6e658f796984695ef21fd3cee2a5011ba",
+      "width": 45,
+      "height": 45
+    },
+    "3208": {
+      "name": "NATIONAL SERVICE DELIVERY FORUM",
+      "src": "/parties/3208-7fa9241fe5d6.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NSDF.PNG",
+      "sha256": "7fa9241fe5d679e14cf6270aa88870ebb59386436f474fe8825539ed7b4288d2",
+      "width": 45,
+      "height": 45
+    },
+    "3209": {
+      "name": "UNIFIED CIVIC ORGANISATION",
+      "src": "/parties/3209-cf3306e6ed8c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UCO.PNG",
+      "sha256": "cf3306e6ed8cde3fc310536865f0e1972d8cc38a7fbe6c7ca2cce95b58d3098c",
+      "width": 45,
+      "height": 45
+    },
+    "3210": {
+      "name": "IZWI LABAHLALI BEWARD",
+      "src": "/parties/3210-9419ce0665f5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ILB.PNG",
+      "sha256": "9419ce0665f5b15fdb3318a843977c38566e15e6938bf7cda749544e258af90d",
+      "width": 45,
+      "height": 45
+    },
+    "3212": {
+      "name": "ILIZWE NATHI",
+      "src": "/parties/3212-048208133250.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/IN.PNG",
+      "sha256": "0482081332501eb81e67b48c4ca9e6304beb19c1297480e87000bb8b7460f5e3",
+      "width": 45,
+      "height": 45
+    },
+    "3214": {
+      "name": "AVRIGHT POLITICAL MOVEMENT",
+      "src": "/parties/3214-59b5c7f5abf5.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AVR.PNG",
+      "sha256": "59b5c7f5abf5c410a848100178cacc78fb73f9629838923d92954b7a78c77d11",
+      "width": 45,
+      "height": 45
+    },
+    "3215": {
+      "name": "PHAKAMA EASTERN CAPE",
+      "src": "/parties/3215-c7c8cd81df06.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PEC.PNG",
+      "sha256": "c7c8cd81df068badd8b782bbbdbed5967b40aef85ba1f8c88d999944e0bbe411",
+      "width": 45,
+      "height": 45
+    },
+    "3217": {
+      "name": "NKETOANE COMMUNITY MOVEMENT",
+      "src": "/parties/3217-2cf22c2656df.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR3217.PNG",
+      "sha256": "2cf22c2656dfc0462c4a8d7cfd3991a13429463e747d3819fc7015366b4fd39d",
+      "width": 45,
+      "height": 45
+    },
+    "3218": {
+      "name": "COMMUNITY SERVICE ALLIANCE",
+      "src": "/parties/3218-453f48794f2a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/COMSA.PNG",
+      "sha256": "453f48794f2ac0609af4442915a6e2415070c6fd024328f00cb5443b81ff0621",
+      "width": 45,
+      "height": 45
+    },
+    "3219": {
+      "name": "PROUDLY METSIMAHOLO",
+      "src": "/parties/3219-00898dfa82c4.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PM.PNG",
+      "sha256": "00898dfa82c4359c45347abea33b906a21ee329ddeeef4ee0a5ad701cae1aa2f",
+      "width": 45,
+      "height": 45
+    },
+    "3220": {
+      "name": "REFENGKGOTSO CIVIL PARTY",
+      "src": "/parties/3220-ddaa8416625e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/RCP.PNG",
+      "sha256": "ddaa8416625e5c3cbab4d99443172aaeb7a79bac8bdb7a7512b053f44644d5a3",
+      "width": 45,
+      "height": 45
+    },
+    "3222": {
+      "name": "MAFUBE FIRST",
+      "src": "/parties/3222-30962012133e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MAF1ST.PNG",
+      "sha256": "30962012133ee3eb636b091e54e81a2df0ee0242ca07b46e6d221c4990425583",
+      "width": 45,
+      "height": 45
+    },
+    "3223": {
+      "name": "SERITI LE KAELO INDEPENDENT PARTY",
+      "src": "/parties/3223-cf47849909ba.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SLK26.PNG",
+      "sha256": "cf47849909ba6e647935add56b31c52e13b953e0c5aae30ea4bb87484ac536f8",
+      "width": 45,
+      "height": 45
+    },
+    "3224": {
+      "name": "OUDTSHOORN UNITED FRONT",
+      "src": "/parties/3224-a7efff0cd123.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/OUF.PNG",
+      "sha256": "a7efff0cd1237899a264614156597f7fc82477436e7930b7fb7d0b447a5a27a7",
+      "width": 45,
+      "height": 45
+    },
+    "3225": {
+      "name": "PRO-POOR POLITICAL MOVEMENT",
+      "src": "/parties/3225-dddbf671fc57.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PPM.PNG",
+      "sha256": "dddbf671fc579e27e0927ffbaa8052041201a7d137b33069016c9b6c555c2457",
+      "width": 45,
+      "height": 45
+    },
+    "3227": {
+      "name": "COMMUNITY PRIORITY MOVEMENT",
+      "src": "/parties/3227-e3ce92a35832.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CPM.PNG",
+      "sha256": "e3ce92a358322dcb9a0d582602a9b9aeb71efe1a73616fd56a651e7b86bd3ff0",
+      "width": 45,
+      "height": 45
+    },
+    "3228": {
+      "name": "INDEPENDENT COMMUNITY FORUM",
+      "src": "/parties/3228-8dd6f9777923.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ICF.PNG",
+      "sha256": "8dd6f97779230740262854412fc6d52d7fcdac542498362334f87c360b47d388",
+      "width": 45,
+      "height": 45
+    },
+    "3231": {
+      "name": "MOVE SA",
+      "src": "/parties/3231-fe8db4e79f84.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MOVE.PNG",
+      "sha256": "fe8db4e79f8466f6fc6cf220e4d07244cf96815e4daa5add0ef850b1c92d6ddd",
+      "width": 45,
+      "height": 45
+    },
+    "3232": {
+      "name": "SERVICE DELIVERY FRONT",
+      "src": "/parties/3232-02a351a205c8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SDF.PNG",
+      "sha256": "02a351a205c8b5470793ed587332a70b15592de532ec81aac7e3005e62cc7a26",
+      "width": 45,
+      "height": 45
+    },
+    "3233": {
+      "name": "BAHLALI CIVIC ORGANIZATION",
+      "src": "/parties/3233-9025acdb1a4e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BCO.PNG",
+      "sha256": "9025acdb1a4ea6789db45672a8982ab7c615f3f3fdfc1fd06f303761bdfa8fcf",
+      "width": 45,
+      "height": 45
+    },
+    "3235": {
+      "name": "SEDIBENG EMFULENI RESIDENTS ASSOCIATIONS",
+      "src": "/parties/3235-b0b845a7db9c.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SERA.PNG",
+      "sha256": "b0b845a7db9c879d8a2719cc16a36ae93016dd99bd27c28d91c1281452f5ac04",
+      "width": 45,
+      "height": 45
+    },
+    "3236": {
+      "name": "INDEPENDENT CANDIDATES ALLIANCE",
+      "src": "/parties/3236-e4808f592be1.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/ICA.PNG",
+      "sha256": "e4808f592be1f0db388fce0a45de6f97010c49495238fd2fccb63b94c1e9d432",
+      "width": 45,
+      "height": 45
+    },
+    "3242": {
+      "name": "AMABOMVANE REVOLUTIONARY MOVEMENT",
+      "src": "/parties/3242-b728a281a19e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AMAMBO.PNG",
+      "sha256": "b728a281a19ef1306018ab47c6f40f8bb28a6660fa5d9cb86dc3e5acad0861bc",
+      "width": 45,
+      "height": 45
+    },
+    "3244": {
+      "name": "ALL AND CITIZENS",
+      "src": "/parties/3244-102239e36c7e.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AANDC.PNG",
+      "sha256": "102239e36c7e0b3e8dd7d6c957e92c69e643f9415daac0d8cf32fb10eae4d0c8",
+      "width": 45,
+      "height": 45
+    },
+    "3245": {
+      "name": "SOCIAL DEMOCRATIC MOVEMENT",
+      "src": "/parties/3245-485fdfa21872.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SM.PNG",
+      "sha256": "485fdfa218721a49507b1b43925e8143edc6f67aaed059ed56539cbe37422d6b",
+      "width": 45,
+      "height": 45
+    },
+    "3247": {
+      "name": "BUYISA COMMUNITY MOVEMENT",
+      "src": "/parties/3247-d10b21c0db64.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BUYISA.PNG",
+      "sha256": "d10b21c0db643942c6fe3571952714ffe7250348f32ff36ed2eb9de383f528f5",
+      "width": 45,
+      "height": 45
+    },
+    "3248": {
+      "name": "COMMUNITY INDEPENDANT PARTY",
+      "src": "/parties/3248-0a355c30dc41.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/C.I.P..PNG",
+      "sha256": "0a355c30dc41d6370e3498545bf28435d560e27e68dd3c401a8d9c8bf1f469d3",
+      "width": 45,
+      "height": 45
+    },
+    "3249": {
+      "name": "LEKWE BEPE KINGDOM PARTY",
+      "src": "/parties/3249-f6fe53f82816.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/LBKP.PNG",
+      "sha256": "f6fe53f8281620290d0778b16740477439ed0f7220bc53d7583d111bbfb0553e",
+      "width": 45,
+      "height": 45
+    },
+    "3251": {
+      "name": "NATIONAL DEMOCRATIC DIALOGUE",
+      "src": "/parties/3251-973bf28c6975.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NDD.PNG",
+      "sha256": "973bf28c69752adb2e2047954f32e26788e66d1b9a5b7b56d14da858c2869871",
+      "width": 45,
+      "height": 45
+    },
+    "3255": {
+      "name": "CHRIST KINGDOM PARTY",
+      "src": "/parties/3255-a2d648871aee.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/CKP.PNG",
+      "sha256": "a2d648871aeecae8f3bcc51845b30216cfa3dd9bdcdfb764410e2e72645dfabd",
+      "width": 45,
+      "height": 45
+    },
+    "3267": {
+      "name": "DEFEND SA MOVEMENT",
+      "src": "/parties/3267-78f6cfddbac9.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/NO_ABBR3267.PNG",
+      "sha256": "78f6cfddbac9ba48f2a2b7a061af4ebf922a3b6ddc9152257408677dbec00f8b",
+      "width": 45,
+      "height": 45
+    },
+    "3268": {
+      "name": "UBUNTU ABANDE POLITICAL PARTY",
+      "src": "/parties/3268-8bc5707febc8.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/UAPP.PNG",
+      "sha256": "8bc5707febc8aaf7a18a64cae8ebcb8dc58629887e309c810a05ddb01c71db26",
+      "width": 45,
+      "height": 45
+    },
+    "3270": {
+      "name": "BATHO PELE COMMUNITY SERVICE DELIVERY TSHWANE",
+      "src": "/parties/3270-cfb9aa4905cd.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/BPCSDT.PNG",
+      "sha256": "cfb9aa4905cdd11ae1b5e90ab9d4f7b2d5412e3ee07aefb877441789c2dd2df1",
+      "width": 45,
+      "height": 45
+    },
+    "3271": {
+      "name": "THE FARMER PARTY",
+      "src": "/parties/3271-e9e89ae4e3d7.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/TFP.PNG",
+      "sha256": "e9e89ae4e3d7b8be0ad1c056e6e67495f1dc65401f0151e9eb4537c63859e883",
+      "width": 45,
+      "height": 45
+    },
+    "3273": {
+      "name": "MASIGODUKE PEOPLES SOCIETY",
+      "src": "/parties/3273-2087dd68674d.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/MPS.PNG",
+      "sha256": "2087dd68674dc1322ee2c8da2850cd64296b06a6d3499d7eb5ba87e259ec14e0",
+      "width": 45,
+      "height": 45
+    },
+    "3276": {
+      "name": "PHAKAMA ADELAIDE MOVEMENT",
+      "src": "/parties/3276-360d3e99d98a.png",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/PAMO.PNG",
+      "sha256": "360d3e99d98a0274430ba84154acc81921a5c4b7604b5510c16f20174eb599e1",
+      "width": 45,
+      "height": 45
+    }
+  },
+  "unavailable": [
+    {
+      "id": "1541",
+      "name": "SAVE SOUTH AFRICA",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/SAVE%20SA.PNG",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "1791",
+      "name": "VOICE OF THE VOICELESS CIVIC ORGANIZATION",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/THE%20VOICE.PNG",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "2021",
+      "name": "ACTION SAVE-BNM",
+      "source": "https://results.elections.org.za/dashboards/lge/Party_Images/AS%20-%20BNM.PNG",
+      "reason": "HTTP 404"
+    }
+  ]
+}

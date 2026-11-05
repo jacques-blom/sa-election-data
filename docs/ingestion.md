@@ -5,7 +5,7 @@
 ```sh
 pnpm data:ingest --years all
 pnpm data:load
-pnpm dev
+pnpm dev:local
 ```
 
 The importer handles the IEC's public local-government dashboard files for 2000,
@@ -44,15 +44,17 @@ Run one local loader at a time. These commands do not refresh the remote D1
 database. The separate production ingestion Worker owns updates to the current
 election there; do not run a second remote publisher against it.
 
-## Moving the backfill to personal Cloudflare D1
+## Moving the backfill to Cloudflare D1
 
 `pnpm data:export` writes `.data/exports/bootstrap.sql` locally. It includes the
 schema and a consistent snapshot of the processed data, with result rows before
 the pointers that publish them. It does not upload anything. The export is safe
 to rerun and contains no SQLite transaction wrappers or internal Wrangler tables.
 
-The verified bootstrap was imported into the personal-account D1 database on
-2026-11-05 with:
+For your own deployment, first configure your own account and database as described
+in the [README](../README.md#deploy-your-own-instance). The maintainer imported the
+initial bootstrap on 2026-11-05 with the command below. It targets the database in
+your Wrangler configuration and requires an authenticated `personal` profile:
 
 ```sh
 pnpm exec wrangler d1 execute RESULTS_DB --remote --profile personal --file .data/exports/bootstrap.sql
@@ -127,9 +129,11 @@ on the site at `/api` (HTML) and `/api.md` (Markdown).
 5. Serve live results using D1 directory/pointer lookups and small R2 range reads.
    Historical results continue to use D1. The Worker caches successful API responses
    for 15 seconds for live data and 24 hours for historical data.
-   `/api/v1/sync` exposes the heartbeat and latest publication. A future browser
-   results UI can poll this lightweight endpoint every 15–30 seconds;
-   client traffic never increases requests to the IEC. SSE can follow later.
+   `/api/v1/sync` exposes the heartbeat and latest publication. Result pages poll
+   this lightweight endpoint every 30 seconds while visible, and on return to the
+   tab, fetching updated HTML when publication/health changes. Source timestamps
+   and age-based warnings also refresh every three minutes. Client traffic never
+   increases requests to the IEC. SSE can follow later.
 6. Track successful-fetch age, source-report age, queue lag, validation failures,
    and reconciliation gaps in structured logs and `/api/v1/sync`. Keep the last good
    data with a stale/error label. Exhausted jobs go to a dead-letter queue and
@@ -147,7 +151,7 @@ simultaneous national snapshot.
 
 All resources belong to the personal Blom Media LLC account:
 
-- `sa-election-data`: Astro SSR Worker, public read-only API and placeholder site.
+- `sa-election-data`: Astro SSR Worker, public read-only API and results site.
 - `sa-election-data-sync`: scheduled/queue Worker with public HTTP routes disabled.
 - `sa-election-data-usage`: private Tail Worker recording importer CPU for budget enforcement.
 - `sa-election-data`: the existing D1 database, shared by both Workers.
@@ -205,8 +209,9 @@ Use Cloudflare Worker logs for `source_refresh_failed`, `snapshot_published` and
 `scheduler_completed`, and inspect the dead-letter queue for exhausted jobs.
 After fixing a persistent source error, the scheduled reconciliation can retry it
 without replacing the last-good results. To stop polling, remove the sync Cron
-Trigger and pause queue delivery before changing publication state. No GitHub
-remote is configured and nothing has been pushed to GitHub.
+Trigger and pause queue delivery before changing publication state. The GitHub
+repository contains application code and configuration; raw archives and local
+databases are excluded.
 
 ### Launch verification — 2026-11-05
 

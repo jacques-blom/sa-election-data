@@ -1,0 +1,25 @@
+.province-results-map{margin:0 0 24px;min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.province-results-map figcaption{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 24px;font-size:12px;color:var(--muted)}
+.province-results-map figcaption strong{font-weight:550;color:var(--ink)}
+.province-results-map>svg{display:block;width:100%;height:auto;max-height:560px;margin:0 auto;padding:6px 16px 20px}
+.province-map-region{stroke:var(--paper);stroke-width:2.2;stroke-linejoin:round;transition:stroke .15s}
+.province-map-label{text-anchor:middle;fill:var(--ink)}
+.province-map-label rect{fill:var(--paper);stroke:#163a3030;stroke-width:1}
+.province-map-callout{pointer-events:none;stroke:var(--ink);stroke-width:1.5;fill:var(--ink)}
+.province-map-code{font-size:17px;font-weight:650}.province-map-party{font-size:13px;font-weight:500}.province-map-share{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.province-map-link:hover .province-map-region,.province-map-link:focus-visible .province-map-region{stroke:#163a30;stroke-width:3}
+.province-map-result-link:hover rect{stroke:#163a30;stroke-width:2}
+.province-map-link:focus-visible{outline:none}
+.province-map-footer{border-top:1px solid var(--line);padding:18px 24px;color:var(--muted)}
+.province-map-legend{display:flex;flex-wrap:wrap;gap:12px 22px;list-style:none;padding:0;margin:0 0 13px;font-size:11px}
+.province-map-legend li{display:flex;align-items:center;gap:7px}.province-map-legend i{width:12px;height:12px;border:1px solid #163a3026;border-radius:3px}.province-map-legend abbr{text-decoration:none}.province-map-neutral{background:repeating-linear-gradient(135deg,#dce1d5 0 4px,#b5c1ae 4px 5px)}
+.province-map-footer p{font-size:11px;line-height:1.7;margin:0}
+@media(max-width:640px){
+  .overview-provinces>.overview-section-heading{align-items:start;flex-wrap:wrap;gap:12px}
+  .province-results-map figcaption{padding:16px;flex-wrap:wrap;font-size:11px;gap:10px}
+  .province-results-map>svg{padding:0 0 12px}
+  .province-map-code{font-size:22px}.province-map-party{font-size:17px}.province-map-share{font-size:20px}
+  .province-map-label rect{width:76px;x:-38px}
+  .province-map-footer{padding:16px}.province-map-legend{font-size:10px;gap:10px 16px}
+}
+@media(prefers-reduced-motion:reduce){.province-map-region{transition:none}}

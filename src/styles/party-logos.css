@@ -1,0 +1,23 @@
+/* Keep the IEC artwork intact and legible on the site's warm backgrounds. */
+.party-logo{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;vertical-align:middle;background:#fff;border-radius:4px;overflow:hidden}
+.party-logo--small{width:22px;height:22px}
+.party-logo img{display:block;width:100%;height:100%;object-fit:contain}
+.party-logo--fallback{background:transparent}
+.party-logo--fallback:before{content:'';width:9px;height:9px;background:#8b9998;border-radius:3px}
+.party-identity{display:flex;align-items:center;gap:8px;min-width:0}
+.party-identity-text{min-width:0;overflow-wrap:anywhere}
+.party-identity--compact{gap:6px}
+.party-identity--compact>.party-identity-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.overview-leader strong.party-identity{display:flex}
+.overview-leader strong.party-identity:before{content:none}
+.ward-card .party-logo,.ward-card .party-identity-text{margin:0;color:inherit;font:inherit;letter-spacing:inherit}
+.ward-card .party-identity-text{text-align:start}
+.ward-card .party-identity{align-items:center}
+.map-party-heading .party-identity{align-self:center}
+.map-party-heading .map-party-share{flex:none;align-self:center}
+/* Reserve space for the logo while preserving the existing bar and vote columns. */
+.card .party-row:has(.party-logo){grid-template-columns:118px minmax(0,1fr) 92px}
+.overview-mini-bars>div:has(.party-logo),.overview-province-bars>div:has(.party-logo){grid-template-columns:88px minmax(0,1fr) 45px}
+.ward-card .ward-vote-bars>div{grid-template-columns:85px minmax(0,1fr) 40px}
+@media(min-width:541px) and (max-width:1050px){.card .party-row:has(.party-logo){grid-template-columns:110px minmax(0,1fr) 85px}}
+@media(max-width:540px){.card .party-row:has(.party-logo){grid-template-columns:minmax(0,1fr) 85px}}

@@ -1,0 +1,46 @@
+---
+import shapes from '../../lib/overview/province-shapes.json';
+import PartyLogo from '../PartyLogo.astro';
+import { provinceMapLabels } from '../../lib/overview/province-map.ts';
+import type { getNationalOverview } from '../../lib/overview/results.ts';
+import '../../styles/province-results-map.css';
+
+interface Props { entries: Awaited<ReturnType<typeof getNationalOverview>>['provinces']; compact?: boolean }
+const { compact = false } = Astro.props;
+const labels = provinceMapLabels(Astro.props.entries);
+const parties = [...new Map(labels.filter(label => label.party).map(label => [label.partyName, label])).values()];
+---
+<figure class:list={['province-results-map', { 'home-results-map': compact }]} aria-labelledby="province-map-caption">
+  <figcaption id="province-map-caption"><strong>{compact ? 'Results map' : 'Results by province'}</strong><a href="/map">{compact ? 'Explore ↗' : 'Explore local voting areas ↗'}</a></figcaption>
+  <svg viewBox="0 0 610 490" role="group" aria-label="Preliminary election results by province" aria-describedby="province-map-note">
+    <defs><pattern id="province-map-unknown" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#dce1d5"/><path d="M0 8L8 0" stroke="#b5c1ae" stroke-width="1"/></pattern></defs>
+    {labels.map(label => {
+      const shape = shapes.find(shape => shape.code === label.code)!;
+      return <a class="province-map-link" href={label.href} aria-label={`${label.name}: ${label.description} View province results.`}>
+        <title>{label.name}: {label.description}</title>
+        <path class="province-map-region" d={shape.path} fill={label.party ? label.color : 'url(#province-map-unknown)'}/>
+      </a>;
+    })}
+    <g class="province-map-callout" aria-hidden="true"><path d="M330 110L399 161"/><circle cx="399" cy="161" r="3"/></g>
+    {labels.map(label => {
+      // Keep all labels above the outlines, with room for Gauteng on narrow screens.
+      const position = label.code === 'GT' ? [330, 75] : label.code === 'NW' ? [310, 157] : label.code === 'MP' ? [485, 148] : label.position;
+      return <a class="province-map-result-link" href={label.href} tabindex="-1" aria-hidden="true">
+        <title>{label.name}: {label.description}</title>
+        <g class="province-map-label" transform={`translate(${position[0]} ${position[1]})`}>
+          <rect x="-34" y="-29" width="68" height="64" rx="8"/>
+          <text class="province-map-code" y="-10">{label.code}</text>
+          <text class="province-map-party" y="8">{label.party ? (label.party.length > 9 ? label.party.slice(0,8)+'…' : label.party) : label.result === 'Tied' ? 'Tied' : label.result === 'Awaiting votes' ? 'Awaiting' : 'No share'}</text>
+          <text class="province-map-share" y="27">{label.share === null ? '—' : label.share.toFixed(1)+'%'}</text>
+        </g>
+      </a>;
+    })}
+  </svg>
+  <div class="province-map-footer">
+    <ul class="province-map-legend" aria-label="Parties with the highest share shown in province summaries">
+      {parties.map(label => <li><i style={`background:${label.color}`} aria-hidden="true"></i><PartyLogo party={{party_id: label.partyId}} size="small"/><abbr title={label.partyName!}>{label.party}</abbr></li>)}
+      {labels.some(label => !label.party) && <li><i class="province-map-neutral" aria-hidden="true"></i>Tied / unavailable</li>}
+    </ul>
+    <p id="province-map-note">Ward + municipal PR · selected parties</p>
+  </div>
+</figure>

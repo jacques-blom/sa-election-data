@@ -1,0 +1,28 @@
+---
+import shapes from '../../lib/overview/province-shapes.json';
+import { provinceUrl, progressOf, progressLabel, reportingTone, reportingLabelColour, type getNationalOverview } from '../../lib/overview/results.ts';
+interface Props { entries: Awaited<ReturnType<typeof getNationalOverview>>['provinces'] }
+const { entries } = Astro.props;
+---
+<figure class="overview-map">
+  <figcaption><span>Voting districts reporting</span><span>Select a province ↓</span></figcaption>
+  <svg viewBox="0 0 610 490" aria-label="Reporting progress by province">
+    <defs><pattern id="unknown-reporting" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e4e7dc"/><path d="M0 8L8 0" stroke="#a6b0a1" stroke-width="1"/></pattern></defs>
+    {entries.map(({ province, result }) => {
+      const progress = result ? progressOf(result) : null;
+      const shape = shapes.find(s => s.code === province.code)!;
+      const colour = reportingLabelColour(progress);
+      return <a href={provinceUrl(province)} aria-label={`${province.name}: ${progress ? progressLabel(progress) + ' of voting districts reporting' : 'reporting progress unavailable'}`}>
+        <title>{province.name}: {progress ? `${progress.completed} of ${progress.expected} voting districts reporting` : 'reporting progress unavailable'}</title>
+        <path class="overview-region" d={shape.path} fill={progress ? reportingTone(progress) : 'url(#unknown-reporting)'}/>
+        <text x={province.label[0]} y={province.label[1]} text-anchor="middle" fill={colour}>{province.code}</text>
+        {progress && <g transform={`translate(${province.label[0] - 30} ${province.label[1] + 13})`} fill="none" stroke={colour} stroke-width="2.5" aria-hidden="true">
+          <circle r="6" opacity=".2"/>
+          <circle r="6" pathLength="100" stroke-dasharray={`${progress.percent} 100`} transform="rotate(-90)"/>
+        </g>}
+        <text class="overview-map-value" x={province.label[0] + (progress ? 8 : 0)} y={province.label[1] + 18} text-anchor="middle" fill={colour}>{progress ? progressLabel(progress) : '—'}</text>
+      </a>;
+    })}
+  </svg>
+  <div class="overview-map-scale"><span>0%</span><i aria-hidden="true"></i><span>100%</span><span>districts reporting</span></div>
+</figure>

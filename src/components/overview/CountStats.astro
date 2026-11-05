@@ -1,0 +1,24 @@
+---
+import { progressOf, progressLabel } from '../../lib/overview/results.ts';
+import { formatNumber, type Result } from '../../lib/places/results.ts';
+import ReportingProgress from '../ReportingProgress.astro';
+interface Props { result: Result }
+const { result } = Astro.props;
+const districts = progressOf(result);
+const municipalities = progressOf(result, 'municipalities');
+const valid = result.results.reported_totals.valid_ballot_papers;
+---
+<div class="overview-stats">
+  <section class="overview-stat"><h3>Voting districts reporting</h3><p class="overview-stat-value">{districts ? <>{progressLabel(districts).replace('%','')}<small>%</small></> : '—'}</p>
+    {districts && <ReportingProgress progress={districts} variant="bar" class="overview-stat-track"/>}
+    <p class="overview-stat-note">{districts ? `${formatNumber(districts.completed)} of ${formatNumber(districts.expected)} districts` : 'Reporting progress is unavailable'}</p>
+  </section>
+  <section class="overview-stat"><h3>Municipalities complete</h3><p class="overview-stat-value">{municipalities ? <>{formatNumber(municipalities.completed)}<small> / {formatNumber(municipalities.expected)}</small></> : '—'}</p>
+    <div class="overview-beads" aria-hidden="true">{Array.from({length:40},(_,i) => <i class:list={[{ filled: municipalities && (i + 1) / 40 <= municipalities.percent / 100 }]}></i>)}</div>
+    <p class="overview-stat-note">{municipalities ? 'Reporting completion recorded by the IEC' : 'Municipality progress is unavailable'}</p>
+  </section>
+  <section class="overview-stat overview-ballots"><h3>Valid ballot papers recorded</h3><p class="overview-stat-value ballots">{valid === null ? '—' : formatNumber(valid)}</p>
+    <div class="overview-ballot-key" aria-hidden="true"><span>Ward</span><span>PR</span></div>
+    <p class="overview-stat-note">Combined ballots, not a count of voters</p>
+  </section>
+</div>

@@ -1,0 +1,12 @@
+---
+import { councilPoints } from '../lib/seats/diagram.ts';
+import { partyStyle } from '../lib/places/format.ts';
+import { seatLabel, type AvailableSeats } from '../lib/seats/allocation.ts';
+interface Props { seats: AvailableSeats; empty?: boolean }
+const { seats, empty = false } = Astro.props;
+const owners = seats.parties.flatMap(p => Array.from({ length: p.count }, () => p));
+---
+<svg class="seat-arc" viewBox="0 0 320 170" role="img" aria-label={`${seatLabel(seats)}: ${seats.parties.filter(p => p.count).map(p => `${p.party_name}, ${p.count}`).join('; ')}`}>
+  {councilPoints(seats.total).map((point, index) => <circle data-seat-party={owners[index]!.party_id} cx={point.x.toFixed(1)} cy={point.y.toFixed(1)} r={seats.total > 150 ? 3.2 : 4.1} fill={empty ? '#dce2d5' : partyStyle(owners[index]!.party_name)[1]}/>)}
+</svg>
+<style>.seat-arc{display:block;width:100%;max-width:380px;margin:auto}</style>

@@ -1,0 +1,64 @@
+---
+import Site from '../layouts/Site.astro';
+import PlaceSearch from '../components/PlaceSearch.astro';
+import { places } from '../lib/places/catalogue.ts';
+import { administrative } from '../lib/maps/administrative.ts';
+import type { ResolvedArea } from '../lib/address/selection.ts';
+import { mapPlace } from '../lib/maps/config.ts';
+import { env } from 'cloudflare:workers';
+import { findDirectoryPlace, searchDirectory } from '../lib/places/directory.ts';
+import '../styles/map.css';
+const query = (Astro.url.searchParams.get('q') ?? '').slice(0, 100);
+let match: typeof places = [];
+let chosen: typeof places[number] | undefined;
+try {
+  if (query) match = (await searchDirectory(env.GEOGRAPHY_DB ?? env.RESULTS_DB, query)).places;
+  chosen = match.length === 1 ? match[0] : await findDirectoryPlace(env.GEOGRAPHY_DB ?? env.RESULTS_DB, Astro.url.searchParams.get('place') ?? '');
+} catch {}
+const place = mapPlace(match.length === 1 ? match[0]!.slug : Astro.url.searchParams.get('place'));
+const ward = /^\d{8}$/.test(Astro.url.searchParams.get('ward') ?? '') ? Astro.url.searchParams.get('ward')! : '';
+const province = Object.values(administrative.provinces).find(p => p.slug === Astro.url.searchParams.get('province'));
+const area: ResolvedArea | undefined = province ? { ...province, kind: 'province', description: 'Province', geometry: { level: 'province', id: province.id } }
+  : chosen ? { id: chosen.id, name: chosen.name, kind: chosen.kind, description: `${chosen.kind} · ${chosen.province}`, url: `/2026/places/${chosen.slug}`, bbox: chosen.bbox, geometry: chosen.geometry } : undefined;
+---
+<Site title="Explore election results on the map" description="Browse South African provinces, municipalities and wards. Explore the map to see published 2026 election results." canonicalPath="/map">
+  <div class="map-heading">
+    <div><h1>Explore the map</h1></div>
+    <a class="button" href="/">Browse results ↗</a>
+  </div>
+  <div class="map-shell" id="map-app" data-place={place} data-ward={ward} data-area={area ? JSON.stringify(area) : undefined} data-bounds={chosen?.bbox ? JSON.stringify(chosen.bbox) : undefined}>
+    <div class="map-toolbar">
+      <PlaceSearch id="map-query" mode="all" query={query}/>
+      <p id="map-search-status" role="status" hidden={!query || !!chosen}>
+        {query && !chosen && <a href={`/search?q=${encodeURIComponent(query)}`}>View search results →</a>}
+      </p>
+    </div>
+    <div class="map-workspace">
+      <div class="map-stage">
+        <div id="election-map" role="region" aria-label="Interactive map of South African provinces, municipalities and wards"></div>
+        <p id="map-loading" class="map-loading" role="status">Loading the map…</p>
+        <p id="map-hover" class="map-hover" hidden></p>
+        <div class="map-legend">
+          <span id="map-boundary-label">Ward + municipal PR votes</span>
+          <div id="map-result-legend"><span style="--result-color:#b8c2b3">No clear result</span></div>
+        </div>
+      </div>
+      <aside class="map-panel" aria-label="Areas and results">
+        <div class="map-panel-navigation">
+          <button id="reset-selection" type="button" hidden>← Areas in view</button>
+          <button id="map-home" type="button" hidden>← South Africa</button>
+        </div>
+        <div class="panel-intro"><h2 id="map-area-title">Provinces</h2><p id="map-area-description">Choose a province to zoom in.</p></div>
+        <div id="map-browse">
+          <p id="map-view-status" role="status">Loading areas…</p>
+          <ul id="map-area-list" aria-label="Areas in view"></ul>
+        </div>
+        <div id="ward-result" aria-live="polite" aria-atomic="true" hidden></div>
+        <p id="map-notice" class="map-notice" role="status" hidden></p>
+        <p id="map-result-scope" class="map-result-scope">Selected parties shown</p>
+      </aside>
+    </div>
+  </div>
+  <noscript><p class="notice">The interactive map needs JavaScript. <a href="/">Browse all results →</a></p></noscript>
+  <script>import '../lib/maps/client.ts';</script>
+</Site>

@@ -1,0 +1,8 @@
+---
+import shapes from '../../lib/overview/province-shapes.json';
+import { reportingTone, type Province, type progressOf } from '../../lib/overview/results.ts';
+interface Props { province: Province; progress?: ReturnType<typeof progressOf>; color?: string; large?: boolean }
+const { province, progress = null, color = reportingTone(progress), large = false } = Astro.props;
+const shape = shapes.find(s => s.code === province.code)!;
+---
+<svg class:list={['overview-province-shape', { large }]} viewBox={shape.viewBox} aria-hidden="true"><path d={shape.path} fill={color}/></svg>

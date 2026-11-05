@@ -31,3 +31,16 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Local credentials, database copies and Python map-building environments
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.log
+.venv/
+__pycache__/

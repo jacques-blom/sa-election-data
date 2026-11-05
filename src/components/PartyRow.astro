@@ -1,0 +1,15 @@
+---
+import { formatNumber, partyStyle, type ballotResults } from '../lib/places/results.ts';
+import PartyLogo from './PartyLogo.astro';
+interface Props { party: ReturnType<typeof ballotResults>['parties'][number] }
+const { party: p } = Astro.props;
+const [short,color] = partyStyle(p.party_name);
+---
+<div class="party-row">
+  <div class="party-name party-identity">
+    <PartyLogo party={p}/>
+    <div class="party-identity-text"><span class="sr-only">{p.party_name}</span><abbr title={p.party_name} aria-hidden="true" style="text-decoration:none">{short}</abbr>{p.candidate_name && <small>{p.candidate_name}</small>}</div>
+  </div>
+  <div class="bar-track" aria-hidden="true"><div class="bar" style={`--share:${p.share ?? 0}%;--party:${color}`}></div></div>
+  <div class="party-votes">{p.share === null ? 'Share unavailable' : p.share.toFixed(1)+'%'}<small>{p.votesForBallot === null ? 'Votes unavailable' : `${formatNumber(p.votesForBallot)} votes`}</small></div>
+</div>

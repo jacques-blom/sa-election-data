@@ -1,0 +1,9 @@
+.area-tooltip{z-index:3;max-width:min(260px,calc(100% - 24px))!important;font:13px/1.5 Space,system-ui,sans-serif;color:#163a30}
+.area-tooltip .maplibregl-popup-content{padding:12px 16px;border-radius:12px;box-shadow:0 3px 16px #163a3026}
+.area-tooltip:not(.is-pinned) .maplibregl-popup-content{pointer-events:none}
+.area-tooltip-name{display:block;font-weight:600;overflow-wrap:anywhere}
+.area-tooltip.is-pinned .area-tooltip-name{padding-right:32px;min-height:28px}
+.area-tooltip .area-tooltip-close{position:absolute;top:0;right:0;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:12px;background:transparent;color:inherit;font:24px/1 system-ui;cursor:pointer}
+.area-tooltip .area-tooltip-close:hover{background:#edf1e5}
+.area-tooltip .area-tooltip-link{display:flex;justify-content:center;min-height:44px;margin-top:10px;white-space:normal;text-align:center}
+.area-tooltip a:focus-visible,.area-tooltip button:focus-visible{outline:2px solid #163a30;outline-offset:2px}

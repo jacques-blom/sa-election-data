@@ -1,0 +1,47 @@
+---
+import '../styles/place-search.css';
+import { addressSearchBounds } from '../lib/address/scope.ts';
+
+interface Props {
+  id: string;
+  mode?: 'area' | 'address' | 'all';
+  query?: string;
+  action?: string;
+  area?: { name: string; bbox: [number, number, number, number] };
+  compact?: boolean;
+}
+const { id, mode = 'area', query = '', action = '/#search-heading', area, compact = false } = Astro.props;
+const configured = !!import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
+const label = area ? `Find a place or address around ${area.name}` : 'Find a place or address in South Africa';
+const bounds = addressSearchBounds(area?.bbox);
+---
+<div class:list={['place-search', { 'place-search--compact': compact }]} data-place-search data-mode={mode} data-configured={String(configured)} data-search-bbox={bounds ? JSON.stringify(area?.bbox) : undefined} data-search-area={bounds ? area?.name : undefined}>
+  <div data-search-home>
+    <form class="place-search-form" action={action} method="get" role="search">
+      <label for={id}>{label}</label>
+      {bounds && <div class="place-search-scope" data-search-scope hidden><span data-search-scope-label>Around {area?.name}</span><button type="button" data-search-scope-toggle aria-pressed="false">Search all South Africa</button></div>}
+      <div class="place-search-control">
+      <div class="place-search-field">
+        <svg class="place-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+        <input id={id} type="search" value={query} placeholder="Search a place or street address" maxlength="200" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-describedby={`${id}-hint`}/>
+        <button class="place-search-clear" type="button" aria-label="Clear search" data-search-clear hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+        <button class="button primary place-search-submit" type="submit" aria-label="Search"><span class="place-search-submit-label">Search</span> <span aria-hidden="true">↗</span></button>
+      </div>
+      <div class="place-search-panel" data-search-panel hidden>
+        <p class="place-search-message" data-search-message></p>
+        <ul class="place-search-options" id={`${id}-options`} role="listbox" aria-label="Suggested places and addresses"></ul>
+        <a class="place-search-fallback" href="/search">Browse the area directory →</a>
+        <div class="place-search-attribution" data-search-attribution hidden><span>Suggestions from</span><span class="google-maps-attribution" translate="no">Google Maps</span></div>
+      </div>
+      </div>
+      <p class="sr-only" data-search-announcement role="status" aria-live="polite" aria-atomic="true"></p>
+      <p class="place-search-hint" id={`${id}-hint`}>{configured ? <>Choose an area for its results, or an address to find its ward. <span>Search by Google.</span> <a href="/privacy">Privacy</a></> : <>Google search is unavailable. <a href="/search">Browse the area directory.</a></>}</p>
+    </form>
+  </div>
+  <dialog class="place-search-dialog" aria-labelledby={`${id}-dialog-title`}>
+    <header class="place-search-dialog-header"><button class="place-search-back" type="button" data-search-close><span aria-hidden="true">←</span> Back</button><h2 id={`${id}-dialog-title`}>Find local results</h2></header>
+    <div class="place-search-dialog-content" data-search-mobile></div>
+    <a class="place-search-directory" href="/search">Browse the area directory →</a>
+  </dialog>
+</div>
+<script>import '../lib/address/autocomplete.ts';</script>

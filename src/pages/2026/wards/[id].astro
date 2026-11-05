@@ -1,0 +1,37 @@
+---
+import { env } from 'cloudflare:workers';
+import { mapLink } from '../../../lib/maps/config.ts';
+import { findMapWard } from '../../../lib/maps/ward-catalogue.ts';
+import RegionMap from '../../../components/RegionMap.astro';
+import { joinedResults } from '../../../lib/data/packed-results.ts';
+import Site from '../../../layouts/Site.astro';
+import ResultChart from '../../../components/ResultChart.astro';
+import { places, placeUrl, wardNumber } from '../../../lib/places/catalogue.ts';
+import { getWardResults, type Result } from '../../../lib/places/results.ts';
+const id = Astro.params.id ?? '';
+const boundary = findMapWard(id);
+let result: Result | null = null; let failed = false;
+if (boundary) { try { result = await getWardResults(env.RESULTS_DB,id, env.RAW_RESULTS); } catch(e) { console.error('Ward unavailable',e); failed = true; } }
+const parent = result ? places.find(p => p.relationships.some(r => r.election === 2026 && r.level === 'municipality' && r.relation === 'equals' && r.areaId === result!.municipalityId)) : null;
+const related = places.filter(p => p.relationships.some(r => r.election === 2026 && r.level === 'ward' && r.areaId === id));
+const municipalityName = parent?.name ?? boundary?.municipality;
+const province = parent?.province ?? boundary?.province;
+Astro.response.status = failed ? 503 : result ? 200 : 404;
+Astro.response.headers.set('Cache-Control', result ? 'public, max-age=15, s-maxage=15' : 'no-store');
+if(failed) Astro.response.headers.set('Retry-After','60');
+let districts:{area_id:string;name:string}[]=[];
+if(result)try{districts=(await env.RESULTS_DB.prepare(`SELECT r.area_id,r.name ${joinedResults} WHERE r.year=2026 AND r.level='voting-district' AND r.ward_id=? ORDER BY r.name`).bind(id).all<{area_id:string;name:string}>()).results;}catch{}
+const title = result ? `Ward ${wardNumber(id)}, ${municipalityName}` : 'Ward results unavailable';
+---
+<Site liveResults={Astro.response.status !== 404} title={`${title} — 2026 results`} description={`Published ward-ballot votes, reporting progress and sources for ${title}.`} noindex={!result || !parent}>
+<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">South Africa</a>{parent ? <><span> / </span><a href={placeUrl(parent)}>{municipalityName}</a></> : municipalityName && <><span> / </span><span>{municipalityName}</span></>}<span> / </span><span>{result ? `Ward ${wardNumber(id)}` : 'Ward'}</span></nav>
+{result ? <>
+<div class="page-top"><div><p class="eyebrow">{province} · {municipalityName} · 2026</p><h1>Ward {wardNumber(id)}</h1><a class="button" style="margin-top:18px" href={mapLink(parent?.slug ?? 'south-africa',id)}>View this ward on the map ↗</a></div></div>
+<div class="results-layout"><ResultChart result={result} ballot="ward" tabs={false}/><aside class="aside-stack"><section class="card scope-card">
+{parent ? <><h2>Municipality results</h2><a class="button" href={placeUrl(parent)}>View {municipalityName} results ↗</a></> : <><h2>Explore nearby wards</h2><a class="button" href={mapLink('south-africa',id)}>Return to the map ↗</a></>}
+{related.map(p => <p class="small" style="margin:18px 0 0">This ward overlaps <a href={placeUrl(p)}>{p.name}’s statistical place boundary</a>.</p>)}</section></aside></div>
+<section style="margin-top:28px"><h2>Voting districts in this ward</h2><div class="links">{districts.map(d=><a href={`/2026/voting-districts/${d.area_id}`}>{d.name.replace(/^\d+\s*-\s*/,"")} ↗</a>)}</div></section>
+{boundary&&<RegionMap options={{level:"ward",id,bbox:boundary.bbox}} title={`Ward ${wardNumber(id)} and its voting districts`} href={mapLink(parent?.slug??"south-africa",id)} caption="The ward outline and its voting districts. Select a district to see its results."/>}
+<div class="links"><a href={parent ? placeUrl(parent)+'#wards' : mapLink('south-africa',id)}>Browse other wards</a></div>
+</> : <section class="empty"><h1>{failed ? 'Results are temporarily unavailable.' : 'Ward results unavailable.'}</h1><p>{failed ? 'Please try again shortly.' : 'Select another ward on the map to see its published results.'}</p><a href="/map">Explore the map →</a></section>}
+</Site>

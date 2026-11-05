@@ -9,7 +9,8 @@
   },
   "scripts": {
     "prepare": "pnpm cf:types && astro sync",
-    "dev": "astro dev",
+    "dev": "CLOUDFLARE_ENV=live astro dev",
+    "dev:local": "astro dev",
     "check": "pnpm cf:types && astro check",
     "build": "astro build",
     "preview": "astro preview",
@@ -19,21 +20,33 @@
     "data:reprocess": "node scripts/reprocess.ts",
     "data:load": "node scripts/load-local.ts",
     "data:export": "node scripts/export.ts",
+    "data:logos": "node scripts/import-party-logos.ts",
     "test": "node --test tests/*.test.ts",
     "deploy:dry-run": "pnpm build && wrangler deploy --dry-run",
     "deploy": "pnpm build && wrangler deploy --profile personal",
     "sync:dev": "wrangler dev --config workers/sync/wrangler.jsonc --test-scheduled",
     "sync:dry-run": "wrangler deploy --config workers/sync/wrangler.jsonc --dry-run",
-    "sync:deploy": "wrangler deploy --config workers/sync/wrangler.jsonc --profile personal",
     "usage:report": "node scripts/usage.ts",
-    "usage:deploy": "wrangler deploy --config workers/usage/wrangler.jsonc --profile personal"
+    "usage:deploy": "wrangler deploy --config workers/usage/wrangler.jsonc --profile personal",
+    "sync:deploy": "wrangler deploy --config workers/sync/wrangler.jsonc --profile personal",
+    "maps:load": "node scripts/maps/load-local.ts",
+    "maps:boundaries": "python3 scripts/maps/import-boundaries.py",
+    "maps:import-wards": "python3 scripts/maps/import-national-wards.py",
+    "maps:tiles": "python3 scripts/maps/build-ward-tiles.py",
+    "maps:load-wards": "node scripts/maps/load-local.ts --wards"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.4",
-    "astro": "^7.4.5"
+    "@protomaps/basemaps": "^5.7.2",
+    "astro": "^7.4.5",
+    "maplibre-gl": "^6.16.0",
+    "morphdom": "^2.7.8",
+    "pmtiles": "^4.5.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@types/geojson": "^7946.0.16",
+    "@types/google.maps": "^3.66.9",
     "@types/node": "^24.19.2",
     "typescript": "^6.0.3",
     "wrangler": "^4.157.0"

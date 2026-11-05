@@ -36,7 +36,7 @@ The shared wordmark uses bold Space Grotesk with tight spacing, followed by a sm
 | Reporting progress | A light-to-dark indigo scale | The national province map, with a labelled 0 to 100% legend. It measures districts reporting, not party support. |
 | Typography | Space Grotesk, locally bundled under the OFL | Large numerals, headings and labels. |
 | Geography | Simplified MDB province and municipality outlines | Recognisable places; displayed shape size does not represent votes. |
-| Charts | Horizontal vote bars, paired historical bars, progress rings and council seats | Comparisons with explicit values and denominators. |
+| Charts | Horizontal vote bars, paired historical bars, progress rings and council seats | Comparisons with explicit values and denominators. Reporting percentages use a small circular indicator inline and a horizontal progress bar in standalone summaries, including the home page. |
 | Components | 20px surfaces, 12px controls, 6px details and 24px dialogs | Apply the same radius scale across desktop and mobile. Keep seat dots, map points and avatars circular. |
 
 ### South African patterns
@@ -55,7 +55,15 @@ The [pattern reference page](../../sa-election-mockups/patterns.html) shows the 
 
 The header shares the warm page background, without an enclosing border or opaque navigation bar. A restrained beadwork repeat fades into the page behind the navigation, leaving the logo and controls clear. Patterns provide identity; they never encode election results.
 
-The selected transparent icon was generated and refined with the built-in imagegen tool; its prompt is saved in `assets/logo-studies/PROMPT-SELECTED-ICON.md` in the prototype. Transparent padding has been trimmed to a 1125 × 939 master, ignoring only effectively invisible 1/255-alpha noise around the outside; retained pixels are unchanged. The master is `public/brand/electioninfo-icon.png` in the application and `assets/electioninfo-icon.png` in the prototype. The real Astro site uses `src/components/Brand.astro` for the icon plus live-text wordmark, 96px and 192px WebP header assets, and separate 32px/64px favicons. CSS and canvas exports preserve the icon’s aspect ratio. Asset bounds and provenance are recorded in `public/brand/asset-info.json`. A future SVG redraw must preserve the approved geometry.
+The selected soft-corner Flag X is now a small, editable SVG: `public/brand/counted-icon.svg` in the real site and `assets/electioninfo-icon.svg` in the prototype. It redraws the approved generated shape with solid, moderately muted green #347E65, gold #DEB251, charcoal #263E34, blue #5287BE and coral #CD6D5D. Keep these colours stronger than the rejected pastel treatment. The wordmark remains live text in `src/components/Brand.astro`. The SVG is the master for headers, favicons and prototype image exports; PNG and WebP files are derived compatibility/download assets. Preserve the 1117:936 aspect ratio and tight viewBox. Asset details are recorded in `public/brand/asset-info.json`.
+
+### Real-site implementation
+
+The existing home, municipality, town, ward and search pages use `src/styles/design.css` on top of their component foundations. The shared header flows into the paper background with a fading beadwork pattern; the footer uses a small repeat. Place cards carry a narrow beadwork band, reporting indicators use indigo based on actual district reporting, and guidance cards use the banded treatment. Patterns stay outside chart marks.
+
+The home page says “Local election results”, with place search and a national outline, rather than treating Cape Town as the whole country. The map is geographic context, not a national coverage or results map. The available-area count comes from the current place catalogue. The map reuses the prototype’s simplified MDB province display paths and is unsuitable for address lookup.
+
+Ballot and status views retain their data, denominators, warnings and source times. On phones, party names sit above the bar so long published names remain readable. The header also styles the map navigation being built in parallel. Page types with no implementation are not linked as working features.
 
 ### Home page and navigation
 
@@ -65,7 +73,7 @@ The prototype has 15 municipality pages: all eight metros plus Makana, Mossel Ba
 
 National and province figures describe a fictional full count. They are independent of the smaller set of 15 municipality examples. National totals sum the nine province summaries. Reporting coverage is 14,605 of 23,696 districts, or 61.6%; 52 of 213 metro and local councils have completed counts; 22 of those have no single-party majority. These are design fixtures, not claims about the actual election. Production totals must come from the complete dataset and state their coverage. District councils need a separate scope because their ballots and allocations differ.
 
-Municipality pages lead with council seats once the complete allocation is available: a seat diagram, seats by party and the majority threshold. Vote share and historical comparison remain secondary views. While allocation is pending, lead with PR vote results and reporting progress, and state “Seat allocation pending”. Never convert vote percentages into estimated seats. Province and national views retain reporting coverage and scoped vote aggregates; combining seat counts across councils does not describe control of any one council. Insights show rankings and trends. The ward page shows the contest while counting and the representative after declaration. The contact guide uses more text because it gives instructions.
+Municipality pages lead with council seats: a seat diagram, seats by party and the majority threshold. Use the complete, reconciled IEC allocation when available; otherwise show **Estimated council seats**, calculated from both ballots with reported ward wins and independent seats accounted for. State that it is based on the current count and can change, and provide reporting coverage and the model's assumptions. PR vote percentages alone are insufficient. If the inputs do not reconcile, show why a seat estimate is unavailable and retain the vote results. See [seat methodology](seats.md). Province and national views retain reporting coverage and scoped vote aggregates; combining seat counts across councils does not describe control of any one council. Insights show rankings and trends. The ward page shows the contest while counting and the representative after declaration. The contact guide uses more text because it gives instructions.
 
 On mobile, the first screen shows the name, search and map. Province cards remain readable without tapping. Share images need a separate check at messaging-app size. Never rely on colour or geographic size alone. Label reporting progress as districts, and explain that a closest-race bar compares only the top two parties.
 
@@ -75,11 +83,12 @@ Basic maps, local search and results already exist in ElectionSePush and ElectAI
 
 The municipality’s default share card follows its selected view: council seats when allocated, PR vote share when the user opens that tab. Label ward-plus-PR council seats separately from PR ballot percentages. A seat majority does not establish an agreement, election of a mayor or actual control of council decisions.
 
-Offer **Try a coalition** when no party holds more than half the seats and a complete allocation by individual party is available. An aggregated “Other” total cannot act as a coalition partner. If its party breakdown is missing, show “Detailed party seats are not available yet”. Pending allocations and councils with a single-party majority link back to their results instead.
+Offer **Try a coalition** when no party holds more than half the seats and a complete reported or estimated allocation by individual party is available. Preserve the estimate label throughout the playground and exports. An aggregated “Other” total cannot act as a coalition partner. Grouped independent seats remain unselected because individual candidates are unavailable. Missing estimates and councils with a single-party majority link back to their results instead.
 
 - Start with no parties selected. Show each party’s allocated seats and a clearly labelled toggle. Do not recommend combinations or rank their political plausibility.
 - Update the total, coloured seat dots, seat bar and shortfall immediately. Place the segmented seat bar below the majority message, with each selected party’s colour and a compact party/seat legend. The marker stays at exactly 50% of all council seats; the result still requires `floor(total council seats / 2) + 1`. Reaching exactly half is one seat short, not a majority. Unselected seats remain neutral.
 - Party controls use a uniform thin border and soft party-colour fill when selected, with a simple minus symbol to remove and plus symbol to add. Avoid checkboxes and thick selected-edge borders. Preserve `aria-pressed`, focus visibility, party names and seat counts.
+- Animate selected-seat colours and bar widths together over about 280ms. Keep chart elements in place between updates. The total changes directly with a short fade, rather than counting through intermediate numbers. Do not bounce or stagger each seat: large selections such as DA’s 54 seats became visually busy. Rapid toggles retarget existing transitions; reduced-motion settings update immediately. Announce the final, correct total once per interaction.
 - Keep button focus after each toggle, expose `aria-pressed`, announce the updated total/status and provide Clear selection. All states must work without colour cues.
 - Keep the entire coalition workspace within one viewport on phones and computers: all party controls, Clear selection, selected-seat total, seat diagram, majority status and Share. Use a compact result above a two-column party grid on phones, and side-by-side result and controls on computers. Include Clear selection as the final grid cell. Remove the duplicate mobile summary.
 - Use the small viewport height (`svh`) so an expanded mobile browser toolbar does not hide the controls. Reduce navigation, decorative space and diagram height in short windows while keeping party buttons at least 44px high. On the shortest phone screens, the segmented bar replaces the seat-dot diagram; keep the total, status, 50% marker and all controls visible. Keep a direct link back to the municipality. At accessibility zoom or below the supported minimum height, allow normal scrolling rather than clipping content. Show the hypothetical/demo label in the workspace and put longer explanations behind How this works.
@@ -95,6 +104,8 @@ Background: [COGTA’s framework for coalitions in local government](https://www
 Apply the linked [Humanizer skill](https://raw.githubusercontent.com/blader/humanizer/refs/heads/main/SKILL.md) to screen text, help, downloads and generated summaries. Use direct labels: Results, Metro leaders, Compare with 2021, Recent updates, Share results and Contact your councillor. Remove slogans, staged fragments and metaphors that make people work out what a feature does.
 
 State the fact and its status: “DA is leading”, “Count complete” or “Seat allocation pending”. Use full place names where space allows. Explain PR, percentage points and council majorities on demand. Retain dates, sources, sample-data labels and uncertainty when editing for brevity. Copy in an exported image must agree with the screen and underlying records.
+
+Whenever a vote percentage and vote count appear together, lead with the percentage and give it the stronger visual emphasis. Show the vote count as smaller, muted supporting text. Put share before votes in tables, map results and exported summaries, and keep unavailable shares explicit.
 
 ## Who and what comes first
 
@@ -157,7 +168,7 @@ Every chart, insight and place has a visible Share action, including on mobile. 
 
 Suggested share templates:
 
-1. “National election count”: reporting progress by province and council outcomes, with denominators.
+1. “National election results”: party vote shares and province results, with ballot scope, reporting coverage and denominators.
 2. “Metro leaders at 15:00”: the complete eight-metro board.
 3. “Tshwane results”: top parties, progress, margin and one short explanation.
 4. “Change since 2021”: the largest comparable changes, with the baseline in the image.
@@ -198,9 +209,34 @@ The councillor represents all residents regardless of how they voted. Avoid part
 
 Official evidence checked for this design: the [IEC councillor directory](https://www.elections.org.za/pw/voter/Who-Is-My-Ward-Councillor) supports browsing by municipality and ward; [Tshwane's ward councillor directory](https://www.tshwane.gov.za/?page_id=17228) publishes contact columns; [Cape Town's ward guidance](https://www.capetown.gov.za/family-and-home/meet-the-city/city-council/wards/) explains representation and participation. Coverage, freshness and reusable access still need validating before building a national contact dataset. The [government ward committee handbook](https://www.gov.za/sites/default/files/gcis_document/201409/dplgwardhandbook0.pdf) is background for participation, not a source of current local deadlines.
 
+## Party logos
+
+Party lists pair the published name with the IEC's official artwork: national
+and province summaries, province and municipality cards, full municipal tables,
+ward cards, result charts, the province-map legend and the selected-ward panel.
+The existing colours still encode bars and map areas. Logos use a consistent
+square slot with `object-fit: contain`; the artwork is not cropped or recoloured.
+They are decorative for assistive technology because the adjacent name identifies
+the party. Independent candidates, aggregates and unavailable logos use a neutral
+marker while retaining their names.
+
+The assets are copied unchanged from the
+[IEC results dashboard](https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx)
+into `public/parties/`. `src/lib/parties/logos.json` records each IEC ID, original
+URL, dimensions, SHA-256 and import time. Lookups use IDs, not abbreviations or
+candidate names. On 5 November 2026, 516 of 519 party images were available;
+three returned 404 and are recorded in the manifest. The images total 1.82 MB,
+are loaded lazily in server-rendered lists, and use content-hashed filenames.
+No visitor request to the IEC is needed to display them.
+
+After importing local results, run `pnpm data:logos` (or `pnpm data:logos 2021`
+for another imported election). It uses the local IEC party directory, downloads
+and validates the PNGs, and regenerates the manifest. Review changes before
+deploying. The checked-in assets and manifest are sufficient for normal builds.
+
 ## Information architecture and delivery
 
-Results opens with search, national reporting progress and province browsing. A province lists its municipalities. A municipality shows allocated council seats first, or PR vote results while seats are pending, followed by comparisons and updates. Hung councils with complete party allocations link to the coalition checker. Insights contains metro leaders, biggest movers, closest races and recent updates. Saved places keeps a resident's selections. Your ward connects the result, representative, public contacts and guide. Data exposes HTML, JSON, Markdown and CSV with definitions and sources.
+Results opens with national party vote shares, area search and province result cards. At every geography, lead with the result: party/candidate votes, share and a provisional margin where calculable. Reporting progress and source times are supporting context. Towns lead with their overlapping wards’ results, with a visible whole-ward scope note. A province lists its municipalities. A municipality shows allocated council seats first, or PR vote results while seats are pending, followed by comparisons and updates. Hung councils with complete party allocations link to the coalition checker. Insights contains metro leaders, biggest movers, closest races and recent updates. Saved places keeps a resident's selections. Your ward connects the result, representative, public contacts and guide. Data exposes HTML, JSON, Markdown and CSV with definitions and sources.
 
 Proposed production stack remains Astro SSR with small React islands on Cloudflare Workers. D1 holds indexed current records and aggregates; R2 holds raw input snapshots, detailed geometry, historical exports and generated images. Ingestion and snapshot publication are separate from rendering. Address lookup uses geocoded coordinates, bounding-box candidates, then an exact point-in-polygon check. Keep boundary versions and ward/result identifiers explicit. The mockup is plain local HTML/CSS/JavaScript and adds no production dependencies.
 
@@ -213,7 +249,7 @@ Public HTML is the universal entry point for search and consumer assistants. RES
 - Keyboard navigation, visible focus, accessible labels, adequate contrast, text equivalents and reduced-motion support are built in. Essential information works without heavy client JavaScript in production.
 - All displayed and exported numbers come from one snapshot, with explicit denominators and source times. A stale or unavailable upstream feed is an ordinary designed state.
 - V1 includes official candidate/winner identities where obtainable and a useful “contacts pending” state. Complete national contact coverage is not a launch prerequisite.
-- V1 includes a neutral coalition seat calculator for hung councils with complete party allocations. It never predicts alliances or substitutes provisional vote shares for seats.
+- V1 includes a neutral coalition seat calculator for complete reported or estimated party allocations with no single-party majority. It never predicts alliances. Estimates use the documented current-count model and remain distinct from IEC-reported seats.
 - Defer AI chat, automated analyst/news monitoring, forecasts, coalition predictions, custom arbitrary-boundary aggregates, accounts and push notifications until the data and core flows work reliably.
 
 Prototype coverage includes national and province browsing, 15 municipality pages, seat-first allocated results, a shareable coalition checker, comparisons and insights, saved places, sample search, a ward count/declared scenario, councillor guidance, working image/text/CSV/JSON/Markdown downloads and a share preview. Live ingestion, real address geocoding, official candidate/contact ingestion, hosted snapshot URLs, SSR and real APIs are implementation work, not simulated live services.
