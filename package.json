@@ -15,6 +15,11 @@
     "preview": "astro preview",
     "astro": "astro",
     "cf:types": "wrangler types",
+    "data:ingest": "node scripts/ingest.ts",
+    "data:reprocess": "node scripts/reprocess.ts",
+    "data:load": "node scripts/load-local.ts",
+    "data:export": "node scripts/export.ts",
+    "test": "node --test tests/*.test.ts",
     "deploy:dry-run": "pnpm build && wrangler deploy --dry-run",
     "deploy": "pnpm build && wrangler deploy --profile personal"
   },

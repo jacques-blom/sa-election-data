@@ -1,10 +1,21 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "sa-election-data",
+  "account_id": "1644a80d2d9ee897e4a990ce1e8100ee",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-11-05",
   "compatibility_flags": ["nodejs_compat"],
-  // Add Jacques's personal account_id here before the first deployment.
+  "d1_databases": [
+    {
+      "binding": "RESULTS_DB",
+      "database_name": "sa-election-data",
+      "database_id": "95ad93f9-e5f0-4a0e-b7c2-74bde7e3b91b",
+      // Keep the existing local emulator data separate from the production database.
+      "preview_database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Jacques's personal profile is scoped to Blom Media LLC.
   // Astro generates the production entrypoint and static-assets configuration.
   "observability": {
     "enabled": true,
