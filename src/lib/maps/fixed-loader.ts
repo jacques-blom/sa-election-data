@@ -1,7 +1,6 @@
 export {};
 const mounted = new Map<HTMLElement, () => void>();
 // Keep the renderer, WebGL worker and tile requests off the critical path.
-let generation = 0;
 let renderer:Promise<typeof import('./fixed-client.ts')>|undefined;
 const observer=new IntersectionObserver(entries=>{
  for(const entry of entries){
@@ -9,9 +8,8 @@ const observer=new IntersectionObserver(entries=>{
   observer.unobserve(entry.target);
   const figure=entry.target as HTMLElement;
   renderer??=import('./fixed-client.ts');
-  const version = generation;
   void renderer.then(module=>{
-   if(version !== generation || !figure.isConnected || !figure.hasAttribute('data-region-map') || mounted.has(figure))return;
+   if(!figure.isConnected || !figure.hasAttribute('data-region-map') || mounted.has(figure))return;
    const dispose = module.mountRegionMap(figure);
    if(dispose)mounted.set(figure,dispose);
   }).catch(()=>{
@@ -20,8 +18,14 @@ const observer=new IntersectionObserver(entries=>{
   });
  }
 },{rootMargin:'200px'});
-const observed = new WeakSet<HTMLElement>();
+const observed = new Set<HTMLElement>();
 function observeMaps() {
+ // Year scrubbing retains map canvases. Dispose only maps actually removed from
+ // the page, including pending mounts whose elements disappeared before loading.
+ for (const figure of observed) {
+  if (figure.isConnected && figure.hasAttribute('data-region-map')) continue;
+  mounted.get(figure)?.(); mounted.delete(figure); observed.delete(figure); observer.unobserve(figure);
+ }
  document.querySelectorAll<HTMLElement>('[data-region-map]').forEach(figure=>{
   if (observed.has(figure)) return;
   observed.add(figure);
@@ -30,11 +34,3 @@ function observeMaps() {
 }
 observeMaps();
 document.addEventListener('results:updated', observeMaps);
-
-document.addEventListener('results:before-year-change', () => {
-  generation++;
-  observer.disconnect();
-  for (const [figure, dispose] of mounted) { dispose(); observed.delete(figure); }
-  mounted.clear();
-  document.querySelectorAll<HTMLElement>('[data-region-map]').forEach(figure => observed.delete(figure));
-});

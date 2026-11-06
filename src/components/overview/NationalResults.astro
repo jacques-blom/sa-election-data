@@ -1,6 +1,7 @@
 ---
 import PageShare from '../../components/PageShare.astro';
 import ElectionHistory from '../ElectionHistory.astro';
+import RelatedNews from '../RelatedNews.astro';
 import PartyMovement from '../PartyMovement.astro';
 import { partyMovement, latestYear, nationalUrl } from '../../lib/history/comparison.ts';
 import Site from '../../layouts/Site.astro';
@@ -40,15 +41,15 @@ const progress = data ? progressOf(data.national) : null;
   <section class="home-heading page-share-heading" aria-labelledby="home-title">
     <div><p class="eyebrow">South Africa · Local government</p><h1 id="home-title">{year} election results</h1></div>
     <PageShare result/>
-    <div class="home-count" hidden={year !== latestYear}>
+    <div id="home-count" class="home-count" data-history-current-only hidden={year !== latestYear} title={`${latestYear} reporting progress`}>
       <p><strong>{progress ? progressLabel(progress) : '—'}</strong><span>{progress ? 'of districts reporting' : 'Reporting progress unavailable'}</span></p>
       {progress && <><ReportingProgress progress={progress} variant="bar"/><span class="home-count-detail">{formatNumber(progress.completed)} of {formatNumber(progress.expected)} voting districts</span></>}
     </div>
   </section>
-  <section id="home-search" class="home-search" data-address-lookup aria-label="Find local results">
+  <section id="home-search" class="home-search" data-history-current-only hidden={year !== latestYear} data-address-lookup aria-label="Find local results">
     <PlaceSearch id="overview-search" mode="all" query={query}/>
     <AddressResult/>
-    <noscript><p class="small">For place search without JavaScript, <a href="/search">use the area directory</a>.</p></noscript>
+    <noscript><p class="small">For place search without JavaScript, <a href="/search">search by name</a>.</p></noscript>
   </section>
   {query && <section class="overview-search-results" aria-labelledby="search-heading"><div class="overview-section-heading"><div><h2 id="search-heading">Results for “{query}”</h2><p>{searchCount} {searchCount === 1 ? 'match' : 'matches'}</p></div><a href="/" class="button">Clear search</a></div>
     {searchCount > 0 ? <div class="overview-search-grid">
@@ -59,7 +60,9 @@ const progress = data ? progressOf(data.national) : null;
     {directory.total>12&&<p><a href={`/search?q=${encodeURIComponent(query)}`}>See all {directory.total} area matches →</a></p>}
     {!data && <p class="overview-warning">Municipality search is temporarily unavailable.</p>}
   </section>}
-  {year === latestYear && data && <CouncilOutcomes data={data}/>}
+  <div id="home-councils" data-history-current-only hidden={year !== latestYear} title={`${latestYear} council majorities`}>
+    {year === latestYear && data && <CouncilOutcomes data={data}/>}
+  </div>
   <div id="home-results" class="home-results">
     <ProvinceResultsMap entries={entries} year={year} compact>
       <ElectionHistory slot="history" year={year} level="national" id="ZA" embedded/>
@@ -67,6 +70,7 @@ const progress = data ? progressOf(data.national) : null;
     {data ? <SummaryResults result={data.national} name="South Africa" compact/> : <section class="card home-overall" role="status"><h2>Overall results</h2><p class="home-panel-note">Results are temporarily unavailable.</p><div class="links"><a href="/">Try again ↻</a><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">View IEC results ↗</a></div></section>}
     <MetroResults entries={data?.metros} year={year}/>
   </div>
+  {year === latestYear && <RelatedNews scope="national"/>}
   <section id="provinces" class="overview-provinces" aria-labelledby="province-heading"><div class="overview-section-heading"><div><h2 id="province-heading">Results by province</h2><p>Ward + municipal PR votes · selected parties</p></div></div>
     <div class="overview-province-grid">{entries.map(({province,result}) => {
       const ballot = result ? summaryBallot(result) : null;
@@ -80,5 +84,5 @@ const progress = data ? progressOf(data.national) : null;
       </a>;
     })}</div>
   </section>
-  {year === latestYear && <AICallout/>}
+  <div id="home-ai" data-history-current-only hidden={year !== latestYear}>{year === latestYear && <AICallout/>}</div>
 </Site>

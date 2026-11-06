@@ -36,15 +36,30 @@ Build/reconciliation scripts and generated validation report are documented in
 - `/2026/places/:slug`: municipality or statistical main-place scope.
 - `/2026/wards/:id`: all 4,485 reconciled wards, with voting-district links.
 - `/2026/voting-districts/:id`: district figures with separate ballots; noindex for now.
-- `/search`: shared election-area and Google address search, with a browsable town/municipality directory. The search field becomes the header only on mobile.
+- `/places`: a browse directory linked from the homepage, search and every page's footer. Province links lead to every municipality and named place, including noindex places such as Calvinia.
+- `/places?province=:slug`, `/places?municipality=:slug` and `/places?ward=:id`: alphabetical place lists with 60 entries per page. Municipal and ward scopes use every current relationship, including cross-boundary places, rather than the display municipality name. Every pagination link is server-rendered, with a distinct canonical URL for each page.
+- `/2026/wards` (and each historical election year): all published wards, optionally scoped with `?province=:slug`, with links onward to voting districts. These directories also expose historical wards whose municipalities no longer have a current place page.
+- `/search`: shared election-area and Google address search, metro shortcuts and a link to the full place directory. The search field becomes the header only on mobile.
 - `/search?q=...`: server-rendered name/alias search with disambiguation and pagination, including a form for visitors without JavaScript; query pages are noindex.
 - `/find-address`: permanent redirect to `/search` for existing links.
 - `/2026/districts/:slug`: district scope and member municipality links; district council ballot results are unavailable in this dataset.
 - `/api/v1/places?q=...&page=1`: compact directory search and bounds.
 - `/api/v1/places/:slug` and `/2026/places/:slug.md`: scope and current result snapshots.
 
-`/sitemap.xml` contains 16,558 URLs at this import: home, API, map, search,
-9 provinces, 213 municipalities, 11,847 eligible main places and 4,485 wards.
+Province pages link to their district municipalities, place directory and ward
+directory. Municipality pages list the first 12 related towns/main places and
+link to the full list; ward pages do the same for overlapping places. Towns
+link back to every mapped parent municipality and its other places. These
+links work without JavaScript and do not depend on submitting a search.
+
+Town pages lead with prominent municipality result cards above their ward
+results. Every mapped parent is shown when a place crosses council boundaries.
+These cards remain available when town results cannot load, and replace the
+majority-builder callouts on town pages.
+
+`/sitemap.xml` includes the public navigation pages, browse directories,
+election-year landing pages, provinces, district municipalities, eligible
+municipalities/main places and current wards.
 It enumerates the directory on request and caches for five minutes, independent
 of election result publication. A build does not need to fetch all result data.
 No synthetic lastmod is emitted. Search engines decide what to index.
@@ -145,3 +160,13 @@ places, missing wards, ballot separation, FTS query syntax, disambiguation,
 polygon holes, multipart polygons and edge points. Browser verification covers
 address suggestions and ward handoff, fixed maps, clickable subregions, map
 search, mobile layout, and SVG/HTML fallbacks. Development runs on port 4322.
+
+Internal-link tests additionally cover noindex places, multiple parents,
+relationship years, duplicate names across pagination, historical wards and
+packed result directories. Browser verification in `.data/internal-links/`
+(ignored) covers home → Northern Cape → Hantam → Calvinia → ward → voting
+district, province → district, historical ward browsing, canonical URLs,
+invalid selections and 390px/1440px layouts, including navigation without
+JavaScript. The local data coverage report checks every imported place through
+province directory pagination and every voting district through its year's ward
+directory.

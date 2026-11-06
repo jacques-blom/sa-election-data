@@ -10,6 +10,20 @@
 .municipality-ward-finder .address-result>p,.municipality-ward-finder [data-address-wards]{font-size:13px;line-height:1.65;overflow-wrap:anywhere}
 .municipality-ward-finder .address-google-map{height:280px}
 .municipality-ward-finder .address-ward-links a{width:100%;text-align:center}
+.town-municipalities{margin:0 0 28px}
+.town-municipalities>h2{font-size:24px;margin-bottom:16px}
+.town-municipality-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:16px}
+.town-municipality-card{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px;border:1px solid #c9d6bc;border-radius:18px;background:#e6edda;text-decoration:none}
+.town-municipality-card:hover{background:#dce7cd;border-color:#78916a}
+.town-municipality-card>div{min-width:0}
+.town-municipality-card .eyebrow{font-size:10px;margin:0 0 10px}
+.town-municipality-card h3{font-size:30px;line-height:1.15;margin:0 0 10px;overflow-wrap:anywhere}
+.town-municipality-card p:last-child{font-size:13px;line-height:1.6;color:var(--muted);margin:0}
+.town-municipality-action{flex-shrink:0;font-size:14px;font-weight:600;white-space:nowrap}
+@media(max-width:650px){
+  .town-municipality-card{flex-direction:column;align-items:flex-start;gap:18px;padding:22px}
+  .town-municipality-card h3{font-size:27px}
+}
 @media(max-width:900px){
   .municipality-results{grid-template-columns:minmax(0,1fr)}
   .municipality-tools{display:contents}

@@ -26,6 +26,7 @@ export function bindAreaInteractions(map: LibreMap, options: {
   source: AreaSource;
   sourceLayer?: string;
   navigateOnClick?: boolean;
+  enabled?: () => boolean;
   selectOnClick?: boolean;
   onSelect?: (properties: Record<string, unknown>) => void;
 }) {
@@ -87,6 +88,7 @@ export function bindAreaInteractions(map: LibreMap, options: {
   function rememberPointer(event: PointerEvent) { pointerType = event.pointerType; }
   function rememberTouch() { pointerType = 'touch'; }
   function hover(event: MapMouseEvent) {
+    if (options.enabled?.() === false) { clear(); return; }
     if (pinned || usesTouch(event.originalEvent) || map.isMoving() || !map.getLayer(options.layer)) return;
     const properties = map.queryRenderedFeatures(event.point, { layers: [options.layer] })[0]?.properties;
     const area = properties && areaFor(properties, options.source);
@@ -96,6 +98,7 @@ export function bindAreaInteractions(map: LibreMap, options: {
   }
   function leave() { if (!pinned) clear(); }
   function select(event: MapMouseEvent) {
+    if (options.enabled?.() === false) { clear(); return; }
     if (!map.getLayer(options.layer)) return;
     const properties = map.queryRenderedFeatures(event.point, { layers: [options.layer] })[0]?.properties;
     const area = properties && areaFor(properties, options.source);

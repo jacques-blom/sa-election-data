@@ -10,10 +10,11 @@ import {collapseAttribution} from './attribution.ts';
 maplibregl.setWorkerUrl(workerUrl);
 maplibregl.addProtocol('pmtiles',new Protocol().tile);
 export function mountRegionMap(figure:HTMLElement){
+  const historical=()=>figure.dataset.mapHistorical==='true';
   const options=JSON.parse(figure.dataset.options!) as FixedMapOptions;
   const container=figure.querySelector<HTMLElement>('.region-map-canvas')!;
   const status=figure.querySelector<HTMLElement>('.region-map-status')!;
-  const fill=options.colors?.length ? ['match',['get','id'],...options.colors.flatMap(c=>[c.id,c.color]),'#dce1d5'] as unknown as maplibregl.ExpressionSpecification : '#7894ad';
+  const fill=options.colors?.length && !historical() ? ['match',['get','id'],...options.colors.flatMap(c=>[c.id,c.color]),'#dce1d5'] as unknown as maplibregl.ExpressionSpecification : '#7894ad';
   const theme={...namedFlavor('light'),background:'#f5f3e9',earth:'#f5f3e9',water:'#c8dce2',park_a:'#dce5d1',park_b:'#e6ebdd',buildings:'#d9dace'};
   const base=layers('basemap',theme,{lang:'en'});
   let source:AreaSource='administrative';
@@ -25,7 +26,7 @@ export function mountRegionMap(figure:HTMLElement){
   if(options.level==='ward'){source='districts';sourceLayer='voting-districts';filter=['==',['get','wardId'],options.id!];}
   if(options.level==='voting-district'){source='districts';sourceLayer='voting-districts';filter=['==',['get','id'],options.id!];}
   const childLayers:maplibregl.LayerSpecification[]=[
-    {id:'regions-fill',type:'fill',source,'source-layer':sourceLayer,filter,paint:{'fill-color':fill,'fill-opacity':['case',['boolean',['feature-state','hover'],false],options.colors?.length?0.85:0.32,options.colors?.length?0.65:0.16]}},
+    {id:'regions-fill',type:'fill',source,'source-layer':sourceLayer,filter,paint:{'fill-color':fill,'fill-opacity':['case',['boolean',['feature-state','hover'],false],options.colors?.length&&!historical()?0.85:0.32,options.colors?.length&&!historical()?0.65:0.16]}},
     {id:'regions-line',type:'line',source,'source-layer':sourceLayer,filter,paint:{'line-color':['case',['boolean',['feature-state','hover'],false],'#163a30','#49678a'],'line-width':['case',['boolean',['feature-state','hover'],false],2.5,1.15],'line-opacity':0.85}},
   ];
   base.splice(base.findIndex(l=>l.type==='symbol'),0,...childLayers);
@@ -52,16 +53,19 @@ export function mountRegionMap(figure:HTMLElement){
     const fit=()=>{map.resize();map.fitBounds([[options.bbox[0],options.bbox[1]],[options.bbox[2],options.bbox[3]]],{padding:24,maxZoom:14,duration:0});};
     const resizeObserver = new ResizeObserver(fit);
     resizeObserver.observe(container);
+    const interactions=bindAreaInteractions(map,{layer:'regions-fill',source,sourceLayer,navigateOnClick:options.level!=='voting-district',enabled:()=>!historical()});
     const updateColors=()=>{
       const latest=JSON.parse(figure.dataset.options!) as FixedMapOptions;
-      if(!latest.colors?.length || !map.getLayer('regions-fill'))return;
-      map.setPaintProperty('regions-fill','fill-color',['match',['get','id'],...latest.colors.flatMap(c=>[c.id,c.color]),'#dce1d5'] as unknown as maplibregl.ExpressionSpecification);
+      if(historical())interactions.clear();
+      if(!map.getLayer('regions-fill'))return;
+      const colored=!!latest.colors?.length&&!historical();
+      map.setPaintProperty('regions-fill','fill-color',colored?['match',['get','id'],...latest.colors!.flatMap(c=>[c.id,c.color]),'#dce1d5'] as unknown as maplibregl.ExpressionSpecification:'#7894ad');
+      map.setPaintProperty('regions-fill','fill-opacity',['case',['boolean',['feature-state','hover'],false],colored?0.85:0.32,colored?0.65:0.16]);
     };
     figure.addEventListener('results:map-update',updateColors);
     map.on('remove',()=>{ figure.removeEventListener('results:map-update',updateColors); resizeObserver.disconnect(); });
     map.on('load',()=>{status.hidden=true;updateColors();});
     map.on('error',()=>{status.hidden=false;status.textContent='Map details are unavailable. Area links and results remain below.';});
-    bindAreaInteractions(map,{layer:'regions-fill',source,sourceLayer,navigateOnClick:options.level!=='voting-district'});
     return () => map.remove();
   }catch{status.textContent='Map preview is unavailable in this browser. Open the area links below.';}
 }

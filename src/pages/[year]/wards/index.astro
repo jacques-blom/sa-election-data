@@ -1,0 +1,30 @@
+---
+import { env } from 'cloudflare:workers';
+import Site from '../../../layouts/Site.astro';
+import DirectoryPagination from '../../../components/DirectoryPagination.astro';
+import { browseWards, directoryPage, directoryPageSize, wardDirectoryUrl } from '../../../lib/places/browse.ts';
+import { electionYear, nationalUrl } from '../../../lib/history/comparison.ts';
+import { provinces, provinceUrl, municipalityName } from '../../../lib/overview/results.ts';
+import { wardNumber, wardUrl } from '../../../lib/places/catalogue.ts';
+const year = electionYear(Astro.params.year);
+const page = directoryPage(Astro.url.searchParams.get('page'));
+const province = provinces.find(p => p.slug === Astro.url.searchParams.get('province'));
+if (!year || !page || (Astro.url.searchParams.has('province') && !province)) return new Response('Ward directory not found', { status: 404 });
+let data: Awaited<ReturnType<typeof browseWards>> = { wards: [], total: 0 };
+let failed = false;
+try { data = await browseWards(env.RESULTS_DB, year, province?.id, page); }
+catch (error) { failed = true; console.error('Ward directory unavailable', error); }
+if (page > 1 && !failed && !data.wards.length) return new Response('Directory page not found', { status: 404 });
+Astro.response.status = failed ? 503 : 200;
+Astro.response.headers.set('Cache-Control', failed ? 'no-store' : 'public, max-age=300, s-maxage=300');
+if (failed) Astro.response.headers.set('Retry-After', '60');
+const canonical = wardDirectoryUrl(year, province?.slug, page);
+---
+<Site title={`${province?.name ?? 'South Africa'} wards · ${year}${page > 1 ? ` · Page ${page}` : ''}`} description={`Browse all available ${year} ward results and follow links to their voting districts.`} canonicalPath={canonical} noindex={failed}>
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a><span>/</span>{province && <><a href={provinceUrl(province, year)}>{province.name}</a><span>/</span></>}<span aria-current="page">All wards</span></nav>
+  <div class="page-top"><div><p class="eyebrow">{year} local elections</p><h1>{province ? `Wards in ${province.name}` : 'Browse all wards'}</h1><p class="lead">{data.total.toLocaleString('en-ZA')} wards with published results. Each ward links to its voting districts.</p></div></div>
+  <nav aria-label="Browse wards by province"><div class="links"><a href={wardDirectoryUrl(year)}>All provinces</a>{provinces.map(p => <a href={wardDirectoryUrl(year, p.slug)} aria-current={p.id === province?.id ? 'page' : undefined}>{p.name}</a>)}</div></nav>
+  {failed ? <p class="notice">The ward directory is temporarily unavailable. <a href={canonical}>Try again</a>.</p> : <><ul class="ward-directory">{data.wards.map(w => <li><a href={wardUrl(w.area_id, year)}><strong>Ward {wardNumber(w.area_id)}</strong><span>{w.municipalityName ? municipalityName(w.municipalityName) : w.municipality_id} · {w.area_id}</span></a></li>)}</ul>{!data.total && <p class="notice">Ward results are not available for this selection yet.</p>}<DirectoryPagination page={page} total={data.total} pageSize={directoryPageSize} href={n => wardDirectoryUrl(year, province?.slug, n)}/></>}
+  <div class="links"><a href="/places">Browse towns and municipalities →</a></div>
+</Site>
+<style>.ward-directory{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 24px;margin-top:28px}.ward-directory li{border-bottom:1px solid var(--line);min-width:0}.ward-directory a{display:block;padding:16px 0;text-decoration:none;overflow-wrap:anywhere}.ward-directory strong{display:block;font-weight:500}.ward-directory span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:6px}@media(max-width:800px){.ward-directory{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:540px){.ward-directory{grid-template-columns:1fr}}</style>

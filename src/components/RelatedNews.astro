@@ -1,0 +1,13 @@
+---
+import { newsContext, NEWS_PERIOD_LABEL, type NewsScope } from '../lib/news/context.ts';
+import '../styles/news.css';
+interface Props { scope: NewsScope; area?: string }
+const context = newsContext(Astro.props.scope, Astro.props.area);
+---
+{context && <related-news id="related-news" class="related-news card" data-endpoint={context.endpoint} aria-labelledby="news-heading">
+  <div class="news-heading"><div><p class="eyebrow">In the news</p><h2 id="news-heading">{context.heading}</h2><p class="news-caption">{NEWS_PERIOD_LABEL} · From Google News</p></div><a class="news-search" href={context.searchUrl} target="_blank" rel="noopener noreferrer">More on Google News ↗</a></div>
+  <p class="news-status" data-news-status role="status">Loading headlines…</p>
+  <ol class="news-list" data-news-list></ol>
+  <button class="button" data-news-more type="button" hidden>Show more headlines</button>
+  <noscript><p>Read the latest headlines using the Google News link above.</p></noscript>
+</related-news>}

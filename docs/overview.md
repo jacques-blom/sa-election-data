@@ -89,12 +89,18 @@ large figures, party bars, the Counted logo, ballot scope, reporting coverage,
 provisional status and the IEC result time in SAST. A short post caption is
 separate from the image's accessible text description.
 
-“Share to WhatsApp” is the primary action; “Share” is secondary. File-capable
-browsers open the device share menu with the PNG and caption. Otherwise the
-WhatsApp action saves the PNG and opens a text composer, explicitly asking the
-user to attach the saved image. Save image, copy caption and copy link remain
-available. Shared URLs preserve only the ballot selection, not address searches
-or other private query parameters.
+“Share” opens the device share menu with the PNG and caption when file sharing
+is supported. Other browsers share text and save the PNG, or just save the PNG
+when native sharing is unavailable. Pages without an image share a link, falling
+back to copying it. Save image, copy caption and copy link remain available.
+Individual update cards share their saved announcement with its provisional
+status, report time and any superseded warning; simulation cards cannot be
+shared as public announcements. The AI setup guide also has a Share button.
+Shared URLs preserve allowlisted public selections (ballot, coalition parties,
+map view and update filters), never search text or address details.
+
+Share actions send Google Analytics events on the production hostname. See
+[Sharing analytics](analytics.md) for event definitions and verification.
 
 An open preview captures its figures and keeps them through live updates and
 format changes. Reopening sharing picks up new results. Links open the latest
@@ -167,14 +173,17 @@ an active result exists for the same IEC area ID. National history is at `/{year
 province, municipality, ward and voting-district URLs retain the selected year.
 The current national page remains `/`. Links work without JavaScript; the native
 range input updates results on input, without a document reload, while preserving
-focus and scroll position. A drag creates one browser-history entry. Ballot selection
+focus and scroll position. Scrubbing changes the displayed election without changing
+the loaded URL, canonical metadata or browser history. Sharing links use the displayed
+election's canonical URL. Ballot selection
 and municipality filters are retained. Nearby years preload with two concurrent reads;
 in-flight requests are shared and the latest selection wins. A per-tab LRU cache
 holds up to 12 pages / 8 MB for 30 minutes (15 seconds for the live count). Failed
 requests keep the displayed results and can be retried.
-Historical pages hide reporting progress and do not poll the live count or report
-old snapshots as delayed. Place/address search stays visible but disabled, preserving
-typed text until the reader returns to 2026. Keyed result containers and stable map
+Direct historical pages hide reporting progress, search and current council outcomes.
+When scrubbing from 2026, those panels stay visible but disabled, preserving their
+space and typed search text until the reader returns to 2026. Historical views do not
+poll the live count or report old snapshots as delayed. Keyed result containers and stable map
 content slots keep the native slider mounted even while dragging through 2026.
 
 Party changes are **percentage points**, calculated against the immediately
@@ -195,8 +204,11 @@ province map labels and the interactive map use the same comparison function.
 
 These are comparisons of published area results, not boundary-adjusted swings.
 Municipality and ward boundaries may differ even with the same IEC ID. Historical
-pages omit current ward/district geometry; the national overview's province outlines
-are labelled as current. Town/suburb relationships are currently mapped only for
+pages omit current ward/district geometry. During scrubbing, an already displayed
+detailed map stays mounted, labelled as 2026 boundaries with historical boundaries
+unavailable. Its party colours and result navigation are disabled until returning to
+2026; the geometry remains as context, without claiming a historical boundary match.
+The national overview's province outlines are labelled as current. Town/suburb relationships are currently mapped only for
 2026, so their sliders do not offer unverified historical town extents. Individual
 ward links can still show earlier published results.
 

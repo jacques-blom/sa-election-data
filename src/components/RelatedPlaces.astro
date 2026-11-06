@@ -1,0 +1,20 @@
+---
+import { env } from 'cloudflare:workers';
+import { browsePlaces, placeDirectoryUrl, type PlaceScope } from '../lib/places/browse.ts';
+import PlaceLinks from './PlaceLinks.astro';
+interface Props { scope: PlaceScope; directory: { municipality?: string; ward?: string }; name: string; ward?: boolean }
+const { scope, directory, name, ward = false } = Astro.props;
+let data: Awaited<ReturnType<typeof browsePlaces>> = { places: [], total: 0 };
+let failed = false;
+try { data = await browsePlaces(env.GEOGRAPHY_DB ?? env.RESULTS_DB, scope, 1, 12); }
+catch (error) { failed = true; console.error('Related places unavailable', error); }
+---
+<section class="related-places" id="places" aria-labelledby="related-places-heading">
+  <div class="section-heading"><h2 id="related-places-heading">{ward ? 'Places overlapping this ward' : `Towns and places in ${name}`}</h2></div>
+  <p class="small">{ward ? 'These statistical place boundaries overlap this ward. Each place may also cover other wards.' : 'Explore named places covered by this municipality. Some places also cross into neighbouring municipalities.'}</p>
+  <PlaceLinks places={data.places}/>
+  {failed && <p class="small">The place list is temporarily unavailable.</p>}
+  {!failed && data.total === 0 && <p class="small">No named places are mapped to this area yet.</p>}
+  <div class="links"><a href={placeDirectoryUrl(directory)}>{data.total > 12 ? `Browse all ${data.total} places` : 'Browse place directory'} →</a></div>
+</section>
+<style>.related-places{margin-top:40px}.related-places>p{max-width:720px;line-height:1.65}</style>

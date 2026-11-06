@@ -1,5 +1,7 @@
 import morphdom from 'morphdom';
 import { pollWhileVisible } from './poll.ts';
+import { resultsUrl } from '../history/view.ts';
+import { updateRegionMap } from '../maps/history.ts';
 
 /** Patch server-rendered results while retaining the reader's local UI state. */
 export function updateResults(current: HTMLElement, next: HTMLElement, yearChange = false) {
@@ -8,19 +10,30 @@ export function updateResults(current: HTMLElement, next: HTMLElement, yearChang
   morphdom(current, next, {
     childrenOnly: true,
     skipFromChildren: element => element.matches('form, election-history, [data-place-search], [data-address-lookup]')
-      || (!yearChange && element.hasAttribute('data-region-map')),
+      || element.hasAttribute('data-region-map'),
     onBeforeElUpdated(from, to) {
+      // Headlines load independently; retain them across election-result polls.
+      if (from.matches('related-news') && from.getAttribute('data-endpoint') === to.getAttribute('data-endpoint')) return false;
+      if (from.hasAttribute('data-history-current-only')) {
+        // Keep the layout chosen on entry, including when a live poll follows a
+        // scrub from a historical page. Current-only panels stay in their slots.
+        if (from.hidden) return false;
+        const disabled = to.hasAttribute('hidden');
+        from.inert = disabled;
+        if (disabled) {
+          from.setAttribute('aria-disabled', 'true');
+          return false;
+        }
+        from.removeAttribute('aria-disabled');
+      }
       // Search/autocomplete owns its form, input values, and event listeners.
       if (from.matches('form, election-history, [data-place-search], [data-address-lookup]')) {
         if (yearChange && from instanceof HTMLFormElement && to instanceof HTMLFormElement) from.action = to.action;
         return false;
       }
       if (from instanceof HTMLDetailsElement && to instanceof HTMLDetailsElement) to.open = from.open;
-      if (!yearChange && from.hasAttribute('data-region-map')) {
-        if (from.getAttribute('data-options') !== to.getAttribute('data-options')) {
-          from.setAttribute('data-options', to.getAttribute('data-options')!);
-          from.dispatchEvent(new Event('results:map-update'));
-        }
+      if (from.hasAttribute('data-region-map')) {
+        updateRegionMap(from, to);
         return false;
       }
       return !from.isEqualNode(to);
@@ -48,7 +61,7 @@ function startLiveResults() {
     let confirmPublication = false;
     let lastPageRefresh = 0;
     stopPolling = pollWhileVisible(async signal => {
-      const url = new URL(location.href);
+      const url = resultsUrl();
       url.hash = '';
       // Poll the small publication/health indicator, not the full results page.
       const healthResponse = await fetch('/api/v1/sync', { signal, cache: 'no-cache' });
@@ -68,7 +81,8 @@ function startLiveResults() {
       const next = page.querySelector<HTMLElement>('#main[data-live-results]');
       if (!next) throw new Error('Missing results');
       // A filter/ballot navigation may have changed while the request was pending.
-      if (signal.aborted || url.pathname !== location.pathname || url.search !== location.search) return;
+      const displayed = resultsUrl();
+      if (signal.aborted || url.pathname !== displayed.pathname || url.search !== displayed.search) return;
       updateResults(main, next);
       // The publication indicator and HTML have independent 15-second edge caches.
       // Confirm once on the next poll so a cached page cannot hide the last update.

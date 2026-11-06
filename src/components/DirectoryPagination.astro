@@ -1,0 +1,13 @@
+---
+interface Props { page: number; total: number; pageSize: number; href: (page: number) => string }
+const { page, total, pageSize, href } = Astro.props;
+const pages = Math.ceil(total / pageSize);
+---
+{pages > 1 && <nav class="directory-pagination" aria-label="Directory pages">
+  <p>Page {page} of {pages}</p>
+  <div class="links">{page > 1 && <a href={href(page - 1)} rel="prev">← Previous</a>}{page < pages && <a href={href(page + 1)} rel="next">Next →</a>}</div>
+  <details><summary>Choose a page</summary><div class="directory-page-links">{Array.from({ length: pages }, (_, i) => i + 1).map(n => <a href={href(n)} aria-label={`Page ${n}`} aria-current={n === page ? 'page' : undefined}>{n}</a>)}</div></details>
+</nav>}
+<style>
+  .directory-pagination{margin-top:24px;font-size:14px}.directory-pagination p{color:var(--muted)}.directory-pagination details{margin-top:18px}.directory-page-links{display:flex;flex-wrap:wrap;gap:6px;padding-top:12px}.directory-page-links a{display:grid;place-items:center;min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:8px;text-decoration:none}.directory-page-links [aria-current]{background:var(--paper);font-weight:700;border-color:currentColor}
+</style>

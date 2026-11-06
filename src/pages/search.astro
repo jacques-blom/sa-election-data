@@ -15,6 +15,7 @@ if(q&&data.total===1&&data.places[0])return Astro.redirect(placeUrl(data.places[
 <Site title="Find local results" description="Search South African election results by municipality, ward, town or address." noindex={!!q || page > 1 || failed} mobileSearchHeader>
 <nav class="breadcrumbs address-breadcrumbs" aria-label="Breadcrumb"><a href="/">South Africa</a><span>/</span><span>Search</span></nav>
 <div class="page-top page-share-heading address-page-top"><div><h1>Find local results</h1></div><PageShare/></div>
+<p class="small"><a href="/places">Browse all provinces, municipalities and towns →</a></p>
 <Search query={q}>
 <section id="area-directory" aria-labelledby="directory-heading">
 <div class="section-heading"><h2 id="directory-heading">{q?`${data.total} results for “${q}”`:'Explore the metros'}</h2></div>

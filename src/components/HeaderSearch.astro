@@ -1,8 +1,11 @@
 ---
 import PlaceSearch from './PlaceSearch.astro';
 import AddressResult from './AddressResult.astro';
+import { latestYear } from '../lib/history/comparison.ts';
+const routeYear = Astro.url.pathname.match(/^\/(\d{4})(?:\/|$)/)?.[1];
+const historical = !!routeYear && Number(routeYear) !== latestYear;
 ---
-<div class="header-search" data-address-lookup>
+<div class="header-search" data-history-current-only hidden={historical} data-address-lookup>
   <PlaceSearch id="header-search" mode="all" presentation="dialog">
     <div slot="result" class="header-search-result"><AddressResult/></div>
   </PlaceSearch>

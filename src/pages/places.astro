@@ -1,0 +1,47 @@
+---
+import { env } from 'cloudflare:workers';
+import Site from '../layouts/Site.astro';
+import PlaceLinks from '../components/PlaceLinks.astro';
+import DirectoryPagination from '../components/DirectoryPagination.astro';
+import { browsePlaces, directoryPage, directoryPageSize, placeDirectoryUrl, wardDirectoryUrl } from '../lib/places/browse.ts';
+import { findPlace, placeUrl, wardNumber, wardUrl } from '../lib/places/catalogue.ts';
+import { provinces, provinceUrl } from '../lib/overview/results.ts';
+import { findMapWard } from '../lib/maps/ward-catalogue.ts';
+import { ELECTIONS } from '../lib/data/catalogue.ts';
+import { nationalUrl } from '../lib/history/comparison.ts';
+
+const params = Astro.url.searchParams;
+const page = directoryPage(params.get('page'));
+const province = provinces.find(p => p.slug === params.get('province'));
+const municipality = findPlace(params.get('municipality') ?? '');
+const municipalityId = municipality?.relationships.find(r => r.election === 2026 && r.level === 'municipality' && r.relation === 'equals')?.areaId;
+const ward = findMapWard(params.get('ward') ?? '');
+const selected = ['province', 'municipality', 'ward'].filter(key => params.has(key));
+if (!page || selected.length > 1 || (params.has('province') && !province) || (params.has('municipality') && !municipalityId) || (params.has('ward') && !ward)) return new Response('Directory not found', { status: 404 });
+const scope = { province: province?.name, municipalityId, wardId: ward?.id };
+const directory = { province: province?.slug, municipality: municipality?.slug, ward: ward?.id };
+const scoped = selected.length > 0;
+const name = province?.name ?? municipality?.name ?? (ward ? `Ward ${wardNumber(ward.id)}, ${ward.municipality}` : 'South Africa');
+let data: Awaited<ReturnType<typeof browsePlaces>> = { places: [], total: 0 };
+let failed = false;
+if (scoped) try { data = await browsePlaces(env.GEOGRAPHY_DB ?? env.RESULTS_DB, scope, page); }
+catch (error) { failed = true; console.error('Place directory unavailable', error); }
+if (page > 1 && !failed && (!scoped || !data.places.length)) return new Response('Directory page not found', { status: 404 });
+Astro.response.status = failed ? 503 : 200;
+Astro.response.headers.set('Cache-Control', failed ? 'no-store' : 'public, max-age=300, s-maxage=300');
+if (failed) Astro.response.headers.set('Retry-After', '60');
+const canonical = placeDirectoryUrl(directory, page);
+---
+<Site title={scoped ? `Places in ${name}${page > 1 ? ` · Page ${page}` : ''}` : 'Browse all places'} description="Browse South African municipalities, towns and main places by province, then explore their wards and voting districts." canonicalPath={canonical} noindex={failed}>
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">South Africa</a><span>/</span>{scoped ? <><a href="/places">All places</a><span>/</span><span aria-current="page">{name}</span></> : <span aria-current="page">All places</span>}</nav>
+  <div class="page-top"><div><p class="eyebrow">2026 local elections</p><h1>{scoped ? `Places in ${name}` : 'Browse all places'}</h1><p class="lead">Find municipalities, towns and main places, then follow their links to ward and voting district results.</p></div></div>
+  <nav aria-label="Browse places by province"><h2>{scoped ? 'Explore by province' : 'Choose a province'}</h2><div class="links">{provinces.map(p => <a href={placeDirectoryUrl({ province: p.slug })} aria-current={province?.id === p.id ? 'page' : undefined}>{p.name} →</a>)}</div></nav>
+  {scoped && <section class="directory-results" aria-labelledby="places-heading">
+    <div class="section-heading"><h2 id="places-heading">{data.total.toLocaleString('en-ZA')} places</h2></div>
+    <div class="links">{province && <><a href={provinceUrl(province)}>Province results →</a><a href={wardDirectoryUrl(2026, province.slug)}>Browse all wards →</a></>}{municipality && <a href={placeUrl(municipality)}>Municipality results →</a>}{ward && <a href={wardUrl(ward.id)}>Ward results →</a>}</div>
+    {(municipality || ward) && <p class="coverage-note">Places are matched using statistical boundaries. They can overlap several wards and municipalities; their pages show whole-ward results.</p>}
+    {failed ? <p class="notice">The place directory is temporarily unavailable. <a href={canonical}>Try again</a>.</p> : <><PlaceLinks places={data.places}/>{data.total === 0 && <p class="notice">No named places are mapped to this area yet.</p>}<DirectoryPagination page={page} total={data.total} pageSize={directoryPageSize} href={n => placeDirectoryUrl(directory, n)}/></>}
+  </section>}
+  <section class="directory-results"><h2>Explore election results</h2><p class="small">Browse every election’s provinces and wards, including areas that have since changed.</p><div class="election-links">{[...ELECTIONS].reverse().map(e => <div><strong>{e.year}</strong><a href={nationalUrl(e.year)}>National and province results →</a><a href={wardDirectoryUrl(e.year)}>All wards →</a></div>)}</div></section>
+</Site>
+<style>.directory-results{margin-top:40px}.election-links{display:grid;gap:16px}.election-links>div{display:flex;gap:16px;flex-wrap:wrap;font-size:14px}</style>

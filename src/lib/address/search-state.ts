@@ -15,9 +15,15 @@ export function syncSearchState(next: Document) {
       if (disabled) { trigger.setAttribute('aria-disabled', 'true'); trigger.tabIndex = -1; trigger.title = `Search is available for the ${latestYear} election`; }
       else { trigger.removeAttribute('aria-disabled'); trigger.removeAttribute('tabindex'); trigger.removeAttribute('title'); }
     }
-    root.querySelector<HTMLElement>('[data-search-enabled-hint]')!.hidden = disabled;
-    root.querySelector<HTMLElement>('[data-search-disabled-hint]')!.hidden = !disabled;
-    root.querySelector<HTMLElement>('.place-search-hint')!.hidden = !disabled && root.dataset.configured === 'true';
+    if (root.closest('[data-history-current-only]')) {
+      // The home search keeps its original height while the year is scrubbed.
+      if (disabled) root.title = `Search is available for the ${latestYear} election`;
+      else root.removeAttribute('title');
+    } else {
+      root.querySelector<HTMLElement>('[data-search-enabled-hint]')!.hidden = disabled;
+      root.querySelector<HTMLElement>('[data-search-disabled-hint]')!.hidden = !disabled;
+      root.querySelector<HTMLElement>('.place-search-hint')!.hidden = !disabled && root.dataset.configured === 'true';
+    }
     if (changed && disabled) root.dispatchEvent(new Event('place-search:disabled'));
   }
 }

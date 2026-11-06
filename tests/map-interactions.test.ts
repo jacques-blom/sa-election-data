@@ -123,9 +123,10 @@ const { mountRegionMap } = await import('../src/lib/maps/fixed-client.ts');
 after(() => hooks.deregister());
 afterEach(() => { for (const map of MapStub.instances) map.remove(); MapStub.instances.length = 0; navigations.length = 0; });
 
-function preview(options: FixedMapOptions, properties: Record<string, unknown>) {
+function preview(options: FixedMapOptions, properties: Record<string, unknown>, historical = false) {
   const figure = new ElementStub();
   figure.dataset.options = JSON.stringify(options);
+  figure.dataset.mapHistorical = String(historical);
   figure.queries.set('.region-map-canvas', new ElementStub());
   figure.queries.set('.region-map-status', new ElementStub());
   mountRegionMap(figure as unknown as HTMLElement);
@@ -186,6 +187,36 @@ test('live leader updates repaint the existing province map without remounting i
   figure.dispatchEvent(new Event('results:map-update'));
   assert.equal(MapStub.instances.length, 1);
   assert.deepEqual((map.getLayer('regions-fill')!.paint as { 'fill-color': unknown })['fill-color'], ['match', ['get', 'id'], '9006', '#222222', '#dce1d5']);
+});
+
+test('historical scrubbing clears party colours and current-year tooltips, then restores the same map', () => {
+  const options: FixedMapOptions = { level: 'province', id: '9', bbox, colors: [{ id: '9006', color: '#111111' }] };
+  const { map, figure, popup } = preview(options, capeTown);
+  pointer(map, 'touch'); map.fire('click');
+  assert.equal(popup.isOpen(), true);
+  figure.dataset.mapHistorical = 'true';
+  figure.dispatchEvent(new Event('results:map-update'));
+  assert.equal((map.getLayer('regions-fill')!.paint as { 'fill-color': unknown })['fill-color'], '#7894ad');
+  assert.equal(popup.isOpen(), false);
+  pointer(map, 'mouse'); map.fire('mousemove'); map.fire('click');
+  pointer(map, 'touch'); map.fire('click');
+  assert.equal(popup.isOpen(), false);
+  assert.deepEqual(navigations, [], 'current-boundary features must not imply historical result links');
+  figure.dataset.mapHistorical = 'false';
+  figure.dataset.options = JSON.stringify({ ...options, colors: [{ id: '9006', color: '#333333' }] });
+  figure.dispatchEvent(new Event('results:map-update'));
+  assert.equal(MapStub.instances.length, 1);
+  assert.deepEqual((map.getLayer('regions-fill')!.paint as { 'fill-color': unknown })['fill-color'], ['match', ['get', 'id'], '9006', '#333333', '#dce1d5']);
+  pointer(map, 'mouse'); map.fire('click');
+  assert.deepEqual(navigations, ['/2026/places/cape-town']);
+});
+
+test('maps first mounted after a historical scrub start with neutral geometry and no result navigation', () => {
+  const { map, popup } = preview({ level: 'province', id: '9', bbox, colors: [{ id: '9006', color: '#111111' }] }, capeTown, true);
+  assert.equal((map.getLayer('regions-fill')!.paint as { 'fill-color': unknown })['fill-color'], '#7894ad');
+  pointer(map, 'mouse'); map.fire('mousemove'); map.fire('click');
+  assert.equal(popup.isOpen(), false);
+  assert.deepEqual(navigations, []);
 });
 
 test('static national, municipal and ward previews retain hover names and touch result links', () => {

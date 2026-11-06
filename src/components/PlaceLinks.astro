@@ -1,0 +1,10 @@
+---
+import type { DirectoryPlace } from '../lib/places/browse.ts';
+interface Props { places: DirectoryPlace[] }
+const { places } = Astro.props;
+---
+<ul class="place-links">{places.map(place => <li><a href={`/2026/places/${place.slug}`}><strong>{place.name} <span aria-hidden="true">↗</span></strong><span>{place.kind === 'metro' ? 'Metropolitan municipality' : place.kind === 'municipality' ? 'Local municipality' : place.kind === 'suburb' ? 'Suburb' : 'Town / main place'}{place.municipalityName && place.municipalityName !== place.name && <> · {place.municipalityName}</>}</span></a></li>)}</ul>
+<style>
+  .place-links{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 24px}.place-links li{min-width:0;border-bottom:1px solid var(--line)}.place-links a{display:block;padding:16px 0;text-decoration:none;overflow-wrap:anywhere}.place-links strong{display:block;font-size:16px;font-weight:500}.place-links a>span{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:6px}.place-links strong span{color:var(--muted)}
+  @media(max-width:800px){.place-links{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:540px){.place-links{grid-template-columns:1fr}}
+</style>

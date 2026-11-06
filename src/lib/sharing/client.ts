@@ -1,18 +1,26 @@
 import { canShareImage, downloadImage, shareImage, sharePage } from './actions.ts';
 import { drawShareImage } from './image.ts';
 import { publicShareUrl, shareCaption, type ShareCard, type ShareFormat } from './model.ts';
+import { trackShare, type ShareContext } from './analytics.ts';
+import { resultsUrl } from '../history/view.ts';
 
-let current: { card: ShareCard | null; url: string; title: string; text: string } | null = null;
+type Selection = { card: ShareCard | null; url: string; title: string; text: string; kind: ShareContext['kind']; source: ShareContext['source'] };
+let current: Selection | null = null;
 let readyFile: File | null = null;
 let renderVersion = 0;
 let opener: HTMLElement | null = null;
 const dialog = () => document.querySelector<HTMLDialogElement>('[data-share-dialog]')!;
 const feedback = (message: string) => { dialog().querySelector<HTMLElement>('[data-share-feedback]')!.textContent = message; };
 const caption = () => dialog().querySelector<HTMLTextAreaElement>('[data-share-caption]')!;
+const selectedFormat = () => dialog().querySelector<HTMLInputElement>('[name="share-format"]:checked')!.value as ShareFormat;
+const analyticsContext = (selection: Selection): ShareContext => ({
+  url: selection.url, kind: selection.kind, source: selection.source, format: selection.card ? selectedFormat() : 'link',
+});
 async function render() {
   if (!current?.card) return;
   const version = ++renderVersion;
   const { card } = current;
+  const context = analyticsContext(current);
   const sheet = dialog(), canvas = sheet.querySelector<HTMLCanvasElement>('canvas')!;
   const loading = sheet.querySelector<HTMLElement>('[data-share-loading]')!;
   const help = sheet.querySelector<HTMLElement>('[data-share-help]')!;
@@ -22,7 +30,7 @@ async function render() {
   help.hidden = true;
   feedback('');
   try {
-    const format = sheet.querySelector<HTMLInputElement>('[name="share-format"]:checked')!.value as ShareFormat;
+    const format = selectedFormat();
     // Each render owns its canvas, so a late font/image load cannot overwrite a newer preview.
     const rendered = document.createElement('canvas');
     await drawShareImage(rendered, card, format);
@@ -40,6 +48,7 @@ async function render() {
   } catch {
     if (version !== renderVersion) return;
     loading.textContent = 'The image couldn’t be created. Try another format or copy the caption below.';
+    trackShare('share_error', context, 'render');
   }
 }
 
@@ -57,59 +66,77 @@ function showShare() {
   opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   caption().value = current.card ? shareCaption(current.card, current.url) : `${current.text}\n\n${current.url}`;
   if (!sheet.open) sheet.showModal();
+  trackShare('share_open', analyticsContext(current));
   if (hasImage) void render();
 }
 
-export function openShare(card: ShareCard, url: string) {
-  current = { card: structuredClone(card), url, title: `${card.area} · Counted`, text: card.caption };
+export function openShare(card: ShareCard, url: string, source: ShareContext['source'] = 'chart') {
+  current = { card: structuredClone(card), url, title: `${card.area} · Counted`, text: card.caption, kind: card.kind, source };
   showShare();
 }
 
 document.addEventListener('click', async event => {
   const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('button') : null;
-  if (!button) return;
+  if (!button || button.disabled) return;
   if (button.hasAttribute('data-share-page')) {
     // Read the current result trigger on each click, including after live updates.
     const result = button.dataset.sharePage === 'result' ? document.querySelector<HTMLButtonElement>('main [data-share-result]') : null;
     if (result) {
-      openShare(JSON.parse(result.dataset.shareResult!) as ShareCard, publicShareUrl(location.href, result.dataset.shareBallot as 'pr' | 'ward' | undefined));
+      openShare(JSON.parse(result.dataset.shareResult!) as ShareCard, publicShareUrl(resultsUrl().href, result.dataset.shareBallot as 'pr' | 'ward' | undefined), 'page');
     } else {
-      const text = document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content || document.title;
-      current = { card: null, url: publicShareUrl(location.href), title: document.title, text };
+      const text = button.dataset.shareText || document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content || document.title;
+      const kind = button.dataset.shareType === 'update' ? 'update' : 'page';
+      current = { card: null, url: publicShareUrl(new URL(button.dataset.shareUrl || resultsUrl().href, location.href).href),
+        title: button.dataset.shareTitle || document.title, text, kind, source: kind };
       showShare();
     }
     return;
   }
   if (button.hasAttribute('data-share-result')) {
-    openShare(JSON.parse(button.dataset.shareResult!) as ShareCard, publicShareUrl(location.href, button.dataset.shareBallot as 'pr' | 'ward' | undefined));
+    openShare(JSON.parse(button.dataset.shareResult!) as ShareCard, publicShareUrl(resultsUrl().href, button.dataset.shareBallot as 'pr' | 'ward' | undefined));
     return;
   }
   if (!button.closest('[data-share-dialog]')) return;
+  if (button.hasAttribute('data-share-close')) { dialog().close(); return; }
+  if (!current) return;
+  // Native sharing/clipboard may finish after the dialog closes or another card opens.
+  const selection = current, context = analyticsContext(selection);
+  const report = (message: string) => { if (current === selection) feedback(message); };
+  const action = button.hasAttribute('data-share-save') ? 'download' : 'share';
   try {
-    if (button.hasAttribute('data-share-close')) { dialog().close(); return; }
-    if (!current) return;
     if (button.hasAttribute('data-share-copy') || button.hasAttribute('data-share-copy-link')) {
+      const link = button.hasAttribute('data-share-copy-link');
       try {
-        await navigator.clipboard.writeText(button.hasAttribute('data-share-copy-link') ? current.url : caption().value);
-        feedback(button.hasAttribute('data-share-copy-link') ? 'Link copied.' : 'Caption copied.');
-      } catch { caption().focus(); caption().select(); feedback('Select and copy the caption and link above.'); }
+        await navigator.clipboard.writeText(link ? selection.url : caption().value);
+        trackShare(link ? 'share_copy_link' : 'share_copy_caption', context, 'clipboard');
+        report(link ? 'Link copied.' : 'Caption copied.');
+      } catch {
+        trackShare('share_error', context, link ? 'copy_link' : 'copy_caption');
+        if (current === selection) { caption().focus(); caption().select(); report('Select and copy the caption and link above.'); }
+      }
     } else if (readyFile && button.hasAttribute('data-share-save')) {
-      downloadImage(readyFile); feedback('Image saved.');
+      downloadImage(readyFile, context); report('Image saved.');
     } else if (button.hasAttribute('data-share-native')) {
+      trackShare('share_attempt', context, 'share');
       if (readyFile) {
-        const outcome = await shareImage(readyFile, caption().value, current.title);
-        if (outcome === 'saved') feedback('Image saved. Use “Copy caption” to add the text to your post.');
-      } else if (!current.card) {
-        const outcome = await sharePage(current.title, current.text, current.url);
-        if (outcome === 'copied') feedback('Link copied. Paste it into your message or post.');
+        const outcome = await shareImage(readyFile, caption().value, selection.title, context);
+        if (outcome === 'saved') report('Image saved. Use “Copy caption” to add the text to your post.');
+      } else if (!selection.card) {
+        const outcome = await sharePage(selection.title, selection.text, selection.url, context);
+        if (outcome === 'copied') report('Link copied. Paste it into your message or post.');
       }
     }
   } catch (error) {
-    if (!(error instanceof Error && error.name === 'AbortError')) feedback(current?.card ? 'Sharing is unavailable. Save the image and copy the caption instead.' : 'Sharing is unavailable. Use “Copy link” or copy the caption below.');
+    const cancelled = error instanceof Error && error.name === 'AbortError';
+    trackShare(cancelled ? 'share_cancel' : 'share_error', context, action);
+    if (!cancelled) report(selection.card ? 'Sharing is unavailable. Save the image and copy the caption instead.' : 'Sharing is unavailable. Use “Copy link” or copy the caption below.');
   }
 });
 document.addEventListener('change', event => {
-  if (event.target instanceof Element && event.target.matches('[name="share-format"]')) void render();
+  if (current?.card && event.target instanceof Element && event.target.matches('[name="share-format"]')) {
+    trackShare('share_format_change', analyticsContext(current));
+    void render();
+  }
 });
 dialog()?.addEventListener('close', () => {
   renderVersion++; current = null; readyFile = null;

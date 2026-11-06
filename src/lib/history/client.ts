@@ -13,7 +13,6 @@ const cache = new HistoryCache(async url => {
 });
 let renderedUrl = key(location.href);
 let request = 0;
-type Gesture = { pushed: boolean };
 
 function setStatus(message = '', failed = false) {
   const control = document.querySelector<ElectionHistory>('election-history');
@@ -23,11 +22,14 @@ function setStatus(message = '', failed = false) {
   status.hidden = !message; status.textContent = message;
 }
 
-async function selectYear(url: string, gesture: Gesture, pop = false) {
+async function selectYear(url: string) {
   const target = key(url), version = ++request;
   const control = document.querySelector<ElectionHistory>('election-history');
   if (!control) return;
-  if (target === renderedUrl) { control.showYear(target); setStatus(); document.dispatchEvent(new Event('results:year-changed')); return; }
+  // Reflect the reader's selection immediately, without moving the native thumb
+  // back to a previously rendered year while its results are still loading.
+  control.showYear(target);
+  if (target === renderedUrl) { setStatus(); document.dispatchEvent(new Event('results:year-changed')); return; }
   document.dispatchEvent(new Event('results:year-loading'));
   setStatus(`Loading ${control.yearFor(target)}…`);
   try {
@@ -45,22 +47,11 @@ async function selectYear(url: string, gesture: Gesture, pop = false) {
     const focused = document.activeElement === control.querySelector('input');
     document.dispatchEvent(new Event('results:before-year-change'));
     current.toggleAttribute('data-live-results', next.hasAttribute('data-live-results'));
+    current.dataset.resultsUrl = target;
     updateResults(current, next, true);
     syncSearchState(page);
-    if (pop) {
-      const filter = current.querySelector<HTMLInputElement>('#municipality-query');
-      if (filter) filter.value = new URL(target).searchParams.get('q') ?? '';
-    }
-    document.title = page.title;
-    for (const selector of ['link[rel="canonical"]', 'meta[name="description"]', 'meta[name="robots"]', 'meta[property^="og:"]', 'meta[name^="twitter:"]']) {
-      document.head.querySelectorAll(selector).forEach(node => node.remove());
-      page.head.querySelectorAll(selector).forEach(node => document.head.appendChild(document.importNode(node, true)));
-    }
-    if (!pop) {
-      const method = gesture.pushed ? 'replaceState' : 'pushState';
-      history[method]({ ...history.state, electionHistory: true }, '', target);
-      gesture.pushed = true;
-    }
+    // Scrubbing is a local view change. Canonical links still open standalone
+    // election pages, but the loaded route, metadata and history stay intact.
     renderedUrl = target;
     control.showYear(target);
     setStatus();
@@ -70,7 +61,6 @@ async function selectYear(url: string, gesture: Gesture, pop = false) {
     document.dispatchEvent(new Event('results:updated'));
   } catch {
     if (version !== request) return;
-    if (pop) history.replaceState(history.state, '', renderedUrl);
     const failedYear = control.yearFor(target);
     control.showYear(renderedUrl);
     setStatus(`Couldn’t load ${failedYear}. Showing ${control.yearFor(renderedUrl)}. Select the year to retry.`, true);
@@ -80,11 +70,9 @@ async function selectYear(url: string, gesture: Gesture, pop = false) {
 
 class ElectionHistory extends HTMLElement {
   private initialized = false;
-  private gesture?: Gesture;
   private warming = false;
   private syncLinks() {
     const current = new URL(location.href);
-    renderedUrl = key(current.href);
     for (const link of this.links()) {
       const url = new URL(link.href);
       for (const name of ['ballot', 'q']) {
@@ -112,21 +100,17 @@ class ElectionHistory extends HTMLElement {
     if (this.initialized) return;
     this.initialized = true;
     const input = this.querySelector<HTMLInputElement>('input')!;
-    input.addEventListener('pointerdown', () => { this.gesture = { pushed: false }; });
-    input.addEventListener('pointerup', () => { this.gesture = undefined; });
-    input.addEventListener('keydown', () => { this.gesture ??= { pushed: false }; });
-    input.addEventListener('keyup', () => { this.gesture = undefined; });
     input.addEventListener('input', () => {
       this.syncLinks();
       const link = this.links()[Number(input.value)];
       if (!link) return;
       input.setAttribute('aria-valuetext', link.dataset.year!);
-      void selectYear(link.href, this.gesture ?? { pushed: false });
+      void selectYear(link.href);
     });
     this.addEventListener('click', event => {
       const link = (event.target as Element).closest<HTMLAnchorElement>('a[data-year]');
       if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      event.preventDefault(); this.syncLinks(); void selectYear(link.href, { pushed: false });
+      event.preventDefault(); this.syncLinks(); void selectYear(link.href);
     });
     const warm = () => {
       if (this.warming || (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData) return;
@@ -147,4 +131,3 @@ class ElectionHistory extends HTMLElement {
   }
 }
 if (!customElements.get('election-history')) customElements.define('election-history', ElectionHistory);
-window.addEventListener('popstate', () => { void selectYear(location.href, { pushed: true }, true); });

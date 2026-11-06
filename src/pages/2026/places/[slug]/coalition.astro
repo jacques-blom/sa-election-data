@@ -1,5 +1,6 @@
 ---
 import PageShare from '../../../../components/PageShare.astro';
+import RelatedNews from '../../../../components/RelatedNews.astro';
 import { env } from 'cloudflare:workers';
 import Site from '../../../../layouts/Site.astro';
 import SeatDiagram from '../../../../components/SeatDiagram.astro';
@@ -57,6 +58,6 @@ const resultUrl = place ? placeUrl(place) : '/search';
       <noscript><p class="notice">Enable JavaScript to select parties. <a href={resultUrl}>View council seats</a>.</p></noscript>
     </> : <section class="empty coalition-waiting"><p class="eyebrow">{failed ? 'Data unavailable' : validCouncil ? 'Council allocation pending' : 'Council not found'}</p><h2>{failed ? 'We couldn’t load this council’s seats.' : validCouncil ? 'This council isn’t ready to play yet.' : 'Choose a whole municipality to play.'}</h2><p>{failed ? 'Please try again. You can also choose another council.' : seats?.status === 'unavailable' ? seats.reason : 'The builder needs a complete reported or estimated seat breakdown.'}</p>{validCouncil && !failed && <p>This page will update when usable seats become available.</p>}<div class="links">{failed && <a class="button" href={Astro.url.pathname}>Try again</a>}<a class="button primary" href={builderPath}>Choose another council →</a>{validCouncil && <a class="button" href={resultUrl}>View latest results</a>}</div></section>}
   </section>
-
+  {validCouncil && place && <RelatedNews scope="coalition" area={place.slug}/>}
 </Site>
 <script>import '../../../../lib/seats/client.ts';</script>

@@ -75,7 +75,7 @@ document.addEventListener('click', event => {
   } else if (target.hasAttribute('data-coalition-reset')) { selected.clear(); update(true); }
   else if (target.hasAttribute('data-coalition-share')) {
     const data = model();
-    if (data) openShare(coalitionShareCard(data, selected), publicShareUrl(shareUrl(data)));
+    if (data) openShare(coalitionShareCard(data, selected), publicShareUrl(shareUrl(data)), 'coalition');
   }
 });
 document.addEventListener('results:updated', () => update());
