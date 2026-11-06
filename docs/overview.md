@@ -45,7 +45,13 @@ in parallel. These changes preserve those integrations.
   with explicit denominators. They are not voter counts or turnout.
 - National/province combined vote shares use the IEC's reported valid-ballot
   denominator. Province lists are incomplete: show their missing remainder,
-  never renormalize the listed parties to 100%. Cards show party shares under a shared ballot-scope label, without winner claims. Invalid or unreconciled totals suppress shares.
+  never renormalize the listed parties to 100%. Cards show party shares under a shared ballot-scope label, without winner claims. Invalid or materially conflicting totals suppress shares.
+  A source mismatch can retain shares only when it is at most one ballot in 10,000
+  and every party's share rounds identically to one decimal place using either total.
+  The IEC denominator and original counts remain unchanged, the chart discloses the
+  difference, and raw API reconciliation continues to report it. This exception rejects
+  duplicate entries and individual shares above 100%; unlisted remainders stay nonnegative.
+  Historical summary comparisons use the same denominator checks.
 - Separate municipal PR and ward shares use complete published rows for that
   ballot. Missing values, zero totals, ties and aggregate Other rows cannot
   become an individual leader. A margin requires two individual entries.

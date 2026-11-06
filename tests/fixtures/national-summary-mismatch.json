@@ -1,0 +1,119 @@
+{
+  "ElectoralEventID": 1887,
+  "ReportDate": "2026-11-06T18:36:58.3059342+02:00",
+  "PartyBallotResults": [
+    {
+      "ID": 7,
+      "Name": "AFRICAN NATIONAL CONGRESS",
+      "TotalValidVotes": 8059959,
+      "WardVotes": 4015819,
+      "PRVotes": 4044140,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 52,
+      "Name": "DEMOCRATIC ALLIANCE",
+      "TotalValidVotes": 6190323,
+      "WardVotes": 3090753,
+      "PRVotes": 3099570,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 1748,
+      "Name": "UMKHONTO WESIZWE PARTY",
+      "TotalValidVotes": 2433235,
+      "WardVotes": 1210954,
+      "PRVotes": 1222281,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 3,
+      "Name": "INKATHA FREEDOM PARTY",
+      "TotalValidVotes": 1280165,
+      "WardVotes": 639818,
+      "PRVotes": 640347,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 957,
+      "Name": "PATRIOTIC ALLIANCE",
+      "TotalValidVotes": 505319,
+      "WardVotes": 255895,
+      "PRVotes": 249424,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 1863,
+      "Name": "SERVICE DELIVERY PARTY",
+      "TotalValidVotes": 125922,
+      "WardVotes": 64003,
+      "PRVotes": 61919,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 1960,
+      "Name": "RISE TSANTSABANE COMMUNITIES",
+      "TotalValidVotes": 13570,
+      "WardVotes": 6764,
+      "PRVotes": 6806,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": -2,
+      "Name": "OTHER",
+      "TotalValidVotes": 2287835,
+      "WardVotes": 1153277,
+      "PRVotes": 1134558,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 945,
+      "Name": "ECONOMIC FREEDOM FIGHTERS",
+      "TotalValidVotes": 1592629,
+      "WardVotes": 793167,
+      "PRVotes": 799462,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 445,
+      "Name": "SOUTH AFRICAN COMMUNIST PARTY",
+      "TotalValidVotes": 625286,
+      "WardVotes": 323320,
+      "PRVotes": 301966,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 4,
+      "Name": "VRYHEIDSFRONT PLUS | FREEDOM FRONT PLUS",
+      "TotalValidVotes": 772943,
+      "WardVotes": 383348,
+      "PRVotes": 389595,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 1511,
+      "Name": "ACTIONSA",
+      "TotalValidVotes": 1307754,
+      "WardVotes": 614310,
+      "PRVotes": 693444,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 1318,
+      "Name": "AFRICAN TRANSFORMATION MOVEMENT",
+      "TotalValidVotes": 255504,
+      "WardVotes": 120086,
+      "PRVotes": 135418,
+      "ValidVotesCast": 25572706
+    },
+    {
+      "ID": 0,
+      "Name": "IND",
+      "TotalValidVotes": 122353,
+      "WardVotes": 122353,
+      "PRVotes": 0,
+      "ValidVotesCast": 0
+    }
+  ],
+  "ProvinceResults": []
+}

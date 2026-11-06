@@ -1,6 +1,7 @@
 import { attachPrevious } from '../history/results.ts';
 import { displayBallot, latestYear } from '../history/comparison.ts';
 import type { AreaRecord, Level } from '../data/normalize.ts';
+import { summaryVoteTotals } from '../data/summary-votes.ts';
 import { resultFromRow, partyStyle, type Result, type ResultRow } from '../places/results.ts';
 import { places, placeUrl } from '../places/catalogue.ts';
 import { hydrateResults, joinedResults } from '../data/packed-results.ts';
@@ -132,15 +133,8 @@ export function municipalBallot(result: Result) {
 /** Province lists are truncated. Their denominator is the IEC's reported valid total,
  * never the sum of the few displayed parties. Combined ballots are not voters. */
 export function summaryBallot(result: Result) {
-  const reported = result.results.reported_totals.valid_ballot_papers;
+  const { total, rowTotal, partial, discrepancy } = summaryVoteTotals(result.results);
   const rows = result.results.parties;
-  const validRows = rows.length > 0 && rows.every(p => p.votes.source_total !== null
-    && Number.isSafeInteger(p.votes.source_total) && p.votes.source_total >= 0);
-  const rowTotal = validRows ? rows.reduce((sum,p) => sum + p.votes.source_total!, 0) : null;
-  const validTotal = reported !== null && Number.isSafeInteger(reported) && reported >= 0;
-  const partial = result.results.party_list_scope === 'leading_parties_only';
-  const consistent = validTotal && rowTotal !== null && (partial ? rowTotal <= reported : rowTotal === reported);
-  const total = consistent ? reported : null;
   const parties = rows.map(p => ({ ...p, votesForBallot: p.votes.source_total,
     share: total !== null && total > 0 ? p.votes.source_total! / total * 100 : null }))
     .sort((a,b) => (b.votesForBallot ?? -1) - (a.votesForBallot ?? -1));
@@ -148,7 +142,8 @@ export function summaryBallot(result: Result) {
   const tied = total !== null && total > 0 && !!parties[1] && highest!.votesForBallot === parties[1].votesForBallot;
   // A truncated list can identify the highest *shown* share, not an election winner.
   const topShown = total !== null && total > 0 && !tied && highest?.entry_type !== 'aggregate' ? highest ?? null : null;
-  return { total, parties, partial, tied, topShown, unlisted: consistent && partial ? reported - rowTotal! : null };
+  return { total, parties, partial, tied, topShown, discrepancy,
+    unlisted: total !== null && partial ? Math.max(0, total - rowTotal!) : null };
 }
 
 export function summaryShareText(result: Result, name: string) {

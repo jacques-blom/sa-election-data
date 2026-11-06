@@ -1,4 +1,5 @@
 import { ELECTIONS } from '../data/catalogue.ts';
+import { summaryVoteTotals } from '../data/summary-votes.ts';
 import type { Result } from '../places/results.ts';
 
 export const latestYear = ELECTIONS[ELECTIONS.length - 1]!.year;
@@ -19,10 +20,10 @@ function shares(result: Result, basis: VoteBasis) {
   if (!rows.length || rows.some(p => p.votes[basis] === null || !Number.isSafeInteger(p.votes[basis]) || p.votes[basis]! < 0)) return null;
   const sum = rows.reduce((n, p) => n + p.votes[basis]!, 0);
   const summary = result.level === 'national' || result.level === 'province';
-  const total = summary ? result.results.reported_totals.valid_ballot_papers : sum;
+  const total = summary ? summaryVoteTotals(result.results, basis).total : sum;
   const partial = result.results.party_list_scope === 'leading_parties_only';
   if ((!summary && partial) || total === null || !Number.isSafeInteger(total) || total <= 0
-    || (partial ? sum > total : sum !== total)) return null;
+    || (!summary && !Number.isSafeInteger(sum))) return null;
   return { total, rows, partial };
 }
 

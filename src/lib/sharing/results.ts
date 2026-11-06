@@ -23,7 +23,9 @@ export function resultShareCard(result: Result, name: string, ballot?: Ballot | 
     ballot: ballotName, total: data.total,
     parties: data.parties.map(p => ({ name: p.party_name, short: partyStyle(p.party_name)[0]!, color: partyStyle(p.party_name)[1]!, value: p.votesForBallot, share: p.share })),
     progress, reportedAt: result.source.reportedAt,
-    note: [result.year === latestYear ? 'Provisional results.' : 'Historical results.', partial ? 'Selected parties only.' : '', resultDelay(result) ? 'Updates delayed.' : ''].filter(Boolean).join(' '),
+    note: [result.year === latestYear ? 'Provisional results.' : 'Historical results.', partial ? 'Selected parties only.' : '',
+      'discrepancy' in data && data.discrepancy !== null ? `Source totals differ by ${formatNumber(Math.abs(data.discrepancy))} votes.` : '',
+      resultDelay(result) ? 'Updates delayed.' : ''].filter(Boolean).join(' '),
     caption: summary ? summaryShareText(result, name)
       : `${name}: ${headline} ${leader?.share !== null && leader?.share !== undefined ? `${leader.share.toFixed(1)}%. ` : ''}${ballotName}. ${result.year === latestYear ? 'Provisional' : 'Historical'} results.`,
   };

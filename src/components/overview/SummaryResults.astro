@@ -23,5 +23,6 @@ const visibleParties = compact ? 5 : 7;
   {ballot.unlisted !== null && ballot.unlisted > 0 && <div class="overview-unlisted"><span>Unlisted parties</span><strong>{(ballot.unlisted / ballot.total! * 100).toFixed(1)}%<small>{formatNumber(ballot.unlisted)} votes</small></strong></div>}
   {ballot.total === null && <p class="notice">Published figures don’t support reliable vote shares.</p>}
   {ballot.total === 0 && <p class="notice">No votes have been published yet.</p>}
+  {ballot.discrepancy !== null && <details class="overview-vote-note"><summary>Source totals differ by {formatNumber(Math.abs(ballot.discrepancy))} votes</summary><p>Percentages use the IEC’s reported valid-ballot total. This small difference does not change the shares rounded to one decimal place.</p></details>}
   {(ballot.total !== null || ballot.partial) && <p class="overview-vote-note">{ballot.total !== null && <><strong>{formatNumber(ballot.total)}</strong> valid ballots</>}{ballot.partial && result.level === 'province' && <>{ballot.total !== null && ' · '}Selected parties shown</>}</p>}
 </section>
