@@ -1,5 +1,7 @@
+import { attachPrevious } from '../history/results.ts';
+import { displayBallot, latestYear } from '../history/comparison.ts';
 import type { AreaRecord, Level } from '../data/normalize.ts';
-import { resultFromRow, partyStyle, formatTime, type Result, type ResultRow } from '../places/results.ts';
+import { resultFromRow, partyStyle, type Result, type ResultRow } from '../places/results.ts';
 import { places, placeUrl } from '../places/catalogue.ts';
 import { hydrateResults, joinedResults } from '../data/packed-results.ts';
 
@@ -15,7 +17,7 @@ export const provinces = [
   { id: '9', slug: 'western-cape', name: 'Western Cape', code: 'WC', label: [190, 416] },
 ] as const;
 export type Province = typeof provinces[number];
-export const provinceUrl = (province: Province) => `/2026/provinces/${province.slug}`;
+export const provinceUrl = (province: Province, year: number = latestYear) => `/${year}/provinces/${province.slug}`;
 export const provinceById = (id: string | null) => provinces.find(p => p.id === id);
 export const municipalityName = (name: string) => name.replace(/^[A-Z0-9]+\s+-\s+/, '');
 export const apiResultUrl = (level: Level, id: string) => `/api/v1/elections/2026/areas/${level}/${encodeURIComponent(id)}`;
@@ -37,24 +39,24 @@ function municipalityLink(row: OverviewRow): MunicipalityLink {
   if (!province) throw new Error('Municipality has no recognised province');
   const place = places.find(p => p.relationships.some(r => r.election === 2026 && r.level === 'municipality' && r.relation === 'equals' && r.areaId === row.area_id));
   return { id: row.area_id, name: municipalityName(row.name), code: row.name.split(' - ')[0]!,
-    provinceId: province.id, href: `${provinceUrl(province)}#municipality-${row.area_id}`,
-    ...(place ? { placeHref: placeUrl(place) } : {}) };
+    provinceId: province.id, href: `${provinceUrl(province, row.year)}#municipality-${row.area_id}`,
+    ...(place ? { placeHref: placeUrl(place, row.year) } : {}) };
 }
-const selection = `SELECT r.level,r.area_id,r.province_id,r.municipality_id,r.name,r.reported_at,
+const selection = `SELECT r.year,r.level,r.area_id,r.province_id,r.municipality_id,r.name,r.reported_at,
   d.active_snapshot_id AS snapshot_id,r.source_id,b.object_key AS bundle_key,
   d.url,d.last_checked_at,d.last_success_at,d.last_error,`;
 const active = `${joinedResults}
-  WHERE r.year=2026`;
-function asResult(row: OverviewRow) {
+  WHERE r.year=?`;
+function asResult(row: OverviewRow): Result {
   if (row.payload === null) throw new Error('Missing result payload');
   return resultFromRow({ ...row, payload: row.payload });
 }
 
 /** Read summary and metro snapshot pointers together; other directory rows carry no vote payloads. */
-export async function getNationalOverview(db: D1Database, bucket?: R2Bucket) {
+export async function getNationalOverview(db: D1Database, bucket?: R2Bucket, year: number = latestYear) {
   const { results } = await db.prepare(`${selection} CASE WHEN b.object_key IS NOT NULL
     OR (r.level='municipality' AND r.area_id NOT IN (${metroIds.map(() => '?').join(',')})) THEN NULL ELSE r.payload END AS payload
-    ${active} AND r.level IN ('national','province','municipality')`).bind(...metroIds).all<OverviewRow>();
+    ${active} AND r.level IN ('national','province','municipality')`).bind(...metroIds, year).all<OverviewRow>();
   await hydrateResults(db, bucket, results.filter(r => r.level !== 'municipality'));
   const national = results.find(r => r.level === 'national');
   if (!national) throw new Error('National result is not available');
@@ -70,21 +72,25 @@ export async function getNationalOverview(db: D1Database, bucket?: R2Bucket) {
       return { place, result };
     })));
   }
-  return { national: asResult(national), provinces: provinces.map(province => {
+  const data = { national: asResult(national), provinces: provinces.map(province => {
     const row = results.find(r => r.level === 'province' && r.area_id === province.id);
     return { province, result: row ? asResult(row) : null };
   }), metros, municipalities: results.filter(r => r.level === 'municipality').map(municipalityLink).sort((a,b) => a.name.localeCompare(b.name, 'en-ZA')) };
+  await attachPrevious(db, [data.national, ...data.provinces.flatMap(p => p.result ? [p.result] : []), ...data.metros.flatMap(m => m.result ? [m.result] : [])], bucket);
+  return data;
 }
 
 /** Reading the province and its municipalities in one statement prevents pointer changes mid-render. */
-export async function getProvinceOverview(db: D1Database, province: Province, bucket?: R2Bucket) {
+export async function getProvinceOverview(db: D1Database, province: Province, bucket?: R2Bucket, year: number = latestYear) {
   const { results } = await db.prepare(`${selection} CASE WHEN b.object_key IS NULL THEN r.payload ELSE NULL END AS payload ${active}
-    AND r.province_id=? AND r.level IN ('province','municipality')`).bind(province.id).all<OverviewRow>();
+    AND r.province_id=? AND r.level IN ('province','municipality')`).bind(year, province.id).all<OverviewRow>();
   await hydrateResults(db, bucket, results);
   const summary = results.find(r => r.level === 'province' && r.area_id === province.id);
   if (!summary) throw new Error('Province result is not available');
-  return { province, summary: asResult(summary), municipalities: results.filter(r => r.level === 'municipality')
+  const data = { province, summary: asResult(summary), municipalities: results.filter(r => r.level === 'municipality')
     .map(row => ({ ...municipalityLink(row), result: asResult(row) })).sort((a,b) => a.name.localeCompare(b.name, 'en-ZA')) };
+  await attachPrevious(db, [data.summary, ...data.municipalities.map(m => m.result)], bucket);
+  return data;
 }
 
 export function progressOf(result: Result, key: keyof AreaRecord['payload']['progress'] = 'voting_districts') {
@@ -96,6 +102,7 @@ export function progressOf(result: Result, key: keyof AreaRecord['payload']['pro
 export const progressLabel = (p: ReturnType<typeof progressOf>) => p === null ? 'Unavailable'
   : (p.completed === p.expected ? 100 : Math.min(99.9, Math.round(p.percent * 10) / 10)).toFixed(1) + '%';
 export function resultDelay(result: Result, now = Date.now()) {
+  if (result.year !== latestYear) return null;
   if (result.source.error) return 'The latest refresh failed. These are the last available figures.';
   const age = now - Date.parse(result.source.successfulAt ?? '');
   const threshold = ['national', 'province'].includes(result.level) ? 180_000 : 900_000;
@@ -104,15 +111,16 @@ export function resultDelay(result: Result, now = Date.now()) {
 
 /** Only complete municipality PR rows can supply a denominator or an individual leading party. */
 export function municipalBallot(result: Result) {
-  const rows = [...result.results.parties].sort((a,b) => (b.votes.pr ?? -1) - (a.votes.pr ?? -1));
+  const basis = displayBallot(result, 'pr');
+  const rows = [...result.results.parties].sort((a,b) => (b.votes[basis] ?? -1) - (a.votes[basis] ?? -1));
   const complete = result.results.party_list_scope === 'all_rows_in_source' && rows.length > 0
-    && rows.every(p => p.votes.pr !== null && Number.isSafeInteger(p.votes.pr) && p.votes.pr >= 0);
-  const total = complete ? rows.reduce((sum, p) => sum + p.votes.pr!, 0) : null;
+    && rows.every(p => p.votes[basis] !== null && Number.isSafeInteger(p.votes[basis]) && p.votes[basis] >= 0);
+  const total = complete ? rows.reduce((sum, p) => sum + p.votes[basis]!, 0) : null;
   const positive = total !== null && total > 0;
   const top = rows[0];
-  const tied = positive && !!top && rows.filter(p => p.votes.pr === top.votes.pr).length > 1;
+  const tied = positive && !!top && rows.filter(p => p.votes[basis] === top.votes[basis]).length > 1;
   const leader = positive && !tied && top?.entry_type !== 'aggregate' ? top : null;
-  return { total, tied, leader, parties: rows.map(p => ({ ...p, share: positive ? p.votes.pr! / total * 100 : null })) };
+  return { total, tied, leader, parties: rows.map(p => ({ ...p, share: positive ? p.votes[basis]! / total * 100 : null })) };
 }
 
 /** Province lists are truncated. Their denominator is the IEC's reported valid total,
@@ -138,12 +146,13 @@ export function summaryBallot(result: Result) {
 }
 
 export function summaryShareText(result: Result, name: string) {
-  const ballot = summaryBallot(result), p = progressOf(result);
-  return `${name} · Local elections 2026\nProvisional results · combined ward + municipal PR votes\n`
-    + ballot.parties.slice(0,5).map(p => `${p.party_name}: ${p.share === null ? 'share unavailable' : p.share.toFixed(1)+'%'} (${p.votesForBallot === null ? 'votes unavailable' : p.votesForBallot.toLocaleString('en-ZA')+' votes'})`).join('\n')
-    + (ballot.partial && result.level === 'province' ? '\nThe province summary lists selected parties only.' : '')
-    + `\n${p ? `${p.completed} of ${p.expected} voting districts reporting (${progressLabel(p)}).` : 'Reporting progress unavailable.'}`
-    + `\nA vote lead is not a council outcome or an official declaration.\nIEC timestamp: ${formatTime(result.source.reportedAt)}\nSource: ${result.source.url}\nSnapshot: ${result.source.snapshotId}`;
+  const ballot = summaryBallot(result);
+  const top = ballot.topShown;
+  const update = ballot.total === 0 ? 'Awaiting the first votes.'
+    : ballot.total === null ? 'The latest published votes.'
+    : ballot.tied ? 'Level at the top.'
+    : top ? `${partyStyle(top.party_name)[0]} ${top.share!.toFixed(1)}%.` : 'The count so far.';
+  return `${name}: ${update} Provisional results · combined ward + municipal PR votes.${ballot.partial ? ' Selected parties only.' : ''}`;
 }
 
 const normal = (s: string) => s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en-ZA').replace(/[^a-z0-9]+/g, ' ').trim();

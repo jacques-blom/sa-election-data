@@ -1,24 +1,27 @@
 ---
+import PartyMovement from '../PartyMovement.astro';
+import { partyMovement, latestYear } from '../../lib/history/comparison.ts';
 import PartyLogo from '../PartyLogo.astro';
 import ReportingProgress from '../ReportingProgress.astro';
 import { metroPlaces, municipalBallot, overviewPartyStyle, progressOf, resultDelay, type getNationalOverview } from '../../lib/overview/results.ts';
 import { placeUrl } from '../../lib/places/catalogue.ts';
-interface Props { entries?: Awaited<ReturnType<typeof getNationalOverview>>['metros'] }
+interface Props { entries?: Awaited<ReturnType<typeof getNationalOverview>>['metros']; year?: number }
+const year = Astro.props.year ?? latestYear;
 const entries = Astro.props.entries ?? metroPlaces.map(place => ({ place, result: null }));
 ---
 <section class="home-metros" aria-labelledby="metro-heading">
   <div class="home-panel-heading"><h2 id="metro-heading">Metros</h2></div>
-  <p class="home-panel-caption">Leading party · municipal PR vote</p>
+  <p class="home-panel-caption">Leading party · {year === latestYear ? 'municipal PR vote' : 'combined ballots'}</p>
   <ul class="home-metro-list">{entries.map(({place, result}) => {
     const ballot = result ? municipalBallot(result) : null;
     const leader = ballot?.leader;
     const share = leader ? ballot?.parties.find(p => p.source_entry_id === leader.source_entry_id)?.share : null;
     const progress = result ? progressOf(result) : null;
     const delay = result ? resultDelay(result) : null;
-    return <li><a href={placeUrl(place)} class="home-metro-link">
+    return <li><a href={placeUrl(place,year)} class="home-metro-link">
       <span class="home-metro-name">{place.name}<span aria-hidden="true">↗</span></span>
-      <span class="home-metro-result">{leader ? <><span class="party-identity party-identity--compact"><PartyLogo party={leader} size="small"/><abbr title={leader.party_name}>{overviewPartyStyle(leader.party_name)[0]}</abbr></span><strong>{share?.toFixed(1)}%</strong></> : <span>{ballot?.tied ? 'Tied lead' : ballot?.total === 0 ? 'Awaiting votes' : 'Result unavailable'}</span>}</span>
-      <span class="home-metro-progress">{progress ? <><ReportingProgress progress={progress}/> reporting</> : 'Reporting unavailable'}{delay && <span class="home-metro-delayed"> · Delayed</span>}</span>
+      <span class="home-metro-result">{leader ? <><span class="party-identity party-identity--compact"><PartyLogo party={leader} size="small"/><abbr title={leader.party_name}>{overviewPartyStyle(leader.party_name)[0]}</abbr></span><strong>{share?.toFixed(1)}%<PartyMovement movement={result ? partyMovement(result,leader,year === latestYear ? 'pr' : 'source_total') : null}/></strong></> : <span>{ballot?.tied ? 'Tied lead' : ballot?.total === 0 ? 'Awaiting votes' : 'Result unavailable'}</span>}</span>
+      {year === latestYear && <span class="home-metro-progress">{progress ? <><ReportingProgress progress={progress}/> reporting</> : 'Reporting unavailable'}{delay && <span class="home-metro-delayed"> · Delayed</span>}</span>}
     </a></li>;
-  })}</ul>
+  })}</ul><p class="comparison-note">Change since the previous election, in percentage points. Changes compare combined ballot shares. Boundaries may differ.</p>
 </section>

@@ -1,28 +1,33 @@
 ---
 import { municipalBallot, progressOf, resultDelay, overviewPartyStyle as partyStyle, provinceById, type getProvinceOverview } from '../../lib/overview/results.ts';
 import { formatNumber } from '../../lib/places/results.ts';
+import PartyMovement from '../PartyMovement.astro';
+import ComparisonNote from '../ComparisonNote.astro';
+import { partyMovement, displayBallot, latestYear } from '../../lib/history/comparison.ts';
 import PartyLogo from '../PartyLogo.astro';
 import ReportingProgress from '../ReportingProgress.astro';
 interface Props { municipality: Awaited<ReturnType<typeof getProvinceOverview>>['municipalities'][number] }
 const { municipality: m } = Astro.props;
+const basis = displayBallot(m.result, 'pr');
 const ballot = municipalBallot(m.result);
 const progress = progressOf(m.result);
 const delay = resultDelay(m.result);
 const leader = ballot.leader;
-const leaderShare = leader && ballot.total ? ((leader.votes.pr ?? 0) / ballot.total * 100).toFixed(1) : null;
+const leaderShare = leader && ballot.total ? ((leader.votes[basis] ?? 0) / ballot.total * 100).toFixed(1) : null;
 const name = (party: typeof ballot.parties[number]) => party.entry_type === 'aggregate' ? 'Other' : partyStyle(party.party_name)[0];
 const top = ballot.parties.slice(0,2);
 ---
 <article class="overview-municipality" id={`municipality-${m.id}`} data-municipality-card data-search-name={`${m.name} ${m.code} ${provinceById(m.provinceId)?.name ?? ''}`}>
-  <div class="overview-municipality-title"><div><p class="eyebrow">{m.code} · Municipal PR ballot</p><h3>{m.name}</h3></div></div>
+  <div class="overview-municipality-title"><div><p class="eyebrow">{m.code} · {basis === 'source_total' ? 'Combined ballots' : 'Municipal PR ballot'}</p><h3><a class="overview-municipality-link" href={m.placeHref ?? m.href} aria-label={`View ${m.name} results`}>{m.name}<span aria-hidden="true">↗</span></a></h3></div></div>
   <div class="overview-leader"><div><strong class="party-identity">{leader && <PartyLogo party={leader}/>}<span class="party-identity-text">{leader ? partyStyle(leader.party_name)[0] : ballot.tied ? 'Tie' : 'Not available'}</span></strong></div><p>{leaderShare !== null ? <>{leaderShare}<small>%</small></> : '—'}</p></div>
-  <div class="overview-mini-bars" aria-label="Highest published PR vote totals">{top.map(p => <div><span class="party-identity party-identity--compact" title={p.party_name}><PartyLogo party={p} size="small"/><span class="party-identity-text">{name(p)}</span></span><i aria-hidden="true"><b style={`width:${p.share ?? 0}%;background:${partyStyle(p.party_name)[1]}`}></b></i><span>{p.share === null ? '—' : p.share.toFixed(1)+'%'}</span></div>)}</div>
-  <p class="overview-reporting">{progress ? <><ReportingProgress progress={progress}/> of districts reporting <small>{formatNumber(progress.completed)} / {formatNumber(progress.expected)}</small></> : 'District reporting progress unavailable'}</p>
+  <div class="overview-mini-bars" aria-label="Highest published PR vote totals">{top.map(p => <div><span class="party-identity party-identity--compact" title={p.party_name}><PartyLogo party={p} size="small"/><span class="party-identity-text">{name(p)}</span></span><i aria-hidden="true"><b style={`width:${p.share ?? 0}%;background:${partyStyle(p.party_name)[1]}`}></b></i><span>{p.share === null ? '—' : p.share.toFixed(1)+'%'}<PartyMovement movement={partyMovement(m.result,p,basis)}/></span></div>)}</div>
+  <ComparisonNote result={m.result} basis={basis} compact/>
+  {m.result.year === latestYear && <p class="overview-reporting">{progress ? <><ReportingProgress progress={progress}/> of districts reporting <small>{formatNumber(progress.completed)} / {formatNumber(progress.expected)}</small></> : 'District reporting progress unavailable'}</p>}
   {delay && <p class="overview-card-delay">Updates delayed · showing last available figures</p>}
   <details class="overview-result-detail"><summary>All results <span aria-hidden="true">+</span></summary><div>
     {ballot.total === null && <p class="overview-warning">Some PR vote figures are missing. A total and vote shares cannot be calculated.</p>}
-    <table><caption>Municipal PR votes in {m.name}</caption><thead><tr><th scope="col">Party / candidate</th><th scope="col">Share</th><th scope="col">Votes</th></tr></thead><tbody>{ballot.parties.map(p => <tr><th scope="row"><div class="party-identity"><PartyLogo party={p} size="small"/><div class="party-identity-text">{p.party_name}{p.candidate_name && <small>{p.candidate_name}</small>}</div></div></th><td>{p.share === null ? '—' : `${p.share.toFixed(2)}%`}</td><td>{p.votes.pr === null ? '—' : formatNumber(p.votes.pr)}</td></tr>)}</tbody></table>
-    <p class="overview-detail-note">{ballot.total === null ? 'Total unavailable.' : `${formatNumber(ballot.total)} PR votes`}</p>
+    <table><caption>{basis === 'source_total' ? 'Combined ballot' : 'Municipal PR'} votes in {m.name}</caption><thead><tr><th scope="col">Party / candidate</th><th scope="col">Share</th><th scope="col">Votes</th></tr></thead><tbody>{ballot.parties.map(p => <tr><th scope="row"><div class="party-identity"><PartyLogo party={p} size="small"/><div class="party-identity-text">{p.party_name}{p.candidate_name && <small>{p.candidate_name}</small>}</div></div></th><td>{p.share === null ? '—' : `${p.share.toFixed(2)}%`}<PartyMovement movement={partyMovement(m.result,p,basis)}/></td><td>{p.votes[basis] === null ? '—' : formatNumber(p.votes[basis])}</td></tr>)}</tbody></table>
+    <p class="overview-detail-note">{ballot.total === null ? 'Total unavailable.' : `${formatNumber(ballot.total)} ${basis === 'source_total' ? 'combined ballot' : 'PR'} votes`}</p>
     {m.result.quality.vote_total_reconciliation.status === 'differs_from_reported_total' && <p class="overview-warning">The source’s combined ballot total differs from the sum of its party rows. PR shares above use the published PR rows.</p>}
     <div class="links">{m.placeHref && <a href={m.placeHref}>Explore wards ↗</a>}</div>
   </div></details>

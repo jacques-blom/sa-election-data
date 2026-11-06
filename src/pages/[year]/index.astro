@@ -1,0 +1,15 @@
+---
+import NationalResults from '../../components/overview/NationalResults.astro';
+import { env } from 'cloudflare:workers';
+import { getNationalOverview } from '../../lib/overview/results.ts';
+import { latestYear, electionYear } from '../../lib/history/comparison.ts';
+const year = electionYear(Astro.params.year);
+if (!year) return new Response('Election not found', {status:404});
+if (year === latestYear) return Astro.redirect('/', 302);
+let data: Awaited<ReturnType<typeof getNationalOverview>> | null = null;
+try { data = await getNationalOverview(env.RESULTS_DB, env.RAW_RESULTS, year); } catch(error) { console.error('National overview unavailable',error); }
+Astro.response.status = data ? 200 : 503;
+Astro.response.headers.set('Cache-Control', data ? 'public, max-age=15, s-maxage=15' : 'no-store');
+if (!data) Astro.response.headers.set('Retry-After','60');
+---
+<NationalResults year={year} data={data}/>

@@ -128,9 +128,11 @@ test('an independent aggregate is never treated as a selectable coalition bloc',
   data.parties.push({ id: '0', name: 'INDEPENDENTS', short: 'Independent', color: '#888888', seats: 5, selectable: false });
   assert.equal(coalitionSelection(data, ['0']).total, 0);
 });
-test('shares retain estimated/hypothetical labels, council size, source, time and live-link behaviour', () => {
+test('coalition captions stay short and preserve hypothetical and estimated context', () => {
   const text = coalitionShareText(mockupCouncil(), ['1', '4'], 'https://example.org/coalition?parties=1,4');
-  for (const expression of [/HYPOTHETICAL/, /Estimated council seats/, /60 of 120/, /61 needed/, /1 more seat/, /Unfinished wards/, /snapshot-1/, /21:00.*SAST/, /latest available seats/]) assert.match(text, expression);
+  for (const expression of [/Hypothetical/, /estimated seats/, /60 of 120/, /1 more needed/, /https:\/\/example.org/]) assert.match(text, expression);
+  assert(text.length < 280);
+  assert.doesNotMatch(text, /Snapshot:|Source:|IEC result time:/);
 });
 test('seat diagrams contain exactly one finite point per seat', () => {
   for (const n of [1, 7, 23, 120, 235, 270, 1000]) {

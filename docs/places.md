@@ -37,7 +37,8 @@ Build/reconciliation scripts and generated validation report are documented in
 - `/2026/wards/:id`: all 4,485 reconciled wards, with voting-district links.
 - `/2026/voting-districts/:id`: district figures with separate ballots; noindex for now.
 - `/search?q=...`: server-rendered name/alias search with disambiguation and pagination.
-- `/find-address`: Google Places lookup, Google map, then our geographic ward/result link.
+- `/find-address`: shared election-area and Google address search.
+- `/2026/districts/:slug`: district scope and member municipality links; district council ballot results are unavailable in this dataset.
 - `/api/v1/places?q=...&page=1`: compact directory search and bounds.
 - `/api/v1/places/:slug` and `/2026/places/:slug.md`: scope and current result snapshots.
 
@@ -85,19 +86,33 @@ and the browser check are in `.data/search/municipality-*` and
 Every place/address search uses `PlaceSearch.astro` and Google's
 [Autocomplete Data API](https://developers.google.com/maps/documentation/javascript/place-autocomplete-data),
 with South African suggestions, debouncing and a token per search session.
-Google is the sole autocomplete provider. The area directory remains available
-as a browse/no-JavaScript fallback. Google failures show a recoverable message.
+The dropdown also fetches official election areas from `POST /api/search`:
+provinces, 213 local/metro municipalities, 44 district municipalities and 4,485
+wards. These labelled entries precede Google places/addresses. Local and metro
+municipalities take precedence over same-named statistical towns. Queries such
+as `Knysna`, `WC048`, `Knysna ward 5`, `10408005`, `Garden Route` and `DC4` match
+their actual area. Ward numbers are exact; descriptions identify the municipality,
+province and municipal/ward codes. Election suggestions respect the optional
+local scope and remain usable during a Google outage.
 
 After selection, `POST /api/resolve-area` matches an area by name, Google type,
 province and geographic disambiguation. Gauteng opens province results;
-Knysna locality opens the town, while Knysna municipality opens council results;
-Calvinia retains its whole-town extent. Unknown or ambiguous areas never fall
-back to a central ward. Addresses and landmarks alone use `POST /api/locate`.
+Knysna opens the municipality even when Google classifies it as a locality;
+Calvinia retains its whole-town extent. An unlisted Google area, such as Newlands
+in Cape Town, opens Google's full viewport on `/map` with browsable ward boundaries.
+This is labelled as a Google area view, not an electoral boundary or a suburb vote
+total. Its Google place ID preserves the selection across navigation and reloads;
+the name and viewport are fetched from Google again, not stored in our directory.
+Ambiguous matches still offer a choice. Areas without a valid viewport show the
+lookup message. Neither case falls back to a central ward. Addresses and landmarks
+alone use `POST /api/locate`.
 On `/map`, the Google map frames/highlights the resolved area with its results
 link; the other search surfaces navigate to the canonical results page.
 
-Raw search text is sent only to Google. The resolver receives selected area
-metadata in a no-store POST. Live result refreshes preserve the search and any
+Raw search text is sent to Google and the election-area search endpoint in a
+no-store POST, never in a public search URL. Official suggestions already have
+canonical IDs and boundaries and do not need Google details or a point lookup.
+The resolver receives selected Google area metadata in a separate no-store POST. Live result refreshes preserve the search and any
 selected address/map. Municipality ward finders keep their optional local
 search scope and switch to all South Africa.
 
@@ -115,6 +130,14 @@ script are recorded in `.data/search/unified-verification.json` and
 `.data/search/verify-unified.cjs` (ignored). Unit coverage includes Google outages,
 stale responses, unknown and ambiguous areas, municipality/town distinctions,
 province routing, and Google map browsing and selection.
+
+Expanded election autocomplete verification is recorded in
+`.data/search/election-autocomplete-verification.json` and
+`.data/search/verify-election-autocomplete.cjs`. It covers municipality defaults,
+ward names/IDs, municipal codes, district destinations/member lists, map selection
+and URL restoration, live Google address lookup, mobile use and Google outages.
+Unit tests additionally check stale provider responses, Enter while suggestions
+are pending, exact ward numbers and the complete district membership partition.
 
 `pnpm check`, `pnpm test`, `pnpm build`. Tests cover active snapshots, cross-council
 places, missing wards, ballot separation, FTS query syntax, disambiguation,

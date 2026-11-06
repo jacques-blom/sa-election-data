@@ -1,26 +1,31 @@
 ---
+import ComparisonNote from './ComparisonNote.astro';
+import { combinedOnly as isCombinedOnly, displayBallot, partyMovement } from '../lib/history/comparison.ts';
 import PartyRow from './PartyRow.astro';
+import ShareView from './overview/ShareView.astro';
+import { resultShareCard } from '../lib/sharing/results.ts';
 import RaceLead from './RaceLead.astro';
 import ResultStatus from './ResultStatus.astro';
 import { ballotResults, formatNumber, type Result, type Ballot } from '../lib/places/results.ts';
-interface Props { result: Result; ballot: Ballot; tabs?: boolean }
-const { result, ballot, tabs = true } = Astro.props;
-const combinedOnly = result.level === 'voting-district' && result.results.parties.length > 0
-  && result.results.parties.every(p => p.votes.pr === null && p.votes.ward === null);
+interface Props { result: Result; ballot: Ballot; tabs?: boolean; name?: string }
+const { result, ballot, tabs = true, name = result.name.replace(/^[A-Z0-9]+\s+-\s+/, '') } = Astro.props;
+const combinedOnly = isCombinedOnly(result);
+const basis = displayBallot(result, ballot);
 const data = ballotResults(result, combinedOnly ? 'source_total' : ballot);
 const ballotName = combinedOnly ? 'Combined ballot votes' : ballot === 'pr' ? 'Municipal PR votes' : 'Ward ballot votes';
 const initialCount = data.total === 0 ? 0 : 7;
 ---
-<section class="card result-card" aria-label={ballotName}><div class="card-heading"><h2>{ballotName}</h2></div>
-{combinedOnly && <p class="small">Separate PR and ward figures are unavailable for this district.</p>}
+<section class="card result-card" aria-label={ballotName}><div class="card-heading"><h2>{ballotName}</h2><ShareView card={resultShareCard(result, name, combinedOnly ? 'source_total' : ballot)} ballot={combinedOnly ? undefined : ballot}/></div>
+{combinedOnly && <p class="small">Separate PR and ward figures are unavailable for this area.</p>}
 {tabs && !combinedOnly && <nav class="tabs" aria-label="Ballot type"><a href="?ballot=pr" aria-current={ballot === 'pr' ? 'page' : undefined}>Municipal PR</a><a href="?ballot=ward" aria-current={ballot === 'ward' ? 'page' : undefined}>Ward ballot</a></nav>}
 <ResultStatus result={result}/>
-<RaceLead data={data}/>
+<RaceLead data={data} movement={data.leader ? partyMovement(result, data.leader, basis) : null}/>
+<ComparisonNote result={result} basis={basis}/>
 {data.total === null && <p class="notice">Some ballot figures are unavailable. Vote shares cannot be calculated reliably.</p>}
 {data.total === 0 && <p class="notice">No votes have been published for this ballot yet.</p>}
 <div class="chart-key"><span>Party / candidate</span><span>Share · votes</span></div>
-{data.parties.slice(0,initialCount).map(p => <PartyRow party={p}/>)}
-{data.parties.length > initialCount && <details class="more-parties"><summary>Show {data.parties.length - initialCount} {initialCount ? 'more ' : ''}parties and candidates</summary>{data.parties.slice(initialCount).map(p => <PartyRow party={p}/>)}</details>}
+{data.parties.slice(0,initialCount).map(p => <PartyRow party={p} movement={partyMovement(result, p, basis)}/>)}
+{data.parties.length > initialCount && <details class="more-parties"><summary>Show {data.parties.length - initialCount} {initialCount ? 'more ' : ''}parties and candidates</summary>{data.parties.slice(initialCount).map(p => <PartyRow party={p} movement={partyMovement(result, p, basis)}/>)}</details>}
 {data.total !== null && <p class="small"><strong>{formatNumber(data.total)}</strong> {combinedOnly ? 'combined ballot' : ballot === 'pr' ? 'PR' : 'ward'} votes</p>}
 {result.quality.vote_total_reconciliation.status === 'differs_from_reported_total' && <details class="notice"><summary>Source totals need care</summary><p>The IEC’s combined valid-ballot total differs from the sum of its published party rows. The chart preserves the party figures and calculates shares separately for this ballot.</p></details>}
 </section>

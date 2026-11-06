@@ -11,14 +11,14 @@ of South Africa (IEC)'s public results feeds. It is not an official IEC service.
 
 ## What is in this repository?
 
-- A 2026 results explorer with national and provincial summaries, municipality,
+- A results explorer spanning 2000–2026 with national and provincial summaries, municipality,
   ward and voting-district pages, party vote shares and reporting progress.
 - Place and address search, electoral boundary maps, council seat displays and
   a coalition explorer. Geographic matches do not establish voter registration.
 - A provenance-aware REST API covering municipal elections in **2000, 2006,
   2011, 2016, 2021 and 2026**, with source URLs, timestamps and validation status.
-  Historical elections are available through the API; the results website focuses
-  on 2026.
+  Historical elections are available through the API and the website’s election-year
+  slider, with party vote-share changes since the immediately previous election.
 - Local import/backfill tools and a scheduled Worker that keeps the 2026 results
   up to date without making visitors query the IEC directly.
 
@@ -109,7 +109,7 @@ hostnames, then start with `pnpm dev:local --host 0.0.0.0`.
 | `pnpm data:load` | Load the archive into local D1 |
 | `pnpm data:reprocess` | Reinterpret archived source files after a normalizer change |
 | `pnpm data:export` | Write a SQL bootstrap for a new database; does not upload it |
-| `pnpm data:logos` | Import IEC party logos for locally imported 2026 results |
+| `pnpm data:logos` | Import clean IEC party artwork for locally imported 2026 results |
 | `pnpm sync:dev` | Run the sync Worker locally with Wrangler's scheduled-event test endpoint |
 | `pnpm sync:dry-run` | Validate the sync Worker bundle without deploying |
 | `pnpm deploy:dry-run` | Build and validate the frontend Worker bundle without deploying |

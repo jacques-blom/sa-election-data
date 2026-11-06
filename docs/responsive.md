@@ -78,3 +78,22 @@ fallbacks for independents, aggregates, unknown IDs and the three missing IEC
 files. Astro/TypeScript checks, the production build, and the existing overview,
 places, maps and map-interaction test files passed. Evidence is saved locally in
 `.data/party-logos/audit.json` and `.data/party-logos/` screenshots.
+
+## Original party artwork (6 November 2026)
+
+Replaced the dashboard's framed thumbnails with 500 clean originals from the
+IEC website. The 19 parties without an available original use the neutral
+marker. All source and output checksums, image dimensions and IEC-ID mappings
+were verified; the UI preserves the whole design without adding a frame or
+shadow.
+
+The saved production build passed 33 browser checks: national results, two
+provinces, Cape Town, Calvinia and three wards at 320, 390, 768 and 1440px,
+plus the selected-ward map panel at 390px. Expanded lists had no broken logos,
+horizontal overflow, clipped figures, detected overlaps or browser errors.
+Desktop and mobile screenshots were reviewed. Vote columns now allow enough
+space for the accompanying historical-change labels.
+
+Astro/TypeScript checks, the production build and the existing map tests passed.
+Local evidence is in `.data/party-logos/clean-assets.json`,
+`.data/party-logos/clean-audit.json` and the `clean-*.png` screenshots.

@@ -1,0 +1,23 @@
+---
+import '../styles/sharing.css';
+---
+<dialog class="share-dialog" data-share-dialog aria-labelledby="share-title">
+  <header class="share-dialog-heading"><div><p class="eyebrow">Made to share</p><h2 id="share-title">Share the picture.</h2></div><button class="share-close" type="button" data-share-close aria-label="Close sharing">×</button></header>
+  <div class="share-dialog-layout">
+    <div class="share-preview"><canvas data-share-canvas role="img" aria-label="Preparing your share image" hidden></canvas><p data-share-loading>Creating your image…</p></div>
+    <div class="share-controls">
+      <fieldset class="share-formats"><legend>Image format</legend><label><input type="radio" name="share-format" value="portrait" checked/><span>Portrait<small>4:5</small></span></label><label><input type="radio" name="share-format" value="square"/><span>Square<small>1:1</small></span></label><label><input type="radio" name="share-format" value="status"/><span>Story<small>9:16</small></span></label></fieldset>
+      <div class="share-primary-actions">
+        <button class="button share-whatsapp" type="button" data-share-whatsapp disabled><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.3-4.7a8.5 8.5 0 1 1 16.2-4.1Z"/><path d="M8.1 7.6c.3-.3.9-.3 1.1.1l1 1.8c.2.3.1.6-.2.9l-.6.6a7 7 0 0 0 3.6 3.2l.6-.8c.2-.3.6-.4.9-.2l1.7.8c.4.2.5.7.3 1.1-.5.9-1.1 1.3-2.1 1.1-3.8-.7-6.9-3.8-7.3-6.5-.1-.8.3-1.5 1-2.1Z"/></svg>Share to WhatsApp</button>
+        <button class="button" type="button" data-share-native disabled>Share ↗</button>
+      </div>
+      <p class="share-help" data-share-help>Share the image with a short caption.</p>
+      <div class="share-utilities"><button type="button" data-share-save disabled>Save image ↓</button><button type="button" data-share-copy-link>Copy link</button></div>
+      <div class="share-caption-heading"><label for="share-caption">Post caption</label><button type="button" data-share-copy>Copy caption</button></div>
+      <textarea id="share-caption" data-share-caption readonly rows="5"></textarea>
+      <p class="share-context">This image keeps the figures shown when you opened sharing. The link opens the latest results.</p>
+      <p class="share-feedback" data-share-feedback role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</dialog>
+<script>import '../lib/sharing/client.ts';</script>

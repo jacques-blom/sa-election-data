@@ -1,8 +1,10 @@
 ---
 import { formatNumber, partyStyle, type ballotResults } from '../lib/places/results.ts';
+import PartyMovement from './PartyMovement.astro';
+import type { Movement } from '../lib/history/comparison.ts';
 import PartyLogo from './PartyLogo.astro';
-interface Props { data: ReturnType<typeof ballotResults> }
-const { data } = Astro.props;
+interface Props { data: ReturnType<typeof ballotResults>; movement?: Movement | null }
+const { data, movement = null } = Astro.props;
 const leader = data.leader;
 ---
 <div class="race-lead">
@@ -10,7 +12,7 @@ const leader = data.leader;
     <strong class="party-identity">{leader && <PartyLogo party={leader}/>}<span class="party-identity-text">{leader ? leader.candidate_name ?? partyStyle(leader.party_name)[0] : data.tied ? 'Level on votes' : data.total === 0 ? 'Awaiting votes' : 'Lead unavailable'}</span></strong>
     {leader?.candidate_name && <span class="race-party">{partyStyle(leader.party_name)[0]}</span>}
   </div>
-  {leader && <div class="race-share">{leader.share!.toFixed(1)}<small>%</small></div>}
+  {leader && <div class="race-share">{leader.share!.toFixed(1)}<small>%</small><PartyMovement movement={movement}/></div>}
   {data.leadVotes !== null && <p class="race-margin">Ahead by <strong>{formatNumber(data.leadVotes)} votes</strong> of {data.runnerUp?.candidate_name ?? partyStyle(data.runnerUp!.party_name)[0]}.</p>}
 </div>
 <style>

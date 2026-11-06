@@ -1,0 +1,79 @@
+---
+import ElectionHistory from '../ElectionHistory.astro';
+import PartyMovement from '../PartyMovement.astro';
+import { partyMovement, latestYear, nationalUrl } from '../../lib/history/comparison.ts';
+import Site from '../../layouts/Site.astro';
+import PartyLogo from '../PartyLogo.astro';
+import ReportingProgress from '../ReportingProgress.astro';
+import { env } from 'cloudflare:workers';
+import ProvinceResultsMap from '../overview/ProvinceResultsMap.astro';
+import PlaceSearch from '../PlaceSearch.astro';
+import AddressResult from '../AddressResult.astro';
+import MetroResults from '../overview/MetroResults.astro';
+import SummaryResults from '../overview/SummaryResults.astro';
+import { searchDirectory } from '../../lib/places/directory.ts';
+import ProvinceShape from '../overview/ProvinceShape.astro';
+import { getNationalOverview, provinces, provinceUrl, progressOf, progressLabel, summaryBallot, overviewPartyStyle, matchesMunicipality } from '../../lib/overview/results.ts';
+import { placeUrl } from '../../lib/places/catalogue.ts';
+import { formatNumber } from '../../lib/places/results.ts';
+import '../../styles/overview.css';
+import '../../styles/home.css';
+interface Props { year?: number; data: Awaited<ReturnType<typeof getNationalOverview>> | null }
+const year = Astro.props.year ?? latestYear;
+const { data } = Astro.props;
+const query = (Astro.url.searchParams.get('q') ?? '').slice(0,100).trim();
+let directory:Awaited<ReturnType<typeof searchDirectory>>={places:[],total:0};
+if(query && year === latestYear)try{directory=await searchDirectory(env.GEOGRAPHY_DB??env.RESULTS_DB,query,12);}catch{}
+const knownPlaces=directory.places;
+const knownMunicipalities = knownPlaces.flatMap(p => p.relationships.filter(r => r.level === 'municipality' && r.relation === 'equals' && r.election === 2026).map(r => r.areaId));
+const matches = query ? data?.municipalities.filter(m => matchesMunicipality(m,query) && !knownMunicipalities.includes(m.id)) ?? [] : [];
+const provinceMatches = query ? provinces.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.code.toLowerCase() === query.toLowerCase()) : [];
+const searchCount = knownPlaces.length + matches.length + provinceMatches.length;
+const entries = data?.provinces ?? provinces.map(province => ({ province, result:null }));
+const progress = data ? progressOf(data.national) : null;
+
+---
+<Site liveResults={year === latestYear && Astro.response.status !== 404} title={`South African local election results ${year}`} description={`See party vote shares in the ${year} South African local elections. Find municipality and ward results across all nine provinces.`} noindex={!data || !!query} canonicalPath={nationalUrl(year)}>
+  <section class="home-heading" aria-labelledby="home-title">
+    <div><p class="eyebrow">South Africa · Local government</p><h1 id="home-title">{year} election results</h1></div>
+    <div class="home-count" hidden={year !== latestYear}>
+      <p><strong>{progress ? progressLabel(progress) : '—'}</strong><span>{progress ? 'of districts reporting' : 'Reporting progress unavailable'}</span></p>
+      {progress && <><ReportingProgress progress={progress} variant="bar"/><span class="home-count-detail">{formatNumber(progress.completed)} of {formatNumber(progress.expected)} voting districts</span></>}
+    </div>
+  </section>
+  <section id="home-search" class="home-search" data-address-lookup aria-label="Find local results">
+    <PlaceSearch id="overview-search" mode="all" query={query}/>
+    <AddressResult/>
+    <noscript><p class="small">For place search without JavaScript, <a href="/search">use the area directory</a>.</p></noscript>
+  </section>
+  {query && <section class="overview-search-results" aria-labelledby="search-heading"><div class="overview-section-heading"><div><h2 id="search-heading">Results for “{query}”</h2><p>{searchCount} {searchCount === 1 ? 'match' : 'matches'}</p></div><a href="/" class="button">Clear search</a></div>
+    {searchCount > 0 ? <div class="overview-search-grid">
+      {provinceMatches.map(p => <a href={provinceUrl(p,year)}><span class="eyebrow">Province</span><strong>{p.name}</strong><span>Browse municipalities ↗</span></a>)}
+      {knownPlaces.map(p => <a href={placeUrl(p,year)}><span class="eyebrow">{p.province} · {p.kind}</span><strong>{p.name}</strong><span>{p.kind === 'town' || p.kind === 'suburb' ? 'Explore the wards covering this place' : 'Municipality and ward results'} ↗</span></a>)}
+      {matches.map(m => <a href={m.placeHref ?? m.href}><span class="eyebrow">{provinces.find(p=>p.id===m.provinceId)?.name} · {m.code}</span><strong>{m.name}</strong><span>View municipality results ↗</span></a>)}
+    </div> : <p class="overview-empty">We couldn’t match that name. Try the municipality name or browse a province below. You can also search for an address or landmark.</p>}
+    {directory.total>12&&<p><a href={`/search?q=${encodeURIComponent(query)}`}>See all {directory.total} area matches →</a></p>}
+    {!data && <p class="overview-warning">Municipality search is temporarily unavailable. You can still open the places already in our directory.</p>}
+  </section>}
+  <div id="home-results" class="home-results">
+    <ProvinceResultsMap entries={entries} year={year} compact>
+      <ElectionHistory slot="history" year={year} level="national" id="ZA" embedded/>
+    </ProvinceResultsMap>
+    {data ? <SummaryResults result={data.national} name="South Africa" compact/> : <section class="card home-overall"><h2>Overall results</h2><p class="home-panel-note">Results are temporarily unavailable. Please try again shortly.</p></section>}
+    <MetroResults entries={data?.metros} year={year}/>
+  </div>
+  {!data && <section class="overview-unavailable" role="status"><p class="eyebrow">Results data</p><h2>Results are temporarily unavailable.</h2><p>Please try again shortly, or check the IEC’s results dashboard.</p><div class="links"><a href="/">Try again ↻</a><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">View IEC results ↗</a></div></section>}
+  <section id="provinces" class="overview-provinces" aria-labelledby="province-heading"><div class="overview-section-heading"><div><h2 id="province-heading">Results by province</h2><p>Ward + municipal PR votes · selected parties</p></div></div>
+    <div class="overview-province-grid">{entries.map(({province,result}) => {
+      const ballot = result ? summaryBallot(result) : null;
+      const top = ballot?.topShown;
+      const p = result ? progressOf(result) : null;
+      return <a class="overview-province-card overview-province-result" href={provinceUrl(province,year)}>
+        <div class="overview-province-card-heading"><h3>{province.name}</h3><ProvinceShape province={province} color={top ? overviewPartyStyle(top.party_name)[1] : undefined}/></div>
+        <div class="overview-province-vote"><strong class="party-identity">{top && <PartyLogo party={top}/>}<span class="party-identity-text">{top ? overviewPartyStyle(top.party_name)[0] : ballot?.tied ? 'Tied' : 'Unavailable'}</span></strong><span>{top ? top.share!.toFixed(1)+'%' : '—'}{top && result && <PartyMovement movement={partyMovement(result,top,'source_total')}/>}</span></div>
+        <div class="overview-province-bars" aria-label="Parties in the IEC summary">{ballot?.parties.slice(0,3).map(p => <div><span class="party-identity party-identity--compact" title={p.party_name}><PartyLogo party={p} size="small"/><span class="party-identity-text">{overviewPartyStyle(p.party_name)[0]}</span></span><i aria-hidden="true"><b style={`width:${p.share ?? 0}%;background:${overviewPartyStyle(p.party_name)[1]}`}></b></i><span>{p.share === null ? '—' : p.share.toFixed(1)+'%'}{result && <PartyMovement movement={partyMovement(result,p,'source_total')}/>}</span></div>)}</div>
+        <p class="overview-province-card-foot"><span hidden={year !== latestYear}>{p ? <><ReportingProgress progress={p}/> of districts reporting</> : 'Reporting progress unavailable'}</span><span aria-hidden="true">↗</span></p>
+      </a>;
+    })}</div>
+  </section>
+</Site>

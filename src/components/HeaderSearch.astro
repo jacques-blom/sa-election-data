@@ -1,0 +1,9 @@
+---
+import PlaceSearch from './PlaceSearch.astro';
+import AddressResult from './AddressResult.astro';
+---
+<div class="header-search" data-address-lookup>
+  <PlaceSearch id="header-search" mode="all" presentation="dialog">
+    <div slot="result" class="header-search-result"><AddressResult/></div>
+  </PlaceSearch>
+</div>

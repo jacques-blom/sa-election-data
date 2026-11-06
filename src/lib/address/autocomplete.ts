@@ -2,10 +2,23 @@
 import { loadGoogleMaps } from './google.ts';
 import { isWholeArea, type ResolvedArea, type AreaResolution } from './selection.ts';
 import { addressSearchBounds } from './scope.ts';
+import { googleAreaView } from './google-area.ts';
 
-document.querySelectorAll<HTMLElement>('[data-place-search]').forEach(initialize);
+const initialized = new Map<HTMLElement, () => void>();
+function setupSearch() {
+  for (const [root, dispose] of initialized) {
+    if (!root.isConnected) { dispose(); initialized.delete(root); }
+  }
+  document.querySelectorAll<HTMLElement>('[data-place-search]').forEach(root => {
+    if (initialized.has(root)) return;
+    initialized.set(root, initialize(root));
+  });
+}
+setupSearch();
+document.addEventListener('results:updated', setupSearch);
 
 function initialize(root: HTMLElement) {
+  const disabled = () => root.dataset.searchDisabled === 'true';
   const configured = root.dataset.configured === 'true';
   const bounds = addressSearchBounds(JSON.parse(root.dataset.searchBbox ?? 'null'));
   const scopeToggle = root.querySelector<HTMLButtonElement>('[data-search-scope-toggle]');
@@ -21,18 +34,23 @@ function initialize(root: HTMLElement) {
   const home = root.querySelector<HTMLElement>('[data-search-home]')!;
   const mobile = root.querySelector<HTMLElement>('[data-search-mobile]')!;
   const dialog = root.querySelector<HTMLDialogElement>('dialog')!;
+  const trigger = root.querySelector<HTMLElement>('[data-search-open]');
+  const dialogOnly = root.dataset.presentation === 'dialog';
+  const header = root.dataset.presentation === 'header';
   const attribution = root.querySelector<HTMLElement>('[data-search-attribution]')!;
   const narrow = window.matchMedia('(max-width: 600px)');
   if (narrow.matches) input.placeholder = 'Place or address';
   let predictions: google.maps.places.PlacePrediction[] = [];
   let areas: ResolvedArea[] = [];
   let resolverController: AbortController | undefined;
+  let suggestionsController: AbortController | undefined;
   let pendingSubmit: number | undefined;
   let token: google.maps.places.AutocompleteSessionToken | undefined;
   let request = 0, selection = 0, active = -1;
   let timer: number | undefined;
   let suppressFocus = false;
   let previousOverflow = '';
+  let resolving = false;
 
   input.setAttribute('role', 'combobox');
   input.setAttribute('aria-autocomplete', 'list');
@@ -53,6 +71,7 @@ function initialize(root: HTMLElement) {
   function hidePanel() {
     ++request;
     pendingSubmit = undefined;
+    suggestionsController?.abort();
     window.clearTimeout(timer);
     panel.hidden = true;
     input.setAttribute('aria-expanded', 'false');
@@ -75,10 +94,19 @@ function initialize(root: HTMLElement) {
   function fitViewport() {
     dialog.style.setProperty('--search-viewport-height', `${window.visualViewport?.height ?? window.innerHeight}px`);
     dialog.style.setProperty('--search-viewport-top', `${window.visualViewport?.offsetTop ?? 0}px`);
+    if (header) {
+      const bottom = (window.visualViewport?.height ?? window.innerHeight) + (window.visualViewport?.offsetTop ?? 0);
+      root.style.setProperty('--search-panel-height', `${Math.max(100, bottom - form.getBoundingClientRect().bottom - 12)}px`);
+    }
   }
 
-  function openMobile() {
-    if (!narrow.matches || dialog.open || suppressFocus) return;
+  if (header) {
+    window.visualViewport?.addEventListener('resize', fitViewport);
+    window.visualViewport?.addEventListener('scroll', fitViewport);
+  }
+
+  function openDialog() {
+    if (disabled() || header || (!narrow.matches && !dialogOnly) || dialog.open || suppressFocus) return;
     home.style.minHeight = `${home.getBoundingClientRect().height}px`;
     previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -90,24 +118,26 @@ function initialize(root: HTMLElement) {
     window.visualViewport?.addEventListener('scroll', fitViewport);
   }
 
-  function closeMobile() {
+  function closeDialog() {
     if (!dialog.open) return;
     suppressFocus = true;
+    input.blur();
     dialog.close();
     home.appendChild(form);
     home.style.minHeight = '';
     document.body.style.overflow = previousOverflow;
     window.visualViewport?.removeEventListener('resize', fitViewport);
     window.visualViewport?.removeEventListener('scroll', fitViewport);
-    input.focus({ preventScroll: true });
+    // Return keyboard navigation to the launcher without reopening the keyboard.
+    (trigger ?? home).focus({ preventScroll: true });
     suppressFocus = false;
   }
 
   function renderSuggestions() {
     const selectedKey = options.children[active]?.getAttribute('data-key');
-    const items = [...areas.map(area => ({ name: area.name, detail: area.description, key: area.url })),
+    const items = [...areas.map(area => ({ name: area.name, detail: area.description, key: area.url, source: 'election' })),
       ...predictions.map(prediction => ({ name: prediction.mainText?.toString() ?? prediction.text.toString(),
-        detail: prediction.secondaryText?.toString() ?? '', key: prediction.placeId }))];
+        detail: [prediction.secondaryText?.toString(), 'Google Maps'].filter(Boolean).join(' · '), key: prediction.placeId, source: 'google' }))];
     options.replaceChildren();
     items.forEach((item, index) => {
         const option = document.createElement('li');
@@ -116,6 +146,7 @@ function initialize(root: HTMLElement) {
         option.setAttribute('aria-selected', 'false');
         option.dataset.index = String(index);
         option.dataset.key = item.key;
+        option.dataset.source = item.source;
         const icon = document.createElement('span');
         icon.className = 'place-search-pin';
         icon.setAttribute('aria-hidden', 'true');
@@ -140,18 +171,27 @@ function initialize(root: HTMLElement) {
   }
 
   async function suggest(version: number) {
+    if (disabled()) return;
     const query = input.value.trim();
     if (query.length < 2) {
       if (dialog.open || pendingSubmit === version) showMessage('Enter a place, street address or landmark in South Africa.');
       return;
     }
-    if (!configured) {
-      showMessage('Google suggestions are unavailable. Browse the area directory below.');
-      return;
-    }
     showMessage('Looking for places…');
     options.setAttribute('aria-busy', 'true');
-    try {
+    const controller = new AbortController();
+    suggestionsController = controller;
+    const tasks: Promise<void>[] = [];
+    tasks.push((async () => {
+      const response = await fetch('/api/search', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, ...(localScope && bounds ? { bbox: [bounds.west, bounds.south, bounds.east, bounds.north] } : {}) }), signal: controller.signal });
+      if (!response.ok) throw new Error('Election areas unavailable');
+      const data = await response.json() as { suggestions: ResolvedArea[] };
+      if (version !== request) return;
+      areas = data.suggestions;
+      renderSuggestions();
+    })());
+    if (configured) tasks.push((async () => {
       await loadGoogleMaps();
       const { AutocompleteSuggestion, AutocompleteSessionToken } = await google.maps.importLibrary('places') as google.maps.PlacesLibrary;
       if (version !== request) return;
@@ -163,37 +203,49 @@ function initialize(root: HTMLElement) {
       if (version !== request) return;
       predictions = response.suggestions.flatMap(suggestion => suggestion.placePrediction ? [suggestion.placePrediction] : []);
       renderSuggestions();
-      if (!predictions.length) showMessage(localScope
-        ? 'No suggestions nearby. Try another street or choose Search all South Africa.'
-        : 'No suggestions found. Try a place name, a nearby street or a landmark.');
-      if (pendingSubmit === version && predictions.length) void select(0);
-    } catch {
-      if (version === request) showMessage('Google suggestions couldn’t load. Try again or browse the area directory.');
-    } finally {
-      if (version === request) { options.removeAttribute('aria-busy'); pendingSubmit = undefined; }
-    }
+    })());
+    const outcomes = await Promise.allSettled(tasks);
+    if (version !== request) return;
+    options.removeAttribute('aria-busy');
+    const count = areas.length + predictions.length;
+    if (!count) showMessage(outcomes.some(result => result.status === 'rejected')
+      ? 'Suggestions couldn’t load. Try again or browse the area directory.'
+      : localScope ? 'No suggestions nearby. Try another name or choose Search all South Africa.'
+      : 'No suggestions found. Try a municipality, district, ward number with its municipality, or a street address.');
+    else if (!configured || outcomes.some(result => result.status === 'rejected')) showMessage('Some suggestions are unavailable. You can still choose a result below.');
+    if (pendingSubmit === version && count) void select(active >= 0 ? active : 0);
+    pendingSubmit = undefined;
   }
 
   function queueSuggestions() {
+    if (disabled()) return;
     hidePanel();
     const version = request;
     timer = window.setTimeout(() => void suggest(version), 220);
   }
 
   function chooseArea(area: ResolvedArea) {
+    ++selection;
+    resolving = false;
+    resolverController?.abort();
+    token = undefined;
+    input.blur();
     hidePanel();
-    closeMobile();
+    closeDialog();
     input.value = area.name;
+    clear.hidden = false;
     const event = new CustomEvent('place-search:area', { bubbles: true, cancelable: true, detail: area });
     if (root.dispatchEvent(event)) window.location.assign(area.url);
   }
 
   async function select(index: number) {
+    if (disabled()) return;
     const area = areas[index];
     if (area) { chooseArea(area); return; }
     const prediction = predictions[index - areas.length];
     if (!prediction) return;
     const version = ++selection;
+    resolving = true;
     resolverController?.abort();
     const controller = new AbortController();
     resolverController = controller;
@@ -202,8 +254,9 @@ function initialize(root: HTMLElement) {
     token = undefined;
     input.value = name;
     clear.hidden = false;
+    input.blur();
     hidePanel();
-    closeMobile();
+    if (!dialogOnly) closeDialog();
     showMessage('Finding this place…');
     try {
       // Details complete the Google session; the same classification applies on every page.
@@ -223,33 +276,46 @@ function initialize(root: HTMLElement) {
       const result = await response.json() as AreaResolution;
       if (version !== selection) return;
       if (result.area) { chooseArea(result.area); return; }
+      if (!result.alternatives.length) {
+        const view = googleAreaView(place, name);
+        if (view) { chooseArea(view); return; }
+      }
       areas = result.alternatives;
       renderSuggestions();
       showMessage(areas.length ? 'Choose the area you mean.' : 'We don’t have a matching results area for this place yet. Try another area or browse the directory.');
     } catch {
       if (version === selection) showMessage('This place couldn’t be looked up. Try again or browse the area directory.');
+    } finally {
+      if (version === selection) resolving = false;
     }
   }
 
+  trigger?.addEventListener('click', event => {
+    event.preventDefault();
+    openDialog();
+  });
   input.addEventListener('focus', () => {
     if (suppressFocus) return;
-    openMobile();
+    if (header) fitViewport();
+    openDialog();
     queueSuggestions();
   });
   input.addEventListener('pointerdown', event => {
-    if (narrow.matches && !dialog.open) {
+    if (!header && narrow.matches && !dialog.open) {
       // Keep the initiating tap from moving focus to the input's old position.
       event.preventDefault();
-      openMobile();
+      openDialog();
     }
   });
   input.addEventListener('input', event => {
+    if (disabled()) return;
     ++selection;
+    resolving = false;
     resolverController?.abort();
     clear.hidden = !input.value;
     if (!input.value) token = undefined;
     root.dispatchEvent(new Event('place-search:input', { bubbles: true }));
-    openMobile();
+    openDialog();
     if (event instanceof InputEvent && event.isComposing) hidePanel();
     else queueSuggestions();
   });
@@ -258,7 +324,7 @@ function initialize(root: HTMLElement) {
     if (event.isComposing) return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
-      openMobile();
+      openDialog();
       const count = areas.length + predictions.length;
       if (count) setActive((active + (event.key === 'ArrowDown' ? 1 : active < 0 ? 0 : -1) + count) % count);
       else queueSuggestions();
@@ -268,9 +334,11 @@ function initialize(root: HTMLElement) {
     } else if (event.key === 'Escape') {
       event.preventDefault();
       ++selection;
+      resolving = false;
       resolverController?.abort();
       hidePanel();
-      closeMobile();
+      input.blur();
+      closeDialog();
     }
   });
   options.addEventListener('pointerdown', event => { if (event.pointerType === 'mouse') event.preventDefault(); });
@@ -294,23 +362,41 @@ function initialize(root: HTMLElement) {
     queueSuggestions();
   });
   form.addEventListener('submit', event => {
+    if (disabled()) { event.preventDefault(); return; }
     ++selection;
     // Addresses must be selected, never sent as raw text in a public search URL.
     event.preventDefault();
+    if (active < 0 && !areas.length && options.getAttribute('aria-busy') === 'true') { pendingSubmit = request; return; }
     if (areas.length + predictions.length) void select(active >= 0 ? active : 0);
-    else { openMobile(); hidePanel(); pendingSubmit = request; void suggest(request); }
+    else { openDialog(); hidePanel(); pendingSubmit = request; void suggest(request); }
   });
-  form.addEventListener('focusout', () => requestAnimationFrame(() => {
-    if (!dialog.open && !form.contains(document.activeElement)) hidePanel();
-  }));
-  document.addEventListener('pointerdown', event => {
+  form.addEventListener('focusout', () => {
+    if (resolving) return;
+    requestAnimationFrame(() => {
+      if (!dialog.open && !resolving && !form.contains(document.activeElement)) hidePanel();
+    });
+  });
+  const outside = (event: Event) => {
     if (!dialog.open && !form.contains(event.target as Node)) hidePanel();
+  };
+  document.addEventListener('pointerdown', outside);
+  function dismiss() { ++selection; resolving = false; resolverController?.abort(); hidePanel(); input.blur(); closeDialog(); }
+  root.addEventListener('place-search:disabled', () => {
+    dismiss();
+    root.dispatchEvent(new Event('place-search:input', { bubbles: true }));
   });
-  function dismiss() { ++selection; resolverController?.abort(); hidePanel(); closeMobile(); }
   root.querySelector('[data-search-close]')!.addEventListener('click', dismiss);
   dialog.addEventListener('cancel', event => { event.preventDefault(); dismiss(); });
-  narrow.addEventListener('change', () => {
-    input.placeholder = narrow.matches ? 'Place or address' : 'Search a place or street address';
-    if (!narrow.matches) { hidePanel(); closeMobile(); }
-  });
+  const resize = () => {
+    input.placeholder = narrow.matches ? 'Place or address' : 'Municipality, ward or address';
+    if (!narrow.matches && !dialogOnly) { hidePanel(); closeDialog(); }
+  };
+  narrow.addEventListener('change', resize);
+  return () => {
+    dismiss();
+    document.removeEventListener('pointerdown', outside);
+    narrow.removeEventListener('change', resize);
+    window.visualViewport?.removeEventListener('resize', fitViewport);
+    window.visualViewport?.removeEventListener('scroll', fitViewport);
+  };
 }

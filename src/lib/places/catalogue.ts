@@ -29,8 +29,8 @@ const curated: Place[] = [
     sources: [{ label: 'IEC Hantam results', url: 'https://results.elections.org.za/dashboards/lge/MapsJason/2026/EEID1887Munic6605.js' }] },
 ];
 export const places: Place[] = [...(municipalities as Place[]).map(p=>{const existing=curated.find(c=>c.slug===p.slug);return existing?{...p,...existing,bbox:p.bbox,geometry:p.geometry,municipalityName:p.municipalityName}:p;}),...curated.filter(p=>p.kind==='town')];
-export const placeUrl = (p: Place) => `/2026/places/${p.slug}`;
-export const wardUrl = (id: string) => `/2026/wards/${id}`;
+export const placeUrl = (p: Place, year: number = 2026) => `/${year}/places/${p.slug}`;
+export const wardUrl = (id: string, year: number = 2026) => `/${year}/wards/${id}`;
 export const wardNumber = (id: string) => Number(id.slice(-3));
 const normal = (s: string) => s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 export function searchPlaces(query: string) {

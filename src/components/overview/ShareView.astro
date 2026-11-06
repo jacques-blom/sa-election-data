@@ -1,30 +1,6 @@
 ---
-interface Props { title: string; text: string }
-const { title, text } = Astro.props;
-// This shares the current page URL, not an immutable snapshot URL.
-const link = new URL(Astro.url.pathname, Astro.url.origin).href;
+import type { ShareCard } from '../../lib/sharing/model.ts';
+interface Props { card: ShareCard; ballot?: 'pr' | 'ward' }
+const { card, ballot } = Astro.props;
 ---
-<details class="overview-share"><summary class="button">Share ↗</summary><div class="overview-share-panel"><label>Result summary<textarea readonly rows="8" data-share-title={title} data-share-url={link}>{`${text}\n\nLatest results: ${link}`}</textarea></label><div class="overview-share-actions"><button type="button" class="button primary" data-copy-summary>Copy summary</button><button type="button" class="button" data-share-summary hidden>Share…</button></div><p class="overview-share-feedback" role="status" aria-live="polite"></p></div></details>
-<script>
-  function enableSharing() {
-    document.querySelectorAll<HTMLButtonElement>('[data-share-summary]').forEach(button => {
-      button.hidden = typeof navigator.share !== 'function';
-    });
-  }
-  enableSharing();
-  document.addEventListener('results:updated', enableSharing);
-  document.addEventListener('click', async event => {
-    const button = event.target instanceof Element ? event.target.closest('[data-copy-summary], [data-share-summary]') : null;
-    const panel = button?.closest('.overview-share');
-    if (!panel) return;
-    const field = panel.querySelector<HTMLTextAreaElement>('textarea')!;
-    const feedback = panel.querySelector<HTMLElement>('[role="status"]')!;
-    if (button!.hasAttribute('data-copy-summary')) {
-      try { await navigator.clipboard.writeText(field.value); feedback.textContent = 'Summary copied.'; }
-      catch { field.focus(); field.select(); feedback.textContent = 'Select and copy the summary above.'; }
-    } else if (typeof navigator.share === 'function') {
-      try { await navigator.share({ title: field.dataset.shareTitle, text: field.value, url: field.dataset.shareUrl }); }
-      catch (error) { if (!(error instanceof Error && error.name === 'AbortError')) feedback.textContent = 'Sharing is unavailable. You can copy the summary instead.'; }
-    }
-  });
-</script>
+<button type="button" class="button share-trigger" data-share-result={JSON.stringify(card)} data-share-ballot={ballot} aria-haspopup="dialog">Share ↗</button>

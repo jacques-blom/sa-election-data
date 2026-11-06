@@ -80,9 +80,23 @@ The sitemap now includes all nine province URLs. Query pages are noindex and
 canonicalize to the unfiltered route. Province links and content render on the
 server. Search, Share and filter controls have labels and keyboard support.
 
-Share copies a dated, provisional summary with its source and snapshot ID.
-The URL opens current results; it is explicitly not an immutable snapshot link.
-Native sharing is offered only when supported. No PNG export is provided here.
+Sharing opens a branded image preview, with portrait (1080 × 1350), square
+(1080 × 1080) and story (1080 × 1920) exports. The cards use a short headline,
+large figures, party bars, the Counted logo, ballot scope, reporting coverage,
+provisional status and the IEC result time in SAST. A short post caption is
+separate from the image's accessible text description.
+
+“Share to WhatsApp” is the primary action; “Share” is secondary. File-capable
+browsers open the device share menu with the PNG and caption. Otherwise the
+WhatsApp action saves the PNG and opens a text composer, explicitly asking the
+user to attach the saved image. Save image, copy caption and copy link remain
+available. Shared URLs preserve only the ballot selection, not address searches
+or other private query parameters.
+
+An open preview captures its figures and keeps them through live updates and
+format changes. Reopening sharing picks up new results. Links open the latest
+results for that election; they are not immutable snapshot links. The shared
+renderer and browser actions live in `src/lib/sharing/`.
 
 Display-only province paths were copied from the prototype’s
 `assets/geography.js`, containing simplified MDB province geometry. Only shapes
@@ -113,3 +127,52 @@ Live refresh regression checks are in `tests/live-poll.test.ts` and
 `tests/map-interactions.test.ts`. Browser verification in `.data/live-results/`
 exercises repeated polling, focus/visibility changes, failed requests and recovery,
 all result-page types, and preservation of filters, expanded tables and map canvases.
+
+## Election history and party movement
+
+The compact election-year slider sits inside the map card where a map is shown.
+On ward pages it sits beneath the municipality results card. Historical map cards retain the control with an explanation when old boundaries
+are unavailable.
+
+The slider links 2000, 2006, 2011, 2016, 2021 and 2026 wherever
+an active result exists for the same IEC area ID. National history is at `/{year}`;
+province, municipality, ward and voting-district URLs retain the selected year.
+The current national page remains `/`. Links work without JavaScript; the native
+range input updates results on input, without a document reload, while preserving
+focus and scroll position. A drag creates one browser-history entry. Ballot selection
+and municipality filters are retained. Nearby years preload with two concurrent reads;
+in-flight requests are shared and the latest selection wins. A per-tab LRU cache
+holds up to 12 pages / 8 MB for 30 minutes (15 seconds for the live count). Failed
+requests keep the displayed results and can be retried.
+Historical pages hide reporting progress and do not poll the live count or report
+old snapshots as delayed. Place/address search stays visible but disabled, preserving
+typed text until the reader returns to 2026. Keyed result containers and stable map
+content slots keep the native slider mounted even while dragging through 2026.
+
+Party changes are **percentage points**, calculated against the immediately
+previous election, never the most recent year that happens to be present.
+Comparisons match IEC party IDs. National/provincial summaries preserve the
+published valid-ballot denominator, including unlisted parties. A party absent
+from a truncated summary has no comparison. A complete list with no matching
+party establishes zero recorded votes. Aggregates, independent groupings,
+ambiguous duplicate identities, zero totals and missing ballot values produce
+a dash, not a fabricated change.
+
+Historical detail feeds currently contain combined ballot totals. When the current
+view shows separate PR or ward votes, changes compare combined shares in **both**
+years. Indicators show an up/down arrow and absolute number inline with the share. It is not the change in the displayed
+PR-only or ward-only share. Charts explain this and accessible labels give the
+previous year, both shares and the ballot basis. Cards, party tables, ward previews,
+province map labels and the interactive map use the same comparison function.
+
+These are comparisons of published area results, not boundary-adjusted swings.
+Municipality and ward boundaries may differ even with the same IEC ID. Historical
+pages omit current ward/district geometry; the national overview's province outlines
+are labelled as current. Town/suburb relationships are currently mapped only for
+2026, so their sliders do not offer unverified historical town extents. Individual
+ward links can still show earlier published results.
+
+`tests/history.test.ts` covers comparison denominators and ballot fallback, missing
+and partial results, new parties, identity ambiguity, zero rounding, active historical
+snapshot reads and year-preserving links. Browser verification is recorded in
+`.data/history/` for mobile and desktop results, keyboard navigation and browser Back.

@@ -17,11 +17,13 @@ import { recordImporterCpu } from '../workers/usage/index.ts';
 import { election, refreshSource } from '../workers/sync/publish.ts';
 import { enqueueDue, scheduledSync } from '../workers/sync/schedule.ts';
 import { acquireLock, clearPending, ensureSource, readState, recordFailure, releaseLock, waitForFetchSlot } from '../workers/sync/state.ts';
+import { feedOptions, getUpdates } from '../src/lib/updates/feed.ts';
 
 const source = sourceFor(election, '9909');
 const initialTime = '2026-11-05T13:00:00Z';
 function fixture(time = initialTime, votes = 30) {
-  const party = { ID: 7, Name: 'Example party', TotalValidVotes: votes, WardVotes: votes - 20, PRVotes: 20 };
+  const party = { ID: 7, Name: 'Example party', TotalValidVotes: votes, WardVotes: votes - 20, PRVotes: 20,
+    WardSeatsWon: 0, PRSeatsWon: 0, TotalSeatsWon: 0 };
   return { ElectoralEventID: 1887, ProvinceID: 9, MunicipalityID: 9909, Municipality: 'Example municipality',
     ReportDate: time, WardExpected: 1, WardsComplete: 1, VDExpected: 1, VDsComplete: 1,
     PartyBallotResults: [party], WardResults: [{ WardID: 10202001, ReportDate: time,
@@ -81,6 +83,7 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
     return originalFetch(input, init);
   });
   try {
+    assert.equal((await getUpdates(db, feedOptions(new URLSearchParams()))).status, 'not_started');
     for (const file of readdirSync('migrations').filter((name) => name.endsWith('.sql')).sort()) {
       await db.batch(readFileSync(`migrations/${file}`, 'utf8').split(';').map((sql) => sql.trim()).filter(Boolean).map((sql) => db.prepare(sql)));
     }
@@ -242,6 +245,61 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       assert.equal((await refreshSource(env, source, new Map([['7', 'Corrected directory name']]))).outcome, 'published');
       assert.notEqual((await readState(db, source)).active_snapshot_id, first);
       assert.equal(lastHeaders!.get('If-None-Match'), null);
+    });
+
+    await t.test('milestones publish atomically, ignore refreshes, paginate, and retain linked corrections', async () => {
+      const options = feedOptions(new URLSearchParams());
+      assert.equal((await getUpdates(db, options)).updates.length, 0, 'initial imports and routine votes are not news');
+      document = fixture('2026-11-05T13:07:00Z', 33);
+      document.VDsComplete = 0;
+      await refreshSource(env, source, names);
+      assert.equal((await getUpdates(db, options)).updates.length, 0, 'an unannounced baseline is not retracted in the feed');
+      document = fixture('2026-11-05T13:08:00Z', 34);
+      document.WardResults[0]!.PartyBallotResults[0]!.WardSeatsWon = 1;
+      await db.prepare(`CREATE TRIGGER fail_update_publication BEFORE UPDATE OF active_snapshot_id ON source_documents
+        BEGIN SELECT RAISE(ABORT,'simulated event failure'); END`).run();
+      await assert.rejects(refreshSource(env, source, names), /simulated event failure/);
+      assert.equal((await getUpdates(db, options)).updates.length, 0, 'failed source publication cannot leak an update');
+      await db.prepare('DROP TRIGGER fail_update_publication').run();
+      await refreshSource(env, source, names);
+      let feed = await getUpdates(db, options);
+      assert.equal(feed.updates.length, 2);
+      const original = feed.updates.find(u => u.kind === 'ward_won')!;
+      assert.ok(original.from_snapshot_id);
+      assert.equal(original.after!.winner!.id, '7');
+      assert.equal(original.action, 'announced');
+      await refreshSource(env, source, names);
+      document.ReportDate = '2026-11-05T13:09:00Z';
+      await refreshSource(env, source, names);
+      assert.equal((await getUpdates(db, options)).updates.length, 2, 'retry and clock-only generation are quiet');
+      const firstPage = await getUpdates(db, { ...options, limit: 1 });
+      assert.ok(firstPage.next_before);
+      const secondPage = await getUpdates(db, { ...options, limit: 1, before: firstPage.next_before });
+      assert.equal(secondPage.updates.length, 1);
+      assert.notEqual(secondPage.updates[0]!.id, firstPage.updates[0]!.id);
+      assert.equal((await getUpdates(db, { ...options, province: '1' })).updates.length, 0);
+      assert.equal((await getUpdates(db, { ...options, q: '%' })).updates.length, 0);
+      assert.equal((await getUpdates(db, { ...options, type: 'wins', q: 'Example' })).updates.length, 1);
+      document = fixture('2026-11-05T13:10:00Z', 35);
+      document.WardResults[0]!.PartyBallotResults.push({ ID: 8, Name: 'New party', WardVotes: 50, PRVotes: 20,
+        TotalValidVotes: 70, WardSeatsWon: 1, PRSeatsWon: 0, TotalSeatsWon: 1 });
+      await refreshSource(env, source, names);
+      feed = await getUpdates(db, options);
+      const correction = feed.updates[0]!;
+      assert.equal(correction.action, 'corrected');
+      assert.equal(correction.previous_event_id, original.id);
+      assert.equal(correction.before!.winner!.id, '7');
+      assert.equal(correction.after!.winner!.id, '8');
+      const saved = (await getUpdates(db, { ...options, event: original.id })).updates[0]!;
+      assert.equal(saved.superseded_by, correction.id);
+      assert.equal(saved.after!.winner!.id, '7', 'original announcement is preserved');
+      document = fixture('2026-11-05T13:11:00Z', 36);
+      document.VDsComplete = 0;
+      await refreshSource(env, source, names);
+      feed = await getUpdates(db, options);
+      assert.equal(feed.updates.filter(u => u.action === 'withdrawn').length, 2);
+      assert.equal((await getUpdates(db, { ...options, type: 'corrections' })).updates.length, 3);
+      assert.equal((await getUpdates(db, { ...options, after: correction.id })).updates.length, 2);
     });
 
     await t.test('CPU telemetry gates ingestion, fails closed when stale, and ignores unrelated workers', async () => {

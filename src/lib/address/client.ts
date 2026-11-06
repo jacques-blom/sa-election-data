@@ -1,18 +1,27 @@
 /// <reference types="google.maps" />
 /** Google content stays on this Google map and is never persisted in our place directory. */
 const key=import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
-if(key) document.querySelectorAll<HTMLElement>('[data-address-lookup]').forEach(initialize);
+const initialized = new WeakSet<HTMLElement>();
+function setupAddresses() {
+  if(key) document.querySelectorAll<HTMLElement>('[data-address-lookup]').forEach(root => {
+    if (initialized.has(root)) return;
+    initialized.add(root); initialize(root);
+  });
+}
+setupAddresses();
+document.addEventListener('results:updated', setupAddresses);
 function initialize(root:HTMLElement){
+  const search = (root.dataset.addressSearch ? document.getElementById(root.dataset.addressSearch)?.closest('[data-place-search]') : null) ?? root;
   const status=root.querySelector<HTMLElement>('[data-address-status]')!;
   const result=root.querySelector<HTMLElement>('[data-address-result]')!;
   const wardLinks=root.querySelector<HTMLElement>('[data-address-wards]')!;
   let selected=0;
   let controller:AbortController|undefined;
   let map:google.maps.Map|undefined,point:google.maps.Circle|undefined;
-  root.addEventListener('place-search:input',()=>{
+  search.addEventListener('place-search:input',()=>{
     ++selected;controller?.abort();result.hidden=true;status.textContent='';
   });
-  root.addEventListener('place-search:select',async(event)=>{
+  search.addEventListener('place-search:select',async(event)=>{
       const sequence=++selected;controller?.abort();controller=new AbortController();
       result.hidden=true;wardLinks.replaceChildren();map?.data.forEach(feature=>map!.data.remove(feature));point?.setMap(null);
       status.textContent='Finding this location…';

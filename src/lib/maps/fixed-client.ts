@@ -50,16 +50,18 @@ export function mountRegionMap(figure:HTMLElement){
     collapseAttribution(map);
     map.getCanvas().removeAttribute('tabindex');
     const fit=()=>{map.resize();map.fitBounds([[options.bbox[0],options.bbox[1]],[options.bbox[2],options.bbox[3]]],{padding:24,maxZoom:14,duration:0});};
-    new ResizeObserver(fit).observe(container);
+    const resizeObserver = new ResizeObserver(fit);
+    resizeObserver.observe(container);
     const updateColors=()=>{
       const latest=JSON.parse(figure.dataset.options!) as FixedMapOptions;
       if(!latest.colors?.length || !map.getLayer('regions-fill'))return;
       map.setPaintProperty('regions-fill','fill-color',['match',['get','id'],...latest.colors.flatMap(c=>[c.id,c.color]),'#dce1d5'] as unknown as maplibregl.ExpressionSpecification);
     };
     figure.addEventListener('results:map-update',updateColors);
-    map.on('remove',()=>figure.removeEventListener('results:map-update',updateColors));
+    map.on('remove',()=>{ figure.removeEventListener('results:map-update',updateColors); resizeObserver.disconnect(); });
     map.on('load',()=>{status.hidden=true;updateColors();});
     map.on('error',()=>{status.hidden=false;status.textContent='Map details are unavailable. Area links and results remain below.';});
     bindAreaInteractions(map,{layer:'regions-fill',source,sourceLayer,navigateOnClick:options.level!=='voting-district'});
+    return () => map.remove();
   }catch{status.textContent='Map preview is unavailable in this browser. Open the area links below.';}
 }

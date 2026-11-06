@@ -38,6 +38,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.4",
     "@protomaps/basemaps": "^5.7.2",
+    "@resvg/resvg-wasm": "^2.6.2",
     "astro": "^7.4.5",
     "maplibre-gl": "^6.16.0",
     "morphdom": "^2.7.8",
@@ -48,6 +49,7 @@
     "@types/geojson": "^7946.0.16",
     "@types/google.maps": "^3.66.9",
     "@types/node": "^24.19.2",
+    "sharp": "0.35.5",
     "typescript": "^6.0.3",
     "wrangler": "^4.157.0"
   }

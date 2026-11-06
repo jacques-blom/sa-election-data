@@ -1,6 +1,7 @@
 import { administrative } from '../maps/administrative.ts';
 import { placeUrl, type Place } from '../places/catalogue.ts';
 import type { AreaResolution, AreaSelection, ResolvedArea } from './selection.ts';
+import { districts, districtSelection } from '../maps/districts.ts';
 
 export const normalizeAreaName = (name: string) => name.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
   .toLowerCase().replace(/\b(local|metropolitan|district) municipality\b|\bmunicipality\b|\bprovince\b/g, '')
@@ -18,13 +19,18 @@ export function resolveArea(selection: AreaSelection, candidates: Place[]): Area
     return { area: province ? { ...province, kind: 'province', description: 'Province', geometry: { level: 'province', id: province.id } } : undefined, alternatives: [] };
   }
   const province = selection.province && normalizeAreaName(selection.province);
+  const district = districts.filter(d => (!province || normalizeAreaName(d.province) === province)
+    && [d.name, d.code].some(name => names.includes(normalizeAreaName(name))));
+  if (district.length === 1 && (selection.types.some(type => type.startsWith('administrative_area_level_')) || selection.names.some(name => /district/i.test(name)))) {
+    return { area: districtSelection(district[0]!), alternatives: [] };
+  }
   const exact = [...new Map(candidates.toReversed().map(p => [p.slug, p])).values()].filter(place =>
     (!province || normalizeAreaName(place.province) === province)
     && [place.name, ...place.aliases].some(name => names.includes(normalizeAreaName(name))));
   const municipal = selection.types.some(type => type.startsWith('administrative_area_level_'));
   const suburb = selection.types.some(type => type === 'neighborhood' || type.startsWith('sublocality'));
   const rank = (place: Place) => municipal ? (place.kind === 'municipality' || place.kind === 'metro' ? 0 : 2)
-    : suburb ? (place.kind === 'suburb' ? 0 : 2) : place.kind === 'metro' ? 0 : place.kind === 'town' ? 1 : 2;
+    : suburb ? (place.kind === 'suburb' ? 0 : 2) : place.kind === 'metro' || place.kind === 'municipality' ? 0 : 1;
   const bestRank = Math.min(...exact.map(rank));
   let best = exact.filter(p => rank(p) === bestRank);
   // Use the selected area pin only to disambiguate names, never to choose a ward.

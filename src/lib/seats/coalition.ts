@@ -1,8 +1,9 @@
-import { partyStyle, formatTime } from '../places/format.ts';
-import { estimateCaution, seatLabel, type AvailableSeats } from './allocation.ts';
+import { partyStyle } from '../places/format.ts';
+import { type AvailableSeats } from './allocation.ts';
 
 export type CoalitionData = {
   name: string; status: AvailableSeats['status']; total: number; majority: number;
+  progress?: { completed: number; expected: number } | null;
   source: { url: string; reportedAt: string; snapshotId: string };
   parties: { id: string; name: string; short: string; color: string; seats: number; selectable: boolean }[];
 };
@@ -24,14 +25,9 @@ export function coalitionSelection(data: CoalitionData, ids: Iterable<string>) {
     : `Majority reached${total === data.majority ? ': exactly ' + data.majority + ' seats' : ': ' + (total - data.majority) + ' above the threshold'}`;
   return { parties, total, shortfall, status };
 }
-export function coalitionShareText(data: CoalitionData, ids: Iterable<string>, url: string) {
+export function coalitionShareText(data: CoalitionData, ids: Iterable<string>, url?: string) {
   const selection = coalitionSelection(data, ids);
-  return [`HYPOTHETICAL COALITION · ${data.name}`, seatLabel(data),
-    selection.parties.map(p => `${p.name}: ${p.seats}`).join('\n'),
-    `${selection.total} of ${data.total} council seats. ${data.majority} needed for a majority.`,
-    selection.status + '.',
-    data.status === 'estimated' ? estimateCaution : 'IEC-reported seats; results remain provisional.',
-    'This selection does not establish an agreement or who will govern.',
-    `IEC result time: ${formatTime(data.source.reportedAt)}`, `Source: ${data.source.url}`,
-    `Snapshot: ${data.source.snapshotId}`, 'This link opens the selection using the latest available seats:', url].join('\n');
+  const parties = selection.parties.slice(0, 3).map(p => p.short).join(' + ') + (selection.parties.length > 3 ? ` + ${selection.parties.length - 3} more` : '');
+  const caption = `${data.name}: ${parties || 'No parties selected'} — ${selection.total} of ${data.total} seats. ${selection.shortfall ? `${selection.shortfall} more needed for a majority.` : 'A possible majority.'} Hypothetical${data.status === 'estimated' ? ', estimated seats' : ', provisional seats'}.`;
+  return url ? `${caption}\n\n${url}` : caption;
 }

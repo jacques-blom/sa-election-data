@@ -3,6 +3,7 @@ import Site from '../layouts/Site.astro';
 import PlaceSearch from '../components/PlaceSearch.astro';
 import { places } from '../lib/places/catalogue.ts';
 import { administrative } from '../lib/maps/administrative.ts';
+import { findDistrict, districtSelection } from '../lib/maps/districts.ts';
 import type { ResolvedArea } from '../lib/address/selection.ts';
 import { mapPlace } from '../lib/maps/config.ts';
 import { env } from 'cloudflare:workers';
@@ -18,7 +19,8 @@ try {
 const place = mapPlace(match.length === 1 ? match[0]!.slug : Astro.url.searchParams.get('place'));
 const ward = /^\d{8}$/.test(Astro.url.searchParams.get('ward') ?? '') ? Astro.url.searchParams.get('ward')! : '';
 const province = Object.values(administrative.provinces).find(p => p.slug === Astro.url.searchParams.get('province'));
-const area: ResolvedArea | undefined = province ? { ...province, kind: 'province', description: 'Province', geometry: { level: 'province', id: province.id } }
+const district = findDistrict(Astro.url.searchParams.get('district') ?? '');
+const area: ResolvedArea | undefined = district ? districtSelection(district) : province ? { ...province, kind: 'province', description: 'Province', geometry: { level: 'province', id: province.id } }
   : chosen ? { id: chosen.id, name: chosen.name, kind: chosen.kind, description: `${chosen.kind} · ${chosen.province}`, url: `/2026/places/${chosen.slug}`, bbox: chosen.bbox, geometry: chosen.geometry } : undefined;
 ---
 <Site title="Explore election results on the map" description="Browse South African provinces, municipalities and wards. Explore the map to see published 2026 election results." canonicalPath="/map">
@@ -49,11 +51,11 @@ const area: ResolvedArea | undefined = province ? { ...province, kind: 'province
           <button id="map-home" type="button" hidden>← South Africa</button>
         </div>
         <div class="panel-intro"><h2 id="map-area-title">Provinces</h2><p id="map-area-description">Choose a province to zoom in.</p></div>
+        <div id="ward-result" aria-live="polite" aria-atomic="true" hidden></div>
         <div id="map-browse">
           <p id="map-view-status" role="status">Loading areas…</p>
           <ul id="map-area-list" aria-label="Areas in view"></ul>
         </div>
-        <div id="ward-result" aria-live="polite" aria-atomic="true" hidden></div>
         <p id="map-notice" class="map-notice" role="status" hidden></p>
         <p id="map-result-scope" class="map-result-scope">Selected parties shown</p>
       </aside>

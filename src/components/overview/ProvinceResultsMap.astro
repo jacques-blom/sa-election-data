@@ -1,13 +1,14 @@
 ---
+import { movementText } from '../../lib/history/comparison.ts';
 import shapes from '../../lib/overview/province-shapes.json';
 import PartyLogo from '../PartyLogo.astro';
 import { provinceMapLabels } from '../../lib/overview/province-map.ts';
 import type { getNationalOverview } from '../../lib/overview/results.ts';
 import '../../styles/province-results-map.css';
 
-interface Props { entries: Awaited<ReturnType<typeof getNationalOverview>>['provinces']; compact?: boolean }
+interface Props { entries: Awaited<ReturnType<typeof getNationalOverview>>['provinces']; compact?: boolean; year?: number }
 const { compact = false } = Astro.props;
-const labels = provinceMapLabels(Astro.props.entries);
+const labels = provinceMapLabels(Astro.props.entries,Astro.props.year);
 const parties = [...new Map(labels.filter(label => label.party).map(label => [label.partyName, label])).values()];
 ---
 <figure class:list={['province-results-map', { 'home-results-map': compact }]} aria-labelledby="province-map-caption">
@@ -28,19 +29,21 @@ const parties = [...new Map(labels.filter(label => label.party).map(label => [la
       return <a class="province-map-result-link" href={label.href} tabindex="-1" aria-hidden="true">
         <title>{label.name}: {label.description}</title>
         <g class="province-map-label" transform={`translate(${position[0]} ${position[1]})`}>
-          <rect x="-34" y="-29" width="68" height="64" rx="8"/>
+          <rect x="-34" y="-29" width="68" height="79" rx="8"/>
           <text class="province-map-code" y="-10">{label.code}</text>
           <text class="province-map-party" y="8">{label.party ? (label.party.length > 9 ? label.party.slice(0,8)+'…' : label.party) : label.result === 'Tied' ? 'Tied' : label.result === 'Awaiting votes' ? 'Awaiting' : 'No share'}</text>
-          <text class="province-map-share" y="27">{label.share === null ? '—' : label.share.toFixed(1)+'%'}</text>
+          <text class="province-map-share" y="25">{label.share === null ? '—' : label.share.toFixed(1)+'%'}</text>
+          {label.movement?.delta !== null && label.movement?.delta !== undefined && <text y="40" style="font-size:9px;fill:#374c35">{movementText(label.movement)}</text>}
         </g>
       </a>;
     })}
   </svg>
+  <slot name="history"/>
   <div class="province-map-footer">
     <ul class="province-map-legend" aria-label="Parties with the highest share shown in province summaries">
       {parties.map(label => <li><i style={`background:${label.color}`} aria-hidden="true"></i><PartyLogo party={{party_id: label.partyId}} size="small"/><abbr title={label.partyName!}>{label.party}</abbr></li>)}
       {labels.some(label => !label.party) && <li><i class="province-map-neutral" aria-hidden="true"></i>Tied / unavailable</li>}
     </ul>
-    <p id="province-map-note">Ward + municipal PR · selected parties</p>
+    <p id="province-map-note">Ward + municipal PR · selected parties · change in pp since previous election{Astro.props.year && Astro.props.year !== 2026 && ' · current province outlines'}</p>
   </div>
 </figure>

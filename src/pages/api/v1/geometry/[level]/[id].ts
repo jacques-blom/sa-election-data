@@ -1,7 +1,12 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { readGeometry,type GeometryRow } from '../../../../../lib/maps/geometry.ts';
-export const GET:APIRoute=async({params})=>{
+import { findDistrict } from '../../../../../lib/maps/districts.ts';
+export const GET:APIRoute=async({params,url})=>{
+  if(params.level==='district') {
+    const district=findDistrict(params.id??'');
+    return district ? Response.redirect(new URL(`/maps/geometry/districts-2026/${district.id}.geojson`,url),302) : new Response('Unknown geometry',{status:404});
+  }
   if(!['town','municipality','province','ward','voting-district'].includes(params.level??'')||!/^\d+$/.test(params.id??''))return new Response('Unknown geometry',{status:404});
   try {
     const row=await (env.GEOGRAPHY_DB??env.RESULTS_DB).prepare('SELECT * FROM map_geometries WHERE level=? AND id=?').bind(params.level,params.id).first<GeometryRow>();

@@ -1,1 +1,16 @@
 .address-lookup{max-width:980px;margin:0 auto 64px}.address-search{padding:32px}.address-search>h2{margin:0 0 24px}.address-search>.place-search{max-width:720px}.address-search [data-address-status]{margin:20px 0;font-size:14px;line-height:1.6}.address-search [data-address-status]:empty{display:none}.address-search>.small{max-width:720px;margin:22px 0 16px}.address-directory{display:inline-block;font-size:13px;line-height:1.6}.address-result{margin-top:28px}.address-google-map{height:420px;border-radius:18px;overflow:hidden;background:#e9e7df;margin:20px 0}.address-result h2{margin-bottom:8px}.address-ward-links{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}.address-result[hidden]{display:none}@media(max-width:600px){.address-search{padding:20px}.address-search>h2{font-size:23px}.address-google-map{height:350px}}
+.address-search-header{max-width:720px}
+@media(min-width:601px){
+  .address-search-header .place-search-form>label{position:static;width:auto;height:auto;margin:0 0 10px;overflow:visible;clip:auto;white-space:normal}
+  .address-search-header .place-search-field{padding-left:17px}
+  .address-search-header .place-search-icon{display:block}
+  .address-search-header .place-search-back{display:none}
+  .address-search-header .place-search-submit-label{display:inline}
+}
+@media(max-width:600px){
+  .mobile-search-header>.header,.address-breadcrumbs{display:none}
+  .mobile-search-header>main{padding:0 20px 45px}
+  .address-page-top{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+  .address-search{display:contents}
+  .address-search-header{position:sticky;top:0;z-index:50;max-width:none;margin:0 -20px 24px;padding:calc(10px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 10px max(10px,env(safe-area-inset-left));background:#f5f3e9;border-bottom:1px solid var(--line)}
+}

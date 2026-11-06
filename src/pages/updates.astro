@@ -1,0 +1,100 @@
+---
+import Site from '../layouts/Site.astro';
+import UpdateCard from '../components/UpdateCard.astro';
+import { env } from 'cloudflare:workers';
+import { provinces } from '../lib/overview/results.ts';
+import { feedOptions, feedUrl, getUpdates, updateTypes, type Feed, type FeedOptions } from '../lib/updates/feed.ts';
+import { sastDay } from '../lib/updates/presentation.ts';
+import '../styles/updates.css';
+let options = feedOptions(new URLSearchParams());
+let data: Feed | null = null;
+let error: string | null = null;
+const demo = Astro.url.searchParams.has('demo');
+let simulation: { step: number; total: number } | null = null;
+if (demo && !import.meta.env.DEV) { error = 'Local simulations are available only in the development server.'; Astro.response.status = 404; }
+try { if (!error) options = feedOptions(Astro.url.searchParams); }
+catch (cause) { error = (cause as Error).message; Astro.response.status = 400; }
+if (!error) {
+  if (import.meta.env.DEV && demo) {
+    const { simulatedFeed, simulationStep } = await import('../lib/updates/simulation.ts');
+    try { simulation = simulationStep(Astro.url.searchParams); data = simulatedFeed(options, simulation.step); }
+    catch (cause) { error = (cause as Error).message; Astro.response.status = 400; }
+  } else {
+    try { data = await getUpdates(env.RESULTS_DB, options); }
+    catch (cause) { console.error('Updates page unavailable', cause); error = 'Updates are temporarily unavailable. Please try again shortly.'; Astro.response.status = 503; }
+  }
+}
+if (options.event && data && !data.updates.length) { Astro.response.status = 404; error = 'This update could not be found.'; }
+Astro.response.headers.set('Cache-Control', error || demo ? 'no-store' : 'public, max-age=15, s-maxage=15');
+if (demo) Astro.response.headers.set('X-Robots-Tag', 'noindex, noarchive');
+if (Astro.response.status === 503) Astro.response.headers.set('Retry-After', '60');
+const filtered = !!(options.q || options.province || options.type !== 'all');
+const groups = new Map<string, NonNullable<Feed>['updates']>();
+for (const update of data?.updates ?? []) {
+  const day = sastDay(update.published_at);
+  if (!groups.has(day)) groups.set(day, []);
+  groups.get(day)!.push(update);
+}
+const pageUrl = (filters: Partial<FeedOptions> = {}) => feedUrl(filters, '/updates', simulation?.step);
+const allUrl = pageUrl();
+const latestUrl = pageUrl({ ...options, before: null, after: null, event: null });
+const canPoll = !!data && !simulation && !options.before && !options.after && !options.event;
+---
+<Site title="Latest election updates" description="Follow ward wins, council outcomes and completed counts in South Africa’s 2026 local elections. Browse IEC-reported milestones by province and area." canonicalPath="/updates" noindex={!!error || Astro.url.searchParams.size > 0}>
+  {simulation && <section class="updates-simulation" aria-label="Local simulation">
+    <div><p class="eyebrow">Local preview · Fictional results</p><h2>Simulate the updates feed</h2><p>These sample places, candidates, results and times are invented. Party names and logos are real. Nothing is written to the election database.</p></div>
+    <div class="updates-simulation-controls"><strong>Step {simulation.step} of {simulation.total}</strong><div>
+      <a class="button" href={feedUrl({}, '/updates', 0)}>Start over</a>
+      {simulation.step < simulation.total ? <a class="button primary" href={feedUrl({}, '/updates', simulation.step + 1)}>Next update →</a> : <span class="button" aria-disabled="true">All updates shown</span>}
+      {simulation.step < simulation.total && <a class="button" href={feedUrl({}, '/updates', simulation.total)}>Show all</a>}
+    </div><a class="updates-simulation-exit" href="/updates">Exit simulation</a></div>
+  </section>}
+  <section class="updates-heading" aria-labelledby="updates-title">
+    <div><p class="eyebrow">2026 local elections · South Africa</p><h1 id="updates-title">Latest updates</h1><p class="lead">Ward wins, council outcomes and completed counts<br/>from the IEC’s published results.</p></div>
+    <div class="updates-heading-note"><span class="updates-symbol" aria-hidden="true">✓</span><p>IEC-reported results<br/><strong>Provisional until declared</strong></p></div>
+  </section>
+  <div class="updates-layout">
+    <section class="updates-main" aria-label="Election updates">
+      {options.event ? <p class="updates-back"><a href={allUrl}>← All latest updates</a></p> : <>
+        <form class="updates-filter" action="/updates" method="get" aria-label="Filter updates">
+          {simulation && <><input type="hidden" name="demo" value="1"/><input type="hidden" name="step" value={simulation.step}/></>}
+          {options.type !== 'all' && <input type="hidden" name="type" value={options.type}/>}
+          <div class="updates-search-field"><label for="updates-search">Find an area</label><input id="updates-search" type="search" name="q" value={options.q} maxlength="80" placeholder="Municipality or ward number" autocomplete="off"/></div>
+          <div><label for="updates-province">Province</label><select id="updates-province" name="province"><option value="">All provinces</option>{provinces.map(p => <option value={p.id} selected={options.province === p.id}>{p.name}</option>)}</select></div>
+          <button class="button primary" type="submit">Apply filters</button>
+        </form>
+        <nav class="updates-tabs" aria-label="Update type">{updateTypes.map(([value, label]) => <a href={pageUrl({ ...options, type: value, before: null, after: null, event: null })} aria-current={options.type === value ? 'page' : undefined}>{label}</a>)}</nav>
+      </>}
+      <div class="updates-list-heading"><h2>{options.event ? 'Saved announcement' : options.before ? 'Earlier updates' : 'Latest milestones'}</h2>{filtered && !options.event ? <a href={allUrl}>Clear filters</a> : <span>All times SAST</span>}</div>
+      {canPoll && <div class="updates-poll" data-updates-poll data-endpoint={feedUrl({ ...options, limit: 1 }, '/api/v1/updates')} data-latest-id={data?.latest_id ?? 0}><p role="status" data-updates-message hidden></p><a class="button updates-new" href={latestUrl} data-updates-new hidden>Show new updates ↑</a></div>}
+      {error ? <div class="updates-empty" role="status"><span class="updates-empty-icon" aria-hidden="true">↻</span><h3>{Astro.response.status === 503 ? 'We couldn’t load the updates' : 'Unable to show these updates'}</h3><p>{error}</p><a class="button" href={Astro.response.status === 503 ? Astro.url.pathname + Astro.url.search : '/updates'}>{Astro.response.status === 503 ? 'Try again' : 'View all updates'}</a></div>
+        : groups.size ? [...groups].map(([day, updates]) => <section class="updates-day" aria-label={`Updates published ${day}`}><h2 class="updates-date">{day}</h2><ol class="updates-timeline">{updates.map(update => <li><UpdateCard update={update} simulationStep={simulation?.step}/></li>)}</ol></section>)
+        : <div class="updates-empty"><span class="updates-empty-icon" aria-hidden="true">✓</span><h3>{filtered ? 'No updates match these filters' : options.before ? 'You’re all caught up' : 'Waiting for the next milestone'}</h3><p>{filtered ? 'Try another area or province, or see updates from across South Africa.' : options.before ? 'There are no earlier announcements in this feed.' : simulation ? 'Choose Next update to add the first sample result, or Show all to see every scenario.' : 'New ward wins, council outcomes and completed counts will appear here as we record them. You can explore the latest vote totals while you wait.'}</p><a class="button" href={simulation ? feedUrl({}, '/updates', simulation.total) : filtered || options.before ? allUrl : '/'}>{simulation ? 'Show all sample updates' : filtered || options.before ? 'View all updates' : 'Explore election results →'}</a></div>}
+      {data?.next_before && <a class="button updates-older" href={pageUrl({ ...options, before: data.next_before, after: null, event: null })}>Earlier updates ↓</a>}
+      {options.before && <p class="updates-back"><a href={latestUrl}>Back to latest updates ↑</a></p>}
+      {data && <p class="updates-feed-note">{simulation ? 'This is a local simulation with fictional outcomes. It does not contain real election announcements.' : 'This feed records milestones observed by Counted. It is not a complete history of election-night announcements.'}</p>}
+    </section>
+    <aside class="updates-aside" aria-label="About these updates">
+      <section class="updates-guide"><p class="eyebrow">Following the results</p><h2>What appears here</h2><p>Updates are posted when an outcome or count status changes.</p><ol><li><span aria-hidden="true">01</span><div><h3>Ward wins</h3><p>A ward seat appears in the IEC’s published results.</p></div></li><li><span aria-hidden="true">02</span><div><h3>Council outcomes</h3><p>A complete seat allocation shows a majority, or a hung council.</p></div></li><li><span aria-hidden="true">03</span><div><h3>Completed counts</h3><p>All expected voting districts in a municipality have reported.</p></div></li></ol></section>
+      <section class="updates-explainer"><h2>Results can still change</h2><p>A completed count or reported seat allocation can still be revised. Results remain provisional until the IEC’s official declaration.</p><p>Corrections link back to earlier announcements, so you can see what changed.</p><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">Visit the IEC dashboard ↗</a></section>
+      <a class="updates-data" href={feedUrl({}, '/api/v1/updates', simulation?.step)}><span>{simulation ? 'Preview the response' : 'Build with this data'}</span><strong>{simulation ? 'View the simulated API' : 'Get updates via the API'} <span aria-hidden="true">↗</span></strong></a>
+    </aside>
+  </div>
+</Site>
+<script>
+  import { pollWhileVisible } from '../lib/live/poll.ts';
+  const poll = document.querySelector<HTMLElement>('[data-updates-poll]');
+  if (poll) {
+    const latestId = Number(poll.dataset.latestId);
+    const message = poll.querySelector<HTMLElement>('[data-updates-message]')!;
+    const link = poll.querySelector<HTMLAnchorElement>('[data-updates-new]')!;
+    pollWhileVisible(async signal => {
+      const response = await fetch(poll.dataset.endpoint!, { signal, cache: 'no-cache' });
+      if (!response.ok) throw new Error('Updates unavailable');
+      const data = await response.json();
+      if (!data || typeof data !== 'object' || !('latest_id' in data)) throw new Error('Invalid updates response');
+      if (Number(data.latest_id) > latestId) { link.hidden = false; message.hidden = false; message.textContent = 'New updates are available.'; }
+      else { message.hidden = true; message.textContent = ''; }
+    }, () => { message.hidden = false; message.textContent = 'Checking for updates is temporarily unavailable. Retrying automatically.'; });
+  }
+</script>

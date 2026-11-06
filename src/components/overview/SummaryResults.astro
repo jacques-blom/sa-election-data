@@ -1,8 +1,11 @@
 ---
+import ComparisonNote from '../ComparisonNote.astro';
+import { partyMovement } from '../../lib/history/comparison.ts';
 import PartyRow from '../PartyRow.astro';
 import ShareView from './ShareView.astro';
 import ResultStatus from '../ResultStatus.astro';
-import { summaryBallot, summaryShareText } from '../../lib/overview/results.ts';
+import { resultShareCard } from '../../lib/sharing/results.ts';
+import { summaryBallot } from '../../lib/overview/results.ts';
 import { formatNumber, type Result } from '../../lib/places/results.ts';
 interface Props { result: Result; name: string; compact?: boolean }
 const { result, name, compact = false } = Astro.props;
@@ -10,12 +13,13 @@ const ballot = summaryBallot(result);
 const visibleParties = compact ? 5 : 7;
 ---
 <section class:list={['card overview-vote-summary', { 'home-overall': compact }]} aria-label={`${name} party vote shares`}>
-  <div class="overview-vote-heading"><div>{!compact && <p class="eyebrow">{name}</p>}<h2>{compact ? 'Overall results' : 'Party vote shares'}</h2></div><ShareView title={`${name} election results 2026`} text={summaryShareText(result,name)}/></div>
+  <div class="overview-vote-heading"><div>{!compact && <p class="eyebrow">{name}</p>}<h2>{compact ? 'Overall results' : 'Party vote shares'}</h2></div><ShareView card={resultShareCard(result, name)}/></div>
   <p class="overview-ballot-caption">Ward + municipal PR votes</p>
   <ResultStatus result={result} showProgress={!compact}/>
+  <ComparisonNote result={result} compact={compact}/>
   <div class="chart-key"><span>Party</span><span>Share · votes</span></div>
-  {ballot.parties.slice(0,visibleParties).map(p => <PartyRow party={p}/>)}
-  {ballot.parties.length > visibleParties && <details class="more-parties"><summary>Show all {ballot.parties.length} parties</summary>{ballot.parties.slice(visibleParties).map(p => <PartyRow party={p}/>)}</details>}
+  {ballot.parties.slice(0,visibleParties).map(p => <PartyRow party={p} movement={partyMovement(result,p,'source_total')}/>)}
+  {ballot.parties.length > visibleParties && <details class="more-parties"><summary>Show all {ballot.parties.length} parties</summary>{ballot.parties.slice(visibleParties).map(p => <PartyRow party={p} movement={partyMovement(result,p,'source_total')}/>)}</details>}
   {ballot.unlisted !== null && ballot.unlisted > 0 && <div class="overview-unlisted"><span>Unlisted parties</span><strong>{(ballot.unlisted / ballot.total! * 100).toFixed(1)}%<small>{formatNumber(ballot.unlisted)} votes</small></strong></div>}
   {ballot.total === null && <p class="notice">The published figures do not provide a reliable total for vote shares. Party vote counts are shown as published.</p>}
   {ballot.total === 0 && <p class="notice">No votes have been published yet.</p>}

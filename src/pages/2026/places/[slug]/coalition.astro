@@ -22,6 +22,7 @@ const municipality = data?.municipality;
 const seats = municipality ? councilSeats(municipality.level, municipality.results) : null;
 const available = !!(seats && canBuildCoalition(seats));
 const model = available && seats && municipality && place ? coalitionData(place.name, seats, municipality.source) : null;
+if (model && municipality) model.progress = progressOf(municipality);
 Astro.response.status = failed || (data && !municipality) ? 503 : !place ? 404 : 200;
 Astro.response.headers.set('Cache-Control', Astro.response.status === 200 ? 'public, max-age=15, s-maxage=15' : 'no-store');
 if (Astro.response.status === 503) Astro.response.headers.set('Retry-After', '60');
@@ -49,6 +50,6 @@ const resultUrl = place ? placeUrl(place) : '/search';
       <noscript><p class="notice">Enable JavaScript to select parties. <a href={resultUrl}>View council seats</a>.</p></noscript>
     </> : <section class="empty"><h2>{failed ? 'Results are temporarily unavailable.' : seats?.status === 'unavailable' ? 'Seat estimate unavailable' : seats ? 'One party reaches the majority threshold' : 'Council seats are not available here'}</h2><p>{seats?.status === 'unavailable' ? seats.reason : seats ? 'View the municipality’s seat breakdown for the current figures.' : 'The playground needs a complete seat breakdown for a whole municipality.'}</p><a class="button" href={resultUrl}>View results →</a></section>}
   </section>
-  <dialog class="coalition-share-dialog" data-coalition-dialog aria-labelledby="coalition-share-title"><div class="share-heading"><h2 id="coalition-share-title">Share your scenario</h2><button class="button" data-coalition-close>Close</button></div><p class="small">Hypothetical selection · The link opens the latest seats.</p><textarea readonly aria-label="Scenario text" data-coalition-text rows="8"></textarea><div class="share-actions"><button class="button" data-coalition-copy>Copy text</button><a class="button" data-coalition-whatsapp target="_blank" rel="noopener noreferrer">WhatsApp</a></div><label for="coalition-image-size">Image size</label><select id="coalition-image-size" data-coalition-image-size><option value="square">Square · 1080 × 1080</option><option value="portrait">Portrait · 1080 × 1350</option><option value="status">Status · 1080 × 1920</option></select><canvas data-coalition-canvas aria-label="Shareable hypothetical coalition scenario"></canvas><div class="share-actions"><button class="button" data-coalition-download>Download PNG</button><button class="button" data-coalition-image-share>Share image</button></div><p data-coalition-share-status role="status"></p></dialog>
+
 </Site>
 <script>import '../../../../lib/seats/client.ts';</script>

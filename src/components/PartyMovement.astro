@@ -1,0 +1,6 @@
+---
+import { movementDescription, movementText, type Movement } from '../lib/history/comparison.ts';
+interface Props { movement: Movement | null }
+const { movement } = Astro.props;
+---
+{movement && <span class:list={['party-movement', { 'party-movement--up': movement.delta !== null && movement.delta >= .05, 'party-movement--down': movement.delta !== null && movement.delta <= -.05, 'party-movement--missing': movement.delta === null }]} title={movementDescription(movement)} aria-label={movementDescription(movement)}><span aria-hidden="true">{movementText(movement)}</span></span>}

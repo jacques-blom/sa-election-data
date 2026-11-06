@@ -1,0 +1,23 @@
+---
+import { env } from 'cloudflare:workers';
+import { availableYears } from '../lib/history/results.ts';
+import { ELECTIONS } from '../lib/data/catalogue.ts';
+import { latestYear, nationalUrl } from '../lib/history/comparison.ts';
+interface Props { year: number; level: string; id: string; currentOnly?: boolean; embedded?: boolean }
+const { year, level, id, currentOnly = false, embedded = false } = Astro.props;
+let available: number[] = [];
+try { available = currentOnly ? [latestYear] : await availableYears(env.RESULTS_DB, level, id); } catch {}
+const years: number[] = ELECTIONS.map(e => e.year).filter(y => available.includes(y) || y === year);
+const suffix = Astro.url.pathname.replace(/^\/\d{4}/, '').replace(/\/$/, '');
+const query = new URLSearchParams();
+for (const key of ['ballot', 'q']) if (Astro.url.searchParams.has(key)) query.set(key, Astro.url.searchParams.get(key)!);
+const href = (value: number) => (suffix ? `/${value}${suffix}` : nationalUrl(value)) + (query.size ? `?${query}` : '');
+---
+<election-history id="election-history" data-scope={`${level}:${id}`} class:list={['election-history', { 'election-history--embedded': embedded }]} data-current={years.indexOf(year)}>
+  <div class="history-heading"><label for="election-year">Election year</label><output for="election-year">{year}</output></div>
+  <input id="election-year" aria-label="Election year" aria-describedby="election-year-help" type="range" min="0" max={Math.max(1, years.length - 1)} step="1" value={years.indexOf(year)} aria-valuetext={String(year)} disabled={years.length < 2}/>
+  <nav class="history-years" aria-label="Election history">{years.map(y => <a href={href(y)} data-year={y} aria-current={y === year ? 'page' : undefined}>{y}</a>)}</nav>
+  <p id="election-year-help" class:list={{ 'sr-only': years.length > 1 && !currentOnly }}>{currentOnly ? 'Historical ward boundaries for this place are not yet mapped.' : years.length < 2 ? 'No other elections are available for this area.' : 'Drag to a year or select it below. Arrow keys work too.'}{year !== latestYear && level !== 'national' && <> Areas and boundaries can change between elections.</>}</p>
+  <p data-history-status role="status" aria-live="polite" hidden></p>
+</election-history>
+<script>import '../lib/history/client.ts';</script>

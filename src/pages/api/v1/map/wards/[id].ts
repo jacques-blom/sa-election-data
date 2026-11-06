@@ -1,3 +1,4 @@
+import { partyMovement } from '../../../../../lib/history/comparison.ts';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { findMapWard } from '../../../../../lib/maps/ward-catalogue.ts';
@@ -15,7 +16,7 @@ export const GET: APIRoute = async ({ params }) => {
       year: 2026, status: 'provisional', ward, url: wardUrl(ward.id),
       result: row && ballot ? {
         total: ballot.total, progress: reporting(row), freshness: freshness(row), source: row.source,
-        parties: ballot.parties.slice(0, 3).map(p => ({ name: p.party_name, logo: partyLogo(p), candidate: p.candidate_name, votes: p.votesForBallot, share: p.share })),
+        parties: ballot.parties.slice(0, 3).map(p => ({ name: p.party_name, logo: partyLogo(p), candidate: p.candidate_name, votes: p.votesForBallot, share: p.share, movement: partyMovement(row,p,'ward') })),
       } : null,
     };
     return Response.json(body, { headers: { 'Cache-Control': 'public, max-age=15, s-maxage=15', 'Access-Control-Allow-Origin': '*' } });

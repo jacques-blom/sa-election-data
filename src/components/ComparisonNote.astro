@@ -1,0 +1,9 @@
+---
+import type { Result } from '../lib/places/results.ts';
+import { combinedOnly, previousElection, latestYear, type VoteBasis } from '../lib/history/comparison.ts';
+interface Props { result: Result; basis?: VoteBasis; compact?: boolean }
+const { result, basis = 'source_total', compact = false } = Astro.props;
+const previous = previousElection(result.year);
+const fallback = basis !== 'source_total' && result.previous && combinedOnly(result.previous);
+---
+{previous && <p class="comparison-note">{result.previous ? <><span>Change since {previous} , in percentage points.</span>{fallback && <span> Changes compare combined ballot shares; separate historical ballots are unavailable.</span>}{!compact && <span>{result.year === latestYear && ' Current count compared with the previous election.'}{!['national','province'].includes(result.level) && ' Same IEC area ID; boundaries may differ. Changes are not boundary-adjusted.'} A dash means no comparable figure.</span>}</> : <>Comparison with {previous} is unavailable for this area.</>}</p>}

@@ -1,0 +1,25 @@
+---
+import Site from '../../../layouts/Site.astro';
+import PlaceSearch from '../../../components/PlaceSearch.astro';
+import AddressResult from '../../../components/AddressResult.astro';
+import { findDistrict } from '../../../lib/maps/districts.ts';
+import { places, placeUrl } from '../../../lib/places/catalogue.ts';
+import { provinces, provinceUrl } from '../../../lib/overview/results.ts';
+const district = Astro.params.year === '2026' ? findDistrict(Astro.params.slug ?? '') : undefined;
+if (!district) return new Response('District municipality not found', { status: 404 });
+const province = provinces.find(p => p.id === district.provinceId)!;
+const municipalities = places.filter(p => district.municipalitySlugs.includes(p.slug)).sort((a,b) => a.name.localeCompare(b.name));
+Astro.response.headers.set('Cache-Control', 'public, max-age=300');
+---
+<Site title={`${district.name} District Municipality`} description={`Explore the local municipalities and wards within ${district.name} District Municipality, ${district.province}.`}>
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">South Africa</a><span>/</span><a href={provinceUrl(province)}>{province.name}</a><span>/</span><span>{district.name}</span></nav>
+  <div class="page-top"><div><p class="eyebrow">District municipality · {district.code} · 2026</p><h1>{district.name}</h1><p class="lead">{municipalities.length} local municipalities in {district.province}.</p><a class="button" href={`/map?district=${district.id}`}>Explore the whole district on the map ↗</a></div></div>
+  <p class="notice">District council ballot results are not available in this dataset. Choose a local municipality below for its council and ward results.</p>
+  <section data-address-lookup aria-label="Find an area in this district">
+    <PlaceSearch id="district-search" area={{name: district.name, bbox: district.bbox}}/>
+    <AddressResult/>
+  </section>
+  <div class="section-heading"><h2>Local municipalities</h2></div>
+  <div class="cards">{municipalities.map(place => <a class="card place-card" href={placeUrl(place)}><span class="eyebrow">Local municipality</span><h3>{place.name}</h3><p>Municipality and ward results →</p></a>)}</div>
+  <p class="coverage-note">District membership: <a href={district.membershipSource}>Municipal Demarcation Board, 2026</a>. The map outline follows the current member municipalities’ reconciled ward boundaries.</p>
+</Site>

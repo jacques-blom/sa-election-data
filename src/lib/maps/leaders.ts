@@ -1,3 +1,5 @@
+import { attachPrevious } from '../history/results.ts';
+import { partyMovement } from '../history/comparison.ts';
 import { hydrateResults, joinedResults, resultColumns } from '../data/packed-results.ts';
 import { ballotResults, resultFromRow, type Result, type ResultRow } from '../places/results.ts';
 import { partyStyle } from '../places/format.ts';
@@ -13,6 +15,7 @@ export function leaderFor(id: string, result: Result | null): MapLeader {
   const delayed = resultDelay(result) !== null;
   if (!leader) return { ...empty, delayed, status: ballot.tied ? 'tied' : ballot.total === 0 ? 'awaiting' : 'unavailable' };
   return { id, color: partyStyle(leader.party_name)[1]!, party: leader.party_name, share: leader.share,
+    movement: partyMovement(result,leader,result.level === 'province' ? 'source_total' : result.level === 'ward' ? 'ward' : 'pr'),
     status: result.level === 'province' ? 'highest-shown' : 'leading', delayed };
 }
 
@@ -30,6 +33,7 @@ export async function getMapLeaders(db: D1Database, bucket: R2Bucket | undefined
   const rows = await db.prepare(`SELECT ${resultColumns} ${joinedResults}
     WHERE r.year=2026 AND r.level=? AND r.area_id IN (SELECT value FROM json_each(?))`)
     .bind(level, JSON.stringify(ids)).all<ResultRow>();
-  const results = new Map((await hydrateResults(db, bucket, rows.results)).map(row => [row.area_id, resultFromRow(row)]));
+  const hydrated = await attachPrevious(db, (await hydrateResults(db, bucket, rows.results)).map(resultFromRow), bucket);
+  const results = new Map(hydrated.map(result => [result.id, result]));
   return ids.map(id => leaderFor(id, results.get(id) ?? null));
 }

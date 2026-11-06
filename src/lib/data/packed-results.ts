@@ -12,7 +12,7 @@ export const joinedResults = `FROM source_documents d
   LEFT JOIN result_bundles b ON b.source_id=d.id
   JOIN area_results r ON r.source_id=d.id
     AND r.snapshot_id=COALESCE(b.directory_snapshot_id,d.active_snapshot_id)`;
-export const resultColumns = `r.level,r.area_id,r.province_id,r.municipality_id,r.ward_id,r.name,
+export const resultColumns = `r.year,r.level,r.area_id,r.province_id,r.municipality_id,r.ward_id,r.name,
   r.reported_at,r.source_id,d.active_snapshot_id AS snapshot_id,
   CASE WHEN b.object_key IS NULL THEN r.payload ELSE NULL END AS payload,
   b.object_key AS bundle_key,d.url,d.last_checked_at,d.last_success_at,d.last_error,d.last_modified`;

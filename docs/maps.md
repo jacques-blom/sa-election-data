@@ -4,7 +4,9 @@
 All place/address inputs share `PlaceSearch.astro` and Google Places Autocomplete
 (New): the homepage, map, directory, address finder and municipality ward finder.
 Google suggestions are restricted to South Africa; municipality inputs retain
-an optional local search scope and a switch to all South Africa.
+an optional local search scope and a switch to all South Africa. Official
+municipality, district and ward suggestions share the same dropdown; selecting
+them uses their canonical IDs and full boundaries directly.
 
 Selections are classified before lookup. Provinces resolve to province results;
 cities, towns, municipalities and suburbs resolve by name, type, province and,
@@ -13,6 +15,21 @@ area URLs and whole-area bounds/geometry. On `/map`, the full boundary is framed
 and highlighted with a link to area results. Other search surfaces navigate to
 the canonical results page. Unknown or ambiguous areas are never converted to
 the ward at their centre. Only addresses and landmarks use `POST /api/locate`.
+`?district=DC4` restores a selected district; `?ward=10408005` restores a ward.
+
+District metadata is in `src/lib/maps/district-index.json`; its 44 boundaries are
+static GeoJSON under `public/maps/geometry/districts-2026/`. The geometry API
+redirects district requests to those assets. Run `scripts/maps/import-districts.py`
+with Shapely installed after the regular geography build to regenerate them.
+It archives MDB's `DistrictMunicipalities2026_15Mar2026` and the district membership
+fields in `LocalMunicipalities2026_15Mar2026`. Districts are identified by DC codes
+because the source category field calls them B. Membership is reconciled against
+our current IEC municipality catalogue, excluding the known legacy FS164 record.
+The 44 districts partition all 205 current local municipalities; metros are not
+district members. Display outlines are unions of the reconciled municipal
+geometries, simplified by 0.001 degrees with topology preserved, so the legacy
+record cannot expand a district into today's Mangaung area. No district election
+results are inferred by summing local or ward ballots.
 
 The Google explorer retains progressive electoral detail: provinces below zoom
 5, municipalities below zoom 8, then wards. Province GeoJSON is a static asset;

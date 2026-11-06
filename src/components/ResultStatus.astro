@@ -1,4 +1,5 @@
 ---
+import { latestYear } from '../lib/history/comparison.ts';
 import { progressOf, progressLabel, resultDelay } from '../lib/overview/results.ts';
 import { formatNumber, type Result } from '../lib/places/results.ts';
 import ReportingProgress from './ReportingProgress.astro';
@@ -8,7 +9,7 @@ const { result, showProgress = true } = Astro.props;
 const progress = progressOf(result);
 const delay = resultDelay(result);
 ---
-{showProgress && <div class="result-progress">
+{showProgress && result.year === latestYear && <div class="result-progress">
   <p>{progress ? <><strong>{progressLabel(progress)}</strong> of districts reporting <span>· {formatNumber(progress.completed)} of {formatNumber(progress.expected)}</span></> : 'Reporting progress unavailable'}</p>
   {progress && <ReportingProgress progress={progress} variant="bar"/>}
 </div>}

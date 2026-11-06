@@ -6,6 +6,7 @@
   "compatibility_date": "2026-11-05",
   "compatibility_flags": ["nodejs_compat"],
   "placement": { "mode": "smart" },
+  "assets": { "binding": "ASSETS" },
   "r2_buckets": [
     { "binding": "MAP_TILES", "bucket_name": "sa-election-map-tiles" },
     { "binding": "RAW_RESULTS", "bucket_name": "sa-election-data-raw" }

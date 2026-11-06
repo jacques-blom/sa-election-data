@@ -9,9 +9,11 @@ export type AreaSelection = {
 
 export type ResolvedArea = AreaSuggestion & {
   id: string;
-  kind: 'country' | 'province' | 'metro' | 'municipality' | 'town' | 'suburb';
+  kind: 'country' | 'province' | 'metro' | 'municipality' | 'district' | 'ward' | 'town' | 'suburb' | 'area';
+  /** An area view from Google, not an electoral boundary or a results total. */
+  googlePlaceId?: string;
   bbox?: [number, number, number, number];
-  geometry?: { level: 'province' | 'municipality' | 'town'; id: string };
+  geometry?: { level: 'province' | 'municipality' | 'district' | 'ward' | 'town'; id: string };
 };
 
 export type AreaResolution = { area?: ResolvedArea; alternatives: ResolvedArea[] };

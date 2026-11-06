@@ -103,6 +103,7 @@ const documentStub = Object.assign(new ElementStub(), {
 });
 const navigations: string[] = [];
 let savedUrl = '';
+let resizeDisconnects = 0;
 Object.assign(globalThis, {
   Node: ElementStub,
   document: documentStub,
@@ -110,7 +111,7 @@ Object.assign(globalThis, {
   location: { origin: 'https://example.test', href: 'https://example.test/map', assign: (href: string) => navigations.push(href) },
   history: { replaceState: (_state: unknown, _title: string, url: URL) => { savedUrl = url.href; } },
   Option: class extends ElementStub { constructor(text: string, value: string) { super(); this.textContent = text; this.value = value; } },
-  ResizeObserver: class { observe() {} },
+  ResizeObserver: class { observe() {} disconnect() { resizeDisconnects++; } },
 });
 Object.defineProperty(globalThis, '__mapInteractionTest', { configurable: true, value: { Map: MapStub, Popup: PopupStub } });
 const hooks = registerHooks({ resolve(specifier, context, next) {
@@ -212,7 +213,9 @@ test('dismissing and removing map tooltips clears state and detaches event liste
   assert.equal(popup.isOpen(), false);
   map.fire('click'); map.fire('movestart');
   assert.equal(popup.isOpen(), false);
+  const disconnectedBefore = resizeDisconnects;
   map.fire('click'); map.remove();
+  assert.equal(resizeDisconnects, disconnectedBefore + 1, 'removed maps must stop observing resize');
   assert.equal(popup.isOpen(), false);
   const queries = map.queries;
   map.fire('mousemove'); map.fire('click');
@@ -315,5 +318,24 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
   assert.deepEqual(map.fits.at(-1), { west: 27, south: -27, east: 29, north: -25 });
   assert.equal(new URL(savedUrl).searchParams.get('province'), 'gauteng');
   assert(!requests.some(url => url.includes('/api/locate')), 'whole-area selection must never use a point-to-ward lookup');
+  const district = { id: 'DC4', name: 'Garden Route District Municipality', kind: 'district', description: 'District municipality', url: '/2026/districts/garden-route', bbox: [20, -35, 24, -33], geometry: { level: 'district', id: 'DC4' } };
+  elements.get('map-app')!.dispatchEvent(new CustomEvent('place-search:area', { cancelable: true, detail: district })); await settle();
+  assert.equal(new URL(savedUrl).searchParams.get('district'), 'DC4');
+  assert.equal(elements.get('ward-result')!.children[1]!.href, district.url);
+  assert(requests.includes('/api/v1/geometry/district/DC4'));
+  const suburb = { id: 'newlands-cape-town', googlePlaceId: 'newlands-cape-town', name: 'Newlands', kind: 'area', description: 'Newlands, Cape Town', bbox: [18.40, -34.01, 18.48, -33.95], url: '/map?google-place=newlands-cape-town' };
+  elements.get('map-app')!.dispatchEvent(new CustomEvent('place-search:area', { cancelable: true, detail: suburb })); await settle();
+  assert.equal(elements.get('map-area-title')!.textContent, 'Newlands');
+  assert.equal(elements.get('map-browse')!.hidden, false, 'wards remain browsable for an unlisted suburb');
+  assert.match(elements.get('ward-result')!.children[0]!.textContent, /Google Maps’ view/);
+  assert.equal(new URL(savedUrl).searchParams.get('google-place'), suburb.id);
+  assert.equal(new URL(savedUrl).searchParams.has('district'), false);
+  assert.deepEqual(map.fits.at(-1), { west: 18.40, south: -34.01, east: 18.48, north: -33.95 });
+  elements.get('map-app')!.dispatchEvent(new CustomEvent('place-search:area', { cancelable: true, detail: { id: ward.id, name: 'Ward 1, Cape Town', kind: 'ward', bbox, url: '/2026/wards/'+ward.id } })); await settle();
+  assert.equal(elements.get('map-area-title')!.textContent, 'Ward 1');
+  assert.equal(new URL(savedUrl).searchParams.get('ward'), ward.id);
+  assert.equal(new URL(savedUrl).searchParams.has('district'), false);
+  assert.equal(new URL(savedUrl).searchParams.has('google-place'), false);
+  assert(!requests.some(url => url.includes('/api/locate')));
   window.dispatchEvent(new Event('pagehide'));
 });

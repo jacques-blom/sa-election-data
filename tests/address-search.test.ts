@@ -6,6 +6,7 @@ import { findPlace } from '../src/lib/places/catalogue.ts';
 import { resolveArea } from '../src/lib/address/resolve-area.ts';
 import type { Place } from '../src/lib/places/types.ts';
 import { addressSearchBounds } from '../src/lib/address/scope.ts';
+import { googleAreaView } from '../src/lib/address/google-area.ts';
 
 test('address search uses each municipality’s bounds in longitude/latitude order',()=>{
   const capeTown = findPlace('cape-town')!;
@@ -51,11 +52,11 @@ test('Gauteng selects the province even when its central ward is unknown', () =>
   assert.equal(result.area?.bbox?.length, 4);
 });
 
-test('Knysna town and Knysna municipality resolve according to Google’s area type', () => {
+test('Knysna defaults to the municipality even when Google labels it as a locality', () => {
   const municipality = findPlace('knysna')!;
   const town: Place = { ...municipality, id: 'town-180009', kind: 'town', slug: 'knysna-town-western-cape-180009', geometry: { level: 'town', id: '180009' } };
   const selection = { names: ['Knysna'], province: 'Western Cape', types: ['locality'] };
-  assert.equal(resolveArea(selection, [municipality, town]).area?.url, '/2026/places/knysna-town-western-cape-180009');
+  assert.equal(resolveArea(selection, [municipality, town]).area?.url, '/2026/places/knysna');
   assert.equal(resolveArea({ ...selection, names: ['Knysna Local Municipality'], types: ['administrative_area_level_3'] }, [town, municipality]).area?.url, '/2026/places/knysna');
 });
 
@@ -84,5 +85,18 @@ test('unknown broad areas and postal codes never fall back to a nearby municipal
   const calvinia = findPlace('calvinia')!;
   for (const types of [['locality'], ['postal_code'], ['administrative_area_level_2']]) {
     assert.deepEqual(resolveArea({ names: ['Unknown place'], types, location: { lat: -31.5, lng: 19.8 } }, [calvinia]), { alternatives: [] });
+  }
+});
+
+test('unlisted Google areas retain their full viewport without inventing an electoral boundary', () => {
+  const place = { id: 'newlands-cape-town', displayName: 'Newlands', formattedAddress: 'Newlands, Cape Town, South Africa', types: ['sublocality_level_2', 'sublocality'],
+    viewport: { toJSON: () => ({ west: 18.40, south: -34.01, east: 18.48, north: -33.95 }) } };
+  const area = googleAreaView(place as Parameters<typeof googleAreaView>[0])!;
+  assert.deepEqual(area.bbox, [18.40, -34.01, 18.48, -33.95]);
+  assert.equal(area.url, '/map?google-place=newlands-cape-town');
+  assert.equal(area.googlePlaceId, place.id);
+  assert.equal(area.geometry, undefined);
+  for (const change of [{ viewport: undefined }, { types: ['street_address'] }, { id: '' }, { viewport: { toJSON: () => ({ west: NaN, south: -34, east: 18, north: -33 }) } }]) {
+    assert.equal(googleAreaView({ ...place, ...change } as Parameters<typeof googleAreaView>[0]), undefined);
   }
 });

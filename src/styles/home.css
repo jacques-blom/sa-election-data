@@ -27,11 +27,11 @@ main:has(.home-heading){padding-top:12px}
 .home-results .home-results-map figcaption{padding:18px 20px 7px;gap:10px;flex-wrap:nowrap}
 .home-results .home-results-map figcaption a{font-size:10px;white-space:nowrap}
 
-.home-results .home-results-map>svg{flex:1;width:100%;height:290px;max-height:320px;min-height:0;padding:0 8px 10px}
+.home-results .home-results-map>svg{flex:1;width:100%;height:290px;max-height:320px;min-height:0;margin-block:auto;padding:0 8px 10px}
 .home-results .home-results-map .province-map-code{font-size:21px}
 .home-results .home-results-map .province-map-party{font-size:17px}
 .home-results .home-results-map .province-map-share{font-size:19px}
-.home-results .home-results-map .province-map-footer{padding:12px 18px;margin-top:auto}
+.home-results .home-results-map .province-map-footer{padding:12px 18px}
 .home-results .home-results-map .province-map-legend{gap:7px 12px;font-size:10px;margin-bottom:9px}
 .home-results .home-results-map .province-map-legend i{width:9px;height:9px}
 .home-results .home-results-map .province-map-legend .party-logo{width:18px;height:18px}
@@ -39,11 +39,11 @@ main:has(.home-heading){padding-top:12px}
 .home-results .home-results-map .province-map-footer p{font-size:9px;line-height:1.6}
 .home-results>.home-overall{padding:18px 20px}
 .home-results .home-overall .overview-vote-heading{gap:8px;margin-bottom:10px}
-.home-results .home-overall .overview-vote-heading .overview-share>summary{font-size:10px;padding:7px 10px;min-height:36px}
+.home-results .home-overall .overview-vote-heading .share-trigger{font-size:10px;padding:7px 10px;min-height:36px}
 .home-results .home-overall .overview-ballot-caption{gap:6px;font-size:9px;line-height:1.5;margin-bottom:12px;padding-bottom:10px}
 
 .home-results .home-overall .chart-key{font-size:9px}
-.home-results .home-overall .party-row{grid-template-columns:76px minmax(0,1fr) 70px;gap:8px;margin:15px 0}
+.home-results .home-overall .party-row{grid-template-columns:76px minmax(0,1fr) 94px;gap:8px;margin:15px 0}
 .home-results .home-overall .party-name{grid-column:auto;font-size:11px}
 .home-results .home-overall .party-logo{width:23px;height:23px}
 .home-results .home-overall .party-identity{gap:5px}
@@ -76,7 +76,7 @@ main:has(.home-heading){padding-top:12px}
   .home-results{gap:12px;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr)}
   .home-results>.home-overall,.home-metros{padding-inline:14px}
   .home-panel-heading h2,.home-results .home-overall .overview-vote-heading h2,.home-results .home-results-map figcaption strong{font-size:20px}
-  .home-results .home-overall .party-row{grid-template-columns:65px minmax(0,1fr) 63px;gap:6px}
+  .home-results .home-overall .party-row{grid-template-columns:65px minmax(0,1fr) 94px;gap:6px}
   .home-metro-result{gap:5px}.home-metro-result .party-logo{display:none}
   .home-metro-name{font-size:11px}.home-metro-name>span{display:none}
 }
@@ -106,7 +106,7 @@ main:has(.home-heading){padding-top:12px}
   .home-results>.home-overall{order:0;padding:22px 20px}
   .home-results>.home-results-map{order:1}
   .home-results>.home-metros{order:2}
-  .home-results .home-overall .party-row{grid-template-columns:82px minmax(0,1fr) 76px;gap:9px;margin:17px 0}
+  .home-results .home-overall .party-row{grid-template-columns:82px minmax(0,1fr) 94px;gap:9px;margin:17px 0}
   .home-results .home-overall .party-votes{font-size:14px}.home-results .home-overall .party-votes small{font-size:10px}
   .home-results .home-overall .overview-vote-note,.home-panel-caption{font-size:10px}
   .home-results .home-results-map>svg{flex:none;height:auto;max-height:380px}
@@ -120,6 +120,8 @@ main:has(.home-heading){padding-top:12px}
   .home-heading h1{font-size:29px}
   .home-count{display:block}
   .home-results>.home-overall,.home-metros{padding-inline:16px}
-  .home-results .home-overall .party-row{grid-template-columns:70px minmax(0,1fr) 68px;gap:7px}
+  .home-results .home-overall .party-row{grid-template-columns:70px minmax(0,1fr) 94px;gap:7px}
   .home-metro-result{gap:5px}.home-metro-result .party-logo{display:none}
 }
+
+.home-count[hidden],.overview-province-card-foot>[hidden]{display:none}

@@ -25,7 +25,9 @@ function result() {
 
 test('map colors use the displayed ballot and the published province denominator', () => {
   const r = result();
-  assert.deepEqual(leaderFor(r.id, r), { id: r.id, party: 'DEMOCRATIC ALLIANCE', color: '#2872ba', share: 60, status: 'leading', delayed: false });
+  const { movement, ...display } = leaderFor(r.id,r);
+  assert.equal(movement?.delta,null);
+  assert.deepEqual(display, { id: r.id, party: 'DEMOCRATIC ALLIANCE', color: '#2872ba', share: 60, status: 'leading', delayed: false });
   r.level = 'ward';
   assert.equal(leaderFor(r.id, r).party, 'AFRICAN NATIONAL CONGRESS');
   assert.equal(leaderFor(r.id, r).share, 70);

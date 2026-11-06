@@ -56,12 +56,18 @@ The grouped INDEPENDENTS row is displayed in the council's total but cannot be
 selected as one coalition bloc. Its seats remain neutral in the playground.
 
 Selection uses stable IEC party IDs in `?parties=...`. Live refreshes preserve
-the selected IDs and recompute totals, status, diagrams and an open share dialog
-from the new result. Shared links open the latest available allocation; they do
-not promise a frozen historical snapshot. Exported text includes the exact
-snapshot ID, source URL and SAST result time. Square, portrait and status PNGs
-include the seat basis, selected parties, council size, threshold, source,
-timestamp and hypothetical label. Native image sharing falls back to download.
+the selected IDs and recompute the on-page totals, status and diagrams from the
+new result. An open share preview keeps its captured figures; reopening it uses
+the latest allocation. Shared links open the latest available allocation and do
+not promise a frozen historical snapshot.
+
+The image leads the shared sheet, with a large seat total, majority headline,
+seat diagram, Counted branding and a compact source/time footer. Square,
+portrait and story formats preserve the hypothetical and estimated/reported
+labels. Post captions contain just the selected parties, seat total and outcome,
+plus the hypothetical/estimated context. “Share to WhatsApp” is primary and
+“Share” secondary. Native file sharing includes the PNG and caption; the web
+fallback saves the PNG and asks the user to attach it in WhatsApp.
 
 Controls use `aria-pressed`, keyboard activation, 44px minimum heights and a
 single polite result announcement. Seat fills and bar segments transition

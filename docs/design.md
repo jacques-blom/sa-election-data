@@ -220,18 +220,25 @@ They are decorative for assistive technology because the adjacent name identifie
 the party. Independent candidates, aggregates and unavailable logos use a neutral
 marker while retaining their names.
 
-The assets are copied unchanged from the
-[IEC results dashboard](https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx)
-into `public/parties/`. `src/lib/parties/logos.json` records each IEC ID, original
-URL, dimensions, SHA-256 and import time. Lookups use IDs, not abbreviations or
-candidate names. On 5 November 2026, 516 of 519 party images were available;
-three returned 404 and are recorded in the manifest. The images total 1.82 MB,
-are loaded lazily in server-rendered lists, and use content-hashed filenames.
-No visitor request to the IEC is needed to display them.
+The assets come from the IEC's `content/img_parties/` originals, for example
+[the ANC artwork](https://www.elections.org.za/content/img_parties/ANC.jpg).
+The dashboard's `Party_Images` thumbnails have circular frames and shadows
+baked into their pixels; do not use those for future imports. The UI adds no
+background, border, rounded crop or shadow to the original artwork. A circle
+that belongs to a party's actual logo is retained.
+
+`src/lib/parties/logos.json` records each IEC ID, source URL, original and output
+dimensions, SHA-256 fingerprints and import time. Lookups use IDs, not
+abbreviations or candidate names. Full-size originals are archived locally in
+`.data/party-logos/originals/`. Sharp resizes the whole image to fit within 192px
+and encodes it as lossless WebP in `public/parties/`, preserving its aspect ratio
+and transparency. This also handles IEC files whose `.jpg` URLs actually return
+PNG bytes. Images are loaded lazily and use content-hashed filenames; visitors
+do not request files from the IEC.
 
 After importing local results, run `pnpm data:logos` (or `pnpm data:logos 2021`
 for another imported election). It uses the local IEC party directory, downloads
-and validates the PNGs, and regenerates the manifest. Review changes before
+and decodes the originals, and regenerates the manifest. Review changes before
 deploying. The checked-in assets and manifest are sufficient for normal builds.
 
 ## Information architecture and delivery

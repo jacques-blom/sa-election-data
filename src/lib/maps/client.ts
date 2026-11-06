@@ -1,7 +1,9 @@
+import { movementText, movementDescription } from '../history/comparison.ts';
 /// <reference types="google.maps" />
 import { loadGoogleMaps } from '../address/google.ts';
 import type { ResolvedArea } from '../address/selection.ts';
 import { addressSearchBounds } from '../address/scope.ts';
+import { googleAreaView } from '../address/google-area.ts';
 import { googleBoundaries } from './google-boundaries.ts';
 import { regions, mapPlace } from './config.ts';
 import { parseView, type AreaPick, type WardPick } from './viewport.ts';
@@ -50,6 +52,7 @@ let colorsFailed = false;
 let selectionFailed = false;
 const initialPlace = mapPlace(app.dataset.place ?? null);
 const initialView = parseView(new URL(location.href).searchParams.get('view'));
+const initialGooglePlace = new URL(location.href).searchParams.get('google-place');
 const views = {
   'south-africa': { center: [24.5, -29.4] as [number, number], zoom: 4.8 },
   'cape-town': regions['cape-town'], hantam: regions.hantam,
@@ -80,6 +83,8 @@ function updateUrl() {
   if (selected) url.searchParams.set('ward', selected);
   if (selectedArea?.url.startsWith('/2026/places/')) url.searchParams.set('place', selectedArea.url.split('/').at(-1)!);
   if (selectedArea?.url.startsWith('/2026/provinces/')) url.searchParams.set('province', selectedArea.url.split('/').at(-1)!);
+  if (selectedArea?.kind === 'district') url.searchParams.set('district', selectedArea.id);
+  if (selectedArea?.googlePlaceId) url.searchParams.set('google-place', selectedArea.googlePlaceId);
   history.replaceState(null, '', url);
 }
 function highlight() {
@@ -98,7 +103,7 @@ function updateHeading() {
   scope.hidden = overlay.level !== 'province' || !!selected || !!selectedArea;
   home.hidden = overlay.level === 'province' && !selected && !selectedArea;
   reset.hidden = !selected && !selectedArea;
-  browse.hidden = !!selected || !!selectedArea;
+  browse.hidden = !!selected || (!!selectedArea && !selectedArea.googlePlaceId);
   panel.hidden = !selected && !selectedArea;
   if (selectedArea) {
     title.textContent = selectedArea.name;
@@ -116,7 +121,7 @@ function updateHeading() {
 }
 function leaderLabel(leader?: MapLeader) {
   if (!leader) return 'Loading result…';
-  if (leader.party) return `${partyStyle(leader.party)[0]} ${leader.share!.toFixed(1)}%${leader.delayed ? ' · delayed' : ''}`;
+  if (leader.party) return `${partyStyle(leader.party)[0]} ${leader.share!.toFixed(1)}%${leader.movement?.delta !== null && leader.movement ? ` · ${movementText(leader.movement)} since ${leader.movement.previousYear}` : ''}${leader.delayed ? ' · delayed' : ''}`;
   return leader.status === 'tied' ? 'Tied' : leader.status === 'awaiting' ? 'Awaiting votes' : 'Result unavailable';
 }
 function paintResults() {
@@ -249,13 +254,23 @@ function goHome() {
 }
 async function showArea(area: ResolvedArea, fit = true) {
   clearSelection();
+  if (area.kind === 'ward') {
+    if (fit && area.bbox) fitBounds(area.bbox);
+    void chooseWard(area.id);
+    return;
+  }
   selectedArea = area;
   const version = generation;
   updateHeading();
   updateUrl();
-  const link = text('a', `View ${area.name} results ↗`, 'button primary');
+  if (area.googlePlaceId) {
+    panel.replaceChildren(text('p', 'Showing Google Maps’ view of this area. A matching results boundary is not available yet; choose a ward to see its results.', 'map-hint'));
+    if (area.bbox && fit) fitBounds(area.bbox);
+    return;
+  }
+  const link = text('a', area.kind === 'district' ? 'View local municipalities ↗' : `View ${area.name} results ↗`, 'button primary');
   link.href = area.url;
-  panel.replaceChildren(text('p', 'Results for this whole area.', 'map-hint'), link);
+  panel.replaceChildren(text('p', area.kind === 'district' ? 'Explore the local municipalities in this district.' : 'Results for this whole area.', 'map-hint'), link);
   if (area.bbox && fit) fitBounds(area.bbox);
   if (!area.geometry) return;
   try {
@@ -265,6 +280,25 @@ async function showArea(area: ResolvedArea, fit = true) {
     if (version === generation) areaOutline.addGeoJson(feature);
   } catch {
     if (version === generation) append(panel, text('p', 'The area outline couldn’t load. Its full results are still available.', 'map-hint'));
+  }
+}
+async function restoreGoogleArea(id: string, fit: boolean) {
+  const version = generation;
+  try {
+    const { Place } = await google.maps.importLibrary('places') as google.maps.PlacesLibrary;
+    const place = new Place({ id });
+    await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'viewport', 'types', 'addressComponents'] });
+    if (version !== generation) return;
+    const country = place.addressComponents?.find(component => component.types.includes('country'))?.shortText;
+    const area = country === 'ZA' ? googleAreaView(place) : undefined;
+    if (!area) throw new Error('Area unavailable');
+    await showArea(area, fit);
+  } catch {
+    if (version === generation) {
+      const status = element<HTMLElement>('map-search-status');
+      status.hidden = false;
+      status.textContent = 'This place couldn’t load. Search for it again or browse the map.';
+    }
   }
 }
 async function dataFor(id: string, force = false, signal?: AbortSignal) {
@@ -291,7 +325,31 @@ function renderResult(data: MapWardResponse) {
       const name = text('strong', short!);
       name.title = party.name;
       name.setAttribute('aria-label', party.name);
-      append(heading, name, text('span', party.share === null ? 'Unavailable' : `${party.share.toFixed(1)}%`, 'map-party-share'));
+      const identity = text('div', '', 'party-identity');
+      const logo = text('span', '', `party-logo party-logo--small${party.logo ? '' : ' party-logo--fallback'}`);
+      logo.setAttribute('aria-hidden', 'true');
+      if (party.logo) {
+        const image = document.createElement('img');
+        image.src = party.logo;
+        image.alt = '';
+        image.width = image.height = 22;
+        image.decoding = 'async';
+        image.addEventListener('error', () => {
+          image.remove();
+          logo.classList.add('party-logo--fallback');
+        }, { once: true });
+        append(logo, image);
+      }
+      name.classList.add('party-identity-text');
+      append(identity, logo, name);
+      const share = text('span', party.share === null ? 'Unavailable' : `${party.share.toFixed(1)}%`, 'map-party-share');
+      append(heading, identity, share);
+      if (party.movement) {
+        const movement = text('span', movementText(party.movement), 'party-movement');
+        movement.title = movementDescription(party.movement);
+        movement.setAttribute('aria-label', movementDescription(party.movement));
+        append(share, movement);
+      }
       const track = text('div', '', 'bar-track'), bar = text('div', '', 'bar');
       bar.style.setProperty('--share', `${party.share ?? 0}%`);
       bar.style.setProperty('--party', color!);
@@ -300,6 +358,7 @@ function renderResult(data: MapWardResponse) {
       append(row, heading, track, text('small', party.votes === null ? 'Votes unavailable' : `${formatNumber(party.votes)} votes`));
       append(card, row);
     }
+    append(card, text('p', 'Change since 2021 in percentage points. Changes compare combined ballot shares; boundaries may differ.', 'comparison-note'));
     if (result.progress) append(card, text('p', `${result.progress.completed} of ${result.progress.expected} districts reported`, 'map-hint'));
     if (result.freshness) append(card, text('p', result.freshness, 'map-hint'));
   }
@@ -438,6 +497,7 @@ async function start() {
     clearSelection();
     if (app.dataset.ward) void chooseWard(app.dataset.ward, undefined, !initialView);
     else if (app.dataset.area) void showArea(JSON.parse(app.dataset.area) as ResolvedArea, !initialView);
+    else if (initialGooglePlace && initialGooglePlace.length <= 256) void restoreGoogleArea(initialGooglePlace, !initialView);
     else if (!initialView && app.dataset.bounds) fitBounds(JSON.parse(app.dataset.bounds));
     else if (!initialView && initialPlace === 'south-africa') goHome();
     reset.addEventListener('click', clearSelection);

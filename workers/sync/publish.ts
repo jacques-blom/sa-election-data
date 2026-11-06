@@ -7,6 +7,7 @@ import { acquireLock, ensureSource, readState, releaseLock, waitForFetchSlot, ty
 
 import { archivedRaw, packRecords, prepareRecords, type DirectoryRecord } from './pack.ts';
 import { reserveBudget } from './budget.ts';
+import { updateStatements } from './updates.ts';
 
 export const election = ELECTIONS.find((entry) => entry.year === LIVE_YEAR)!;
 
@@ -145,7 +146,8 @@ export async function refreshSource(env: SyncEnv, source: Source, names: Readonl
     const guard = `EXISTS(SELECT 1 FROM sync_locks WHERE name=? AND token=? AND expires_at>?)
       AND EXISTS(SELECT 1 FROM source_documents WHERE id=? AND active_snapshot_id IS ?)`;
     const fence = [source.id, lock, publishedAt, source.id, previous.active_snapshot_id];
-    const statements: D1PreparedStatement[] = [];
+    const statements: D1PreparedStatement[] = await updateStatements(env, source, content,
+      previous.active_snapshot_id, snapshotId, fetched.checkedAt, publishedAt, guard, fence);
     for (const { key, directory: row } of content.records) {
       const old = directory.get(key);
       directory.delete(key);

@@ -1,10 +1,6 @@
 import type { APIRoute } from 'astro';
-import { env } from 'cloudflare:workers';
-import { searchDirectory } from '../../lib/places/directory.ts';
-import { placeUrl, searchPlaces } from '../../lib/places/catalogue.ts';
-import { rankPlaceSuggestions } from '../../lib/places/suggestions.ts';
-import { provinces, provinceUrl } from '../../lib/overview/results.ts';
-import type { AreaSuggestion } from '../../lib/address/selection.ts';
+import { searchElectionAreas } from '../../lib/address/election-search.ts';
+import { addressSearchBounds } from '../../lib/address/scope.ts';
 
 const headers = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' };
 // A unified field can contain an address. Keep its raw text out of URLs and caches.
@@ -29,14 +25,8 @@ export const POST: APIRoute = async ({ request, url }) => {
     }
     const query = body.query.trim();
     if (query.length < 2) return Response.json({ suggestions: [] }, { headers });
-    const provinceMatches: AreaSuggestion[] = provinces.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.code.toLowerCase() === query.toLowerCase())
-      .map(p => ({ name: p.name, description: 'Province · election results', url: provinceUrl(p) }));
-    let places: Awaited<ReturnType<typeof searchDirectory>>['places'];
-    try { places = (await searchDirectory(env.GEOGRAPHY_DB ?? env.RESULTS_DB, query, 6)).places; }
-    catch { places = []; }
-    places = rankPlaceSuggestions(query, [...places, ...searchPlaces(query)]).slice(0, 6);
-    return Response.json({ suggestions: [...provinceMatches, ...places.map(p => ({ name: p.name,
-      description: `${p.kind === 'metro' ? 'Metro' : p.kind === 'municipality' ? 'Municipality' : p.kind === 'suburb' ? 'Suburb' : 'Town'} · ${p.province}`, url: placeUrl(p) }))].slice(0, 6) }, { headers });
+    if (body.bbox !== undefined && !addressSearchBounds(body.bbox)) return Response.json({ error: 'Invalid search scope' }, { status: 400, headers });
+    return Response.json({ suggestions: searchElectionAreas(query, body.bbox) }, { headers });
   } catch (error) {
     return Response.json({ error: error instanceof SyntaxError ? 'Invalid search' : 'Search is temporarily unavailable' }, { status: error instanceof SyntaxError ? 400 : 503, headers });
   }

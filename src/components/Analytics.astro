@@ -1,0 +1,31 @@
+---
+// Keep development, previews and the workers.dev hostname out of production reports.
+const enabled = Astro.url.hostname === 'counted.co.za';
+---
+
+{enabled && <>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+
+    // Search terms, selected addresses and map coordinates can appear in URLs.
+    // Strip query strings and fragments before any Analytics events are queued.
+    const analyticsUrl = (value) => {
+      try {
+        const url = new URL(value);
+        return url.origin + url.pathname;
+      } catch {
+        return '';
+      }
+    };
+    gtag('set', {
+      page_location: analyticsUrl(window.location.href),
+      page_referrer: analyticsUrl(document.referrer),
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+    });
+    gtag('js', new Date());
+    gtag('config', 'G-3ZMP92JG7N');
+  </script>
+  <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-3ZMP92JG7N"></script>
+</>}

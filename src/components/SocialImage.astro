@@ -1,0 +1,18 @@
+---
+import { ogImageUrl, OG_WIDTH, OG_HEIGHT } from '../lib/og/model.ts';
+interface Props { canonical: string; title: string; description: string }
+const { canonical, title, description } = Astro.props;
+const image = ogImageUrl(canonical);
+const alt = `${title} · Counted — South African local elections`;
+---
+<meta property="og:locale" content="en_ZA"/>
+<meta property="og:image" content={image}/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:image:width" content={String(OG_WIDTH)}/>
+<meta property="og:image:height" content={String(OG_HEIGHT)}/>
+<meta property="og:image:alt" content={alt}/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content={`${title} · Counted`}/>
+<meta name="twitter:description" content={description}/>
+<meta name="twitter:image" content={image}/>
+<meta name="twitter:image:alt" content={alt}/>

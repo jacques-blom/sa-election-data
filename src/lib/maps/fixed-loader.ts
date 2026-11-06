@@ -1,4 +1,7 @@
+export {};
+const mounted = new Map<HTMLElement, () => void>();
 // Keep the renderer, WebGL worker and tile requests off the critical path.
+let generation = 0;
 let renderer:Promise<typeof import('./fixed-client.ts')>|undefined;
 const observer=new IntersectionObserver(entries=>{
  for(const entry of entries){
@@ -6,7 +9,12 @@ const observer=new IntersectionObserver(entries=>{
   observer.unobserve(entry.target);
   const figure=entry.target as HTMLElement;
   renderer??=import('./fixed-client.ts');
-  void renderer.then(module=>module.mountRegionMap(figure)).catch(()=>{
+  const version = generation;
+  void renderer.then(module=>{
+   if(version !== generation || !figure.isConnected || !figure.hasAttribute('data-region-map') || mounted.has(figure))return;
+   const dispose = module.mountRegionMap(figure);
+   if(dispose)mounted.set(figure,dispose);
+  }).catch(()=>{
    const status=figure.querySelector<HTMLElement>('.region-map-status');
    if(status)status.textContent='Map preview is unavailable. Use the area links below or open the full map.';
   });
@@ -22,3 +30,11 @@ function observeMaps() {
 }
 observeMaps();
 document.addEventListener('results:updated', observeMaps);
+
+document.addEventListener('results:before-year-change', () => {
+  generation++;
+  observer.disconnect();
+  for (const [figure, dispose] of mounted) { dispose(); observed.delete(figure); }
+  mounted.clear();
+  document.querySelectorAll<HTMLElement>('[data-region-map]').forEach(figure => observed.delete(figure));
+});

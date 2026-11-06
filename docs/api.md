@@ -36,6 +36,7 @@ directly in your browser.
 
 - [`/api/v1`](/api/v1) — API information and caveats.
 - [`/api/v1/sync`](/api/v1/sync) — scheduler heartbeat, source freshness, pending jobs, failures and latest publication.
+- [`/api/v1/updates`](/api/v1/updates) — recorded ward wins, council outcomes, completed counts and linked corrections. The [Latest updates page](/updates) presents the same records.
 - [`/api/v1/elections`](/api/v1/elections) — imported elections and source health.
 - [`/api/v1/elections/2026`](/api/v1/elections/2026) — coverage and the IEC's expected area counts.
 - [`/api/v1/elections/2026/areas?level=municipality`](/api/v1/elections/2026/areas?level=municipality) — browse municipalities.
@@ -58,6 +59,35 @@ that two elections used the same boundary.
 List responses include `limit`, `offset` and `total`. Increase `offset` by `limit`
 to fetch the next page; stop when `offset + limit >= total`. Area lists return
 an `areas` array, and source lists return a `sources` array.
+
+## Milestone updates
+
+`/api/v1/updates` accepts `type` (`all`, `wins`, `councils`, `complete`,
+`corrections`), `province` (IEC ID 1–9), `q` (municipality/ward text, at most
+80 characters), and `limit` (1–50, default 30). Results are newest first.
+Use `before=next_before` for older records, `after=latest_id` for newer records,
+or `event=ID` for one saved announcement. Use only one cursor at a time.
+`/updates?event=ID` is its permanent HTML link. Invalid filters return 400,
+a missing event returns 404, and a database outage returns 503.
+
+Each update preserves the relevant `before` and `after` facts, source URL,
+snapshot IDs, IEC report time, observation time, and publication time.
+`previous_event_id` links a correction to its earlier announcement;
+`superseded_by` flags an announcement that has since been revised. These facts
+remain available after older raw result packs expire. The source URL always
+points to the IEC's current file, not an immutable archived copy.
+
+The feed uses explicit reported ward seats and complete, reconciled council
+allocations. It never turns a vote leader or estimated allocation into a win.
+Count completion requires all expected voting districts in a municipality to
+report. A reported outcome is still provisional until officially declared.
+Routine vote changes and regenerated report timestamps do not produce posts.
+Historical comparisons are not inferred from matching ward numbers.
+
+The first import is a baseline, not a fresh announcement. On rollout, the
+importer compares changes against the preceding published snapshot. This feed
+does not reconstruct announcements from before tracking began. Before the feed
+schema/publisher is activated, `status` is `not_started` and `updates` is empty.
 
 ## Caching and errors
 

@@ -36,7 +36,7 @@ test('summary shares use reported valid ballots without inflating a partial part
   r.results.parties[0]!.votes.source_total=300;r.results.parties[1]!.votes.source_total=200;
   const b=summaryBallot(r);assert.equal(b.total,1000);assert.equal(b.unlisted,500);
   assert.deepEqual(b.parties.map(p=>p.share),[30,20]);assert.equal(b.topShown?.party_name,'Party 1');
-  const text=summaryShareText(r,'Example province');assert.match(text,/30.0%/);assert.match(text,/selected parties only/);assert.match(text,/combined ward \+ municipal PR/);
+  const text=summaryShareText(r,'Example province');assert.match(text,/30.0%/);assert.match(text,/Selected parties only/);assert.match(text,/combined ward \+ municipal PR/);
 });
 test('invalid, missing and conflicting summary counts never produce shares or a leader',()=>{
   const r=result();r.level='national';
@@ -62,7 +62,7 @@ test('province map shares keep the published denominator, scope and province lin
     assert.equal(label.result,'ANC 30.0%');
     assert.match(label.href,/^\/2026\/provinces\/[a-z-]+$/);
     assert.match(label.description,/Preliminary results/);
-    assert.match(label.description,/selected parties only/);
+    assert.match(label.description,/Selected parties only/);
     assert.match(label.description,/99.9% of voting districts reporting/);
   }
 });

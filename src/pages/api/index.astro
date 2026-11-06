@@ -1,6 +1,8 @@
 ---
 import { Content, getHeadings } from '../../../docs/api.md';
 import Brand from '../../components/Brand.astro';
+import Analytics from '../../components/Analytics.astro';
+import SocialImage from '../../components/SocialImage.astro';
 
 const sections = getHeadings().filter((heading) => heading.depth === 2);
 const title = 'API documentation · Counted';
@@ -23,6 +25,8 @@ const canonical = new URL('/api', Astro.url.origin).href;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
+    <SocialImage canonical={canonical} title="API documentation" description={description}/>
+    <Analytics/>
   </head>
   <body>
     <a class="skip" href="#documentation">Skip to documentation</a>
