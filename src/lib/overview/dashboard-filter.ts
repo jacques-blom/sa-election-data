@@ -34,5 +34,5 @@ export function councilFilterUrl(filters: Partial<CouncilFilters>, anchor = 'cou
   const params = new URLSearchParams();
   for (const key of ['q', 'province', 'status', 'party'] as const) if (filters[key]) params.set(key, filters[key]!);
   if (filters.changed) params.set('changed', '1');
-  return '/' + (params.size ? `?${params}` : '') + (anchor ? `#${anchor}` : '');
+  return '/councils' + (params.size ? `?${params}` : '') + (anchor ? `#${anchor}` : '');
 }

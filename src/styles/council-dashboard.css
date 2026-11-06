@@ -81,17 +81,23 @@
 .dashboard-highlights h2{font-size:18px;font-weight:550;margin:0 0 16px;letter-spacing:-.3px}
 .dashboard-highlights h2 a{text-decoration:none}
 .dashboard-highlight-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.dashboard-highlight{--highlight-ink:var(--ink);--highlight-muted:var(--muted);position:relative;min-width:0;overflow:hidden;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--paper);color:var(--highlight-ink)}
+.dashboard-highlight.highlight-panel--changes{--highlight-ink:#fffdf5;--highlight-muted:#f0f3f7}
+.dashboard-highlight.highlight-panel--movement{background:#eef0dd;border-color:#dce2c8}
 .dashboard-highlight h3{font-size:14px;font-weight:550;line-height:1.4;margin:0 0 5px;letter-spacing:0}
 .dashboard-highlight h3 a{text-decoration:none}
 .dashboard-highlight ul{list-style:none;margin:10px 0 0;padding:0}
 .dashboard-highlight li{margin-top:10px;font-size:12px;line-height:1.5}
 .dashboard-highlight li>a{text-decoration:none;font-weight:550}
-.dashboard-highlight li>span{display:block;color:var(--muted);font-size:11px}
-.dashboard-highlight strong{font-weight:550;color:var(--ink);font-variant-numeric:tabular-nums}
+.dashboard-highlight li>span{display:block;color:var(--highlight-muted);font-size:11px}
+.dashboard-highlight strong{font-weight:550;color:var(--highlight-ink);font-variant-numeric:tabular-nums}
 .dashboard-highlight abbr{text-decoration:none}
-.dashboard-highlight-basis{font-size:11px;color:var(--muted);line-height:1.5;margin:5px 0 0}
+.dashboard-highlight-basis{font-size:11px;color:var(--highlight-muted);line-height:1.5;margin:5px 0 0}
 .dashboard-highlights a:hover{text-decoration:underline;text-underline-offset:3px}
 .dashboard-directory [hidden],.dashboard-hero [hidden]{display:none!important}
+@media print,(forced-colors:active){
+  .dashboard-highlight.highlight-panel--changes{--highlight-ink:var(--ink);--highlight-muted:var(--muted)}
+}
 @media(max-width:850px){
   .dashboard-council{grid-template-columns:minmax(140px,1fr) minmax(180px,1.25fr) minmax(120px,.7fr);gap:20px}
   .dashboard-council h3{font-size:18px}

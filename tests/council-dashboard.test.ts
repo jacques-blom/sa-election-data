@@ -4,7 +4,7 @@ import { normalize } from '../src/lib/data/normalize.ts';
 import { ELECTIONS, sourceFor } from '../src/lib/data/catalogue.ts';
 import { closeRace, closeCouncilRace, comparisonShares, councilSnapshot } from '../src/lib/overview/snapshot.ts';
 import { dashboardCouncils, dashboardHighlights } from '../src/lib/overview/dashboard.ts';
-import { councilFilters, matchesCouncil, partyMajorityChanges } from '../src/lib/overview/dashboard-filter.ts';
+import { councilFilters, councilFilterUrl, matchesCouncil, partyMajorityChanges } from '../src/lib/overview/dashboard-filter.ts';
 import { nationalUrl } from '../src/lib/history/comparison.ts';
 
 const source = sourceFor(ELECTIONS.find(e => e.year === 2026)!, '9909');
@@ -119,7 +119,7 @@ test('a count to watch stays useful when no tight race qualifies', () => {
   assert.equal(dashboardHighlights(dashboardCouncils(new Map([['9909',snapshot]]))).watch,null);
 });
 
-test('status, party, province and change filters select the same councils; country history retains its own route', () => {
+test('status, party, province and change filters select the same councils; current national results use the homepage', () => {
   const now=councilSnapshot(records())!;
   const all=dashboardCouncils(new Map([['9909',now]]));
   let filters=councilFilters(new URLSearchParams('q=WC022&province=9&status=majority&party=1'));
@@ -127,5 +127,7 @@ test('status, party, province and change filters select the same councils; count
   filters.changed=true;assert.equal(all.filter(c=>matchesCouncil(c,filters)).length,0);
   filters=councilFilters(new URLSearchParams('province=evil&status=estimated&party=hello'));
   assert.equal(filters.province,'');assert.equal(filters.status,'');assert.equal(filters.party,'');
-  assert.equal(nationalUrl(2026),'/national-results');assert.equal(nationalUrl(2021),'/2021');
+  assert.equal(councilFilterUrl({province:'9', status:'pending'}), '/councils?province=9&status=pending#councils');
+  assert.equal(councilFilterUrl({}), '/councils#councils');
+  assert.equal(nationalUrl(2026),'/');assert.equal(nationalUrl(2021),'/2021');
 });

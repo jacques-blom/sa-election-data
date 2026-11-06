@@ -173,7 +173,7 @@ test('cancelling text-only native sharing does not download an image or copy a l
 });
 
 test('council dashboard sharing retains public filters and omits search text', () => {
-  assert.equal(publicShareUrl('https://counted.co.za/?province=9&status=no-majority&party=52&changed=1&q=private#councils'),
-    'https://counted.co.za/?province=9&status=no-majority&party=52&changed=1');
-  assert.equal(publicShareUrl('https://counted.co.za/?province=99&status=estimated&party=bad&changed=false'), 'https://counted.co.za/');
+  assert.equal(publicShareUrl('https://counted.co.za/councils?province=9&status=no-majority&party=52&changed=1&q=private#councils'),
+    'https://counted.co.za/councils?province=9&status=no-majority&party=52&changed=1');
+  assert.equal(publicShareUrl('https://counted.co.za/councils?province=99&status=estimated&party=bad&changed=false'), 'https://counted.co.za/councils');
 });

@@ -18,17 +18,17 @@ const hasHighlights = !!(h?.changes.length || h?.gains.length || h?.losses.lengt
 {hasHighlights && <section class="dashboard-highlights" id="highlights" data-dashboard-highlights hidden={hidden} aria-labelledby="highlights-heading">
   <h2 id="highlights-heading"><a href="/highlights">Highlights</a></h2>
   <div class="dashboard-highlight-list">
-    {!!h?.changes.length && <section class="dashboard-highlight">
+    {!!h?.changes.length && <section class="dashboard-highlight highlight-panel highlight-panel--changes">
       <h3><a href="/highlights#majority-changes">{h.changes.length} majority {h.changes.length === 1 ? 'change' : 'changes'}</a></h3>
       <p class="dashboard-highlight-basis">Since {previousYear}</p>
       <ul>{h.changes.slice(0, 2).map(c => <li><a href={c.href}>{c.name}</a><span>{majorityLabel(c.previousWinner)} → {majorityLabel(c.winner)}</span></li>)}</ul>
     </section>}
-    {!!(h?.gains.length || h?.losses.length) && <section class="dashboard-highlight">
+    {!!(h?.gains.length || h?.losses.length) && <section class="dashboard-highlight highlight-panel highlight-panel--movement">
       <h3><a href="/highlights#vote-swings">Biggest moves</a></h3>
       <p class="dashboard-highlight-basis">Ward + PR vote share · Since {previousYear}</p>
       <ul>{[h?.gains[0], h?.losses[0]].filter(Boolean).map(m => m && <li><a href={m.council.href}>{m.council.name}</a><span>{partyStyle(m.party.name)[0]} <strong>{m.delta > 0 ? '+' : '−'}{Math.abs(m.delta).toFixed(1)} <abbr title="percentage points">pp</abbr></strong></span></li>)}</ul>
     </section>}
-    {(race || watch) && <section class="dashboard-highlight">
+    {(race || watch) && <section class="dashboard-highlight highlight-panel highlight-panel--race">
       <h3><a href="/highlights#close-races">{race ? 'Closest pending race' : 'Count to watch'}</a></h3>
       {race ? <><p class="dashboard-highlight-basis">{wardRace ? 'Ward votes' : 'Municipal PR votes'}</p><ul><li><a href={raceHref}>{raceName}</a><span><strong>{race.tied ? 'Tied' : `${formatNumber(race.margin)} votes apart`}</strong></span></li></ul><p class="dashboard-highlight-basis">{race.progress.completed}/{race.progress.expected} districts reporting</p></>
         : watch && <><ul><li><a href={watch.href}>{watch.name}</a><span>Seats pending</span></li></ul><p class="dashboard-highlight-basis">{watch.progress!.completed}/{watch.progress!.expected} districts reporting</p></>}

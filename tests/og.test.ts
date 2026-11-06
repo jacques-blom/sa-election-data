@@ -11,9 +11,11 @@ import { ogSvg } from '../src/lib/og/svg.ts';
 import { boundaryOgMap, loadOgMap, nationalOgMap, type Boundary, type Boundaries } from '../src/lib/og/maps.ts';
 
 test('all public page families have contextual OG images, across supported elections', async () => {
-  for (const path of ['/', '/map', '/find-address', '/search', '/updates', '/majority-builder', '/api', '/privacy', '/terms', '/disclaimer', '/2026/places/cape-town/coalition']) {
+  for (const path of ['/', '/councils', '/national-results', '/map', '/find-address', '/search', '/updates', '/majority-builder', '/api', '/privacy', '/terms', '/disclaimer', '/2026/places/cape-town/coalition']) {
     assert(await ogPageForPath(path), path);
   }
+  assert.equal((await ogPageForPath('/'))?.title, 'National results');
+  assert.equal((await ogPageForPath('/councils'))?.title, 'Council results');
   for (const { year } of ELECTIONS) {
     assert.equal((await ogPageForPath(`/${year}`))?.year, year);
     for (const province of provinces) assert.equal((await ogPageForPath(`/${year}/provinces/${province.slug}`))?.title, province.name);
@@ -36,11 +38,11 @@ test('directory towns retain their names and geographic scope without fetching r
 });
 
 test('OG links discard addresses, search terms, ballot and coalition state', () => {
-  assert.equal(ogImageUrl('https://counted.co.za/?address=private#result'), 'https://counted.co.za/og/v3/index.png');
-  assert.equal(ogImageUrl('https://counted.co.za/search/?q=private&lat=-33'), 'https://counted.co.za/og/v3/search.png');
-  assert.equal(ogImageUrl('https://counted.co.za/2026/places/cape-town/coalition?parties=1,2'), 'https://counted.co.za/og/v3/2026/places/cape-town/coalition.png');
-  assert.equal(ogImageUrl('http://localhost:4321/2026/places/witzenberg?ballot=ward'), 'https://counted.co.za/og/v3/2026/places/witzenberg.png');
-  assert.equal(ogImageUrl('https://preview.example/api'), 'https://counted.co.za/og/v3/api.png');
+  assert.equal(ogImageUrl('https://counted.co.za/?address=private#result'), 'https://counted.co.za/og/v4/index.png');
+  assert.equal(ogImageUrl('https://counted.co.za/search/?q=private&lat=-33'), 'https://counted.co.za/og/v4/search.png');
+  assert.equal(ogImageUrl('https://counted.co.za/2026/places/cape-town/coalition?parties=1,2'), 'https://counted.co.za/og/v4/2026/places/cape-town/coalition.png');
+  assert.equal(ogImageUrl('http://localhost:4321/2026/places/witzenberg?ballot=ward'), 'https://counted.co.za/og/v4/2026/places/witzenberg.png');
+  assert.equal(ogImageUrl('https://preview.example/api'), 'https://counted.co.za/og/v4/api.png');
 });
 
 test('provisional votes, complete counts, seats and claimed confirmation cannot enter an OG image', async () => {

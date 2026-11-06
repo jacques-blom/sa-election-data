@@ -1,10 +1,10 @@
 ---
-// Keep existing links working while using one council directory on the homepage.
+// Keep existing links working while using one council directory on the councils page.
 const params = new URLSearchParams();
 for (const key of ['q', 'province']) {
   const value = Astro.url.searchParams.get(key);
   if (value) params.set(key, value);
 }
 if (Astro.url.searchParams.get('status') === 'pending') params.set('status', 'pending');
-return Astro.redirect('/' + (params.size ? `?${params}` : '') + '#councils', 302);
+return Astro.redirect('/councils' + (params.size ? `?${params}` : '') + '#councils', 302);
 ---

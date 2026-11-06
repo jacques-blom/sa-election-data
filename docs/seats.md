@@ -48,7 +48,7 @@ labelled **IEC-reported**, **provisional**, rather than independently declared.
 
 ## Playground
 
-The homepage is the shared council directory: all 213 current metros and local
+The councils page (`/councils`) is the shared council directory: all 213 current metros and local
 municipalities, with all metros first and available results prioritised within metros and locals.
 It offers outcome chips, province filtering, party summary links and links
 into the builder. Its cards display reported or estimated seat bars; estimates stay
@@ -62,7 +62,7 @@ when a party already holds a reported or estimated seat majority. Ward and votin
 invitations use the parent council's allocation, not their local vote shares. Grouped
 independents do not count as a single party. Province and council-update pages retain
 their general invitations. The builder keeps its target, majority success
-state, reset and next-council link; choosing another council returns to the homepage.
+state, reset and next-council link; choosing another council returns to the councils page.
 
 `/2026/places/{slug}/coalition` adapts the mockup's party controls, semicircular
 seat diagram, segmented bar and share tools to the municipality's current seats.

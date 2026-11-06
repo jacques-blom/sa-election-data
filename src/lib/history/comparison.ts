@@ -5,7 +5,7 @@ import type { Result } from '../places/results.ts';
 export const latestYear = ELECTIONS[ELECTIONS.length - 1]!.year;
 export const previousElection = (year: number) => ELECTIONS[ELECTIONS.findIndex(e => e.year === year) - 1]?.year ?? null;
 export const electionYear = (value?: string) => ELECTIONS.find(e => String(e.year) === value)?.year;
-export const nationalUrl = (year: number) => year === latestYear ? '/national-results' : `/${year}`;
+export const nationalUrl = (year: number) => year === latestYear ? '/' : `/${year}`;
 export type VoteBasis = 'pr' | 'ward' | 'source_total';
 export type Movement = { delta: number | null; previousYear: number; basis: VoteBasis; combinedFallback: boolean; previousShare: number | null; currentShare: number | null; reason?: string };
 type Party = Result['results']['parties'][number];

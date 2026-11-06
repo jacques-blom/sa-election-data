@@ -72,7 +72,7 @@ export function dashboardHighlights(councils: DashboardCouncil[]) {
     wardCoverage: councils.reduce((n, c) => n + (c.snapshot?.wardsCovered ?? 0), 0) };
 }
 
-/** Reads compact source summaries; never downloads all municipality/ward packs for the homepage.
+/** Reads compact source summaries; never downloads all municipality/ward packs for the council dashboard.
  * Existing local imports are derived from D1. During rollout, only metros need fallback pack reads. */
 export async function getCouncilDashboard(db: D1Database, bucket?: R2Bucket) {
   const previousYear = previousElection(latestYear)!;

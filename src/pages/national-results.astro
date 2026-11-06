@@ -1,13 +1,3 @@
 ---
-import NationalResults from '../components/overview/NationalResults.astro';
-import { env } from 'cloudflare:workers';
-import { getNationalOverview } from '../lib/overview/results.ts';
-import { latestYear } from '../lib/history/comparison.ts';
-const year = latestYear;
-let data: Awaited<ReturnType<typeof getNationalOverview>> | null = null;
-try { data = await getNationalOverview(env.RESULTS_DB, env.RAW_RESULTS, year); } catch(error) { console.error('National overview unavailable',error); }
-Astro.response.status = data ? 200 : 503;
-Astro.response.headers.set('Cache-Control', data ? 'public, max-age=15, s-maxage=15' : 'no-store');
-if (!data) Astro.response.headers.set('Retry-After','60');
+return Astro.redirect('/' + Astro.url.search, 301);
 ---
-<NationalResults year={year} data={data}/>

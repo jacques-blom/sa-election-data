@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { Window, type HTMLElement, type HTMLInputElement, type HTMLDetailsElement } from 'happy-dom';
 
 test('party outcomes, province counts, private search and live updates share one compact results view', async () => {
-  const window = new Window({ url: 'https://counted.co.za/' });
+  const window = new Window({ url: 'https://counted.co.za/councils' });
   const { document } = window;
   let intersect = () => {}, observers = 0;
   const observed: unknown[] = [];
@@ -22,18 +22,18 @@ test('party outcomes, province counts, private search and live updates share one
     <form id="council-filters">
       ${['q', 'province', 'status', 'party', 'changed'].map(name => `<input type="hidden" name="${name}">`).join('')}
       <details data-province-picker><summary><span data-province-label>All provinces</span></summary>
-        <div>${[['', 'All provinces'], ['9', 'Western Cape'], ['1', 'Eastern Cape']].map(([id, name]) => `<a href="/?province=${id}" data-council-province="${id}"><span>${name}</span></a>`).join('')}</div>
+        <div>${[['', 'All provinces'], ['9', 'Western Cape'], ['1', 'Eastern Cape']].map(([id, name]) => `<a href="/councils?province=${id}" data-council-province="${id}"><span>${name}</span></a>`).join('')}</div>
       </details>
       <details><summary>More filters <span data-more-filter-active hidden>1</span></summary>
-        <a href="/?changed=1" data-council-changed role="switch" aria-checked="false">Majority changed since 2021</a>
+        <a href="/councils?changed=1" data-council-changed role="switch" aria-checked="false">Majority changed since 2021</a>
       </details>
     </form>
     <nav>
-      ${['', 'no-majority', 'pending'].map(s => `<a href="/?status=${s}" data-council-outcome="${s}">${s || 'All councils'}<span data-status-count="${s || 'all'}"></span></a>`).join('')}
-      <a data-party-filter="1" href="/?status=majority&party=1"><abbr>ANC</abbr> majority <strong data-party-count></strong></a>
-      <a data-party-filter="2" href="/?status=majority&party=2"><abbr>DA</abbr> majority <strong data-party-count></strong></a>
+      ${['', 'no-majority', 'pending'].map(s => `<a href="/councils?status=${s}" data-council-outcome="${s}">${s || 'All councils'}<span data-status-count="${s || 'all'}"></span></a>`).join('')}
+      <a data-party-filter="1" href="/councils?status=majority&party=1"><abbr>ANC</abbr> majority <strong data-party-count></strong></a>
+      <a data-party-filter="2" href="/councils?status=majority&party=2"><abbr>DA</abbr> majority <strong data-party-count></strong></a>
     </nav>
-    <div class="dashboard-list-meta"><p data-council-count></p><a href="/" data-council-clear>Clear filters</a></div>
+    <div class="dashboard-list-meta"><p data-council-count></p><a href="/councils#councils" data-council-clear>Clear filters</a></div>
     <div data-party-change hidden><span data-party-change-name></span><span data-party-change-scope></span><span data-party-change-gained></span><span data-party-change-lost></span><span data-party-change-empty hidden>No comparable results</span></div>
     <div data-council-empty hidden></div>
     ${Array.from({ length: 30 }, (_, i) => `<article data-council-row data-search="${i === 0 ? 'cape town cpt' : 'example ' + i}" data-province="${i < 10 ? '9' : '1'}" data-status="${i === 0 ? 'majority' : i === 1 ? 'no-majority' : i === 2 ? 'unavailable' : 'pending'}" data-party="${i === 0 ? '1' : ''}" data-changed="${i === 0}" data-comparable="${i < 2}" data-previous-party="${i === 0 ? '2' : '1'}"></article>${i === 7 ? '<section data-dashboard-highlights>Highlights</section>' : ''}`).join('')}
@@ -70,6 +70,7 @@ test('party outcomes, province counts, private search and live updates share one
     assert.equal(text('[data-status-count="all"]'), '10'); assert.equal(text('[data-status-count="pending"]'), '7');
     assert.equal(text('[data-scope-count]'), '10'); assert.equal(text('[data-reported-count]'), '2');
     click('[data-party-filter="1"]'); assert.equal(visible().length, 1); assert.equal(window.location.search, '?province=9&status=majority&party=1');
+    assert.equal(window.location.pathname, '/councils');
     assert.equal(document.querySelector('[data-council-outcome=""]')!.getAttribute('aria-current'), null);
     assert.equal(document.querySelector('[data-party-filter="1"]')!.getAttribute('aria-current'), 'true');
     click('[data-party-filter="1"]'); assert.equal(visible().length, 1, 'clicking an active party retains that outcome');
@@ -89,7 +90,7 @@ test('party outcomes, province counts, private search and live updates share one
     assert.equal(partyCount('1'), '0'); assert.equal(text('[data-status-count="no-majority"]'), '2');
     click('[data-council-outcome="no-majority"]'); assert.equal(visible().length, 1); assert(partyChange.hidden);
     assert(!new URLSearchParams(window.location.search).has('party'));
-    click('[data-council-clear]'); assert.equal(visible().length, 24); assert.equal(q.value, ''); assert(!highlights.hidden);
+    click('[data-council-clear]'); assert.equal(window.location.pathname, '/councils'); assert.equal(visible().length, 24); assert.equal(q.value, ''); assert(!highlights.hidden);
     row.dataset.status = 'majority'; row.dataset.party = '1';
 
     // Every category uses the province; search, selected outcome and pagination do not shrink its counts.
@@ -137,7 +138,7 @@ test('party outcomes, province counts, private search and live updates share one
     assert(!window.location.href.includes('Private'));
     assert(![...document.querySelectorAll('[data-council-province], [data-party-filter], [data-council-outcome]')].some(a => a.getAttribute('href')!.includes('Private')));
     q.parentElement!.dispatchEvent(new window.Event('place-search:select')); assert.equal(visible().length, 20); assert.equal(q.value, '12 Private Street');
-    window.history.pushState(null, '', '/?province=9&changed=1'); window.dispatchEvent(new window.PopStateEvent('popstate'));
+    window.history.pushState(null, '', '/councils?province=9&changed=1'); window.dispatchEvent(new window.PopStateEvent('popstate'));
     assert.equal(changed.getAttribute('aria-checked'), 'true'); assert.equal(visible().length, 1); assert.equal(q.value, '');
     click('[data-council-clear]'); assert(!highlights.hidden);
     document.querySelector<HTMLElement>('[data-dashboard-available]')!.dataset.dashboardAvailable = 'false';

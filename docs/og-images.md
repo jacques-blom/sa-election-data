@@ -2,8 +2,8 @@
 
 Every HTML page includes a 1200 × 630 PNG in its Open Graph and Twitter metadata.
 `Site.astro` supplies the shared metadata; the standalone API documentation uses
-the same `SocialImage.astro` component. Images are served at `/og/v3/index.png` for
-the home page and `/og/v3/<public-page-path>.png` for other pages. The versioned
+the same `SocialImage.astro` component. Images are served at `/og/v4/index.png` for
+the home page and `/og/v4/<public-page-path>.png` for other pages. The versioned
 path gives redesigned images a fresh cache key; earlier versioned and unversioned links still work.
 
 Cards use Counted’s bundled font, logo and colours, with the page’s purpose or

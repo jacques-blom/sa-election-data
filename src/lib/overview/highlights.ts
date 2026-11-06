@@ -28,7 +28,7 @@ export function councilSeatChanges(councils: DashboardCouncil[]) {
       .sort((a, b) => b.delta - a.delta || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)) };
 }
 
-/** Editorial views of the same published council summaries used by the homepage. */
+/** Editorial views of the same published council summaries used by the council dashboard. */
 export function electionHighlights(councils: DashboardCouncil[]) {
   const highlights = dashboardHighlights(councils);
   const reported = councils.filter(c => c.seats?.status === 'reported');

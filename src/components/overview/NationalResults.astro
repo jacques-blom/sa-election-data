@@ -38,7 +38,7 @@ const progress = data ? progressOf(data.national) : null;
 ---
 <Site liveResults={year === latestYear && Astro.response.status !== 404} title={`South African local election results ${year}`} description={`See party vote shares in the ${year} South African local elections. Find municipality and ward results across all nine provinces.`} noindex={!data || !!query} canonicalPath={nationalUrl(year)}>
   <section class="home-heading page-share-heading" aria-labelledby="home-title">
-    <div><p class="eyebrow">{year} local elections · South Africa</p><h1 id="home-title">National results</h1><a class="small" href="/">Council outcomes & highlights →</a></div>
+    <div><p class="eyebrow">{year} local elections · South Africa</p><h1 id="home-title">National results</h1><a class="small" href="/councils">Council outcomes & highlights →</a></div>
     <PageShare result/>
     <div id="home-count" class="home-count" data-history-current-only hidden={year !== latestYear} title={`${latestYear} reporting progress`}>
       <p><strong>{progress ? progressLabel(progress) : '—'}</strong><span>{progress ? 'of districts reporting' : 'Reporting progress unavailable'}</span></p>
