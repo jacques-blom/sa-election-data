@@ -271,6 +271,7 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
   const ward = { id: '19100001', number: 1, municipality: 'Cape Town', code: 'CPT', province: 'Western Cape', bbox };
   const requests: string[] = [];
   const provinces = JSON.parse(require('node:fs').readFileSync(new URL('../public/maps/geometry/provinces-2026-20261105-v3.geojson', import.meta.url), 'utf8'));
+  const municipalities = JSON.parse(require('node:fs').readFileSync(new URL('../public/maps/geometry/municipalities-2026-20261105-v3.geojson', import.meta.url), 'utf8'));
   t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL) => {
     const url = String(input); requests.push(url);
     if (url.includes('/leaders?')) {
@@ -278,6 +279,8 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
       return Response.json({ areas: params.get('ids')!.split(',').map(id => ({ id, party: 'DEMOCRATIC ALLIANCE', color: '#2872ba', share: 60, status: 'leading', delayed: false })) });
     }
     if (url.includes('/areas?')) return Response.json({ wards: [ward], limited: false });
+    if (url.includes('/boundaries?')) return Response.json({ type: 'FeatureCollection', features: [{ type: 'Feature', properties: { id: ward.id }, geometry: { type: 'Polygon', coordinates: [] } }] });
+    if (url.includes('/municipalities-')) return Response.json(municipalities);
     if (url.endsWith('.geojson')) return Response.json(provinces);
     if (url.includes('/geometry/')) return Response.json({ type: 'Feature', properties: { id: url.split('/').at(-1) }, geometry: { type: 'Polygon', coordinates: [] } });
     return Response.json({ ward, result: null, url: '/2026/wards/19100001' });

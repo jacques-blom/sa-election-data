@@ -301,3 +301,9 @@ town IDs are Stats SA main-place codes. Boundaries are simplified geographic
 context, not proof of voter registration. Place search caches for five minutes,
 result endpoints for fifteen seconds, and geometry for one day. Source and
 status fields must accompany any result presentation.
+
+`/api/v1/map/boundaries?ids=19100001,19100002` returns a GeoJSON
+`FeatureCollection` of up to 40 full ward boundaries in one request. IDs must
+be eight digits; duplicates are removed. Invalid or oversized requests return
+400, unknown ward IDs return 404, and unavailable geometry returns 503 without
+caching a partial batch. Successful responses cache for one day.

@@ -32,13 +32,19 @@ record cannot expand a district into today's Mangaung area. No district election
 results are inferred by summing local or ward ballots.
 
 The Google explorer retains progressive electoral detail: provinces below zoom
-5, municipalities below zoom 8, then wards. Province GeoJSON is a static asset;
+5, municipalities below zoom 8, then wards. Provinces and municipalities each
+use one versioned static GeoJSON overview, retained across camera changes;
 municipal bounds come from the administrative catalogue. `GET /api/v1/map/areas`
 returns ward metadata for the viewport, capped at 250. Wider views retain
-municipalities with a prompt to zoom in. The browser loads boundary geometry
-through the existing geometry API with six requests in flight, aborts stale
-camera requests and keeps a bounded cache. Failed loads preserve the previous
-boundary view and show an error.
+municipalities with a prompt to zoom in. `GET /api/v1/map/boundaries?ids=...`
+loads up to 40 full ward polygons per batch, with three batches in flight. Each
+batch uses one D1 query and coalesces adjacent geometry-pack records into bounded
+R2 range reads. Compressed and decoded byte budgets bound request memory use.
+The sidebar and result colours start loading before geometry finishes, and each
+completed batch is drawn immediately. Panning preserves polygons still in view;
+the browser caches 400 ward geometries and 24 viewport metadata responses.
+Stale camera responses cannot repaint the map. Failed batches leave successfully
+loaded polygons visible and can be retried by moving the map.
 
 Party fills, ballot-specific legends, keyboard-accessible area buttons and ward
 result panels remain available. Visible leaders and selected ward results
@@ -216,6 +222,7 @@ python3 scripts/maps/import-main-places.py
 python3 scripts/maps/import-page-geography.py
 python3 scripts/maps/build-geography.py
 python3 scripts/maps/build-province-preview.py
+python3 scripts/maps/build-municipality-preview.py
 python3 scripts/maps/build-page-tiles.py
 node scripts/maps/load-geography.ts
 ```
@@ -228,6 +235,10 @@ the app's static assets. Its generator uses the reconciled administrative data,
 preserves all nine province IDs and simplifies display geometry by 0.01 degrees.
 Update its versioned filename and `PROVINCES_URL` together when rebuilding for a
 new boundary snapshot. It is not used for address or ward containment.
+The municipal overview similarly preserves all 213 electoral IDs, simplifies
+display geometry by 0.002 degrees with topology preserved, and is kept below
+1 MB. The generator checks validity and limits area change to 0.5%; full selected
+outlines and address containment continue to use the original geometry API.
 `/api/locate` accepts only a small POST JSON body containing `lat` and `lng`.
 It checks candidate ward polygons, including holes and multipart geometry.
 The response is no-store. These simplified geographic boundaries and Google

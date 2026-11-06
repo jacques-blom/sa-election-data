@@ -489,12 +489,11 @@ async function start() {
       overlay = { level: view.level };
       boundaryLimited = view.limited;
       boundaryFailed = false;
-      loading.hidden = true;
       inView = new Map(view.areas.map(area => [area.id, area]));
       renderAreas();
       refreshNotice();
       void loadLeaders();
-    }, () => { loading.hidden = true; boundaryFailed = true; refreshNotice(); });
+    }, () => { loading.hidden = true; boundaryFailed = true; refreshNotice(); }, () => { loading.hidden = true; });
     const hover = element<HTMLElement>('map-hover');
     map.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
       hover.textContent = String(event.feature.getProperty('name'));

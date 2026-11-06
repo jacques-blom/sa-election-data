@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs';
 import type { FeatureCollection } from 'geojson';
 import { byteRange } from '../src/lib/maps/ranges.ts';
 import { boundaryLevel, boundaryOverlay, replaceBoundaryOverlay } from '../src/lib/maps/detail.ts';
-import { PROVINCES_URL, WARDS_URL } from '../src/lib/maps/config.ts';
+import { MUNICIPALITIES_URL, PROVINCES_URL, WARDS_URL } from '../src/lib/maps/config.ts';
+import { administrative } from '../src/lib/maps/administrative.ts';
 import type { LayerSpecification, SourceSpecification } from 'maplibre-gl';
 
 test('PMTiles byte ranges preserve inclusive HTTP offsets and handle suffix/open ranges', () => {
@@ -114,4 +115,12 @@ test('national overview stays small and preserves all nine province names and re
     assert.match(feature.properties!.url, /^\/2026\/provinces\/[a-z-]+$/);
     assert.ok(['Polygon', 'MultiPolygon'].includes(feature.geometry.type));
   }
+});
+
+test('municipal overview fits in one bounded download and includes every electoral municipality', () => {
+  const bytes = readFileSync(new URL(`../public${MUNICIPALITIES_URL}`, import.meta.url));
+  assert.ok(bytes.length < 1_000_000);
+  const data = JSON.parse(bytes.toString()) as FeatureCollection;
+  assert.deepEqual(data.features.map(feature => feature.properties!.id).sort(), Object.keys(administrative.municipalities).sort());
+  assert.ok(data.features.every(feature => ['Polygon', 'MultiPolygon'].includes(feature.geometry.type)));
 });
