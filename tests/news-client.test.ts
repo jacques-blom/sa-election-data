@@ -58,5 +58,18 @@ test('headlines render safely, expand in Google order, survive live patches and 
     await settle();
     assert.match(main.querySelector('[data-news-status]')!.textContent, /temporarily unavailable/);
     assert.equal(main.querySelector('related-news')!.hasAttribute('aria-busy'), false);
+
+    main.innerHTML = '';
+    let attempts = 0;
+    globalThis.fetch = async () => ++attempts === 1
+      ? new Response(null, { status: 503, headers: { 'Retry-After': '2' } })
+      : Response.json({ articles: [], stale: false, fetchedAt: '2026-11-06T10:00:00Z' });
+    main.innerHTML = markup;
+    await settle();
+    assert.equal(main.querySelector('related-news')!.getAttribute('aria-busy'), 'true');
+    await new Promise(resolve => setTimeout(resolve, 2_100));
+    await settle();
+    assert.equal(attempts, 2, 'A visitor waits for another visitor’s cache refresh');
+    assert.match(main.querySelector('[data-news-status]')!.textContent, /No headlines found/);
   } finally { await window.happyDOM.close(); }
 });

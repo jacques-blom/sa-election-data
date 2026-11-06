@@ -44,7 +44,6 @@
     "maplibre-gl": "^6.16.0",
     "morphdom": "^2.7.8",
     "pmtiles": "^4.5.0",
-    "saxes": "^6.0.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

@@ -15,7 +15,14 @@ class RelatedNews extends HTMLElement {
     this.controller = controller;
     this.setAttribute('aria-busy', 'true');
     try {
-      const response = await fetch(this.dataset.endpoint, { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(12_000)]) });
+      const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(20_000)]);
+      let response = await fetch(this.dataset.endpoint, { signal });
+      // A different visitor may own the shared cache's short refresh lease.
+      for (let attempt = 0; response.status === 503 && response.headers.get('Retry-After') === '2' && attempt < 8; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, 2_000));
+        signal.throwIfAborted();
+        response = await fetch(this.dataset.endpoint, { signal });
+      }
       if (!response.ok) throw new Error('News unavailable');
       const data = await response.json() as NewsData;
       if (controller.signal.aborted) return;

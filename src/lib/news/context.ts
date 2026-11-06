@@ -12,7 +12,6 @@ export interface NewsContext {
   query: string;
   endpoint: string;
   searchUrl: string;
-  feedUrl: string;
 }
 
 /** Only known areas can create feeds; callers cannot supply arbitrary queries or URLs. */
@@ -38,6 +37,5 @@ export function newsContext(scope: string | null, area = ''): NewsContext | null
     query,
     endpoint: `/api/news?${context}`,
     searchUrl: `https://news.google.com/search?${params}`,
-    feedUrl: `https://news.google.com/rss/search?${params}`,
   };
 }
