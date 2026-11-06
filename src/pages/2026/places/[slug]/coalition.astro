@@ -1,5 +1,6 @@
 ---
 import PageShare from '../../../../components/PageShare.astro';
+import CivicGuide from '../../../../components/CivicGuide.astro';
 import RelatedNews from '../../../../components/RelatedNews.astro';
 import { env } from 'cloudflare:workers';
 import Site from '../../../../layouts/Site.astro';
@@ -41,6 +42,7 @@ const resultUrl = place ? placeUrl(place) : '/search';
     <header class="coalition-heading page-share-heading"><div><a class="coalition-back" href={builderPath}>← Choose another council</a><h1>{place?.name ?? 'Choose a council'}</h1></div><div class="page-heading-actions coalition-heading-actions">{validCouncil && <a class="button" href={resultUrl}>View results</a>}<PageShare coalition={available}/></div></header>
     {model && seats && seats.status !== 'unavailable' && municipality ? <>
       {resultDelay(municipality) && <p class="notice coalition-delay">{resultDelay(municipality)}</p>}
+      <CivicGuide topic="outcomes" hint={`Build a possible majority: ${model.majority} of ${model.total} seats. This does not show an actual coalition.`}/>
       <div class="coalition-win" data-majority-win hidden><div><strong>Majority built!</strong><p>Try another combination, or choose your next council.</p></div><button class="button" type="button" data-coalition-reset>Start again</button><a class="button primary" href={builderPath}>Next council →</a></div>
       <div class="coalition-builder">
         <section class="coalition-visual-panel" aria-label="Selected council seats">

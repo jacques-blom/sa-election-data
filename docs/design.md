@@ -108,6 +108,27 @@ Background: [COGTA’s framework for coalitions in local government](https://www
 
 ## Copy
 
+### Education in the results
+
+Use `CivicGuide` for contextual explanations: one useful sentence stays visible;
+a native disclosure opens small visual examples. The same content lives at
+`/guide`, linked from the footer. It works without JavaScript, and result refreshes
+retain the reader’s open disclosures. Keep full methodology in the existing source
+details rather than the primary explanation.
+
+Council outcomes lead with **outright majority**, **hung council**, or **seats
+pending**. Pair colour with a written label and icon. Only reconciled reported
+seats establish an outcome; estimates remain pending in summaries. Show the
+largest party’s seats against the halfway line and state the integer majority
+threshold. Exactly half is not enough. Historical views identify the election
+year, not the current government.
+
+Vote leaders are explicitly labelled as leading **in votes**. Explain ward/PR
+ballots beside the ballot selector, council types beside the place heading, and
+voting districts on their own pages. Reporting is distinct from turnout; national
+and provincial local-election totals do not elect a national or provincial
+legislature. Link percentage-point changes to the worked example in the guide.
+
 Apply the linked [Humanizer skill](https://raw.githubusercontent.com/blader/humanizer/refs/heads/main/SKILL.md) to screen text, help, downloads and generated summaries. Use direct labels: Results, Metro leaders, Compare with 2021, Recent updates, Share results and Contact your councillor. Remove slogans, staged fragments and metaphors that make people work out what a feature does.
 
 State the fact and its status: “DA is leading”, “Count complete” or “Seat allocation pending”. Use full place names where space allows. Explain PR, percentage points and council majorities on demand. Retain dates, sources, sample-data labels and uncertainty when editing for brevity. Copy in an exported image must agree with the screen and underlying records.

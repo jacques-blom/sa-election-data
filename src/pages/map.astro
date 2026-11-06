@@ -1,5 +1,6 @@
 ---
 import PageShare from '../components/PageShare.astro';
+import CivicGuide from '../components/CivicGuide.astro';
 import Site from '../layouts/Site.astro';
 import PlaceSearch from '../components/PlaceSearch.astro';
 import AddressResult from '../components/AddressResult.astro';
@@ -30,6 +31,7 @@ const area: ResolvedArea | undefined = district ? districtSelection(district) : 
     <div><h1>Explore the map</h1></div>
     <div class="page-heading-actions"><a class="button" href="/">Browse results ↗</a><PageShare/></div>
   </div>
+  <CivicGuide topic="map"/>
   <div class="map-shell" id="map-app" data-place={place} data-ward={ward} data-area={area ? JSON.stringify(area) : undefined} data-bounds={chosen?.bbox ? JSON.stringify(chosen.bbox) : undefined}>
     <div class="map-toolbar" data-address-lookup>
       <PlaceSearch id="map-query" mode="all" query={query}/>

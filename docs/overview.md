@@ -13,12 +13,12 @@ a notice. Detailed provenance remains in the API and copied share summaries.
   geographic exploration.
 - Councils (`/councils`): place/address search followed by one outcome selector: All councils,
   each party with a reported majority, No majority and Pending. Counts and allocation
-  coverage follow the selected province, independently of search and outcome selection.
-  All 213 metro and local councils appear in compact rows with seat bars, party counts
-  and majority thresholds. Estimates are visibly labelled and remain Pending.
+  coverage follow the selected province and council type, independently of search and outcome selection.
+  All 257 councils (8 metros, 205 locals and 44 districts) appear in compact rows. Available results show seat bars, party counts
+  and majority thresholds. Estimates are visibly labelled and remain Pending; district results are Unavailable because the current feed has no district council ballots or seats.
   Metros appear first, with available results prioritised within metros and locals.
   Compact coloured highlight cards follow the first eight councils on desktop and mobile;
-  filters hide them to keep matching results together. Majority changes are under
+  filters hide them to keep matching results together. Council type and majority changes are under
   More filters; party selection reveals a compact gains/losses summary. The header
   omits its duplicate search on this page. Detailed highlights and methodology remain
   at `/highlights`.
@@ -134,32 +134,20 @@ home-page SVG provides native province links for pointer, touch and keyboard use
 
 ## Council dashboard and highlights
 
-The councils page (`/councils`) is the council directory. All metros appear before local councils.
-Within metros and locals, reported allocations appear first, followed by counts in
-progress, councils awaiting results, and unavailable data, then alphabetical order.
-Outcome totals are calculated from the same
-complete catalogue as the cards. National totals and highlights stay nationwide when
-councils are filtered. Selecting a national total opens that outcome across the country.
-The fourth headline figure counts councils whose majority changed since 2021;
-selecting it enables the change filter nationwide and clears other filters. Changes
-overlap with the outcome counts and are not a fourth segment in the outcome ring.
-The Explore councils section contains outcome choices, a custom province menu,
-a "Changed since 2021" toggle and party-majority tabs. The toggle is off by default
-and combines with the other council filters to show reported gains or losses of
-single-party majorities. The selected party is highlighted in place, with no additional
-party pill. Party counts reflect all reported majorities in the selected province,
-independently of search, outcome, party selection or scroll position. Choosing
-one party also shows its majorities gained and lost since 2021 just above the grid.
-Those counts cover all comparable reported councils in the selected province,
-including losses outside the party's current-majority list. Search and the changed
-toggle do not narrow this summary. Missing comparisons show dashes, not zero.
-Choosing another outcome clears an incompatible party selection. The whole council card
-links to its results, with the outcome badge beside its name; a separate majority
-builder link appears only when a reported single-party majority is not established.
-Outcome badges are hidden while an outcome filter is selected. Pending badges use
-the short label "Pending"; estimated seat data remains identified in the graphic's
-accessible description and the builder link.
-Province, outcome, party and change links work without JavaScript and are shareable.
+The councils page (`/councils`) lists all 257 councils, with metros first. Within
+metros and other councils, reported allocations precede counts in progress,
+councils awaiting results, and unavailable data, then alphabetical order.
+
+The outcome tabs and coverage counts use the selected province and council type,
+independently of search, outcome, party selection or scroll position. More filters
+contains All types / Metro / Local / District and Majority changed since 2021.
+Choosing a party shows its majorities gained and lost across all comparable
+councils in that province/type, including losses outside its current-majority list.
+Search and the change toggle do not narrow this summary. Missing comparisons show
+dashes, not zero. Choosing another outcome clears an incompatible party selection.
+Each row links to the council's page; district names end in “District”.
+
+Province, type, outcome, party and change links work without JavaScript and are shareable.
 JavaScript filters the list immediately and reveals another 24 councils as its end
 approaches the viewport, retaining the visible extent and selections across live updates.
 Without IntersectionObserver or JavaScript, all matching councils remain accessible.
@@ -172,9 +160,11 @@ Only complete reconciled IEC seat allocations enter Majority and No majority.
 Estimates stay Pending, identified in seat-graphic descriptions and links to the builder.
 Grouped independents cannot be a single-party majority or a selected coalition bloc.
 Read failures display Unavailable separately. Missing results remain searchable.
-The current view explicitly covers metro and local councils, not district councils.
-Cards link to results and, when seats are available without a reported single-party
-majority, the existing majority builder.
+District rows are explicitly unavailable, not pending: the current IEC source
+contains 213 metro/local councils and no separate district council ballots or seats.
+Districts enter neither party comparisons nor vote-share highlights. Their pages
+show local council results separately, never summed into a district council outcome.
+Districts have no majority-builder link until full council allocations are supported.
 `/majority-builder` redirects to the council directory, retaining province/name filters
 and the Pending filter. Builder return links also use `/councils`.
 

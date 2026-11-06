@@ -27,6 +27,9 @@
 .council-option-check{visibility:hidden}
 .council-province-options a[aria-current] .council-option-check{visibility:visible}
 .council-more-options{width:275px;padding:10px 12px}
+.council-type-options{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+.council-type-options a{display:grid;place-items:center;min-height:44px;padding:6px 4px;border-radius:5px;text-decoration:none;font-size:12px}
+.council-type-options a:hover,.council-type-options a[aria-current]{background:var(--sage)}
 .council-filter-applied{display:inline-grid;place-items:center;width:18px;height:18px;background:var(--sage);border-radius:50%;font-variant-numeric:tabular-nums}
 .council-change-toggle{display:flex;gap:10px;align-items:center;min-height:44px;font-size:12px;line-height:1.5;text-decoration:none}
 .council-toggle-track{display:block;width:28px;height:16px;border-radius:9px;background:#c9d1c3;padding:2px;flex-shrink:0}
@@ -70,6 +73,10 @@
 .dashboard-seat-note,.dashboard-reporting{font-size:11px;color:var(--muted);margin:5px 0 0;line-height:1.5;font-variant-numeric:tabular-nums}
 .dashboard-council-outcome{grid-column:3;min-width:0}
 .dashboard-status{font-size:13px;font-weight:550;line-height:1.5}
+.dashboard-status{display:inline-block;border-radius:6px;padding:5px 9px;background:#e9ece4;color:#52634d}
+.dashboard-council[data-status=majority] .dashboard-status{background:#dfecd9;color:#285239}
+.dashboard-council[data-status=no-majority] .dashboard-status{background:#f2e5c8;color:#71541f}
+.dashboard-outcome-meaning{display:block;font-size:11px;line-height:1.5;color:var(--muted);margin-top:5px}
 .dashboard-change-label{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.5}
 .dashboard-empty{padding:24px 0;font-size:14px}
 .dashboard-empty p{margin:0 0 8px}

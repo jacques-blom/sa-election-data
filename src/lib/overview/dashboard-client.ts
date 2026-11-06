@@ -1,4 +1,4 @@
-import { councilFilters, councilFilterUrl, matchesCouncil, partyMajorityChanges, type CouncilFilters } from './dashboard-filter.ts';
+import { councilFilters, councilFilterUrl, matchesCouncil, partyMajorityChanges, inCouncilScope, type CouncilFilters, type CouncilKind } from './dashboard-filter.ts';
 
 const initialized = new WeakMap<HTMLFormElement, () => void>();
 function setupDashboard() {
@@ -25,7 +25,7 @@ function setupDashboard() {
   }, { rootMargin: '500px 0px' }) : null;
   const read = () => {
     const params = new URLSearchParams();
-    for (const name of ['q', 'province', 'status', 'party', 'changed']) params.set(name, field(name).value);
+    for (const name of ['q', 'province', 'type', 'status', 'party', 'changed']) params.set(name, field(name).value);
     return councilFilters(params);
   };
   // The shared input also accepts private addresses. Keep its text out of URLs.
@@ -38,9 +38,9 @@ function setupDashboard() {
     let scopeCount = 0;
     matched = 0;
     for (const row of rows) {
-      // All outcome counts use the province, independently of search, the active
+      // All outcome counts use province and council type, independently of search, the active
       // outcome, changes, and how many rows have been revealed.
-      if (!filters.province || row.dataset.province === filters.province) {
+      if (inCouncilScope({ provinceId: row.dataset.province!, kind: row.dataset.kind as CouncilKind }, filters)) {
         scopeCount++;
         const status = row.dataset.status!;
         statusCounts.set(status, (statusCounts.get(status) ?? 0) + 1);
@@ -48,7 +48,7 @@ function setupDashboard() {
           partyCounts.set(row.dataset.party, (partyCounts.get(row.dataset.party) ?? 0) + 1);
         }
       }
-      const matches = matchesCouncil({ search: row.dataset.search!, provinceId: row.dataset.province!, status: row.dataset.status!,
+      const matches = matchesCouncil({ search: row.dataset.search!, provinceId: row.dataset.province!, kind: row.dataset.kind as CouncilKind, status: row.dataset.status!,
         winnerId: row.dataset.party!, changed: row.dataset.changed === 'true' }, filters);
       if (matches) matched++;
       row.hidden = !matches || matched > limit;
@@ -82,7 +82,16 @@ function setupDashboard() {
     const changeToggle = form.querySelector<HTMLAnchorElement>('[data-council-changed]')!;
     changeToggle.setAttribute('aria-checked', String(filters.changed));
     changeToggle.href = link({ ...filters, changed: !filters.changed });
-    form.querySelector<HTMLElement>('[data-more-filter-active]')!.hidden = !filters.changed;
+    const activeCount = Number(filters.changed) + Number(!!filters.type);
+    const activeIndicator = form.querySelector<HTMLElement>('[data-more-filter-active]')!;
+    activeIndicator.hidden = activeCount === 0;
+    activeIndicator.textContent = String(activeCount);
+    activeIndicator.setAttribute('aria-label', `${activeCount} active ${activeCount === 1 ? 'filter' : 'filters'}`);
+    for (const option of form.querySelectorAll<HTMLAnchorElement>('[data-council-type]')) {
+      const type = option.dataset.councilType as CouncilFilters['type'];
+      option.href = link({ ...filters, type });
+      if (filters.type === type) option.setAttribute('aria-current', 'true'); else option.removeAttribute('aria-current');
+    }
     for (const option of document.querySelectorAll<HTMLAnchorElement>('[data-party-filter]')) {
       const party = option.dataset.partyFilter!;
       const count = option.querySelector('[data-party-count]');
@@ -95,11 +104,11 @@ function setupDashboard() {
     const partyChange = document.querySelector<HTMLElement>('[data-party-change]')!;
     partyChange.hidden = !filters.party;
     if (filters.party) {
-      const changes = partyMajorityChanges(rows.map(row => ({ provinceId: row.dataset.province!, winnerId: row.dataset.party!,
-        previousWinnerId: row.dataset.previousParty ?? '', comparable: row.dataset.comparable === 'true' })), filters.party, filters.province);
+      const changes = partyMajorityChanges(rows.map(row => ({ provinceId: row.dataset.province!, kind: row.dataset.kind as CouncilKind, winnerId: row.dataset.party!,
+        previousWinnerId: row.dataset.previousParty ?? '', comparable: row.dataset.comparable === 'true' })), filters.party, filters.province, filters.type);
       const selectedParty = document.querySelector(`[data-party-filter="${filters.party}"] abbr`);
       for (const [key, value] of Object.entries({ name: selectedParty?.textContent ?? `Party ${filters.party}`,
-        scope: filters.province ? provinceName : 'Nationwide',
+        scope: [filters.province ? provinceName : 'Nationwide', filters.type].filter(Boolean).join(' · '),
         gained: changes.comparable ? String(changes.gained) : '—', lost: changes.comparable ? String(changes.lost) : '—' })) {
         const output = partyChange.querySelector(`[data-party-change-${key}]`)!;
         // Scrolling also reapplies filters; announce only changes to the summary.
@@ -122,7 +131,7 @@ function setupDashboard() {
     if (save) { history.replaceState(null, '', link(filters, location.hash.slice(1))); urlSearch = location.search; }
   }
   function set(filters: CouncilFilters) {
-    for (const name of ['q', 'province', 'status', 'party'] as const) field(name).value = filters[name];
+    for (const name of ['q', 'province', 'type', 'status', 'party'] as const) field(name).value = filters[name];
     field('changed').value = filters.changed ? '1' : '';
     if (search.value !== filters.q) {
       search.value = filters.q;
@@ -162,7 +171,7 @@ function setupDashboard() {
   document.addEventListener('click', event => {
     if (!(event.target instanceof Element)) return;
     if (!provincePicker.contains(event.target)) provincePicker.open = false;
-    const target = event.target.closest<HTMLElement>('[data-council-outcome], [data-council-province], [data-party-filter], [data-council-clear], [data-council-changed]');
+    const target = event.target.closest<HTMLElement>('[data-council-outcome], [data-council-province], [data-council-type], [data-party-filter], [data-council-clear], [data-council-changed]');
     if (!target || event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)) return;
     event.preventDefault();
     const filters = read();
@@ -172,6 +181,7 @@ function setupDashboard() {
       field('province').value = target.dataset.councilProvince!;
       provincePicker.open = false; provinceTrigger.focus();
     }
+    else if (target.hasAttribute('data-council-type')) field('type').value = target.dataset.councilType!;
     else if (target.hasAttribute('data-council-outcome')) {
       field('status').value = target.dataset.councilOutcome!;
       field('party').value = '';

@@ -1,10 +1,12 @@
 # Place journeys
 
-The directory has 213 municipalities and 13,804 named main places, from a
+The D1 place directory has 213 metro/local municipalities and 13,804 named main places, from a
 complete 14,039-record government layer. Unnamed/non-urban remainder records
 are excluded. Subplaces/suburbs have not been imported; the Place type and
 many-to-many relationships allow them later. Main-place data happens to include
 some familiar suburb names; it is not a complete suburb directory.
+The static district catalogue adds 44 district municipalities, each with a dedicated
+page and membership links to its local municipalities. All 257 councils appear at `/councils`.
 
 Each main-place polygon is intersected with 2026 MDB ward polygons. Only
 positive-area intersections are included; a centre point never determines the
@@ -42,7 +44,7 @@ Build/reconciliation scripts and generated validation report are documented in
 - `/search`: shared election-area and Google address search, metro shortcuts and a link to the full place directory. The search field becomes the header only on mobile.
 - `/search?q=...`: server-rendered name/alias search with disambiguation and pagination, including a form for visitors without JavaScript; query pages are noindex.
 - `/find-address`: permanent redirect to `/search` for existing links.
-- `/2026/districts/:slug`: district scope and member municipality links; district council ballot results are unavailable in this dataset.
+- `/2026/districts/:slug`: district council availability, boundary map and member local-council result rows. District council ballots and seats are unavailable in the current feed; member results are never aggregated into a district outcome.
 - `/api/v1/places?q=...&page=1`: compact directory search and bounds.
 - `/api/v1/places/:slug` and `/2026/places/:slug.md`: scope and current result snapshots.
 
@@ -52,10 +54,12 @@ link to the full list; ward pages do the same for overlapping places. Towns
 link back to every mapped parent municipality and its other places. These
 links work without JavaScript and do not depend on submitting a search.
 
-Town pages lead with prominent municipality result cards above their ward
-results. Every mapped parent is shown when a place crosses council boundaries.
+Municipality pages link to their parent district; metros have no district parent.
+Town pages lead with municipality result cards above their ward results, each
+paired with its district link where applicable. Every mapped parent is shown when a place crosses council boundaries.
 These cards remain available when town results cannot load, and replace the
-majority-builder callouts on town pages.
+majority-builder callouts on town pages. Single-parent towns include both councils
+in their breadcrumbs. Current district membership is not inferred for historical elections.
 
 `/sitemap.xml` includes the public navigation pages, browse directories,
 election-year landing pages, provinces, district municipalities, eligible

@@ -1,0 +1,14 @@
+---
+import { councilSeats } from '../lib/seats/allocation.ts';
+import { councilOutcome } from '../lib/seats/majority.ts';
+import { latestYear } from '../lib/history/comparison.ts';
+import type { Result } from '../lib/places/results.ts';
+interface Props { result: Result }
+const { result } = Astro.props;
+const outcome = councilOutcome(councilSeats(result.level, result.results), result.year !== latestYear);
+---
+<span class="council-outcome" data-outcome={outcome.state}><span aria-hidden="true">{outcome.state === 'majority' ? '✓' : outcome.state === 'hung' ? '↔' : '…'}</span>{outcome.label}</span>
+<style>
+  .council-outcome{display:inline-flex;align-items:center;gap:6px;max-width:100%;margin:8px 0 0;padding:5px 8px;border-radius:6px;background:#e9ece4;color:#52634d;font-size:11px;line-height:1.5;font-weight:550;white-space:normal}
+  .council-outcome[data-outcome=majority]{background:#dfecd9;color:#285239}.council-outcome[data-outcome=hung]{background:#f2e5c8;color:#71541f}.council-outcome[data-outcome=estimated]{background:#e8edf0;color:#41596b}
+</style>

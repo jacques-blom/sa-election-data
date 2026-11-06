@@ -7,7 +7,7 @@ interface Props { data: CouncilDashboard | null; hidden?: boolean }
 const { data, hidden = false } = Astro.props;
 const h = data?.highlights;
 const previousYear = data?.previousYear ?? 2021;
-const majorityLabel = (party: { name: string } | null) => party ? `${partyStyle(party.name)[0]} majority` : 'No majority';
+const majorityLabel = (party: { name: string } | null) => party ? `${partyStyle(party.name)[0]} majority` : 'Hung council';
 const wardRace = h?.races[0];
 const race = wardRace ?? h?.councilRaces[0];
 const watch = h?.watch;

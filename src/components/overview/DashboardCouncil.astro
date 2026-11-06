@@ -8,13 +8,13 @@ interface Props { council: DashboardCouncil; filters: CouncilFilters; available:
 const { council: c, filters, available, previousYear } = Astro.props;
 const s = c.seats;
 const status = available ? c.status : 'unavailable';
-const title = status === 'majority' ? `${partyStyle(c.winner!.name)[0]} majority`
-  : status === 'unavailable' ? 'Data unavailable'
-  : status === 'no-majority' ? 'No majority'
-  : s?.status === 'estimated' ? 'Estimated seats' : 'Seats pending';
+const title = status === 'majority' ? `${partyStyle(c.winner!.name)[0]} outright majority`
+  : status === 'unavailable' ? 'Results unavailable'
+  : status === 'no-majority' ? 'Hung council'
+  : s?.status === 'estimated' ? 'Seats pending · estimate' : 'Seats pending';
 const parties = s?.parties.filter(p => p.count > 0) ?? [];
 ---
-<article id={`council-${c.id}`} class="dashboard-council" data-council-row data-search={c.search} data-province={c.provinceId} data-status={status} data-party={c.winnerId} data-changed={String(c.changed)} data-comparable={String(c.comparable)} data-previous-party={c.previousWinnerId} hidden={!matchesCouncil(c, filters)}>
+<article id={`council-${c.id}`} class="dashboard-council" data-council-row data-search={c.search} data-province={c.provinceId} data-kind={c.kind} data-status={status} data-party={c.winnerId} data-changed={String(c.changed)} data-comparable={String(c.comparable)} data-previous-party={c.previousWinnerId} hidden={!matchesCouncil(c, filters)}>
   <div class="dashboard-council-name">
     <h3><a class="dashboard-council-link" href={c.href}>{c.name}</a></h3>
     <p>{c.province}</p>
@@ -31,10 +31,11 @@ const parties = s?.parties.filter(p => p.count > 0) ?? [];
       </div>
       <p class="dashboard-seat-note">{s.total} seats · {s.majority} for a majority</p>
     </>}
-    {status === 'pending' && c.progress && <p class="dashboard-reporting">{progressLabel(c.progress)} of districts reporting</p>}
+    {status === 'pending' && c.progress && <p class="dashboard-reporting">{progressLabel(c.progress)} of voting districts reporting</p>}
   </div>
   <div class="dashboard-council-outcome">
-    <span class="dashboard-status">{title}</span>
+    <span class="dashboard-status"><span aria-hidden="true">{status === 'majority' ? '✓' : status === 'no-majority' ? '↔' : '…'}</span> {title}</span>
+    <span class="dashboard-outcome-meaning">{status === 'majority' ? 'More than half the seats' : status === 'no-majority' ? 'No party has more than half' : c.kind === 'district' ? 'District allocation not in this feed' : s?.status === 'estimated' ? 'Outcome may still change' : 'Outcome not yet known'}</span>
     {c.changed && <span class="dashboard-change-label">From {c.previousWinner ? `${partyStyle(c.previousWinner.name)[0]} majority` : 'no majority'} in {previousYear}</span>}
   </div>
 </article>

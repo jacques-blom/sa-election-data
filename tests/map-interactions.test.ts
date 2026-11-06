@@ -141,6 +141,16 @@ function pointer(map: MapStub, pointerType: string) {
 const bbox: FixedMapOptions['bbox'] = [18, -34, 23, -30];
 const capeTown = { id: '9006', name: 'Cape Town', url: '/2026/places/cape-town', level: 'municipality' };
 
+test('district previews use their own outline and only their member municipalities', () => {
+  const {map,popup}=preview({level:'district',id:'DC4',bbox,municipalityCodes:['WC044','WC045']},
+    {id:'9940',name:'George',url:'/2026/places/george',level:'municipality',code:'WC044'});
+  const fill=map.getLayer('regions-fill');assert.ok(fill&&fill.type==='fill');
+  assert.deepEqual(fill.filter,['all',['==',['get','level'],'municipality'],['in',['get','code'],['literal',['WC044','WC045']]]]);
+  assert.match(JSON.stringify(map.options.style.sources.outline),/\/geometry\/district\/DC4/);
+  pointer(map,'mouse');map.fire('mousemove');assert.equal(popup.content.children[0]!.textContent,'George');
+  map.fire('click');assert.deepEqual(navigations,['/2026/places/george']);
+});
+
 test('static provincial maps highlight municipalities and show their names on hover', () => {
   const { map, popup } = preview({ level: 'province', id: '9', bbox }, capeTown);
   assert.equal(map.options.interactive, false, 'preview must still allow ordinary page scrolling');

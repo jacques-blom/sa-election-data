@@ -2,6 +2,7 @@
 import { wardNumber, wardUrl } from '../lib/places/catalogue.ts';
 import PartyMovement from './PartyMovement.astro';
 import ComparisonNote from './ComparisonNote.astro';
+import CivicGuide from './CivicGuide.astro';
 import { partyMovement, displayBallot, combinedOnly, latestYear } from '../lib/history/comparison.ts';
 import PartyLogo from './PartyLogo.astro';
 import { ballotResults, formatNumber, partyStyle, reporting, type Result } from '../lib/places/results.ts';
@@ -11,6 +12,7 @@ const filter = searchable ? Astro.url.searchParams.get('ward')?.trim() ?? '' : '
 const filtered = wards.filter(w => !filter || String(wardNumber(w.id)) === filter || w.id === filter);
 ---
 <section id="wards"><div class="section-heading"><h2>{title}</h2><p>{wards.length} wards · {note}</p></div>
+<CivicGuide topic="ward"/>
 {searchable && wards.length > 10 && <form class="filter" action="#wards" method="get"><label for="ward-filter">Find a ward number</label><input id="ward-filter" name="ward" type="search" inputmode="numeric" value={filter} placeholder="e.g. 12"/><button class="button" type="submit">Find ward</button>{filter && <a class="small" href={Astro.url.pathname+'#wards'}>Show all wards</a>}</form>}
 {wards[0] && <ComparisonNote result={wards[0]} basis={displayBallot(wards[0],'ward')}/>}
 {wards[0] && combinedOnly(wards[0]) && <p class="small">Combined ballot totals · separate historical ward ballots unavailable.</p>}

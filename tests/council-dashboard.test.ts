@@ -21,7 +21,7 @@ test('council outcomes use seats; metros precede locals even without results', (
   const previous = structuredClone(current);
   previous.seats!.parties[0]!.count = 1; previous.seats!.parties[1]!.count = 3;
   const all = dashboardCouncils(new Map([['9909',current]]), new Map([['9909',previous]]));
-  assert.equal(all.length, 213);
+  assert.equal(all.length, 257);
   assert.equal(all[8]!.id, '9909');
   assert(all.slice(0,8).every(c=>c.metro)); assert(all.slice(8).every(c=>!c.metro));
   let c = all.find(c=>c.id==='9909')!;
@@ -50,13 +50,13 @@ test('all metros lead; available results come first within metros and local coun
   assert.deepEqual(ordered.slice(0,2).map(c=>c.id),[metroA!.id,metroB!.id]);
   assert.equal(ordered[7]!.id,metroC!.id);
   assert.deepEqual(ordered.slice(8,11).map(c=>c.id),[localA!.id,localB!.id,localC!.id]);
-  assert.equal(ordered.at(-1)!.id,'9909');
+  assert.equal(ordered.filter(c=>c.kind==='local').at(-1)!.id,'9909');
   assert(catalogue.slice(0,8).every(c=>c.metro));
 });
 
 test('party majority changes include losses to hung councils and other parties, excluding pending and missing history', () => {
   const comparison = (winnerId: string, previousWinnerId: string, provinceId = '9', comparable = true) =>
-    ({ winnerId, previousWinnerId, provinceId, comparable });
+    ({ winnerId, previousWinnerId, provinceId, comparable, kind: 'local' as const });
   const councils = [comparison('1',''), comparison('','1'), comparison('2','1'), comparison('1','2'),
     comparison('1','1'), comparison('1','','1'), comparison('','1','9',false), comparison('1','','9',false), comparison('','')];
   assert.deepEqual(partyMajorityChanges(councils,'1'), { gained:3, lost:2, comparable:7 });
@@ -64,6 +64,31 @@ test('party majority changes include losses to hung councils and other parties, 
   assert.deepEqual(partyMajorityChanges(councils,'2','9'), { gained:1, lost:1, comparable:6 });
   assert.deepEqual(partyMajorityChanges(councils,'1','2'), { gained:0, lost:0, comparable:0 });
   assert.deepEqual(partyMajorityChanges(councils,''), { gained:0, lost:0, comparable:0 });
+  assert.deepEqual(partyMajorityChanges(councils,'1','9','district'), { gained:0, lost:0, comparable:0 });
+});
+
+test('district councils are discoverable without inventing results from their local councils', () => {
+  const all=dashboardCouncils(new Map([['9909',councilSnapshot(records())!]]));
+  assert.equal(all.filter(c=>c.kind==='metro').length,8);
+  assert.equal(all.filter(c=>c.kind==='local').length,205);
+  assert.equal(new Set(all.map(c=>c.id)).size,257);
+  const districts=all.filter(c=>c.kind==='district');
+  assert.equal(districts.length,44);
+  for(const c of districts) {
+    assert.equal(c.status,'unavailable');assert.equal(c.seats,null);assert.equal(c.snapshot,null);
+    assert.equal(c.winnerId,'');assert.equal(c.comparable,false);assert.equal(c.changed,false);
+    assert.equal(c.builderHref,undefined);assert.match(c.href,/^\/2026\/districts\//);assert.match(c.name,/ District$/);
+  }
+  const filter=(q:string)=>all.filter(c=>matchesCouncil(c,councilFilters(new URLSearchParams(q))));
+  assert.equal(filter('type=district').length,44);
+  assert.equal(filter('type=district&province=9').length,5);
+  assert.equal(filter('q=Garden+Route').length,1);
+  assert.equal(filter('q=DC4')[0]?.name,'Garden Route District');
+  assert.equal(filter('q=DC4').length,1);assert.equal(filter('q=DC+04')[0]?.name,'Garden Route District');
+  assert.equal(filter('type=district&status=pending').length,0);
+  assert.equal(filter('type=district&party=1&status=majority').length,0);
+  assert.equal(councilFilters(new URLSearchParams('type=unknown')).type,'');
+  assert.equal(councilFilterUrl({province:'9',type:'district'}),'/councils?province=9&type=district#councils');
 });
 
 test('gains and losses compare complete combined shares, including parties absent from a complete current list', () => {

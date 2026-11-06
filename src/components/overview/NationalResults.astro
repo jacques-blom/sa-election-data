@@ -41,8 +41,8 @@ const progress = data ? progressOf(data.national) : null;
     <div><p class="eyebrow">{year} local elections · South Africa</p><h1 id="home-title">National results</h1><a class="small" href="/councils">Council outcomes & highlights →</a></div>
     <PageShare result/>
     <div id="home-count" class="home-count" data-history-current-only hidden={year !== latestYear} title={`${latestYear} reporting progress`}>
-      <p><strong>{progress ? progressLabel(progress) : '—'}</strong><span>{progress ? 'of districts reporting' : 'Reporting progress unavailable'}</span></p>
-      {progress && <><ReportingProgress progress={progress} variant="bar"/><span class="home-count-detail">{formatNumber(progress.completed)} of {formatNumber(progress.expected)} voting districts</span></>}
+      <p><strong>{progress ? progressLabel(progress) : '—'}</strong><span>{progress ? 'of voting districts reporting' : 'Reporting progress unavailable'}</span></p>
+      {progress && <><ReportingProgress progress={progress} variant="bar"/><span class="home-count-detail">{formatNumber(progress.completed)} of {formatNumber(progress.expected)} voting districts · <a href="/guide#reporting">not turnout</a></span></>}
     </div>
   </section>
   <section id="home-search" class="home-search" data-history-current-only hidden={year !== latestYear} data-address-lookup aria-label="Find local results">
@@ -63,7 +63,7 @@ const progress = data ? progressOf(data.national) : null;
     <ProvinceResultsMap entries={entries} year={year} compact>
       <ElectionHistory slot="history" year={year} level="national" id="ZA" embedded/>
     </ProvinceResultsMap>
-    {data ? <SummaryResults result={data.national} name="South Africa" compact/> : <section class="card home-overall" role="status"><h2>Overall results</h2><p class="home-panel-note">Results are temporarily unavailable.</p><div class="links"><a href={nationalUrl(year)}>Try again ↻</a><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">View IEC results ↗</a></div></section>}
+    {data ? <SummaryResults result={data.national} name="South Africa" compact/> : <section class="card home-overall" role="status"><h2>Overall results</h2><p class="home-panel-note">Results are temporarily unavailable.</p><div class="links"><a href={nationalUrl(year)}>Try again ↻</a><a href="https://results.elections.org.za/dashboards/lge/">View IEC results ↗</a></div></section>}
     <MetroResults entries={data?.metros} year={year}/>
   </div>
   {year === latestYear && <RelatedNews scope="national"/>}

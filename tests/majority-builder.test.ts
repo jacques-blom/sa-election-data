@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { majorityHeadline } from '../src/lib/seats/majority.ts';
+import { councilOutcome, majorityHeadline } from '../src/lib/seats/majority.ts';
 import { builderCouncils, matchesBuilderCouncil } from '../src/lib/seats/directory.ts';
 import type { AvailableSeats } from '../src/lib/seats/allocation.ts';
 
@@ -15,10 +15,10 @@ function seats(counts: number[], status: 'reported' | 'estimated' = 'reported'):
 
 test('municipality headlines explain the majority or the largest party’s shortfall, including estimate basis', () => {
   assert.deepEqual(majorityHeadline(seats([6, 4])), {
-    title: 'Party 1 has a majority', detail: 'Party 1 has 6 seats. 6 seats needed in a 10-seat council.',
+    title: 'Party 1 has an outright majority', detail: 'Party 1 has 6 seats. 6 seats needed in a 10-seat council.',
   });
   assert.deepEqual(majorityHeadline(seats([5, 4, 1])), {
-    title: 'No party has a majority', detail: 'Party 1 is 1 seat short. 6 seats needed in a 10-seat council.',
+    title: 'Hung council', detail: 'Party 1 is 1 seat short. 6 seats needed in a 10-seat council.',
   });
   assert.match(majorityHeadline(seats([5, 4, 1], 'estimated')).title, /on current estimates$/);
   assert.match(majorityHeadline(seats([5, 4, 1], 'estimated')).detail, /short on current estimates/);
@@ -30,11 +30,29 @@ test('ties, independent groupings and missing seats do not produce a false party
   assert.equal(majorityHeadline(seats([5, 5])).detail, '6 seats needed in a 10-seat council.');
   const independent = seats([7, 3]);
   independent.parties[0]!.party_id = '0';
-  assert.equal(majorityHeadline(independent).title, 'No party has a majority');
+  assert.equal(majorityHeadline(independent).title, 'Hung council');
   const unavailable = { status: 'unavailable' as const, reason: 'No votes have been published yet.' };
   assert.equal(majorityHeadline(unavailable).title, 'Council seats pending');
   assert.equal(majorityHeadline(unavailable, true).title, 'Council seats unavailable');
   assert.equal(majorityHeadline(unavailable).detail, unavailable.reason);
+});
+
+test('public council states require reported seats and a strict seat majority', () => {
+  assert.equal(councilOutcome(seats([5, 5])).state, 'hung', 'exactly half is not a majority');
+  assert.equal(councilOutcome(seats([5, 4])).state, 'majority', 'five of nine is a majority');
+  assert.equal(councilOutcome(seats([6, 4])).label, 'Party 1 outright majority');
+  for (const counts of [[6, 4], [5, 5], [4, 3, 3]]) {
+    const estimated = councilOutcome(seats(counts, 'estimated'));
+    assert.equal(estimated.state, 'estimated');
+    assert.match(estimated.label, /pending.*estimate/);
+    assert.doesNotMatch(estimated.title, /Hung council/);
+  }
+  const independents = seats([6, 4]);
+  independents.parties[0]!.party_id = '0';
+  assert.equal(councilOutcome(independents).state, 'hung', 'independents grouped together are not a party');
+  const unavailable = { status: 'unavailable' as const, reason: 'Incomplete allocation' };
+  assert.equal(councilOutcome(unavailable).state, 'pending');
+  assert.equal(councilOutcome(unavailable, true).label, 'Seats unavailable');
 });
 
 test('every current metro and local council is searchable even with no available result', () => {

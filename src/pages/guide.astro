@@ -1,0 +1,15 @@
+---
+import Site from '../layouts/Site.astro';
+import CivicGuide from '../components/CivicGuide.astro';
+import { guides, type GuideTopic } from '../lib/education.ts';
+const topics = Object.keys(guides) as GuideTopic[];
+---
+<Site title="Understanding the results" description="A simple visual guide to South African local elections: council majorities, hung councils, ward and PR ballots, seats and local government.">
+  <div class="page-top"><div><p class="eyebrow">A little context goes a long way</p><h1>Understanding the results</h1><p class="lead">The essentials, one picture at a time.</p></div></div>
+  <nav class="guide-topics" aria-label="Election guide topics">{topics.map(topic => <a href={`#${topic}`}>{guides[topic].title}</a>)}</nav>
+  <div class="guide-sections">{topics.map(topic => <section id={topic} aria-label={guides[topic].title}><CivicGuide topic={topic} open/></section>)}</div>
+  <a class="button primary" href="/councils">Explore council results →</a>
+</Site>
+<style>
+  .guide-topics{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 30px}.guide-topics a{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;text-decoration:none;font-size:12px}.guide-topics a:hover{background:var(--sage)}.guide-sections{max-width:900px}.guide-sections section{scroll-margin-top:24px;margin-bottom:26px}
+</style>

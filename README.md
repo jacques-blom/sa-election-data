@@ -139,7 +139,7 @@ summary and `EEID{eventId}Munic{municipalityId}.js` for municipality details. De
 the `.js` extension, the responses are parsed as JSON and never executed.
 The summary is useful for discovery and progress, but has limited party lists;
 municipality documents contain the published party, ward and voting-district
-results. See the [IEC dashboard](https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx).
+results. See the [IEC dashboard](https://results.elections.org.za/dashboards/lge/).
 
 ```mermaid
 flowchart LR

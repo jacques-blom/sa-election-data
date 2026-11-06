@@ -2,6 +2,7 @@ import type { AreaRecord } from '../data/normalize.ts';
 import { joinedResults, resultColumns, hydrateResults } from '../data/packed-results.ts';
 import { latestYear, previousElection } from '../history/comparison.ts';
 import { places, placeUrl } from '../places/catalogue.ts';
+import { districts, districtUrl } from '../maps/districts.ts';
 import type { ResultRow } from '../places/results.ts';
 import { normaliseCouncilSearch } from '../seats/directory-filter.ts';
 import { readCouncilStates, summariseCouncils, type CouncilOutcome } from './councils.ts';
@@ -19,7 +20,7 @@ const record = (row: Row): AreaRecord => ({ level: row.level, id: row.area_id, n
 export function dashboardCouncils(current = new Map<string, CouncilSnapshot>(), previous = new Map<string, CouncilSnapshot>(),
   outcomes: CouncilOutcome[] = [], unavailable = new Set<string>()) {
   const byId = new Map(outcomes.map(o => [o.id, o]));
-  return councilPlaces.map(place => {
+  const localCouncils = councilPlaces.map(place => {
     const id = place.relationships.find(r => r.level === 'municipality' && r.relation === 'equals' && r.election === latestYear)!.areaId;
     const snapshot = current.get(id) ?? null, before = previous.get(id) ?? null, outcome = byId.get(id);
     const seats = snapshot?.seats ?? (outcome && outcome.status !== 'pending' ? outcome : null);
@@ -30,15 +31,28 @@ export function dashboardCouncils(current = new Map<string, CouncilSnapshot>(), 
     const comparable = seats?.status === 'reported' && before?.seats?.status === 'reported';
     const previousWinner = before?.seats?.status === 'reported' ? majorityParty(before.seats) : null;
     return { id, name: place.name, province: place.province, provinceId: provinces.find(p => p.name === place.province)?.id ?? '',
+      kind: place.kind === 'metro' ? 'metro' as const : 'local' as const,
       metro: place.kind === 'metro', href: placeUrl(place), builderHref: `${placeUrl(place)}/coalition`,
       search: normaliseCouncilSearch([place.name, ...place.aliases, place.province, id].join(' ')),
       status, seats, winner, largest: uniqueLargest, winnerId: status === 'majority' ? winner!.id : '',
       comparable, changed: !!comparable && (winner?.id ?? null) !== (previousWinner?.id ?? null), previousWinner, previousWinnerId: previousWinner?.id ?? '',
       snapshot, previous: before, progress: snapshot?.progress ?? null };
-  }).sort((a, b) => Number(b.metro) - Number(a.metro) || resultOrder(a) - resultOrder(b)
+  });
+  // District councils have a separate ballot and indirectly elected seats. The
+  // current IEC feed covers only metros/locals; never aggregate those into a
+  // district outcome or describe the missing district source as a pending count.
+  const districtCouncils = districts.map(d => ({
+    id: d.id, name: `${d.name} District`, province: d.province, provinceId: d.provinceId,
+    kind: 'district' as const, metro: false, href: districtUrl(d), builderHref: undefined,
+    search: normaliseCouncilSearch(`${d.name} District Municipality ${d.province} ${d.code}`),
+    status: 'unavailable' as const, seats: null, winner: null, largest: null, winnerId: '',
+    comparable: false, changed: false, previousWinner: null, previousWinnerId: '',
+    snapshot: null, previous: null, progress: null,
+  }));
+  return [...localCouncils, ...districtCouncils].sort((a, b) => Number(b.metro) - Number(a.metro) || resultOrder(a) - resultOrder(b)
     || a.name.localeCompare(b.name, 'en-ZA'));
 }
-// Within metros and local councils: reported allocations, then counts in progress,
+// Within metros and other councils: reported allocations, then counts in progress,
 // then councils still awaiting data.
 function resultOrder(council: { status: CouncilStatus; seats: CouncilSnapshot['seats']; progress: CouncilSnapshot['progress']; snapshot: CouncilSnapshot | null }) {
   if (council.status === 'majority' || council.status === 'no-majority') return 0;

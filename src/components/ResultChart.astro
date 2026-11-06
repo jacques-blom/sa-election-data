@@ -1,5 +1,6 @@
 ---
 import ComparisonNote from './ComparisonNote.astro';
+import CivicGuide from './CivicGuide.astro';
 import { combinedOnly as isCombinedOnly, displayBallot, partyMovement } from '../lib/history/comparison.ts';
 import PartyRow from './PartyRow.astro';
 import ShareView from './overview/ShareView.astro';
@@ -18,12 +19,13 @@ const initialCount = data.total === 0 ? 0 : 7;
 <section class="card result-card" aria-label={ballotName}><div class="card-heading"><h2>{ballotName}</h2><ShareView card={resultShareCard(result, name, combinedOnly ? 'source_total' : ballot)} ballot={combinedOnly ? undefined : ballot}/></div>
 {combinedOnly && <p class="small">Separate PR and ward figures are unavailable for this area.</p>}
 {tabs && !combinedOnly && <nav class="tabs" aria-label="Ballot type"><a href="?ballot=pr" aria-current={ballot === 'pr' ? 'page' : undefined}>Municipal PR</a><a href="?ballot=ward" aria-current={ballot === 'ward' ? 'page' : undefined}>Ward ballot</a></nav>}
+<CivicGuide topic={combinedOnly ? 'seats' : 'ballots'} hint={combinedOnly ? 'Combined ballots show votes, not council seats.' : ballot === 'pr' ? 'PR = proportional representation. A vote for a party.' : result.level === 'municipality' ? 'Ward votes across this municipality. Each ward elects one councillor.' : 'A vote for a person. Most votes across the whole ward wins one seat.'}/>
 <ResultStatus result={result}/>
 <RaceLead data={data} movement={data.leader ? partyMovement(result, data.leader, basis) : null}/>
 <ComparisonNote result={result} basis={basis}/>
 {data.total === null && <p class="notice">Some ballot figures are unavailable. Vote shares cannot be calculated reliably.</p>}
 {data.total === 0 && <p class="notice">No votes have been published for this ballot yet.</p>}
-<div class="chart-key"><span>Party / candidate</span><span>Share · votes</span></div>
+<div class="chart-key"><span>Party / candidate</span><span><a href="/guide#seats" aria-label="What vote percentage means">Vote %</a> · votes</span></div>
 {data.parties.slice(0,initialCount).map(p => <PartyRow party={p} movement={partyMovement(result, p, basis)}/>)}
 {data.parties.length > initialCount && <details class="more-parties"><summary>Show {data.parties.length - initialCount} {initialCount ? 'more ' : ''}parties and candidates</summary>{data.parties.slice(initialCount).map(p => <PartyRow party={p} movement={partyMovement(result, p, basis)}/>)}</details>}
 {data.total !== null && <p class="small"><strong>{formatNumber(data.total)}</strong> {combinedOnly ? 'combined ballot' : ballot === 'pr' ? 'PR' : 'ward'} votes</p>}

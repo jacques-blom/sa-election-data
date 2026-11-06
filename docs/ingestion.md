@@ -233,6 +233,6 @@ That UI work was preserved in the workspace. The launch verification captures a
 point in time; consult the live health endpoint for current operating status.
 
 Sources: [IEC results home](https://results.elections.org.za/),
-[IEC municipal dashboard](https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx),
+[IEC municipal dashboard](https://results.elections.org.za/dashboards/lge/),
 [IEC 2016 municipal elections handbook](https://www.elections.org.za/content/Documents/Publications/2016-Municipal-Elections/2016-Municipal-Elections-Handbook/),
 [Wrangler local binding proxy](https://developers.cloudflare.com/workers/wrangler/api/).

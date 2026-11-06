@@ -77,9 +77,9 @@ test('province totals retain pending and unavailable councils and count-to-watch
   const counting = snapshot(ids[0]!, [5, 5], 'estimated');
   counting.progress = { completed: 8, expected: 10, percent: 80 };
   const h = electionHighlights(dashboardCouncils(new Map([[ids[0]!, counting]]), new Map(), [], new Set([ids[1]!])));
-  assert.equal(h.provinceOutcomes.reduce((n, p) => n + p.total, 0), 213);
+  assert.equal(h.provinceOutcomes.reduce((n, p) => n + p.total, 0), 257);
   assert(h.provinceOutcomes.every(p => p.majority + p.noMajority + p.pending + p.unavailable === p.total));
-  assert.equal(h.provinceOutcomes.reduce((n, p) => n + p.unavailable, 0), 1);
+  assert.equal(h.provinceOutcomes.reduce((n, p) => n + p.unavailable, 0), 45, '44 district sources plus one unavailable local council');
   assert.deepEqual(h.counting.map(c => c.id), [ids[0]]);
   assert.equal(h.changes.length, 0); assert.equal(h.gains.length, 0); assert.equal(h.nearMajorities.length, 0);
 });

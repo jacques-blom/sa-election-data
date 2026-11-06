@@ -266,7 +266,7 @@ async function showArea(area: ResolvedArea, fit = true) {
     if (area.bbox && fit) fitBounds(area.bbox);
     return;
   }
-  const link = text('a', area.kind === 'district' ? 'View local municipalities ↗' : `View ${area.name} results ↗`, 'button primary');
+  const link = text('a', area.kind === 'district' ? 'View district ↗' : `View ${area.name} results ↗`, 'button primary');
   link.href = area.url;
   panel.replaceChildren(link);
   if (area.bbox && fit) fitBounds(area.bbox);

@@ -20,11 +20,12 @@ test('party outcomes, province counts, private search and live updates share one
     <section id="councils">
     <p data-dashboard-available="true"><span data-reported-count></span> of <span data-scope-count></span> seat allocations reported</p>
     <form id="council-filters">
-      ${['q', 'province', 'status', 'party', 'changed'].map(name => `<input type="hidden" name="${name}">`).join('')}
+      ${['q', 'province', 'type', 'status', 'party', 'changed'].map(name => `<input type="hidden" name="${name}">`).join('')}
       <details data-province-picker><summary><span data-province-label>All provinces</span></summary>
         <div>${[['', 'All provinces'], ['9', 'Western Cape'], ['1', 'Eastern Cape']].map(([id, name]) => `<a href="/councils?province=${id}" data-council-province="${id}"><span>${name}</span></a>`).join('')}</div>
       </details>
       <details><summary>More filters <span data-more-filter-active hidden>1</span></summary>
+        ${['','metro','local','district'].map(type => `<a href="/councils?type=${type}" data-council-type="${type}">${type || 'All types'}</a>`).join('')}
         <a href="/councils?changed=1" data-council-changed role="switch" aria-checked="false">Majority changed since 2021</a>
       </details>
     </form>
@@ -36,7 +37,7 @@ test('party outcomes, province counts, private search and live updates share one
     <div class="dashboard-list-meta"><p data-council-count></p><a href="/councils#councils" data-council-clear>Clear filters</a></div>
     <div data-party-change hidden><span data-party-change-name></span><span data-party-change-scope></span><span data-party-change-gained></span><span data-party-change-lost></span><span data-party-change-empty hidden>No comparable results</span></div>
     <div data-council-empty hidden></div>
-    ${Array.from({ length: 30 }, (_, i) => `<article data-council-row data-search="${i === 0 ? 'cape town cpt' : 'example ' + i}" data-province="${i < 10 ? '9' : '1'}" data-status="${i === 0 ? 'majority' : i === 1 ? 'no-majority' : i === 2 ? 'unavailable' : 'pending'}" data-party="${i === 0 ? '1' : ''}" data-changed="${i === 0}" data-comparable="${i < 2}" data-previous-party="${i === 0 ? '2' : '1'}"></article>${i === 7 ? '<section data-dashboard-highlights>Highlights</section>' : ''}`).join('')}
+    ${Array.from({ length: 30 }, (_, i) => `<article data-council-row data-kind="${i === 0 ? 'metro' : i === 2 ? 'district' : 'local'}" data-search="${i === 0 ? 'cape town cpt' : 'example ' + i}" data-province="${i < 10 ? '9' : '1'}" data-status="${i === 0 ? 'majority' : i === 1 ? 'no-majority' : i === 2 ? 'unavailable' : 'pending'}" data-party="${i === 0 ? '1' : ''}" data-changed="${i === 0}" data-comparable="${i < 2}" data-previous-party="${i === 0 ? '2' : '1'}"></article>${i === 7 ? '<section data-dashboard-highlights>Highlights</section>' : ''}`).join('')}
     <div id="council-scroll-sentinel" data-council-sentinel></div>
     </section></main>`;
   try {
@@ -141,6 +142,25 @@ test('party outcomes, province counts, private search and live updates share one
     window.history.pushState(null, '', '/councils?province=9&changed=1'); window.dispatchEvent(new window.PopStateEvent('popstate'));
     assert.equal(changed.getAttribute('aria-checked'), 'true'); assert.equal(visible().length, 1); assert.equal(q.value, '');
     click('[data-council-clear]'); assert(!highlights.hidden);
+    // Type selection scopes every count, survives live updates/back navigation,
+    // and does not relabel an unavailable district as a pending council.
+    click('[data-council-type="district"]');
+    assert.equal(window.location.search,'?type=district');assert.equal(visible().length,1);
+    assert.equal(text('[data-scope-count]'),'1');assert.equal(text('[data-reported-count]'),'0');
+    assert.equal(text('[data-status-count="pending"]'),'0');assert.equal(partyCount('1'),'0');
+    assert.equal(document.querySelector('[data-council-type="district"]')!.getAttribute('aria-current'),'true');
+    assert.equal(text('[data-more-filter-active]'),'1');assert(highlights.hidden);
+    document.dispatchEvent(new window.Event('results:updated'));assert.equal(visible().length,1);
+    click('[data-council-changed]');assert.equal(visible().length,0);assert.equal(text('[data-more-filter-active]'),'2');
+    click('[data-council-changed]');click('[data-council-province="1"]');assert.equal(visible().length,0);
+    window.history.pushState(null,'','/councils?province=9&type=district');window.dispatchEvent(new window.PopStateEvent('popstate'));
+    assert.equal(visible().length,1);assert.equal(text('[data-scope-count]'),'1');
+    click('[data-party-filter="1"]');assert.equal(visible().length,0);assert.equal(changeText('gained'),'—');
+    assert.equal(changeText('scope'),'Western Cape · district');
+    search('12 Private Street');
+    assert(![...document.querySelectorAll('[data-council-type]')].some(a=>a.getAttribute('href')!.includes('Private')));
+    click('[data-council-clear]');assert.equal(visible().length,24);assert(!highlights.hidden);
+    assert.equal(document.querySelector('[data-council-type=""]')!.getAttribute('aria-current'),'true');
     document.querySelector<HTMLElement>('[data-dashboard-available]')!.dataset.dashboardAvailable = 'false';
     document.dispatchEvent(new window.Event('results:updated'));
     assert.equal(text('[data-reported-count]'), '—'); assert.equal(text('[data-status-count="pending"]'), '—'); assert.equal(partyCount('1'), '—');

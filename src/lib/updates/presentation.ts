@@ -10,7 +10,7 @@ export const winnerName = (m: Milestone) => m.winner?.id === '0'
 export function milestoneTitle(m: Milestone) {
   if (m.kind === 'ward_won') return `${winnerName(m)} wins Ward ${wardNumber(m.areaId)}`;
   if (m.kind === 'count_complete') return `Counting complete in ${cleanName(m.areaName)}`;
-  return m.winner ? `${winnerName(m)} has a majority in ${cleanName(m.areaName)}` : `No party has a majority in ${cleanName(m.areaName)}`;
+  return m.winner ? `${winnerName(m)} has an outright majority in ${cleanName(m.areaName)}` : `Hung council in ${cleanName(m.areaName)}`;
 }
 export function updateTitle(update: Update) {
   if (update.action === 'withdrawn') return update.kind === 'ward_won' ? `Ward ${wardNumber(update.area_id)} result under revision`

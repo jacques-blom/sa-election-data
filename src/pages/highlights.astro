@@ -1,6 +1,7 @@
 ---
 import { env } from 'cloudflare:workers';
 import Site from '../layouts/Site.astro';
+import CivicGuide from '../components/CivicGuide.astro';
 import PageShare from '../components/PageShare.astro';
 import PartyLogo from '../components/PartyLogo.astro';
 import MovementBoard from '../components/highlights/MovementBoard.astro';
@@ -22,7 +23,7 @@ if (!data) Astro.response.headers.set('Retry-After', '60');
 const h = data ? electionHighlights(data.councils) : null;
 const previousYear = data?.previousYear ?? 2021;
 const balanceMax = Math.max(1, ...h?.balance.flatMap(p => [p.gained, p.lost]) ?? []);
-const outcomeKey = [{key:'majority',label:'Majority'}, {key:'noMajority',label:'No majority'}, {key:'pending',label:'Pending'}, {key:'unavailable',label:'Unavailable'}] as const;
+const outcomeKey = [{key:'majority',label:'Outright majority'}, {key:'noMajority',label:'Hung council'}, {key:'pending',label:'Seats pending'}, {key:'unavailable',label:'Unavailable'}] as const;
 ---
 <Site title="Election highlights" description="Majorities gained and lost, the biggest local vote-share swings, close pending races and the councils nearest a majority in South Africa’s 2026 local elections." canonicalPath="/highlights" noindex={!data} liveResults={!!data}>
   <div class="election-insights">
@@ -31,12 +32,13 @@ const outcomeKey = [{key:'majority',label:'Majority'}, {key:'noMajority',label:'
       <p class="insights-lead">Where majorities changed, support shifted, and the count is still close.</p>
       <div class="insights-meta"><span class="insight-counting">{data ? 'Updates with the count' : 'Updates unavailable'}</span><a href="/updates">Latest announcements ↗</a></div>
     </header>
+    <CivicGuide topic="outcomes"/>
     {data && h ? <>
       {data.delayedCouncils > 0 && <p class="notice">Updates are delayed for {data.delayedCouncils} councils. These highlights use the last available results.</p>}
       {data.summaryCoverage < data.total && <p class="notice">Detailed summaries are available for {data.summaryCoverage} of {data.total} councils. Rankings cover the available results.</p>}
       <section class="insight-topline" aria-label="The election at a glance">
         <a class="insight-stat insight-stat--changes" href="#majority-changes"><span>Majorities changed</span><strong>{h.changes.length}<svg viewBox="0 0 80 60" fill="none" aria-hidden="true"><path d="M5 18h62L54 5m13 13L54 31M75 42H13l13-13M13 42l13 13" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></strong><small>Since {previousYear} · {h.comparable} comparable councils <b aria-hidden="true">↗</b></small></a>
-        <a class="insight-stat insight-stat--hung" href="#majority-maths"><span>No majority</span><strong>{h.hung}<svg viewBox="0 0 80 60" fill="none" aria-hidden="true"><path d="M5 50V25h16v25M32 50V10h16v40M59 50V31h16v19M0 20h80" stroke="currentColor" stroke-width="3" stroke-dasharray="0"/><path d="M0 20h80" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4"/></svg></strong><small>Of {h.reported} reported council allocations <b aria-hidden="true">↗</b></small></a>
+        <a class="insight-stat insight-stat--hung" href="#majority-maths"><span>Hung councils</span><strong>{h.hung}<svg viewBox="0 0 80 60" fill="none" aria-hidden="true"><path d="M5 50V25h16v25M32 50V10h16v40M59 50V31h16v19M0 20h80" stroke="currentColor" stroke-width="3" stroke-dasharray="0"/><path d="M0 20h80" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4"/></svg></strong><small>Of {h.reported} reported council allocations <b aria-hidden="true">↗</b></small></a>
         <a class="insight-stat insight-stat--pending" href="#close-races"><span>Councils still pending</span><strong>{h.pending}<svg viewBox="0 0 80 60" fill="none" aria-hidden="true"><circle cx="42" cy="30" r="24" stroke="currentColor" stroke-width="3" opacity=".35"/><path d="M42 6a24 24 0 0 1 24 24M42 14v17l11 7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></strong><small>Seat allocations still to be reported <b aria-hidden="true">↗</b></small></a>
       </section>
       <nav class="insight-jumps" aria-label="Highlights sections"><a href="#majority-changes">Majorities & seats</a><a href="#vote-swings">Vote-share changes</a><a href="#close-races">Close races</a><a href="#majority-maths">Majority maths</a><a href="#province-picture">By province</a></nav>
@@ -87,7 +89,7 @@ const outcomeKey = [{key:'majority',label:'Majority'}, {key:'noMajority',label:'
       <section id="province-picture" class="insight-section" aria-labelledby="province-picture-title">
         <div class="insight-section-heading"><div><p class="insight-eyebrow">05 · Across the country</p><h2 id="province-picture-title">The picture by province</h2><p>How council outcomes are taking shape. Each bar represents all councils in a province.</p></div></div>
         <div class="insight-panel insight-provinces"><div class="insight-outcome-key">{outcomeKey.filter(s=>s.key!=='unavailable'||h.provinceOutcomes.some(p=>p.unavailable)).map(s=><span><i class={`insight-outcome--${s.key}`}/>{s.label}</span>)}</div>
-          <ul>{h.provinceOutcomes.map(p=><li><a href={councilFilterUrl({province:p.id})}><span class="insight-province-name"><strong>{p.name}</strong><small>{p.reported}/{p.total} allocations reported</small></span><span class="insight-province-bar" role="img" aria-label={`${p.majority} majority, ${p.noMajority} no majority, ${p.pending} pending, ${p.unavailable} unavailable`}>{outcomeKey.map(s=>p[s.key]>0&&<span class={`insight-outcome--${s.key}`} title={`${p[s.key]} ${s.label.toLowerCase()}`} style={`width:${p.total?p[s.key]/p.total*100:0}%`}>{p[s.key]/p.total >= .08 ? p[s.key] : null}</span>)}</span><span class="insight-province-arrow" aria-hidden="true">↗</span></a></li>)}</ul>
+          <ul>{h.provinceOutcomes.map(p=><li><a href={councilFilterUrl({province:p.id})}><span class="insight-province-name"><strong>{p.name}</strong><small>{p.reported}/{p.total} allocations reported</small></span><span class="insight-province-bar" role="img" aria-label={`${p.majority} majority, ${p.noMajority} hung councils, ${p.pending} pending, ${p.unavailable} unavailable`}>{outcomeKey.map(s=>p[s.key]>0&&<span class={`insight-outcome--${s.key}`} title={`${p[s.key]} ${s.label.toLowerCase()}`} style={`width:${p.total?p[s.key]/p.total*100:0}%`}>{p[s.key]/p.total >= .08 ? p[s.key] : null}</span>)}</span><span class="insight-province-arrow" aria-hidden="true">↗</span></a></li>)}</ul>
         </div>
       </section>
       <aside class="insight-methodology" aria-labelledby="insight-method-title"><h2 id="insight-method-title">How to read these highlights</h2><p>IEC results are provisional. “Reported” refers to the published seat allocation; completed district reporting is not an official declaration. Majorities describe seats, not governing agreements.</p><p>Comparisons match published municipal area IDs across elections, using complete party lists for combined ward and PR vote shares. Boundaries may differ. Missing comparisons and unfinished current counts are excluded from the swing rankings. “pp” means percentage points.</p><p>Seat changes compare ward + PR seats across the same councils with reported allocations in both elections. Parties are matched by ID; a party absent from a complete allocation has zero seats. Independent seats are combined as a group. Council sizes can change, so gains and losses need not balance.</p><p>{data.summaryCoverage}/{data.total} council summaries available. Local swings, close races and majority-threshold lists show up to six results each. The seat-change chart shows the eight largest net changes. All update as new results arrive.</p><div><a href="/">National vote shares & history →</a><a href="/updates">Latest announcements →</a><a href="/councils">Explore all councils →</a></div></aside>

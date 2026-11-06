@@ -6,6 +6,7 @@ import ComparisonNote from '../ComparisonNote.astro';
 import { partyMovement, displayBallot, latestYear } from '../../lib/history/comparison.ts';
 import PartyLogo from '../PartyLogo.astro';
 import ReportingProgress from '../ReportingProgress.astro';
+import CouncilOutcome from '../CouncilOutcome.astro';
 interface Props { municipality: Awaited<ReturnType<typeof getProvinceOverview>>['municipalities'][number] }
 const { municipality: m } = Astro.props;
 const basis = displayBallot(m.result, 'pr');
@@ -19,6 +20,8 @@ const top = ballot.parties.slice(0,2);
 ---
 <article class="overview-municipality" id={`municipality-${m.id}`} data-municipality-card data-search-name={`${m.name} ${m.code} ${provinceById(m.provinceId)?.name ?? ''}`}>
   <div class="overview-municipality-title"><div><p class="eyebrow">{m.code} · {basis === 'source_total' ? 'Combined ballots' : 'Municipal PR ballot'}</p><h3><a class="overview-municipality-link" href={m.placeHref ?? m.href} aria-label={`View ${m.name} results`}>{m.name}<span aria-hidden="true">↗</span></a></h3></div></div>
+  <CouncilOutcome result={m.result}/>
+  <p class="small">Leading in votes</p>
   <div class="overview-leader"><div><strong class="party-identity">{leader && <PartyLogo party={leader}/>}<span class="party-identity-text">{leader ? partyStyle(leader.party_name)[0] : ballot.tied ? 'Tie' : 'Not available'}</span></strong></div><p>{leaderShare !== null ? <>{leaderShare}<small>%</small></> : '—'}</p></div>
   <div class="overview-mini-bars" aria-label="Highest published PR vote totals">{top.map(p => <div><span class="party-identity party-identity--compact" title={p.party_name}><PartyLogo party={p} size="small"/><span class="party-identity-text">{name(p)}</span></span><i aria-hidden="true"><b style={`width:${p.share ?? 0}%;background:${partyStyle(p.party_name)[1]}`}></b></i><span>{p.share === null ? '—' : p.share.toFixed(1)+'%'}<PartyMovement movement={partyMovement(m.result,p,basis)}/></span></div>)}</div>
   <ComparisonNote result={m.result} basis={basis} compact/>

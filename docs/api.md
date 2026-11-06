@@ -274,7 +274,7 @@ OPTIONS. JSON-RPC responses are not publicly cached.
 
 ## Source
 
-[IEC municipal election dashboard](https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx)
+[IEC municipal election dashboard](https://results.elections.org.za/dashboards/lge/)
 and its public JSON documents. These .js URLs contain JSON and are parsed as
 data, never executed. No IEC API credentials are used. This project is independent
 of the IEC. Source URLs and checksums are included for verification.

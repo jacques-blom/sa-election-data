@@ -21,6 +21,7 @@ export function mountRegionMap(figure:HTMLElement){
   let sourceLayer:string|undefined=options.level==='national'?undefined:'administrative';
   let filter:maplibregl.FilterSpecification=['==',['get','level'],'province'];
   if(options.level==='province')filter=['all',['==',['get','level'],'municipality'],['==',['get','provinceId'],options.id!]];
+  if(options.level==='district')filter=['all',['==',['get','level'],'municipality'],['in',['get','code'],['literal',options.municipalityCodes??[]]]];
   if(options.level==='municipality'){source='wards';sourceLayer='wards';filter=['==',['get','code'],options.code!];}
   if(options.level==='town'){source='wards';sourceLayer='wards';filter=['in',['get','id'],['literal',options.wardIds??[]]];}
   if(options.level==='ward'){source='districts';sourceLayer='voting-districts';filter=['==',['get','wardId'],options.id!];}

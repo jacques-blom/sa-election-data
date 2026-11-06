@@ -1,6 +1,7 @@
 ---
 import PageShare from '../components/PageShare.astro';
 import Site from '../layouts/Site.astro';
+import CivicGuide from '../components/CivicGuide.astro';
 import UpdateCard from '../components/UpdateCard.astro';
 import MajorityBanner from '../components/MajorityBanner.astro';
 import { env } from 'cloudflare:workers';
@@ -55,6 +56,7 @@ const canPoll = !!data && !simulation && !options.before && !options.after && !o
   <section class="updates-heading page-share-heading" aria-labelledby="updates-title">
     <div><p class="eyebrow">2026 local elections · South Africa</p><h1 id="updates-title">Latest updates</h1></div><PageShare/>
   </section>
+  <CivicGuide topic="outcomes"/>
   <div class="updates-layout">
     <section class="updates-main" aria-label="Election updates">
       {options.event ? <p class="updates-back"><a href={allUrl}>← All latest updates</a></p> : <>
@@ -75,7 +77,7 @@ const canPoll = !!data && !simulation && !options.before && !options.after && !o
       {data?.next_before && <a class="button updates-older" href={pageUrl({ ...options, before: data.next_before, after: null, event: null })}>Earlier updates ↓</a>}
       {options.before && <p class="updates-back"><a href={latestUrl}>Back to latest updates ↑</a></p>}
       {!options.event && options.type==='councils' && <MajorityBanner/>}
-      <details class="updates-about"><summary>About these updates</summary><p>{simulation ? 'Fictional results for testing.' : 'IEC results are provisional and may be revised. This feed records changes observed by Counted, not every election announcement.'}</p><div class="links"><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">IEC source ↗</a><a href={feedUrl({}, '/api/v1/updates', simulation?.step)}>Updates API ↗</a></div></details>
+      <details class="updates-about"><summary>About these updates</summary><p>{simulation ? 'Fictional results for testing.' : 'IEC results are provisional and may be revised. This feed records changes observed by Counted, not every election announcement.'}</p><div class="links"><a href="https://results.elections.org.za/dashboards/lge/">IEC source ↗</a><a href={feedUrl({}, '/api/v1/updates', simulation?.step)}>Updates API ↗</a></div></details>
     </section>
   </div>
 </Site>

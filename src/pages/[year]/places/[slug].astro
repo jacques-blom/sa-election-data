@@ -13,12 +13,14 @@ import PlaceSearch from '../../../components/PlaceSearch.astro';
 import AddressResult from '../../../components/AddressResult.astro';
 import Wards from '../../../components/Wards.astro';
 import RelatedPlaces from '../../../components/RelatedPlaces.astro';
-import { districts, districtUrl } from '../../../lib/maps/districts.ts';
+import { districtUrl } from '../../../lib/maps/districts.ts';
+import { placeCouncilParents } from '../../../lib/places/hierarchy.ts';
 import { placeDirectoryUrl } from '../../../lib/places/browse.ts';
 import CouncilSeats from '../../../components/CouncilSeats.astro';
+import CivicGuide from '../../../components/CivicGuide.astro';
 import MajorityBanner from '../../../components/MajorityBanner.astro';
 import '../../../styles/municipality.css';
-import { placeUrl, places } from '../../../lib/places/catalogue.ts';
+import { placeUrl } from '../../../lib/places/catalogue.ts';
 import { findDirectoryPlace } from '../../../lib/places/directory.ts';
 import { getPlaceResults,type PlaceResults } from '../../../lib/places/results.ts';
 import { provinces,provinceUrl } from '../../../lib/overview/results.ts';
@@ -31,24 +33,30 @@ Astro.response.headers.set('Cache-Control',Astro.response.status===200?'public, 
 if(Astro.response.status===503)Astro.response.headers.set('Retry-After','60');
 const ballot=Astro.url.searchParams.get('ballot')==='ward'?'ward':'pr';
 const parentIds=place?.relationships.filter(r=>r.level==='municipality'&&r.election===2026).map(r=>r.areaId)??[];
-const parents=places.filter(p=>p.relationships.some(r=>r.level==='municipality'&&r.relation==='equals'&&parentIds.includes(r.areaId)));
+const councilParents=place ? placeCouncilParents(place,year) : [];
+const parents=councilParents.map(p=>p.municipality);
 const town=place?.kind==='town'||place?.kind==='suburb';
 const province=provinces.find(p=>p.name===place?.province);
-const district=year === latestYear && !town ? districts.find(d => d.municipalitySlugs.includes(place?.slug ?? '')) : undefined;
+const district=councilParents.length === 1 ? councilParents[0]!.district : undefined;
 const boundary=place?.geometry;
 const hasMap=!!place?.bbox && !!boundary;
 ---
 <Site liveResults={year === latestYear && Astro.response.status !== 404} title={place?`${place.name} election results ${year}`:'Area not found'} description={place?.description??'Find local election results by place name.'} noindex={!place?.indexable||Astro.response.status!==200}>
-<nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{province&&<><span>/</span><a href={provinceUrl(province,year)}>{province.name}</a></>}{district&&<><span>/</span><a href={districtUrl(district)}>{district.name}</a></>}{town&&parents.length===1&&<><span>/</span><a href={placeUrl(parents[0]!,year)}>{parents[0]!.name}</a></>}{place&&<><span>/</span><span aria-current="page">{place.name}</span></>}</nav>
+<nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{province&&<><span>/</span><a href={provinceUrl(province,year)}>{province.name}</a></>}{district&&<><span>/</span><a href={districtUrl(district)}>{district.name} District</a></>}{town&&parents.length===1&&<><span>/</span><a href={placeUrl(parents[0]!,year)}>{parents[0]!.name}</a></>}{place&&<><span>/</span><span aria-current="page">{place.name}</span></>}</nav>
 {place?<>
 <div class="page-top page-share-heading"><div><p class="eyebrow">{place.province} · {place.kind==='metro'?'Metropolitan municipality':place.kind} · {year}</p><h1>{place.name}</h1></div><PageShare result/></div>
+{!town && <CivicGuide topic="government" hint={place.kind === 'metro' ? 'A metro combines local and district services in one city council.' : district ? `${place.name} handles local services and shares responsibilities with ${district.name} District.` : 'A local municipality provides local services and shares responsibilities with a district.'}/>}
+{!town && district && <nav class="place-parent" aria-label="Parent district"><a href={districtUrl(district)}>{district.name} District <span aria-hidden="true">→</span></a></nav>}
 
 {town && year === latestYear && parents.length > 0 && <section class="town-municipalities" aria-labelledby="town-municipalities-heading">
-  <h2 id="town-municipalities-heading">Municipality results</h2>
-  <div class="town-municipality-grid">{parents.map(parent => <a class="town-municipality-card" href={placeUrl(parent,year)}>
-    <div><p class="eyebrow">{parent.kind === 'metro' ? 'Metropolitan municipality' : 'Local municipality'}</p><h3>{parent.name}</h3><p>Full council results, seats and wards.</p></div>
-    <span class="town-municipality-action">View results <span aria-hidden="true">→</span></span>
-  </a>)}</div>
+  <h2 id="town-municipalities-heading">Councils</h2>
+  <div class="town-municipality-grid">{councilParents.map(({municipality: parent, district: parentDistrict}) => <div class="town-council-group">
+    <a class="town-municipality-card" href={placeUrl(parent,year)}>
+      <div><p class="eyebrow">{parent.kind === 'metro' ? 'Metropolitan municipality' : 'Local municipality'}</p><h3>{parent.name}</h3></div>
+      <span class="town-municipality-action">View results <span aria-hidden="true">→</span></span>
+    </a>
+    {parentDistrict && <a class="town-district-link" href={districtUrl(parentDistrict)}>{parentDistrict.name} District <span aria-hidden="true">→</span></a>}
+  </div>)}</div>
 </section>}
 {town&&<p class="notice">Whole-ward results include areas outside {place.name}.</p>}
 {data?.municipality?<>

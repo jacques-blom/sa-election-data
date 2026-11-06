@@ -1,6 +1,7 @@
 ---
 import PageShare from '../../../components/PageShare.astro';
 import WardAddress from '../../../components/WardAddress.astro';
+import CivicGuide from '../../../components/CivicGuide.astro';
 import ElectionHistory from '../../../components/ElectionHistory.astro';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
@@ -35,11 +36,12 @@ const title = result ? `Ward ${wardNumber(id)}, ${municipalityName}` : 'Ward res
 {result ? <>
 <div class="page-top page-share-heading"><div><p class="eyebrow">{province} · {municipalityName} · {year}</p><h1>Ward {wardNumber(id)}</h1></div><PageShare result/></div>
 <WardAddress id={id}/>
+<CivicGuide topic="ward"/>
 <div id="ward-majority" data-history-current-only hidden={year !== latestYear}>{year === latestYear && parent && <MajorityBanner name={parent.name} href={`${placeUrl(parent)}/coalition`} municipalityId={result.municipalityId}/>}</div>
 <div id="ward-results" class="results-layout"><ResultChart result={result} ballot="ward" tabs={false} name={title}/><aside class="aside-stack ward-context"><section class="card scope-card">
 {parent ? <><h2>Municipality results</h2><a class="button" href={placeUrl(parent,year)}>View {municipalityName} results ↗</a></> : <><h2>Explore nearby wards</h2><a class="button" href={mapLink('south-africa',id)}>Return to the map ↗</a></>}
 </section><ElectionHistory year={year} level="ward" id={id}/></aside></div>
-<section style="margin-top:28px"><h2>Voting districts in this ward</h2><div class="links">{districts.map(d=><a href={`/${year}/voting-districts/${d.area_id}`}>{d.name.replace(/^\d+\s*-\s*/,"")} ↗</a>)}</div></section>
+<section style="margin-top:28px"><h2>Voting districts in this ward</h2><CivicGuide topic="voting-district"/><div class="links">{districts.map(d=><a href={`/${year}/voting-districts/${d.area_id}`}>{d.name.replace(/^\d+\s*-\s*/,"")} ↗</a>)}</div></section>
 {boundary&&<RegionMap historical={year !== latestYear} options={{level:"ward",id,bbox:boundary.bbox}} title={`Ward ${wardNumber(id)} and its voting districts`} href={mapLink(parent?.slug??"south-africa",id)} caption="Voting district boundaries"/>}
 <div class="links"><a href={parent ? placeUrl(parent,year)+'#wards' : mapLink('south-africa',id)}>Browse other wards</a></div>
 {year === latestYear && <RelatedPlaces scope={{wardId: id}} directory={{ward: id}} name={title} ward/>}

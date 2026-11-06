@@ -1,6 +1,7 @@
 ---
 import { env } from 'cloudflare:workers';
 import Site from '../layouts/Site.astro';
+import CivicGuide from '../components/CivicGuide.astro';
 import PageShare from '../components/PageShare.astro';
 import PlaceSearch from '../components/PlaceSearch.astro';
 import AddressResult from '../components/AddressResult.astro';
@@ -8,7 +9,7 @@ import PartyLogo from '../components/PartyLogo.astro';
 import DashboardCouncil from '../components/overview/DashboardCouncil.astro';
 import DashboardHighlights from '../components/overview/DashboardHighlights.astro';
 import { getCouncilDashboard, dashboardCouncils, type CouncilDashboard } from '../lib/overview/dashboard.ts';
-import { councilFilters, matchesCouncil, councilFilterUrl, partyMajorityChanges } from '../lib/overview/dashboard-filter.ts';
+import { councilFilters, matchesCouncil, councilFilterUrl, partyMajorityChanges, inCouncilScope } from '../lib/overview/dashboard-filter.ts';
 import { provinces } from '../lib/overview/results.ts';
 import { partyStyle } from '../lib/places/format.ts';
 import { latestYear } from '../lib/history/comparison.ts';
@@ -22,7 +23,7 @@ Astro.response.headers.set('Cache-Control', data ? 'public, max-age=15, s-maxage
 if (!data) Astro.response.headers.set('Retry-After', '60');
 const filters = councilFilters(Astro.url.searchParams);
 const councils = data?.councils ?? dashboardCouncils().map(c => ({ ...c, status: 'unavailable' as const }));
-const scope = councils.filter(c => !filters.province || c.provinceId === filters.province);
+const scope = councils.filter(c => inCouncilScope(c, filters));
 const shown = councils.filter(c => matchesCouncil(c, filters));
 const filtered = Object.values(filters).some(Boolean);
 const reported = scope.filter(c => c.status === 'majority' || c.status === 'no-majority').length;
@@ -30,7 +31,7 @@ const partyCounts = new Map<string, { id: string; name: string; count: number; p
 for (const c of councils) if (c.status === 'majority' && c.winner) {
   const p = partyCounts.get(c.winner.id) ?? { id: c.winner.id, name: c.winner.name, count: 0, provinceCount: 0 };
   p.count++;
-  if (!filters.province || c.provinceId === filters.province) p.provinceCount++;
+  if (inCouncilScope(c, filters)) p.provinceCount++;
   partyCounts.set(p.id, p);
 }
 const parties = [...partyCounts.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
@@ -39,7 +40,8 @@ if (filters.party && !parties.some(p => p.id === filters.party)) {
   parties.push({ id: filters.party, name: party?.name ?? `Party ${filters.party}`, count: 0, provinceCount: 0 });
 }
 const selectedParty = parties.find(p => p.id === filters.party);
-const partyChanges = partyMajorityChanges(councils, filters.party, filters.province);
+const partyChanges = partyMajorityChanges(councils, filters.party, filters.province, filters.type);
+const moreFilterCount = Number(filters.changed) + Number(!!filters.type);
 const previousYear = data?.previousYear ?? 2021;
 ---
 <Site title={`South African council results ${latestYear}`} description="Explore South African council majorities, councils without an overall majority and pending results. Follow majority changes, gains, losses and close races." noindex={!data || Astro.url.searchParams.size > 0} canonicalPath="/councils" liveResults>
@@ -54,18 +56,24 @@ const previousYear = data?.previousYear ?? 2021;
   </section>
   {!data && <p class="notice" role="status">Council summaries unavailable. Individual results are still accessible. <a href="/councils">Retry</a>.</p>}
   {data && data.delayedCouncils > 0 && <p class="notice dashboard-delay">Updates delayed for {data.delayedCouncils} {data.delayedCouncils === 1 ? 'council' : 'councils'}. Showing the last available results.</p>}
+  <CivicGuide topic="outcomes"/>
   <section class="dashboard-directory" id="councils" aria-label="Council results">
     <div class="dashboard-toolbar">
       <p class="dashboard-coverage" data-dashboard-available={String(!!data)}><span data-reported-count>{data ? reported : '—'}</span> of <span data-scope-count>{scope.length}</span> seat allocations reported</p>
       <form id="council-filters" class="council-toolbar" method="get" action="/councils#councils" role="search" aria-label="Filter councils">
-        <input type="hidden" name="q" value={filters.q}/><input type="hidden" name="province" value={filters.province}/><input type="hidden" name="status" value={filters.status}/><input type="hidden" name="party" value={filters.party}/><input type="hidden" name="changed" value={filters.changed ? '1' : ''}/>
+        <input type="hidden" name="q" value={filters.q}/><input type="hidden" name="province" value={filters.province}/><input type="hidden" name="type" value={filters.type}/><input type="hidden" name="status" value={filters.status}/><input type="hidden" name="party" value={filters.party}/><input type="hidden" name="changed" value={filters.changed ? '1' : ''}/>
         <details class="council-province" data-province-picker>
           <summary aria-label={`Province: ${provinces.find(p => p.id === filters.province)?.name ?? 'All provinces'}`}><span data-province-label>{provinces.find(p => p.id === filters.province)?.name ?? 'All provinces'}</span><span aria-hidden="true">⌄</span></summary>
           <div class="council-province-options" aria-label="Choose province">{[{ id: '', name: 'All provinces' }, ...provinces].map(p => <a href={councilFilterUrl({ ...filters, province: p.id })} data-council-province={p.id} aria-current={filters.province === p.id ? 'true' : undefined}><span>{p.name}</span><span class="council-option-check" aria-hidden="true">✓</span></a>)}</div>
         </details>
-        <details class="council-more" open={filters.changed}>
-          <summary>More filters<span class="council-filter-applied" data-more-filter-active hidden={!filters.changed} aria-label="1 active filter">1</span></summary>
-          <div class="council-more-options"><a class="council-change-toggle" href={councilFilterUrl({ ...filters, changed: !filters.changed })} data-council-changed role="switch" aria-checked={filters.changed}><span class="council-toggle-track" aria-hidden="true"/>Majority changed since {previousYear}</a></div>
+        <details class="council-more" open={moreFilterCount > 0}>
+          <summary>More filters<span class="council-filter-applied" data-more-filter-active hidden={!moreFilterCount} aria-label={`${moreFilterCount} active ${moreFilterCount === 1 ? 'filter' : 'filters'}`}>{moreFilterCount}</span></summary>
+          <div class="council-more-options">
+            <nav class="council-type-options" aria-label="Council type">
+              {[{ id: '', label: 'All types' }, { id: 'metro', label: 'Metro' }, { id: 'local', label: 'Local' }, { id: 'district', label: 'District' }].map(t => <a href={councilFilterUrl({ ...filters, type: t.id as typeof filters.type })} data-council-type={t.id} aria-current={filters.type === t.id ? 'true' : undefined}>{t.label}</a>)}
+            </nav>
+            <a class="council-change-toggle" href={councilFilterUrl({ ...filters, changed: !filters.changed })} data-council-changed role="switch" aria-checked={filters.changed}><span class="council-toggle-track" aria-hidden="true"/>Majority changed since {previousYear}</a>
+          </div>
         </details>
       </form>
     </div>
@@ -74,13 +82,13 @@ const previousYear = data?.previousYear ?? 2021;
       {parties.map(p => <a class:list={['council-outcome-option', { 'is-active': filters.party === p.id }]} href={councilFilterUrl({ ...filters, party: p.id, status: 'majority' })} data-party-filter={p.id} aria-current={filters.party === p.id ? 'true' : undefined}>
         <PartyLogo party={{ party_id: p.id }} size="small"/><span><abbr title={p.name}>{partyStyle(p.name)[0]}</abbr> majority</span><strong data-party-count>{data ? p.provinceCount : '—'}</strong>
       </a>)}
-      {[{ id: 'no-majority', label: 'No majority' }, { id: 'pending', label: 'Pending' }].map(s => <a class:list={['council-outcome-option', { 'is-active': filters.status === s.id && !filters.party }]} href={councilFilterUrl({ ...filters, status: s.id, party: '' })} data-council-outcome={s.id} aria-current={filters.status === s.id && !filters.party ? 'true' : undefined}>{s.label}<strong data-status-count={s.id}>{data ? scope.filter(c => c.status === s.id).length : '—'}</strong></a>)}
+      {[{ id: 'no-majority', label: 'Hung councils' }, { id: 'pending', label: 'Seats pending' }].map(s => <a class:list={['council-outcome-option', { 'is-active': filters.status === s.id && !filters.party }]} href={councilFilterUrl({ ...filters, status: s.id, party: '' })} data-council-outcome={s.id} aria-current={filters.status === s.id && !filters.party ? 'true' : undefined}>{s.label}<strong data-status-count={s.id}>{data ? scope.filter(c => c.status === s.id).length : '—'}</strong></a>)}
     </nav>
     <div class="dashboard-list-meta" hidden={!filtered}><p class="dashboard-list-count" data-council-count role="status" aria-live="polite">{shown.length} {shown.length === 1 ? 'council' : 'councils'}{filters.status === 'majority' && !filters.party ? ' with a majority' : ''}</p><a class="council-reset" href="/councils#councils" data-council-clear hidden={!filtered}>Clear filters</a></div>
     <div class="council-party-change" data-party-change hidden={!filters.party} role="status" aria-live="polite" aria-atomic="true">
       <span><strong data-party-change-name>{selectedParty ? partyStyle(selectedParty.name)[0] : ''}</strong> majorities since {previousYear}</span>
       <span><strong data-party-change-gained>{partyChanges.comparable ? partyChanges.gained : '—'}</strong> gained · <strong data-party-change-lost>{partyChanges.comparable ? partyChanges.lost : '—'}</strong> lost</span>
-      <span class="sr-only" data-party-change-scope>{provinces.find(p => p.id === filters.province)?.name ?? 'Nationwide'}</span>
+      <span class="sr-only" data-party-change-scope>{[provinces.find(p => p.id === filters.province)?.name ?? 'Nationwide', filters.type].filter(Boolean).join(' · ')}</span>
       <span data-party-change-empty hidden={partyChanges.comparable > 0}>No comparable results</span>
     </div>
     <div class="dashboard-council-list">
@@ -91,7 +99,7 @@ const previousYear = data?.previousYear ?? 2021;
     </div>
     <div class="dashboard-empty" data-council-empty hidden={shown.length > 0}><p>No matching councils.</p><a href="/councils#councils" data-council-clear>Clear filters</a></div>
     <div id="council-scroll-sentinel" data-council-sentinel aria-hidden="true" hidden></div>
-    <details class="dashboard-directory-note"><summary>About these results</summary><p>Metro and local councils only. Estimates remain pending until seat allocations are reported. The bar’s marker is at 50%; a majority needs more than half the seats. A seat majority does not establish a governing agreement.</p></details>
+    <details class="dashboard-directory-note"><summary>About these results</summary><p>All 257 councils: 8 metros, 205 local municipalities and 44 districts. District council votes and seats are unavailable in our current feed. Estimates remain pending until seat allocations are reported. The bar’s marker is at 50%; a majority needs more than half the seats. A seat majority does not establish a governing agreement.</p></details>
   </section>
 </Site>
 <script>import '../lib/overview/dashboard-client.ts';</script>
