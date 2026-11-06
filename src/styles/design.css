@@ -97,7 +97,7 @@ h2{font-size:26px;font-weight:550;letter-spacing:-.8px}
 @media(prefers-reduced-motion:reduce){.place-card:hover{transform:none}}
 
 /* Keep all main destinations reachable on narrow screens. */
-@media(min-width:541px) and (max-width:760px){.header-inner{flex-wrap:wrap;gap:14px;padding-bottom:7px}.header-inner>.nav{order:3;width:100%;margin-left:0}}
+@media(min-width:541px) and (max-width:950px){.header-inner{flex-wrap:wrap;gap:14px;padding-bottom:7px}.header-inner>.nav{order:3;width:100%;margin-left:0}}
 @media(max-width:540px){.nav{gap:2px;flex-wrap:wrap}.nav>a{padding:8px 9px;font-size:10px}}
 
 /* Keep page gestures at the app scale; maps handle their own zoom gestures. */

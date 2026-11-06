@@ -45,6 +45,17 @@ test('complete lists can establish a zero baseline for a newly listed party',()=
   const r=result();r.previous=result(2021,[100]);r.results.parties[1]!.party_id='new';
   assert.equal(partyMovement(r,r.results.parties[1]!,'pr')?.delta,40);
 });
+test('a party named Independent is distinct from grouped or candidate entries, and OTHER prevents zero baselines',()=>{
+  const r=result();r.previous=result(2021,[50,50]);
+  for(const row of [r,r.previous]){row.results.parties[0]!.party_id='45';row.results.parties[0]!.party_name='INDEPENDENT CIVIC ORGANISATION OF SOUTH AFRICA';}
+  assert.equal(partyMovement(r,r.results.parties[0]!,'pr')?.delta,10);
+  r.results.parties[0]!.candidate_name='An individual';
+  assert.equal(partyMovement(r,r.results.parties[0]!,'pr')?.delta,null);
+  r.results.parties[0]!.candidate_name=null;
+  r.previous.results.parties[0]!.party_id=null;r.previous.results.parties[0]!.entry_type='aggregate';
+  assert.equal(partyMovement(r,r.results.parties[0]!,'pr')?.delta,null);
+  assert.match(partyMovement(r,r.results.parties[0]!,'pr')?.reason??'',/aggregate/);
+});
 test('missing, zero, invalid, ambiguous and different-area results never invent swings',()=>{
   const r=result();const party=r.results.parties[0]!;
   assert.equal(partyMovement(r,party,'pr')?.delta,null);

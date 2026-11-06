@@ -12,6 +12,7 @@ import PlaceSearch from '../../../components/PlaceSearch.astro';
 import AddressResult from '../../../components/AddressResult.astro';
 import Wards from '../../../components/Wards.astro';
 import CouncilSeats from '../../../components/CouncilSeats.astro';
+import MajorityBanner from '../../../components/MajorityBanner.astro';
 import '../../../styles/municipality.css';
 import { placeUrl, places } from '../../../lib/places/catalogue.ts';
 import { findDirectoryPlace } from '../../../lib/places/directory.ts';
@@ -39,7 +40,8 @@ const hasMap=!!place?.bbox && !!boundary;
 
 {town&&<p class="notice">Whole-ward results include areas outside {place.name}.</p>}
 {data?.municipality?<>
-<div id="municipality-seats">{!town&&year === latestYear&&<CouncilSeats result={data.municipality} href={placeUrl(place,year)}/>}</div>
+<div id="municipality-seats">{!town&&<CouncilSeats result={data.municipality} href={placeUrl(place,year)} name={place.name}/>}</div>
+{town&&year === latestYear&&parents.map(parent=><MajorityBanner name={parent.name} href={`${placeUrl(parent)}/coalition`}/>)}
 {!town?<div id="municipality-results" class="results-layout municipality-results">
   <ResultChart result={data.municipality} ballot={ballot} name={place.name}/>
   <aside class="municipality-tools" aria-label="Map and address lookup">
@@ -60,6 +62,6 @@ const hasMap=!!place?.bbox && !!boundary;
 {town&&<section class="card scope-card"><div class="card-heading"><h2>Which results cover {place.name}?</h2></div>{place.boundaryContext?.notes.map(note=><p>{note}</p>)}<div class="links">{parents.map(parent=><a href={placeUrl(parent,year)}>Whole {parent.name} council result ↗</a>)}<a href="/search">Find the ward at your address →</a></div><details><summary>How we matched this place to wards</summary><p>{place.boundaryContext?.method}</p><ul>{place.sources.map(s=><li><a href={s.url}>{s.label} ↗</a></li>)}</ul></details></section>}
 {data.missingWardIds.length>0&&<p class="notice">Results are not available for mapped wards: {data.missingWardIds.join(', ')}.</p>}
 
-</>:<><ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly={town}/><section class="empty"><h2>{year === latestYear ? 'Results are temporarily unavailable.' : 'Historical results unavailable.'}</h2><p>{year === latestYear ? 'Please try again shortly.' : 'This area has no mapped result for this election. Select another year above.'}</p><a href={place.sources[0]?.url}>View the source →</a></section></>}
+</>:<><ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly={town}/><section class="empty"><h2>{year === latestYear ? town ? 'Results are temporarily unavailable.' : 'Council seats pending' : 'Historical results unavailable.'}</h2><p>{year === latestYear ? 'Please try again shortly.' : 'This area has no mapped result for this election. Select another year above.'}</p><a href={place.sources[0]?.url}>View the source →</a></section>{!town&&year===latestYear&&<MajorityBanner name={place.name} href={`${placeUrl(place)}/coalition`}/>}</>}
 </>:<section class="empty"><div class="page-share-heading"><h1>{failed?'Results are temporarily unavailable.':'Area not found.'}</h1><PageShare/></div><a href="/search">Find your area →</a></section>}
 </Site>

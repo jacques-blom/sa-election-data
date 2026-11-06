@@ -126,8 +126,9 @@ for how remote bindings differ from local emulation.
 
 AI clients can read the same stored results through the public, read-only
 Streamable HTTP endpoint at `/mcp` when running this version. See
-[MCP setup and design](docs/mcp.md) for its eight tools, methodology resource,
-client configuration and deployment settings. No API key is needed.
+[MCP setup and design](docs/mcp.md) for its sixteen tools, result images, page aggregates, API docs and Python analysis
+guide, methodology resource, client configuration and deployment settings.
+No API key or separate skill/plugin installation is needed.
 
 ## How IEC syncing works
 

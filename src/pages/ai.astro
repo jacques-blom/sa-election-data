@@ -1,0 +1,10 @@
+---
+import Site from '../layouts/Site.astro';
+import UseWithAI from '../components/UseWithAI.astro';
+
+export const prerender = true;
+---
+<Site title="Use Counted with AI" description="Connect Counted’s public election data to ChatGPT or Claude. Follow the setup steps and try short prompts to explore results, changes and council majorities.">
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Election results</a><span aria-hidden="true">/</span><span aria-current="page">Use Counted with AI</span></nav>
+  <UseWithAI/>
+</Site>

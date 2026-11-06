@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
@@ -15,9 +15,12 @@ import type { AreaRecord } from '../src/lib/data/normalize.ts';
 import { resultQuality } from '../src/lib/data/quality.ts';
 import { packRecords, prepareRecords } from '../workers/sync/pack.ts';
 import { findPlace } from '../src/lib/places/catalogue.ts';
+import { readResultImage } from '../src/lib/mcp/images/http.ts';
 
 const endpoint = new URL('http://localhost/mcp');
-const options = { allowedHosts: ['counted.co.za', 'localhost'] };
+const apiDocumentation = readFileSync(new URL('../docs/api.md', import.meta.url), 'utf8');
+const options = { allowedHosts: ['counted.co.za', 'localhost'], apiDocumentation,
+  renderImage: () => new Uint8Array([137, 80, 78, 71]) };
 const unavailable: McpBindings = { RESULTS_DB: null!, RAW_RESULTS: null! };
 const headers = { host: 'localhost', 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' };
 
@@ -51,15 +54,24 @@ test('MCP supports real legacy and modern clients without a database or sessions
     const client = await connect(unavailable, modern);
     try {
       const tools = await client.listTools();
-      assert.equal(tools.tools.length, 8);
+      assert.equal(tools.tools.length, 16);
       assert.ok(tools.tools.every(tool => tool.annotations?.readOnlyHint && !tool.annotations?.destructiveHint));
       assert.ok(tools.tools.every(tool => tool.inputSchema.additionalProperties === false && tool.outputSchema));
       const resources = await client.listResources();
-      assert.equal(resources.resources[0]?.uri, 'counted://methodology');
+      assert.ok(resources.resources.some(r => r.uri === 'counted://methodology'));
       const resource = await client.readResource({ uri: 'counted://methodology' });
       const content = resource.contents[0];
       assert.ok(content && 'text' in content);
       assert.match(content.text, /not unique voters/);
+      const docs = await call(client, 'get_api_docs');
+      assert.equal((docs.structuredContent!.data as { markdown: string }).markdown, apiDocumentation);
+      const docsResource = await client.readResource({ uri: 'counted://api-documentation' });
+      assert.equal((docsResource.contents[0] as { text: string }).text, apiDocumentation);
+      const guide = await call(client, 'get_analysis_guide');
+      assert.equal(guide.isError, undefined);
+      const instructions = guide.structuredContent!.data as { instructions: string; python_client_url: string };
+      assert.match(instructions.instructions, /same-ID comparison/);
+      assert.equal(instructions.python_client_url, 'https://counted.co.za/analysis/counted_data.py');
       const bad = await call(client, 'get_results', { year: 2024, level: 'municipality', area_id: '9909' });
       assert.equal(bad.isError, true);
       await assert.rejects(call(client, 'run_sql', { sql: 'DELETE FROM elections' }), /Tool run_sql not found/);
@@ -107,7 +119,16 @@ test('MCP validates bounds, path inputs, unknown fields and conflicting cursors'
       ['get_results', { level: 'national', area_id: 'ZA' }],
       ['search_places', { limit: 500 }], ['search_places', { offset: -1 }],
       ['get_place', { slug: '../../admin' }], ['list_areas', { year: 2026, query: 'x'.repeat(81) }],
+      ['get_overview', { year: 2026, province_id: '0' }],
+      ['list_area_summaries', { year: 2026, limit: 26 }],
+      ['list_area_summaries', { year: 2026, party_id: "7' OR 1=1" }],
+      ['get_area_summary', { year: 2026, level: 'ward', area_id: 'ZA' }],
       ['get_updates', { before: 1, after: 2 }], ['get_updates', { demo: true }],
+      ['render_results_image', { year:2026,level:'municipality',area_id:'9909',top:16 }],
+      ['render_comparison_image', { year:2026,level:'municipality',area_ids:['9909','9909'],mode:'areas',party_id:'1' }],
+      ['render_comparison_image', { year:2026,level:'municipality',area_ids:['9909'],mode:'areas' }],
+      ['render_comparison_image', { year:2026,level:'municipality',area_ids:['9909','9910'],mode:'previous_election' }],
+      ['render_council_image', { year:2026,municipality_id:'9909',selected_party_ids:['0'] }],
     ] as const) assert.equal((await call(client, name, args)).isError, true, name);
   } finally { await client.close(); }
 });
@@ -156,6 +177,24 @@ test('MCP queries isolated D1/R2, preserves REST evidence, and keeps historical 
     await db.prepare("INSERT INTO place_search(place_search) VALUES('rebuild')").run();
     client = await connect(proxy.env, true);
 
+    await t.test('image tool returns image content and a retrievable immutable snapshot through the real MCP transport', async () => {
+      const output = await call(client!, 'render_results_image', { year: 2026, level: 'municipality', area_id: '9909' });
+      assert.equal(output.isError, undefined);
+      assert.deepEqual(output.content.map(c => c.type), ['text', 'image']);
+      const data = output.structuredContent!.data as { image_url: string; alt_text: string };
+      assert.match(data.alt_text, /PROVISIONAL RESULTS/);
+      const url = new URL(data.image_url);
+      const response = await readResultImage(new Request(url), url.pathname.split('/').at(-1)!, proxy.env.RAW_RESULTS);
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get('Content-Type'), 'image/png');
+      const jsonUrl = new URL(output.structuredContent!.data_url as string);
+      const evidence = await readResultImage(new Request(jsonUrl), jsonUrl.pathname.split('/').at(-1)!, proxy.env.RAW_RESULTS);
+      assert.equal((await evidence.json() as { sources: { snapshotId: string }[] }).sources[0]!.snapshotId, 'snapshot-2026');
+      const change = await call(client!, 'render_comparison_image', { year:2026,level:'municipality',area_ids:['9909'] });
+      assert.equal(change.isError, undefined);
+      assert.equal((change.structuredContent!.data as {chart:{kind:string}}).chart.kind,'comparison');
+    });
+
     await t.test('result party paging retains complete quality, nulls, freshness and provenance', async () => {
       const rest = await (await resultsApi(new Request('http://localhost/api/v1/elections/2026/areas/municipality/9909'), proxy.env)).json() as ResultData;
       const result = await call(client!, 'get_results', { year: 2026, level: 'municipality', area_id: '9909', party_limit: 1 });
@@ -196,6 +235,31 @@ test('MCP queries isolated D1/R2, preserves REST evidence, and keeps historical 
         const empty = await call(client!, 'list_areas', { year: 2021, query });
         assert.equal((empty.structuredContent!.data as { total: number }).total, 0);
       }
+    });
+
+    await t.test('page aggregates preserve full denominators, history and filtered paging', async () => {
+      const result = await call(client!, 'get_area_summary', { year: 2026, level: 'municipality', area_id: '9909', party_limit: 1 });
+      assert.equal(result.isError, undefined);
+      const data = result.structuredContent!.data as {
+        ballot: { basis: string; denominator: number }; parties: { votes: number; share_percent: number }[];
+        available_years: number[]; history: { status: string }; council: { status: string }; party_page: { total: number; next_offset: number };
+      };
+      assert.equal(data.ballot.basis, 'pr');
+      assert.equal(data.ballot.denominator, 30);
+      assert.equal(data.parties.length, 1);
+      assert.equal(data.parties[0]!.share_percent, 20 / 30 * 100);
+      assert.deepEqual(data.available_years, [2021, 2026]);
+      assert.equal(data.history.status, 'available');
+      assert.equal(data.council.status, 'unavailable');
+      assert.equal(data.party_page.total, 2);
+      assert.equal(data.party_page.next_offset, 1);
+      const cards = await call(client!, 'list_area_summaries', { year: 2026, municipality_id: '9909', party_id: '7', limit: 1 });
+      const cardData = cards.structuredContent!.data as { total: number; areas: { selected_party: { votes: number; share_percent: number } }[] };
+      assert.equal(cardData.total, 1);
+      assert.equal(cardData.areas[0]!.selected_party.votes, 20);
+      assert.equal(cardData.areas[0]!.selected_party.share_percent, 20 / 30 * 100);
+      const empty = await call(client!, 'list_area_summaries', { year: 2026, query: "%' OR 1=1 --" });
+      assert.equal((empty.structuredContent!.data as { total: number }).total, 0);
     });
 
     await t.test('place discovery describes whole overlapping wards without fetching town totals', async () => {

@@ -8,6 +8,7 @@ import { findMapWard } from '../../../lib/maps/ward-catalogue.ts';
 import RegionMap from '../../../components/RegionMap.astro';
 import { joinedResults } from '../../../lib/data/packed-results.ts';
 import Site from '../../../layouts/Site.astro';
+import MajorityBanner from '../../../components/MajorityBanner.astro';
 import ResultChart from '../../../components/ResultChart.astro';
 import { places, placeUrl, wardNumber } from '../../../lib/places/catalogue.ts';
 import { getWardResults, type Result } from '../../../lib/places/results.ts';
@@ -32,6 +33,7 @@ const title = result ? `Ward ${wardNumber(id)}, ${municipalityName}` : 'Ward res
 <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{parent ? <><span> / </span><a href={placeUrl(parent,year)}>{municipalityName}</a></> : municipalityName && <><span> / </span><span>{municipalityName}</span></>}<span> / </span><span>{result ? `Ward ${wardNumber(id)}` : 'Ward'}</span></nav>
 {result ? <>
 <div class="page-top page-share-heading"><div><p class="eyebrow">{province} · {municipalityName} · {year}</p><h1>Ward {wardNumber(id)}</h1></div><PageShare result/></div>
+{year === latestYear && parent && <MajorityBanner name={parent.name} href={`${placeUrl(parent)}/coalition`}/>}
 <div id="ward-results" class="results-layout"><ResultChart result={result} ballot="ward" tabs={false} name={title}/><aside class="aside-stack ward-context"><section class="card scope-card">
 {parent ? <><h2>Municipality results</h2><a class="button" href={placeUrl(parent,year)}>View {municipalityName} results ↗</a></> : <><h2>Explore nearby wards</h2><a class="button" href={mapLink('south-africa',id)}>Return to the map ↗</a></>}
 {related.map(p => <p class="small" style="margin:18px 0 0">This ward overlaps <a href={placeUrl(p,year)}>{p.name}’s statistical place boundary</a>.</p>)}</section><ElectionHistory year={year} level="ward" id={id}/></aside></div>

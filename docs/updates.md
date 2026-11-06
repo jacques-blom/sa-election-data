@@ -2,7 +2,7 @@
 
 ## Local simulation
 
-Run `pnpm dev:local` and open `/updates?demo=1` to see all eight fictional
+Run `pnpm dev:local` and open `/updates?demo=1&type=all` to see all eight fictional
 updates. Use **Start over**, **Next update**, and **Show all** to step through
 completed counts, ward wins, an independent winner, a council majority, a hung
 council, a changed winner, withdrawn completion and a revised seat allocation.
@@ -23,6 +23,12 @@ fixture module. Simulation responses bypass caches and are marked noindex.
 
 The `/updates` page and `/api/v1/updates` endpoint share an append-only D1 feed.
 The page is server rendered, linked from navigation and included in the sitemap.
+Opening `/updates` defaults to **Council outcomes**, including links with area or
+province filters. Explicit `type=all` and other type selections remain respected.
+Saved `?event=` announcements can show any event type. The public API keeps its
+existing all-events default; page polling explicitly sends the selected type.
+Current council outcomes with no party majority link directly to that council's
+majority builder. Withdrawn or superseded announcements keep their results links.
 Province, area search, type filters, cursor pagination, and permanent event links
 work without JavaScript. While visible, the newest page checks a small API response
 every 30 seconds and offers a “Show new updates” link rather than moving the

@@ -7,7 +7,7 @@ the footer identifies IEC results as provisional. Delayed or failed updates stil
 a notice. Detailed provenance remains in the API and copied share summaries.
 
 - Home: a compact heading with voting-district reporting progress, a full-width
-  place/address search, then three columns: province results map, national party
+  place/address search, a compact council-majority strip, then three columns: province results map, national party
   vote shares and all eight metros. Metros show municipal PR leaders and their own
   reporting progress; missing, zero and tied results remain explicit. On phones,
   national results come first, then the map and metros. Province cards follow below.
@@ -110,6 +110,31 @@ shown in each province summary; province maps show provisional municipal PR
 leaders. Unknown or tied results use a neutral fill. Maps are not council-outcome
 trackers. Small province silhouettes on the result cards are decorative; the
 home-page SVG provides native province links for pointer, touch and keyboard use.
+
+## Council overview
+
+The current-election homepage includes a compact council-majority strip above
+the existing map, national votes and metros. It counts single-party majorities,
+councils with no overall majority, and pending/unavailable allocations, with a
+party breakdown of reported majorities. Only complete reconciled IEC allocations
+enter the first two counts. Estimates never become reported outcomes. Grouped
+independents cannot be a single-party majority. The denominator uses the IEC's
+expected municipality count when consistent with the directory; otherwise it is
+explicitly limited to councils in the available results.
+
+An always-visible “Are you a political mastermind?” banner links to `/majority-builder`,
+where every current council can be searched, including pending allocations. The
+invitation sits outside the council summary card and remains compact above the
+existing map, votes and metro panels.
+
+Packed live results use the existing sync milestone state, matched to the exact
+source snapshot captured by the overview. Only the council milestone is selected;
+the homepage does not download every municipality's R2 pack. Local/legacy D1
+payloads and the already-hydrated metros use the same seat validator as council
+pages. A missing milestone or snapshot mismatch stays pending/unavailable. A
+database failure displays an unavailable overview without hiding other results.
+Historical pages omit this current-election overview. Governing agreements are
+not inferred from seats; the repository does not yet record those arrangements.
 
 ## Verification and delivery
 

@@ -20,6 +20,8 @@ export const OG_HEIGHT = 630;
 export const OG_IMAGE_VERSION = 'v3';
 
 const pages: Record<string, OgPage> = {
+  '/ai': { title: 'Use Counted with AI', label: 'Your questions. Counted’s data.', subtitle: 'Connect ChatGPT or Claude and explore election results.' },
+  '/majority-builder': { title: 'Majority builder', label: 'Can you get over the line?', subtitle: 'Choose a council. Combine parties. Every combination is hypothetical.', year: latestYear },
   '/map': { title: 'Explore the map', label: `Local elections ${latestYear}`, subtitle: 'Find your province, municipality and ward.', year: latestYear },
   '/find-address': { title: 'Find your ward', label: 'Start with your community', subtitle: 'Explore local elections near you.' },
   '/search': { title: 'Find local results', label: 'Start with your community', subtitle: 'Search by municipality, ward, town or address.' },

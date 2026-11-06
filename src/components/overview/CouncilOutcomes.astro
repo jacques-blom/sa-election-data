@@ -1,0 +1,37 @@
+---
+import type { getNationalOverview } from '../../lib/overview/results.ts';
+import { overviewPartyStyle } from '../../lib/overview/results.ts';
+import MajorityBanner from '../MajorityBanner.astro';
+import PartyLogo from '../PartyLogo.astro';
+interface Props { data: Awaited<ReturnType<typeof getNationalOverview>> }
+const { data } = Astro.props;
+const councils = data.councils;
+---
+<section id="council-outcomes" class="council-overview" aria-labelledby="council-overview-heading">
+  <div class="council-overview-top">
+    <div><h2 id="council-overview-heading">Council majorities</h2><p>{councils ? `${councils.singleParty + councils.noMajority} of ${councils.total} allocations reported${councils.hasExpectedTotal ? '' : ' · councils in our results'}` : 'Council outcomes are temporarily unavailable.'}</p></div>
+    {councils && <dl class="council-overview-counts">
+      <div><dt>Single-party majority</dt><dd>{councils.singleParty}</dd></div>
+      <div><dt>No overall majority</dt><dd>{councils.noMajority}</dd></div>
+      <div><dt>Pending / unavailable</dt><dd>{councils.pending}</dd></div>
+    </dl>}
+    <a class="council-updates-link" href="/updates?type=councils">Council updates <span aria-hidden="true">↗</span></a>
+  </div>
+  {councils && <div class="council-overview-bottom">
+    <div class="council-majority-parties" aria-label="Councils with a reported majority, by party">
+      {councils.parties.length ? <><span class="council-majority-label">Majorities</span>{councils.parties.map(p => <span class="council-majority-party"><PartyLogo party={{party_id:p.id}} size="small"/><abbr title={p.name}>{overviewPartyStyle(p.name)[0]}</abbr><strong>{p.councils}</strong></span>)}</> : <span>No single-party majorities reported yet.</span>}
+    </div>
+    <a href="/majority-builder">Explore every council →</a>
+  </div>}
+</section>
+<MajorityBanner featured/>
+<style>
+  .council-overview{margin:0 0 16px;border:1px solid var(--line);border-radius:16px;background:var(--paper);padding:15px 20px}
+  .council-overview-top{display:flex;align-items:center;gap:24px}.council-overview h2{font-size:18px;letter-spacing:-.4px;margin:0;font-weight:550}.council-overview-top p{font-size:10px;color:var(--muted);margin:4px 0 0}
+  .council-overview-counts{display:flex;flex:1;justify-content:center;gap:30px;margin:0}.council-overview-counts>div{display:flex;align-items:center;gap:9px}.council-overview-counts dt{font-size:11px;line-height:1.4;max-width:100px}.council-overview-counts dd{order:-1;margin:0;font-size:29px;letter-spacing:-1px;font-weight:550;font-variant-numeric:tabular-nums}.council-updates-link{font-size:11px;white-space:nowrap}
+  .council-overview-bottom{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;align-items:baseline}
+  .council-majority-parties{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:11px}.council-majority-label{color:var(--muted)}.council-majority-party{display:inline-flex;align-items:center;gap:5px}.council-majority-party abbr{text-decoration:none}.council-majority-party strong{font-variant-numeric:tabular-nums;font-weight:600;margin-left:2px}
+  .council-overview-bottom>a{font-size:11px}
+  @media(max-width:1100px){.council-overview-top{gap:16px;flex-wrap:wrap}.council-overview-counts{justify-content:flex-end;gap:20px}.council-updates-link{display:none}}
+  @media(max-width:700px){.council-overview{padding:15px 16px}.council-overview-top{display:block}.council-overview-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.council-overview-counts>div{flex-direction:column;align-items:flex-start;gap:2px}.council-overview-counts dt{font-size:10px;max-width:none}.council-overview-counts dd{font-size:27px}}
+</style>

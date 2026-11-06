@@ -11,6 +11,8 @@ import ProvinceResultsMap from '../overview/ProvinceResultsMap.astro';
 import PlaceSearch from '../PlaceSearch.astro';
 import AddressResult from '../AddressResult.astro';
 import MetroResults from '../overview/MetroResults.astro';
+import CouncilOutcomes from '../overview/CouncilOutcomes.astro';
+import AICallout from '../AICallout.astro';
 import SummaryResults from '../overview/SummaryResults.astro';
 import { searchDirectory } from '../../lib/places/directory.ts';
 import ProvinceShape from '../overview/ProvinceShape.astro';
@@ -57,6 +59,7 @@ const progress = data ? progressOf(data.national) : null;
     {directory.total>12&&<p><a href={`/search?q=${encodeURIComponent(query)}`}>See all {directory.total} area matches →</a></p>}
     {!data && <p class="overview-warning">Municipality search is temporarily unavailable.</p>}
   </section>}
+  {year === latestYear && data && <CouncilOutcomes data={data}/>}
   <div id="home-results" class="home-results">
     <ProvinceResultsMap entries={entries} year={year} compact>
       <ElectionHistory slot="history" year={year} level="national" id="ZA" embedded/>
@@ -77,4 +80,5 @@ const progress = data ? progressOf(data.national) : null;
       </a>;
     })}</div>
   </section>
+  {year === latestYear && <AICallout/>}
 </Site>

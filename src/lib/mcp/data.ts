@@ -3,6 +3,16 @@ import { findDirectoryPlace, searchDirectory } from '../places/directory.ts';
 import { placeUrl } from '../places/catalogue.ts';
 import { getUpdates, type FeedOptions } from '../updates/feed.ts';
 import { publicUrl } from '../site.ts';
+import { hydrateResults, joinedResults, resultColumns } from '../data/packed-results.ts';
+import { resultFromRow, type ResultRow } from '../places/results.ts';
+import { attachPrevious, availableYears } from '../history/results.ts';
+import { getNationalOverview, getProvinceOverview, provinceById } from '../overview/results.ts';
+import { summariseCouncils } from '../overview/councils.ts';
+import { areaCard, areaSummary, type RequestedBallot } from './summaries.ts';
+import type { Level } from '../data/normalize.ts';
+
+export type SummaryFilters = { year: number; level: Level; province_id?: string; municipality_id?: string;
+  ward_id?: string; query?: string; ballot: RequestedBallot; party_id?: string; limit: number; offset: number };
 
 export type McpBindings = Pick<Env, 'RESULTS_DB' | 'RAW_RESULTS' | 'GEOGRAPHY_DB'>;
 export type ReadCache = {
@@ -36,6 +46,62 @@ export function createDataReader(bindings: McpBindings, origin: string, cache?: 
   }
 
   return {
+    async summary(year: number, level: Level, id: string, ballot: RequestedBallot, limit: number, offset: number) {
+      const row = await bindings.RESULTS_DB.prepare(`SELECT ${resultColumns} ${joinedResults}
+        WHERE r.year=? AND r.level=? AND r.area_id=?`).bind(year, level, id).first<ResultRow>();
+      if (!row) throw new DataError(404, 'No imported result for this area.');
+      const [result] = await attachPrevious(bindings.RESULTS_DB,
+        (await hydrateResults(bindings.RESULTS_DB, bindings.RAW_RESULTS, [row])).map(resultFromRow), bindings.RAW_RESULTS);
+      return { ...areaSummary(result!, ballot, limit, offset),
+        available_years: await availableYears(bindings.RESULTS_DB, level, id) };
+    },
+    async summaries(filters: SummaryFilters) {
+      const where = ['r.year=?', 'r.level=?'];
+      const args: (string | number)[] = [filters.year, filters.level];
+      for (const key of ['province_id', 'municipality_id', 'ward_id'] as const) {
+        if (filters[key] !== undefined) { where.push(`r.${key}=?`); args.push(filters[key]!); }
+      }
+      if (filters.query) { where.push('instr(lower(r.name),lower(?))>0'); args.push(filters.query); }
+      const clause = `WHERE ${where.join(' AND ')}`;
+      const [count, page] = await bindings.RESULTS_DB.batch([
+        bindings.RESULTS_DB.prepare(`SELECT COUNT(*) AS total ${joinedResults} ${clause}`).bind(...args),
+        bindings.RESULTS_DB.prepare(`SELECT ${resultColumns} ${joinedResults} ${clause} ORDER BY r.area_id LIMIT ? OFFSET ?`)
+          .bind(...args, filters.limit, filters.offset),
+      ]);
+      const results = await attachPrevious(bindings.RESULTS_DB,
+        (await hydrateResults(bindings.RESULTS_DB, bindings.RAW_RESULTS, page!.results as unknown as ResultRow[])).map(resultFromRow), bindings.RAW_RESULTS);
+      return { year: filters.year, level: filters.level, filters,
+        ...pageInfo(Number((count!.results[0] as { total: number }).total), filters.limit, filters.offset),
+        areas: results.map(result => areaCard(result, filters.ballot, filters.party_id)),
+        scope: 'One row per imported area at exactly one geographic level; totals are not summed across parent and child areas.',
+        snapshot_note: 'Each row carries its source snapshot. Separate pages may observe later publication; use the Python capture helper when a stable full dataset is needed.' };
+    },
+    async overview(year: number, provinceId: string | undefined, limit: number, offset: number) {
+      if (provinceId) {
+        const province = provinceById(provinceId);
+        if (!province) throw new DataError(400, 'Unknown province ID.');
+        const data = await getProvinceOverview(bindings.RESULTS_DB, province, bindings.RAW_RESULTS, year);
+        const councils = summariseCouncils(data.municipalities.map(m => ({ area_id: m.id,
+          snapshot_id: m.result.source.snapshotId, payload: JSON.stringify(m.result.results) })), [],
+          data.summary.results.progress.municipalities?.expected ?? null);
+        return { year, scope: 'province', province: { id: province.id, name: province.name },
+          summary: areaSummary(data.summary, 'auto', 50),
+          councils: { ...councils, entries: undefined,
+            note: 'Only complete IEC-reported seat allocations enter majority counts. Estimates and unavailable councils remain pending. No majority does not identify a governing coalition.' },
+          municipality_page: pageInfo(data.municipalities.length, limit, offset),
+          municipalities: data.municipalities.slice(offset, offset + limit).map(m => areaCard(m.result)) };
+      }
+      const data = await getNationalOverview(bindings.RESULTS_DB, bindings.RAW_RESULTS, year);
+      return { year, scope: 'national', summary: areaSummary(data.national, 'auto', 50),
+        provinces: data.provinces.map(p => ({ id: p.province.id, name: p.province.name, summary: p.result ? areaCard(p.result) : null })),
+        metros: data.metros.map(m => ({ slug: m.place.slug, name: m.place.name, summary: m.result ? areaCard(m.result) : null })),
+        councils: data.councils ? { ...data.councils, entries: undefined,
+          note: 'Only complete IEC-reported allocations enter majority counts. Estimates, missing imported councils and unavailable packed outcome state remain pending. Coalition membership is not supplied.' } : null,
+        municipality_page: pageInfo(data.municipalities.length, limit, offset),
+        municipalities: data.municipalities.slice(offset, offset + limit).map(m => ({ id: m.id, name: m.name,
+          province_id: m.provinceId, url: publicUrl(m.placeHref ?? m.href) })),
+        scope_note: 'The national and provincial summaries are their IEC source records, not sums of the displayed municipality or metro lists. Missing summaries are null.' };
+    },
     api(path: string) {
       return cached(path, () => resultsApi(new Request(new URL(path, origin)), bindings));
     },

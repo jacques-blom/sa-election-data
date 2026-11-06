@@ -4,6 +4,7 @@ import type { AreaRecord, Level } from '../data/normalize.ts';
 import { resultFromRow, partyStyle, type Result, type ResultRow } from '../places/results.ts';
 import { places, placeUrl } from '../places/catalogue.ts';
 import { hydrateResults, joinedResults } from '../data/packed-results.ts';
+import { readCouncilStates, summariseCouncils, type CouncilOverview } from './councils.ts';
 
 export const provinces = [
   { id: '1', slug: 'eastern-cape', name: 'Eastern Cape', code: 'EC', label: [368, 350] },
@@ -52,11 +53,11 @@ function asResult(row: OverviewRow): Result {
   return resultFromRow({ ...row, payload: row.payload });
 }
 
-/** Read summary and metro snapshot pointers together; other directory rows carry no vote payloads. */
+/** Read snapshot pointers together. Packed councils use the sync's compact outcome state. */
 export async function getNationalOverview(db: D1Database, bucket?: R2Bucket, year: number = latestYear) {
   const { results } = await db.prepare(`${selection} CASE WHEN b.object_key IS NOT NULL
-    OR (r.level='municipality' AND r.area_id NOT IN (${metroIds.map(() => '?').join(',')})) THEN NULL ELSE r.payload END AS payload
-    ${active} AND r.level IN ('national','province','municipality')`).bind(...metroIds, year).all<OverviewRow>();
+    OR (? <> ? AND r.level='municipality' AND r.area_id NOT IN (${metroIds.map(() => '?').join(',')})) THEN NULL ELSE r.payload END AS payload
+    ${active} AND r.level IN ('national','province','municipality')`).bind(year, latestYear, ...metroIds, year).all<OverviewRow>();
   await hydrateResults(db, bucket, results.filter(r => r.level !== 'municipality'));
   const national = results.find(r => r.level === 'national');
   if (!national) throw new Error('National result is not available');
@@ -72,7 +73,12 @@ export async function getNationalOverview(db: D1Database, bucket?: R2Bucket, yea
       return { place, result };
     })));
   }
-  const data = { national: asResult(national), provinces: provinces.map(province => {
+  let councils: CouncilOverview | null = null;
+  if (year === latestYear) try {
+    councils = summariseCouncils(results.filter(r => r.level === 'municipality'), await readCouncilStates(db, year),
+      asResult(national).results.progress.municipalities?.expected ?? null);
+  } catch (error) { console.error('Council overview unavailable', error); }
+  const data = { national: asResult(national), councils, provinces: provinces.map(province => {
     const row = results.find(r => r.level === 'province' && r.area_id === province.id);
     return { province, result: row ? asResult(row) : null };
   }), metros, municipalities: results.filter(r => r.level === 'municipality').map(municipalityLink).sort((a,b) => a.name.localeCompare(b.name, 'en-ZA')) };

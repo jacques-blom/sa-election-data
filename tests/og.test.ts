@@ -11,7 +11,7 @@ import { ogSvg } from '../src/lib/og/svg.ts';
 import { boundaryOgMap, loadOgMap, nationalOgMap, type Boundary, type Boundaries } from '../src/lib/og/maps.ts';
 
 test('all public page families have contextual OG images, across supported elections', async () => {
-  for (const path of ['/', '/map', '/find-address', '/search', '/updates', '/api', '/privacy', '/terms', '/disclaimer', '/2026/places/cape-town/coalition']) {
+  for (const path of ['/', '/map', '/find-address', '/search', '/updates', '/majority-builder', '/api', '/privacy', '/terms', '/disclaimer', '/2026/places/cape-town/coalition']) {
     assert(await ogPageForPath(path), path);
   }
   for (const { year } of ELECTIONS) {

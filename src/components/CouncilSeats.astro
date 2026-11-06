@@ -1,22 +1,27 @@
 ---
-import { councilSeats, seatLabel, canBuildCoalition } from '../lib/seats/allocation.ts';
+import { councilSeats, seatLabel } from '../lib/seats/allocation.ts';
+import { majorityHeadline } from '../lib/seats/majority.ts';
+import { latestYear } from '../lib/history/comparison.ts';
+import MajorityBanner from './MajorityBanner.astro';
 import { partyStyle, type Result } from '../lib/places/results.ts';
 import PartyLogo from './PartyLogo.astro';
 import SeatDiagram from './SeatDiagram.astro';
 import SeatMethod from './SeatMethod.astro';
-interface Props { result: Result; href: string }
-const { result, href } = Astro.props;
+interface Props { result: Result; href: string; name: string }
+const { result, href, name } = Astro.props;
 const seats = councilSeats(result.level, result.results);
+const historical = result.year !== latestYear;
+const headline = majorityHeadline(seats, historical);
 const parties = seats.status === 'unavailable' ? [] : seats.parties.filter(p => p.count > 0);
 const visiblePartyCount = 5;
 ---
 <section class="card council-seats" aria-label={seats.status === 'unavailable' ? 'Council seats' : seatLabel(seats)}>
-  {seats.status === 'unavailable' ? <><h2>Council seats pending</h2><p class="small">{seats.reason}</p></> : <>
-    <div class="card-heading"><h2>{seatLabel(seats)}</h2><span class="pill">{seats.status === 'estimated' ? 'Current count' : 'Provisional'}</span></div>
+  {seats.status === 'unavailable' ? <><h2>{headline.title}</h2><p class="small">{headline.detail}</p></> : <>
+    <div class="card-heading"><div><p class="council-seat-basis">{seatLabel(seats)}</p><h2>{headline.title}</h2></div><span class="pill">{seats.status === 'estimated' ? 'Estimate' : historical ? 'Historical' : 'Provisional'}</span></div>
+    <p class="council-majority-detail">{headline.detail}</p>
     {seats.status === 'estimated' && <p class="seat-caution">Estimates can change as counting continues.</p>}
     <div class="council-grid"><div class="council-visual"><SeatDiagram seats={seats}/><p class="seat-threshold"><strong>{seats.majority}</strong> seats for a majority <span>{seats.total}-seat council</span></p></div>
       <div>
-        {canBuildCoalition(seats) && <a class="button primary coalition-entry" href={`${href}/coalition`}>Try a coalition →</a>}
         <div class="chart-key"><span>Party</span><span>{seats.status === 'estimated' ? 'Estimated seats' : 'Seats'}</span></div>
         {parties.slice(0, visiblePartyCount).map(p => <div class="seat-party-row"><span class="seat-party-name"><PartyLogo party={p} size="small"/><abbr title={p.party_name}>{partyStyle(p.party_name)[0]}</abbr></span><span class="seat-track" aria-hidden="true"><i style={`width:${p.count / seats.total * 100}%;background:${partyStyle(p.party_name)[1]}`}/></span><strong>{p.count}</strong></div>)}
         {parties.length > visiblePartyCount && <details class="more-parties"><summary>Show {parties.length - visiblePartyCount} more {parties.length - visiblePartyCount === 1 ? 'party' : 'parties'}</summary>
@@ -27,7 +32,9 @@ const visiblePartyCount = 5;
     <SeatMethod seats={seats} result={result}/>
   </>}
 </section>
+{!historical && <MajorityBanner name={name} href={`${href}/coalition`}/>}
 <style>
-  .council-seats{margin-bottom:24px}.council-seats h2{font-size:25px}.seat-caution{font-size:13px;color:#765b24;line-height:1.6;max-width:680px;margin:8px 0 20px}.council-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px}.council-visual{align-self:start}.seat-threshold{text-align:center;font-size:13px;line-height:1.6}.seat-threshold strong{font-size:28px;display:inline-block;margin-right:4px}.seat-threshold span{display:block;font-size:11px;color:var(--muted)}.seat-party-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(40px,1.2fr) 28px;gap:12px;align-items:center;margin:15px 0}.seat-party-name{display:flex;gap:8px;align-items:center;font-size:12px;overflow-wrap:anywhere}.seat-party-name abbr{text-decoration:none}.seat-party-row>strong{text-align:right;font-variant-numeric:tabular-nums}.seat-track{display:block;height:14px;border-radius:4px;overflow:hidden;background:#edf0e4}.seat-track i{display:block;height:100%;border-radius:4px}.coalition-entry{margin-bottom:22px}.council-seats:has(.seat-caution){border-color:#dcd5b8}.more-parties{margin:18px 0 0}.more-parties>summary{min-height:44px;align-content:center}
+  .council-seat-basis{font-size:11px;color:var(--muted);margin:0 0 6px}.council-majority-detail{font-size:14px;line-height:1.6;margin:0 0 20px;color:var(--muted)}
+  .council-seats{margin-bottom:24px}.council-seats h2{font-size:25px}.seat-caution{font-size:13px;color:#765b24;line-height:1.6;max-width:680px;margin:8px 0 20px}.council-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px}.council-visual{align-self:start}.seat-threshold{text-align:center;font-size:13px;line-height:1.6}.seat-threshold strong{font-size:28px;display:inline-block;margin-right:4px}.seat-threshold span{display:block;font-size:11px;color:var(--muted)}.seat-party-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(40px,1.2fr) 28px;gap:12px;align-items:center;margin:15px 0}.seat-party-name{display:flex;gap:8px;align-items:center;font-size:12px;overflow-wrap:anywhere}.seat-party-name abbr{text-decoration:none}.seat-party-row>strong{text-align:right;font-variant-numeric:tabular-nums}.seat-track{display:block;height:14px;border-radius:4px;overflow:hidden;background:#edf0e4}.seat-track i{display:block;height:100%;border-radius:4px}.council-seats:has(.seat-caution){border-color:#dcd5b8}.more-parties{margin:18px 0 0}.more-parties>summary{min-height:44px;align-content:center}
   @media(max-width:650px){.council-grid{grid-template-columns:1fr;gap:20px}.council-seats h2{font-size:23px}.seat-party-row{margin:12px 0}.council-visual{max-width:100%}}
 </style>

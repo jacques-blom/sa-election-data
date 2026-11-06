@@ -33,7 +33,9 @@ export function partyMovement(result: Result, party: Party, requested: VoteBasis
   const before = result.previous;
   const basis = before && combinedOnly(before) ? 'source_total' : requested;
   const base: Movement = { previousYear, basis, combinedFallback: basis !== requested, delta: null, previousShare: null, currentShare: null };
-  if (party.entry_type === 'aggregate' || !party.party_id || /^(ind|independent|unnamed)(\b|$)/i.test(party.party_name))
+  if (party.entry_type === 'aggregate' || !party.party_id || party.party_id === '0' || party.candidate_name
+    || party.party_name_source === 'unavailable'
+    || /^(ind|independents?|independent candidates?|unnamed(?: party)?)$/i.test(party.party_name.trim()))
     return { ...base, reason: 'Grouped or independent entries are not matched across elections.' };
   if (!before || before.year !== previousYear || before.level !== result.level || before.id !== result.id || before.municipalityId !== result.municipalityId)
     return { ...base, reason: `No matching result is available for ${previousYear}.` };
@@ -43,6 +45,8 @@ export function partyMovement(result: Result, party: Party, requested: VoteBasis
   if (matches.length > 1 || current.rows.filter(p => p.party_id === party.party_id).length !== 1)
     return { ...base, reason: 'This party has multiple entries; a direct comparison is unavailable.' };
   if (!matches.length && previous.partial) return { ...base, reason: `This party is not listed in the partial ${previousYear} summary.` };
+  if (!matches.length && previous.rows.some(p => p.entry_type === 'aggregate'))
+    return { ...base, reason: 'The previous source has an aggregate row and no separate row for this party.' };
   const previousShare = (matches[0]?.votes[basis] ?? 0) / previous.total * 100;
   const currentShare = party.votes[basis]! / current.total * 100;
   return { ...base, previousShare, currentShare, delta: currentShare - previousShare,

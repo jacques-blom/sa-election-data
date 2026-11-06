@@ -2,18 +2,19 @@
 import PageShare from '../components/PageShare.astro';
 import Site from '../layouts/Site.astro';
 import UpdateCard from '../components/UpdateCard.astro';
+import MajorityBanner from '../components/MajorityBanner.astro';
 import { env } from 'cloudflare:workers';
 import { provinces } from '../lib/overview/results.ts';
-import { feedOptions, feedUrl, getUpdates, updateTypes, type Feed, type FeedOptions } from '../lib/updates/feed.ts';
+import { pageFeedOptions, feedUrl, getUpdates, updateTypes, type Feed, type FeedOptions } from '../lib/updates/feed.ts';
 import { sastDay } from '../lib/updates/presentation.ts';
 import '../styles/updates.css';
-let options = feedOptions(new URLSearchParams());
+let options = pageFeedOptions(new URLSearchParams());
 let data: Feed | null = null;
 let error: string | null = null;
 const demo = Astro.url.searchParams.has('demo');
 let simulation: { step: number; total: number } | null = null;
 if (demo && !import.meta.env.DEV) { error = 'Local simulations are available only in the development server.'; Astro.response.status = 404; }
-try { if (!error) options = feedOptions(Astro.url.searchParams); }
+try { if (!error) options = pageFeedOptions(Astro.url.searchParams); }
 catch (cause) { error = (cause as Error).message; Astro.response.status = 400; }
 if (!error) {
   if (import.meta.env.DEV && demo) {
@@ -29,7 +30,7 @@ if (options.event && data && !data.updates.length) { Astro.response.status = 404
 Astro.response.headers.set('Cache-Control', error || demo ? 'no-store' : 'public, max-age=15, s-maxage=15');
 if (demo) Astro.response.headers.set('X-Robots-Tag', 'noindex, noarchive');
 if (Astro.response.status === 503) Astro.response.headers.set('Retry-After', '60');
-const filtered = !!(options.q || options.province || options.type !== 'all');
+const filtered = !!(options.q || options.province || options.type !== 'councils');
 const groups = new Map<string, NonNullable<Feed>['updates']>();
 for (const update of data?.updates ?? []) {
   const day = sastDay(update.published_at);
@@ -37,7 +38,8 @@ for (const update of data?.updates ?? []) {
   groups.get(day)!.push(update);
 }
 const pageUrl = (filters: Partial<FeedOptions> = {}) => feedUrl(filters, '/updates', simulation?.step);
-const allUrl = pageUrl();
+const allUrl = pageUrl({type:'all'});
+const clearUrl = pageUrl();
 const latestUrl = pageUrl({ ...options, before: null, after: null, event: null });
 const canPoll = !!data && !simulation && !options.before && !options.after && !options.event;
 ---
@@ -45,9 +47,9 @@ const canPoll = !!data && !simulation && !options.before && !options.after && !o
   {simulation && <section class="updates-simulation" aria-label="Local simulation">
     <div><p class="eyebrow">Local preview · Fictional results</p><h2>Simulate the updates feed</h2><p>These sample places, candidates, results and times are invented. Party names and logos are real. Nothing is written to the election database.</p></div>
     <div class="updates-simulation-controls"><strong>Step {simulation.step} of {simulation.total}</strong><div>
-      <a class="button" href={feedUrl({}, '/updates', 0)}>Start over</a>
-      {simulation.step < simulation.total ? <a class="button primary" href={feedUrl({}, '/updates', simulation.step + 1)}>Next update →</a> : <span class="button" aria-disabled="true">All updates shown</span>}
-      {simulation.step < simulation.total && <a class="button" href={feedUrl({}, '/updates', simulation.total)}>Show all</a>}
+      <a class="button" href={feedUrl({type:options.type}, '/updates', 0)}>Start over</a>
+      {simulation.step < simulation.total ? <a class="button primary" href={feedUrl({type:options.type}, '/updates', simulation.step + 1)}>Next update →</a> : <span class="button" aria-disabled="true">All sample steps loaded</span>}
+      {simulation.step < simulation.total && <a class="button" href={feedUrl({type:'all'}, '/updates', simulation.total)}>Show all</a>}
     </div><a class="updates-simulation-exit" href="/updates">Exit simulation</a></div>
   </section>}
   <section class="updates-heading page-share-heading" aria-labelledby="updates-title">
@@ -58,20 +60,21 @@ const canPoll = !!data && !simulation && !options.before && !options.after && !o
       {options.event ? <p class="updates-back"><a href={allUrl}>← All latest updates</a></p> : <>
         <form class="updates-filter" action="/updates" method="get" aria-label="Filter updates">
           {simulation && <><input type="hidden" name="demo" value="1"/><input type="hidden" name="step" value={simulation.step}/></>}
-          {options.type !== 'all' && <input type="hidden" name="type" value={options.type}/>}
+          <input type="hidden" name="type" value={options.type}/>
           <div class="updates-search-field"><label for="updates-search">Find an area</label><input id="updates-search" type="search" name="q" value={options.q} maxlength="80" placeholder="Municipality or ward number" autocomplete="off"/></div>
           <div><label for="updates-province">Province</label><select id="updates-province" name="province"><option value="">All provinces</option>{provinces.map(p => <option value={p.id} selected={options.province === p.id}>{p.name}</option>)}</select></div>
           <button class="button primary" type="submit">Apply filters</button>
         </form>
         <nav class="updates-tabs" aria-label="Update type">{updateTypes.map(([value, label]) => <a href={pageUrl({ ...options, type: value, before: null, after: null, event: null })} aria-current={options.type === value ? 'page' : undefined}>{label}</a>)}</nav>
       </>}
-      {options.event || options.before || filtered ? <div class="updates-list-heading"><h2 class:list={{ 'sr-only': !options.event && !options.before }}>{options.event ? 'Saved announcement' : options.before ? 'Earlier updates' : 'Latest milestones'}</h2>{filtered && !options.event && <a href={allUrl}>Clear filters</a>}</div> : <h2 class="sr-only">Latest milestones</h2>}
+      {options.event || options.before || filtered ? <div class="updates-list-heading"><h2 class:list={{ 'sr-only': !options.event && !options.before }}>{options.event ? 'Saved announcement' : options.before ? 'Earlier updates' : 'Latest milestones'}</h2>{filtered && !options.event && <a href={clearUrl}>Clear filters</a>}</div> : <h2 class="sr-only">Latest council outcomes</h2>}
       {canPoll && <div class="updates-poll" data-updates-poll data-endpoint={feedUrl({ ...options, limit: 1 }, '/api/v1/updates')} data-latest-id={data?.latest_id ?? 0}><p role="status" data-updates-message hidden></p><a class="button updates-new" href={latestUrl} data-updates-new hidden>Show new updates ↑</a></div>}
-      {error ? <div class="updates-empty" role="status"><span class="updates-empty-icon" aria-hidden="true">↻</span><h3>{Astro.response.status === 503 ? 'We couldn’t load the updates' : 'Unable to show these updates'}</h3><p>{error}</p><a class="button" href={Astro.response.status === 503 ? Astro.url.pathname + Astro.url.search : '/updates'}>{Astro.response.status === 503 ? 'Try again' : 'View all updates'}</a></div>
+      {error ? <div class="updates-empty" role="status"><span class="updates-empty-icon" aria-hidden="true">↻</span><h3>{Astro.response.status === 503 ? 'We couldn’t load the updates' : 'Unable to show these updates'}</h3><p>{error}</p><a class="button" href={Astro.response.status === 503 ? Astro.url.pathname + Astro.url.search : allUrl}>{Astro.response.status === 503 ? 'Try again' : 'View all updates'}</a></div>
         : groups.size ? [...groups].map(([day, updates]) => <section class="updates-day" aria-label={`Updates published ${day}`}><h2 class="updates-date">{day}</h2><ol class="updates-timeline">{updates.map(update => <li><UpdateCard update={update} simulationStep={simulation?.step}/></li>)}</ol></section>)
-        : <div class="updates-empty"><h3>{filtered ? 'No matching updates' : options.before ? 'No earlier updates' : 'No updates yet'}</h3><a class="button" href={simulation ? feedUrl({}, '/updates', simulation.total) : filtered || options.before ? allUrl : '/'}>{simulation ? 'Show all sample updates' : filtered || options.before ? 'View all updates' : 'Explore election results →'}</a></div>}
+        : <div class="updates-empty"><h3>{filtered ? 'No matching updates' : options.before ? 'No earlier updates' : 'No council outcomes yet'}</h3><a class="button" href={simulation ? feedUrl({type:'all'}, '/updates', simulation.total) : allUrl}>{simulation ? 'Show all sample updates' : 'View all updates'}</a></div>}
       {data?.next_before && <a class="button updates-older" href={pageUrl({ ...options, before: data.next_before, after: null, event: null })}>Earlier updates ↓</a>}
       {options.before && <p class="updates-back"><a href={latestUrl}>Back to latest updates ↑</a></p>}
+      {!options.event && options.type==='councils' && <MajorityBanner/>}
       <details class="updates-about"><summary>About these updates</summary><p>{simulation ? 'Fictional results for testing.' : 'IEC results are provisional and may be revised. This feed records changes observed by Counted, not every election announcement.'}</p><div class="links"><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">IEC source ↗</a><a href={feedUrl({}, '/api/v1/updates', simulation?.step)}>Updates API ↗</a></div></details>
     </section>
   </div>

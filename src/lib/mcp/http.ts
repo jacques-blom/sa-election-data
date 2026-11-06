@@ -1,8 +1,9 @@
 import { createMcpHandler, hostHeaderValidationResponse, originValidationResponse } from '@modelcontextprotocol/server';
 import { createDataReader, type McpBindings, type ReadCache } from './data.ts';
 import { createCountedServer } from './server.ts';
+import { createImageService, type PngRenderer } from './images/service.ts';
 
-export type McpHttpOptions = { allowedHosts: string[]; cache?: ReadCache };
+export type McpHttpOptions = { allowedHosts: string[]; cache?: ReadCache; apiDocumentation?: string; renderImage?: PngRenderer };
 
 export async function handleMcp(request: Request, bindings: McpBindings, options: McpHttpOptions): Promise<Response> {
   const rejected = hostHeaderValidationResponse(request, options.allowedHosts)
@@ -29,7 +30,8 @@ export async function handleMcp(request: Request, bindings: McpBindings, options
   }
 
   const reader = createDataReader(bindings, new URL(request.url).origin, options.cache);
-  const handler = createMcpHandler(() => createCountedServer(reader), {
+  const images = createImageService(reader, bindings.RAW_RESULTS, options.renderImage);
+  const handler = createMcpHandler(() => createCountedServer(reader, options.apiDocumentation, images), {
     legacy: 'stateless', maxRequestBodySize: 32 * 1024, maxSubscriptions: 0,
   });
   // The SDK owns the per-request server/transport lifetime, including legacy SSE

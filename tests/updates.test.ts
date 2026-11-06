@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { normalize } from '../src/lib/data/normalize.ts';
 import { ELECTIONS, sourceFor } from '../src/lib/data/catalogue.ts';
 import { milestones, milestoneChanges } from '../src/lib/updates/milestones.ts';
-import { feedOptions, feedUrl } from '../src/lib/updates/feed.ts';
-import { milestoneTitle, sastDay, sastTime } from '../src/lib/updates/presentation.ts';
+import { feedOptions, pageFeedOptions, feedUrl } from '../src/lib/updates/feed.ts';
+import { coalitionHref, milestoneTitle, sastDay, sastTime } from '../src/lib/updates/presentation.ts';
+import { simulationEvents } from '../src/lib/updates/simulation.ts';
 
 const source = sourceFor(ELECTIONS.find(e => e.year === 2026)!, '9909');
 function document() {
@@ -91,4 +92,32 @@ test('filter validation, cursor links and SAST day boundaries', () => {
   }
   assert.equal(sastDay('2026-11-05T23:30:00Z'), '6 November 2026');
   assert.equal(sastTime('2026-11-05T23:30:00Z'), '01:30');
+});
+
+test('Updates opens with council outcomes while explicit filters, saved announcements and API defaults survive', () => {
+  assert.equal(pageFeedOptions(new URLSearchParams()).type, 'councils');
+  assert.equal(pageFeedOptions(new URLSearchParams('province=9&q=Knysna')).type, 'councils');
+  assert.equal(feedOptions(new URLSearchParams()).type, 'all', 'public API default is unchanged');
+  assert.equal(pageFeedOptions(new URLSearchParams('event=2')).type, 'all', 'saved ward announcements stay reachable');
+  for (const type of ['councils', 'all', 'wins', 'complete', 'corrections'] as const) {
+    const options = pageFeedOptions(new URLSearchParams(`type=${type}&province=9&q=Knysna&before=12`));
+    const link = feedUrl(options);
+    assert.deepEqual(pageFeedOptions(new URL(link, 'https://counted.co.za').searchParams), options);
+    const apiLink = feedUrl({ ...options, before: null, after: 12, limit: 1 }, '/api/v1/updates');
+    assert.equal(feedOptions(new URL(apiLink, 'https://counted.co.za').searchParams).type, type, 'polling keeps the selected type');
+  }
+  assert.equal(feedUrl({ type: 'councils' }), '/updates');
+  assert.equal(feedUrl({ type: 'all' }), '/updates?type=all');
+});
+
+test('current no-majority outcomes lead to the council builder, including corrected allocations', () => {
+  const events = simulationEvents();
+  for (const event of [events[3]!, events[7]!]) {
+    const update = { ...event, municipality_id: '9928', municipality_name: 'WC048 - Knysna' };
+    assert.equal(coalitionHref(update), '/2026/places/knysna/coalition');
+    assert.equal(coalitionHref({ ...update, municipality_id: 'unmapped' }), '/majority-builder?q=Knysna');
+    assert.equal(coalitionHref({ ...update, superseded_by: 20 }), null);
+    assert.equal(coalitionHref({ ...update, action: 'withdrawn', after: null }), null);
+  }
+  for (const event of [events[0]!, events[1]!, events[4]!]) assert.equal(coalitionHref(event), null);
 });

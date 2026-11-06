@@ -5,9 +5,13 @@ import type { AreaRecord } from '../data/normalize.ts';
 import { DataError, pageInfo, type DataReader } from './data.ts';
 import { methodology, serverInstructions } from './guidance.ts';
 import { publicUrl } from '../site.ts';
+import { analysisGuide } from './analysis-guide.ts';
+import type { ImageService } from './images/service.ts';
+import { imageWidgetHtml, imageWidgetMeta, imageWidgetUri } from './images/widget.ts';
 
 const year = z.literal(ELECTIONS.map(e => e.year)).describe('Municipal election year; required for results.');
 const level = z.enum(['national', 'province', 'municipality', 'ward', 'voting-district']);
+const ballot = z.enum(['auto', 'pr', 'ward', 'source_total']).default('auto');
 const numericId = z.string().regex(/^\d{1,20}$/).describe('IEC ID within the requested election, obtained from list_areas.');
 const pagination = { limit: z.int().min(1).max(50).default(20), offset: z.int().min(0).max(Number.MAX_SAFE_INTEGER - 50).default(0) };
 const annotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
@@ -22,8 +26,8 @@ function queryPath(path: string, values: Record<string, string | number | undefi
   return path + (query.size ? `?${query}` : '');
 }
 
-export function createCountedServer(reader: DataReader) {
-  const server = new McpServer({ name: 'counted', version: '1.0.0', title: 'Counted election results' },
+export function createCountedServer(reader: DataReader, apiDocumentation?: string, images?: ImageService) {
+  const server = new McpServer({ name: 'counted', version: '1.2.0', title: 'Counted election results' },
     { instructions: serverInstructions });
 
   async function reply(path: string, read: () => Promise<Record<string, unknown>>): Promise<CallToolResult> {
@@ -42,6 +46,94 @@ export function createCountedServer(reader: DataReader) {
       } }) }] };
     }
   }
+
+  server.registerTool('render_results_image', {
+    title: 'Draw an election results image', annotations, outputSchema, _meta: imageWidgetMeta,
+    description: 'Render a branded PNG of one area’s published vote shares with reporting progress, ballot basis and source evidence. The attached MCP Apps viewer displays the exact image; summarize it briefly and provide the returned PNG/data download links. Use image_markdown only as fallback in clients without the viewer. Do not substitute an image search result or recreate the chart. Source data is read-only; generated public images are cached. Does not declare winners or council control.',
+    inputSchema: z.strictObject({ year, level, area_id: z.string().regex(/^(ZA|\d{1,20})$/), ballot,
+      top: z.int().min(3).max(15).default(8), party_id: z.string().regex(/^-?\d{1,20}$/).optional() }),
+  }, async args => {
+    try {
+      if (!images) throw new DataError(503, 'Image rendering is temporarily unavailable.');
+      return await images.results(args);
+    } catch (error) {
+      return reply('/api', async () => { throw error; });
+    }
+  });
+
+  server.registerResource('result-image-viewer', imageWidgetUri, {
+    title: 'Counted chart viewer', mimeType: 'text/html;profile=mcp-app',
+    description: 'Displays the exact generated PNG with source and download links.',
+  }, async () => ({ contents: [{ uri: imageWidgetUri, mimeType: 'text/html;profile=mcp-app', text: imageWidgetHtml,
+    _meta: { ui: { prefersBorder: false, csp: { connectDomains: [], resourceDomains: ['https://counted.co.za'] } },
+      'openai/widgetDescription': 'The generated Counted election chart with its provisional status and source. Summarize briefly without repeating the whole chart.',
+      'openai/widgetCSP': { connect_domains: [], resource_domains: ['https://counted.co.za'] },
+    } }] }));
+
+  server.registerTool('render_comparison_image', {
+    title: 'Draw election or area comparisons', annotations, outputSchema, _meta: imageWidgetMeta,
+    description: 'Render a PNG comparison with an inline image viewer and immutable download URLs. previous_election compares named-party percentage-point changes for exactly one area against the preceding imported election; it is exploratory, not boundary-adjusted, and omits unknown baselines and parties absent from the current list. areas compares one named party’s vote share in 2–12 selected areas at one level in one year; it is not a nationwide ranking. Includes source snapshots and caveats. No caller code runs.',
+    inputSchema: z.strictObject({ year, level, area_ids: z.array(z.string().regex(/^(ZA|\d{1,20})$/)).min(1).max(12), ballot,
+      mode: z.enum(['previous_election', 'areas']).default('previous_election'),
+      top: z.int().min(3).max(15).default(10), party_id: z.string().regex(/^\d{1,20}$/).optional() }),
+  }, async args => {
+    try { if (!images) throw new DataError(503, 'Image rendering is temporarily unavailable.'); return await images.comparison(args); }
+    catch (error) { return reply('/api', async () => { throw error; }); }
+  });
+
+  server.registerTool('render_council_image', {
+    title: 'Draw council seats or a hypothetical coalition', annotations, outputSchema, _meta: imageWidgetMeta,
+    description: 'Render a whole municipality’s council-seat diagram with a majority threshold, exact allocations and reported/estimated status. Optionally select named party IDs to highlight a hypothetical coalition and its majority surplus or shortfall; no agreement or governing coalition is implied. Grouped independents cannot be selected as one party. Returns image content, inline viewer and immutable PNG/data URLs. Estimates and provisional results remain visibly labelled. No caller code runs.',
+    inputSchema: z.strictObject({ year, municipality_id: numericId,
+      selected_party_ids: z.array(z.string().regex(/^[1-9]\d{0,19}$/)).max(20).default([]) }),
+  }, async args => {
+    try { if (!images) throw new DataError(503, 'Image rendering is temporarily unavailable.'); return await images.council(args); }
+    catch (error) { return reply('/api', async () => { throw error; }); }
+  });
+
+  server.registerTool('get_api_docs', {
+    title: 'Read the complete API documentation', annotations, outputSchema,
+    description: 'Load the authoritative API documentation as Markdown: endpoints, query parameters, response schemas, data coverage, freshness, source provenance, maps, places and MCP workflows. Read before using REST endpoints or building a Python download. No database access is required.',
+    inputSchema: z.strictObject({}),
+  }, async () => reply('/api.md', async () => {
+    if (!apiDocumentation) throw new DataError(503, 'API documentation is temporarily unavailable.');
+    return { mime_type: 'text/markdown', markdown: apiDocumentation };
+  }));
+
+  server.registerTool('get_overview', {
+    title: 'Read national or provincial page aggregates', annotations, outputSchema,
+    description: 'Read the data behind the national or province results page: source summary vote shares and progress, provincial/metro cards or municipality cards, reported council-majority counts where available, history, quality and provenance. Municipality lists are paginated. National/provincial source totals are not summed from the visible cards. Estimates never enter reported council counts.',
+    inputSchema: z.strictObject({ year, province_id: z.string().regex(/^[1-9]$/).optional(), ...pagination }),
+  }, async ({ year, province_id, limit, offset }) => reply(`/api/v1/elections/${year}`,
+    () => reader.overview(year, province_id, limit, offset)));
+
+  server.registerTool('get_area_summary', {
+    title: 'Read calculated shares, history and council seats', annotations, outputSchema,
+    description: 'Read calculations behind an electoral area page: full-source vote-share denominators, provisional leader/ties, progress, previous-election percentage-point movements, available years, and reported or estimated council-seat allocations. Estimates are explicitly labelled. Parties are paginated after calculations. National/provincial summaries always use combined ballots; historical detail may fall back to combined counts. Same-ID history is exploratory, not boundary-adjusted. Use get_results for the complete raw source fields.',
+    inputSchema: z.strictObject({ year, level, area_id: z.string().regex(/^(ZA|\d{1,20})$/), ballot,
+      party_limit: z.int().min(1).max(50).default(20), party_offset: z.int().min(0).max(20000).default(0) }),
+  }, async ({ year, level, area_id, ballot, party_limit, party_offset }) => reply(`/api/v1/elections/${year}/areas/${level}/${area_id}`, async () => {
+    if ((level === 'national') !== (area_id === 'ZA')) throw new DataError(400, 'Use ZA only for national results.');
+    return reader.summary(year, level, area_id, ballot, party_limit, party_offset);
+  }));
+
+  server.registerTool('list_area_summaries', {
+    title: 'Compare area cards across an imported scope', annotations, outputSchema,
+    description: 'Page through compact result-page calculations at one geographic level, filtered by province, municipality, ward or name. Includes leaders, denominators, progress, council status, source evidence and quality. Optionally select one party_id to get its votes/share/history in each area for Python comparisons; absent parties remain unavailable, not zero. Does not sum mixed geographic levels or infer boundary equivalence. Maximum 25 areas per call.',
+    inputSchema: z.strictObject({ year, level: level.default('municipality'), ballot,
+      province_id: numericId.optional(), municipality_id: numericId.optional(), ward_id: numericId.optional(),
+      query: z.string().trim().max(80).optional(), party_id: z.string().regex(/^-?\d{1,20}$/).optional(),
+      limit: z.int().min(1).max(25).default(10), offset: z.int().min(0).max(Number.MAX_SAFE_INTEGER - 25).default(0) }),
+  }, async (filters) => reply(queryPath(`/api/v1/elections/${filters.year}/areas`, {
+    level: filters.level, province_id: filters.province_id, municipality_id: filters.municipality_id,
+    ward_id: filters.ward_id, q: filters.query, limit: filters.limit, offset: filters.offset,
+  }), () => reader.summaries(filters)));
+
+  server.registerTool('get_analysis_guide', {
+    title: 'Load the Python analysis workflow', annotations, outputSchema,
+    description: 'Load skill-like instructions for open-ended election analysis in a Python environment: complete dataset downloads, CSV/JSONL schemas, source snapshot checks, joins, vote shares, historical comparisons, rankings and charts. Includes a downloadable standard-library Python client. Call before multi-area analysis or questions such as biggest winners and losers. No plugin installation or data read is required.',
+    inputSchema: z.strictObject({}),
+  }, async () => reply('/api', async () => analysisGuide));
 
   server.registerTool('list_elections', {
     title: 'Discover elections and coverage', annotations, outputSchema,
@@ -133,6 +225,14 @@ export function createCountedServer(reader: DataReader) {
     title: 'Counted methodology and interpretation', mimeType: 'text/markdown',
     description: 'Ballot semantics, provenance, provisional status, geographic scope and historical comparison limits.',
   }, async uri => ({ contents: [{ uri: uri.href, mimeType: 'text/markdown', text: methodology }] }));
+
+  server.registerResource('api-documentation', 'counted://api-documentation', {
+    title: 'Counted API documentation', mimeType: 'text/markdown',
+    description: 'The complete authoritative REST and MCP API documentation, identical to /api.md.',
+  }, async uri => {
+    if (!apiDocumentation) throw new Error('API documentation is temporarily unavailable.');
+    return { contents: [{ uri: uri.href, mimeType: 'text/markdown', text: apiDocumentation }] };
+  });
 
   return server;
 }

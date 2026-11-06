@@ -1,5 +1,9 @@
 # Council seats and coalition playground
 
+Municipality pages lead with a majority headline, the threshold and the largest
+party's shortfall (where there is a unique largest party). Estimates are explicitly
+labelled in the headline; unavailable seats have a pending explanation. Historical
+pages also show the seat summary where available, with a historical label.
 Municipality pages show a full council seat estimate from the current count, or
 the IEC's reported allocation when it is complete and reconciles. Town, suburb,
 ward, province and national pages do not infer council seats from their votes.
@@ -44,10 +48,30 @@ labelled **IEC-reported**, **provisional**, rather than independently declared.
 
 ## Playground
 
+`/majority-builder` lists all 213 current metros and local municipalities, including
+councils with no usable seats yet. Search supports council names, aliases and codes,
+with province and allocation filters. It works as a server-rendered GET form and
+filters instantly with JavaScript. Pending includes current-count estimates.
+The directory uses validated local payloads or snapshot-matched council milestones;
+only metros require R2 reads for the initial page. Other cards load their seat
+targets as they enter the viewport, in batches of at most eight through
+`/api/majority-builder?councils=...`. Unread packs and failed reads are not labelled
+as pending allocations. The helper reads only each council record, with four
+concurrent pack reads, and uses the same validator as the playground. Actual
+unavailable allocations retain an awaiting-seats state. Without JavaScript,
+unloaded councils link straight to their playground.
+An optional random-council button picks from the visible councils with known seats.
+
+The homepage has an always-visible invitation; current municipality, town, ward,
+voting-district, province and council-update pages have small contextual banners.
+The builder provides a target, majority success state, reset and next-council link.
+
 `/2026/places/{slug}/coalition` adapts the mockup's party controls, semicircular
 seat diagram, segmented bar and share tools to the municipality's current seats.
-It opens only where a full breakdown is available and no party individually
-reaches the majority threshold. No combination is preselected unless party IDs
+It opens wherever a full breakdown is available, including councils where one
+party has a majority. A council without usable seats keeps its own pending page
+and automatically refreshes as results arrive. Only the council record is fetched,
+without wards or historical results. No combination is preselected unless party IDs
 are provided in a shared URL. Combinations are never recommended or ranked.
 
 The threshold is `floor(council seats / 2) + 1`; the bar marker stays at exactly

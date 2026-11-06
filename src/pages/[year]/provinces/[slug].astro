@@ -4,6 +4,7 @@ import ElectionHistory from '../../../components/ElectionHistory.astro';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
 import Site from '../../../layouts/Site.astro';
+import MajorityBanner from '../../../components/MajorityBanner.astro';
 import RegionMap from '../../../components/RegionMap.astro';
 import { administrative } from '../../../lib/maps/administrative.ts';
 import SummaryResults from '../../../components/overview/SummaryResults.astro';
@@ -29,6 +30,7 @@ const councils = data ? progressOf(data.summary,'municipalities') : null;
     <header class="overview-province-heading page-share-heading"><div><p class="eyebrow">{year} local elections</p><h1>{province.name}</h1><p>{councils ? `${councils.expected} metro and local municipalities` : 'Municipality election results'}</p></div><PageShare result/></header>
 
     {data ? <>
+      {year === latestYear && <MajorityBanner href={`/majority-builder?province=${province.id}`}/>}
       <div id="province-results" class="overview-results-layout"><SummaryResults result={data.summary} name={province.name}/>    {administrative.provinces[province.id]&&<RegionMap historical={year !== latestYear} options={{level:'province',id:province.id,bbox:administrative.provinces[province.id]!.bbox,colors:data?.municipalities.map(m=>({id:m.id,color:municipalBallot(m.result).leader ? overviewPartyStyle(municipalBallot(m.result).leader!.party_name)[1] : '#dce1d5'}))}} title={`${province.name} and its municipalities`} caption="Municipal PR leaders"><ElectionHistory slot="history" year={year} level="province" id={province.id} embedded/></RegionMap>}
       {!administrative.provinces[province.id] && <aside><ElectionHistory year={year} level="province" id={province.id}/></aside>}</div>
       <section class="overview-municipalities" aria-labelledby="municipality-heading"><div class="overview-section-heading"><div><h2 id="municipality-heading">Municipality results</h2><p>{year === latestYear ? 'Municipal PR votes' : 'Combined ballot votes'}</p></div></div>

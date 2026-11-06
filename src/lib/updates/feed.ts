@@ -1,7 +1,7 @@
 import type { Milestone, UpdateKind } from './milestones.ts';
 
 export const updateTypes = [
-  ['all', 'All updates'], ['wins', 'Ward wins'], ['councils', 'Council outcomes'],
+  ['councils', 'Council outcomes'], ['all', 'All updates'], ['wins', 'Ward wins'],
   ['complete', 'Counts complete'], ['corrections', 'Corrections'],
 ] as const;
 export type UpdateType = typeof updateTypes[number][0];
@@ -34,12 +34,23 @@ export function feedOptions(params: URLSearchParams): FeedOptions {
   return { type: type as UpdateType, province, q, before, after, event, limit: integer('limit', 50) ?? 30 };
 }
 
+/** Browsing starts with council outcomes; saved announcements remain directly reachable.
+ * The public API retains its existing all-events default. */
+export function pageFeedOptions(params: URLSearchParams): FeedOptions {
+  const pageParams = new URLSearchParams(params);
+  if (!pageParams.has('type')) pageParams.set('type', pageParams.has('event') ? 'all' : 'councils');
+  return feedOptions(pageParams);
+}
+
 export function feedUrl(options: Partial<FeedOptions>, path = '/updates', simulationStep?: number) {
   const params = new URLSearchParams();
   if (simulationStep !== undefined) { params.set('demo', '1'); params.set('step', String(simulationStep)); }
   for (const key of ['type', 'province', 'q', 'before', 'after', 'event', 'limit'] as const) {
     const value = options[key];
-    if (value != null && value !== '' && value !== 'all' && !(key === 'limit' && value === 30)) params.set(key, String(value));
+    if (value == null || value === '' || (key === 'limit' && value === 30)) continue;
+    // Explicit All is essential on the page: omitting it would restore Councils.
+    if (key === 'type' && (path === '/updates' ? value === 'councils' : value === 'all')) continue;
+    params.set(key, String(value));
   }
   return path + (params.size ? `?${params}` : '');
 }

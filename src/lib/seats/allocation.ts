@@ -105,4 +105,4 @@ export function councilSeats(level: string, results: Payload): CouncilSeats {
 export const seatLabel = (seats: Pick<AvailableSeats, 'status'>) => seats.status === 'estimated' ? 'Estimated council seats' : 'IEC-reported council seats';
 export const estimateCaution = 'Based on combined ward and PR votes counted so far. Only reported ward wins and independent seats are fixed. Unfinished wards and candidate-list limits can change the allocation.';
 export const canBuildCoalition = (seats: CouncilSeats): seats is AvailableSeats =>
-  seats.status !== 'unavailable' && seats.parties.every(p => p.count < seats.majority);
+  seats.status !== 'unavailable';

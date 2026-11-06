@@ -17,9 +17,11 @@ stored IEC municipal election results for 2000, 2006, 2011, 2016, 2021 and 2026.
 - Towns and suburbs map to whole overlapping wards, not town-only vote totals.
   Place mappings are for 2026. Use list_areas to discover historical election IDs.
 - Matching IDs across elections do not establish comparable boundaries. Historical
-  comparisons need boundary and ballot checks; this server does not infer swings.
+  comparisons need boundary and ballot checks. Page summaries expose exploratory
+  same-ID percentage-point movements, never validated boundary-adjusted swings.
 - Estimated council seats are not reported seats. The get_results tool returns
-  source-reported seats only. District-council ballot coverage is incomplete.
+  source-reported seats only. get_area_summary also exposes the website's seat
+  estimates with explicit status and assumptions. District-council coverage is incomplete.
 - Successful fetch time and IEC report time mean different things. A successful
   tool call may return stale data. Historical report dates may be regeneration dates.
 - Updates can be corrected or withdrawn: check superseded_by and previous_event_id.
@@ -36,4 +38,13 @@ Use discovery tools to obtain IDs; always specify the election year when request
 Cite the returned data URL and IEC source. Preserve provisional status, source timestamps,
 freshness, geographic scope and quality caveats. Null is not zero, ballots are not voters,
 reporting is not turnout, and matching historical IDs do not prove matching boundaries.
+For bulk exploration, custom rankings or Python calculations, call get_analysis_guide first.
+Use render_results_image, render_comparison_image or render_council_image for requested charts.
+Their MCP Apps viewer displays the exact PNG. Without viewer support, embed image_markdown
+and include PNG/data download links. Never claim an image is displayed when only a link appears.
+Chart URLs are immutable snapshots; call the tool again for updated figures. Images are
+deterministically rendered from stored public data and cached; election records are never changed.
+Call get_api_docs for the complete API contract. Use get_overview, get_area_summary and
+list_area_summaries for calculations behind the public pages. Keep their ballot basis,
+estimate status, denominators and comparison caveats. These tools execute no caller code.
 Read counted://methodology for interpretation rules. No requests trigger IEC ingestion.`;

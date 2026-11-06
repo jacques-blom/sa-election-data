@@ -32,6 +32,10 @@ test('allocates the full council from both ballots, not PR percentages or PR sea
   assert.deepEqual(result.parties.map(p => p.count), [6, 3, 1]);
   assert.equal(result.majority, 6);
 });
+test('the playground allows any complete breakdown, including a single-party majority', () => {
+  assert.equal(canBuildCoalition(allocated(payload())), true);
+  assert.equal(canBuildCoalition({ status: 'unavailable', reason: 'No votes yet.' }), false);
+});
 test('reserves independent wins and excludes all independent votes from the party quota', () => {
   const p = payload(10, [[600, 2], [400, 1], [9000, 1]]);
   const independent = p.parties[2]!;

@@ -211,6 +211,64 @@ are paginated, with at most 50 records per call; source totals and quality flags
 continue to describe the complete source. The repository's `docs/mcp.md` explains
 the tool contracts, client setup and deployment configuration.
 
+For open-ended calculations in Python, call `get_analysis_guide`. It loads
+instructions and links to a standard-library download client at
+`/analysis/counted_data.py`, which saves complete imported scopes as JSONL and CSV
+with a coverage/provenance manifest. No separately installed skill is needed.
+The agent's Python environment or host must support downloading files.
+When Python has no network access, pass complete MCP-returned records into Python
+directly; a URL alone is not a file attachment. No Work-mode dependency or server
+code execution is required for calculations over data supplied by tools.
+
+### Page aggregates through MCP
+
+`get_api_docs` and the `counted://api-documentation` resource return this complete
+document as Markdown. Additional read-only tools expose the website's calculated
+data without HTML scraping:
+
+| Tool | Parameters and output |
+| --- | --- |
+| `get_overview` | `year`, optional `province_id`, `limit`/`offset`: national/provincial source summary, region cards, reporting, council-majority counts where available, and a municipality page. |
+| `get_area_summary` | `year`, `level`, `area_id`, optional `ballot`, `party_limit`/`party_offset`: full-source share denominator, paginated party shares/history/allocations, leader/ties, progress, quality, source and available years. |
+| `list_area_summaries` | `year`, `level`, parent IDs, name `query`, optional `ballot` and `party_id`, `limit`/`offset`: compact area cards with an optional selected party for cross-area Python analysis. Default 10, maximum 25 areas. |
+
+`ballot` is `auto`, `pr`, `ward` or `source_total`. The returned basis is explicit:
+national/provincial summaries use combined ballots, and combined-only historical
+records use combined counts. Denominators are calculated before party pagination.
+Council `status` is `reported`, `estimated` or `unavailable`; raw reported seats
+and derived allocations remain distinct. Estimates follow the same current-count
+assumptions as the website and never enter reported council-majority counts.
+Movements are percentage points against the previous election at the same ID,
+with ballot fallback and unknown comparisons labelled. They are not validated
+boundary-adjusted swings. An earlier OTHER row prevents assuming zero for an
+unlisted party. Towns still map to whole wards; district-council results and actual
+coalition membership are not inferred. Returned data URLs identify the underlying
+records; these aggregate tools do not add separate REST routes.
+
+### Result images through MCP
+
+`render_results_image` draws one area's shares (`year`, `level`, `area_id`, optional
+`ballot`, `top` 3–15 and `party_id`). `render_comparison_image` draws previous-election
+percentage-point changes for one area, or a named party's vote shares across 2–12
+selected areas (`year`, `level`, `area_ids`, `mode: previous_election | areas`,
+optional `ballot`, `party_id` and `top`). Previous-election comparisons use the
+preceding imported election and current named-party entries with known baselines;
+they are not boundary-adjusted and do not comprehensively rank party exits.
+Cross-area mode requires a named `party_id` and a common ballot basis.
+`render_council_image` draws council seats (`year`, `municipality_id`, optional
+`selected_party_ids`, maximum 20). Selections are hypothetical; reported and
+estimated seats remain distinct. Grouped independents cannot be selected as one party.
+
+Each response contains PNG image content plus `data.image_url`, `image_markdown`,
+`alt_text`, dimensions and chart data. The MCP Apps resource
+`ui://counted/result-image-v1.html` displays it in supporting clients. Other clients
+can use the PNG link; Markdown image display is client-dependent.
+`data_url` points to immutable JSON evidence for the image. Generated PNG and JSON
+are available through `GET`/`HEAD /images/results/<sha256>.png` or `.json` with
+ETags and one-year immutable caching. An old image keeps its captured figures;
+call the tool again for an updated snapshot. Public image generation caches
+derived artifacts without changing election records or running caller code.
+
 Unlike the REST GET endpoints above, `/mcp` accepts protocol POST requests and
 OPTIONS. JSON-RPC responses are not publicly cached.
 

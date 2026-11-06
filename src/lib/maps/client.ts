@@ -18,7 +18,8 @@ const element = <T extends HTMLElement>(id: string) => document.getElementById(i
 const app = element<HTMLDivElement>('map-app');
 const loading = element<HTMLParagraphElement>('map-loading');
 const panel = element<HTMLDivElement>('ward-result');
-const browse = element<HTMLDivElement>('map-browse');
+const selectedPanel = element<HTMLElement>('map-selection');
+const browseTitle = element<HTMLHeadingElement>('map-browse-title');
 const areaList = element<HTMLUListElement>('map-area-list');
 const notice = element<HTMLParagraphElement>('map-notice');
 const title = element<HTMLHeadingElement>('map-area-title');
@@ -92,7 +93,7 @@ function highlight() {
     const id = String(feature.getId());
     return { fillColor: leaders.get(`${overlay.level}:${id}`)?.data.color ?? NEUTRAL_COLOR,
       fillOpacity: .28, strokeColor: id === selected ? '#163a30' : '#536e96',
-      strokeWeight: id === selected ? 3 : 1, strokeOpacity: .8, clickable: true,
+      strokeWeight: id === selected ? 1.5 : 1, strokeOpacity: .8, clickable: true,
       zIndex: id === selected ? 2 : 1 };
   });
 }
@@ -100,11 +101,11 @@ function updateHeading() {
   const plural = overlay.level === 'province' ? 'Provinces' : overlay.level === 'municipality' ? 'Municipalities' : 'Wards';
   boundaryLabel.textContent = ballotLabel(overlay.level);
   scope.textContent = overlay.level === 'province' ? 'Selected parties shown' : '';
-  scope.hidden = overlay.level !== 'province' || !!selected || !!selectedArea;
+  scope.hidden = overlay.level !== 'province';
   home.hidden = overlay.level === 'province' && !selected && !selectedArea;
   reset.hidden = !selected && !selectedArea;
-  browse.hidden = !!selected || (!!selectedArea && !selectedArea.googlePlaceId);
-  panel.hidden = !selected && !selectedArea;
+  selectedPanel.hidden = !selected && !selectedArea;
+  browseTitle.textContent = overlay.level === 'province' ? plural : `${plural} in view`;
   if (selectedArea) {
     title.textContent = selectedArea.name;
     description.textContent = selectedArea.description;
@@ -112,7 +113,7 @@ function updateHeading() {
     title.textContent = selection ? `Ward ${selection.number}` : 'Selected ward';
     description.textContent = selection ? `${selection.municipality}${overlay.level !== 'ward' || !inView.has(selected) ? ' · outside this view' : ''}` : 'Loading results…';
   } else {
-    title.textContent = overlay.level === 'province' ? plural : `${plural} in view`;
+    title.textContent = '';
     description.textContent = '';
   }
   description.hidden = !description.textContent;
@@ -231,9 +232,11 @@ function fitBounds(bbox: [number, number, number, number], maxZoom = 14) {
 }
 function chooseArea(area: AreaPick) {
   if (area.ward) { void chooseWard(area.id, area.ward); return; }
-  if (!area.bbox) return;
-  clearSelection();
-  fitBounds(area.bbox, overlay.level === 'province' ? 7.7 : 12);
+  const level = overlay.level === 'province' ? 'province' : 'municipality';
+  void showArea({ id: area.id, name: area.name, url: area.url, bbox: area.bbox,
+    kind: level, description: area.detail || (level === 'province' ? 'Province' : 'Municipality'),
+    geometry: { level, id: area.id } }, false);
+  if (area.bbox) fitBounds(area.bbox, level === 'province' ? 7.7 : 12);
 }
 function clearSelection() {
   selected = null;
@@ -462,9 +465,25 @@ async function start() {
       isFractionalZoomEnabled: true,
       minZoom: 3, maxZoom: 17, mapTypeControl: false, streetViewControl: false, fullscreenControl: true,
       gestureHandling: 'greedy', clickableIcons: false,
+      // Keep place names and faint roads for orientation beneath the electoral boundaries.
+      styles: [
+        { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f2f1e9' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#dfe8e7' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#65736b' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#fffdf6' }] },
+        { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+        { featureType: 'administrative', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
+        { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }, { visibility: 'simplified' }] },
+        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ visibility: 'off' }] },
+        { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#8a948b' }] },
+        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#e4e5dd' }] },
+      ],
     });
     areaOutline = new google.maps.Data({ map });
-    areaOutline.setStyle({ fillOpacity: .05, strokeColor: '#163a30', strokeWeight: 3, clickable: false, zIndex: 4 });
+    areaOutline.setStyle({ fillOpacity: .05, strokeColor: '#163a30', strokeWeight: 1.5, clickable: false, zIndex: 4 });
     ready = true;
     const boundaries = googleBoundaries(map, view => {
       overlay = { level: view.level };
@@ -480,7 +499,7 @@ async function start() {
     map.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
       hover.textContent = String(event.feature.getProperty('name'));
       hover.hidden = false;
-      map.data.overrideStyle(event.feature, { fillOpacity: .48, strokeWeight: 2.5 });
+      map.data.overrideStyle(event.feature, { fillOpacity: .48, strokeWeight: 1.5 });
     });
     map.data.addListener('mouseout', (event: google.maps.Data.MouseEvent) => { hover.hidden = true; map.data.revertStyle(event.feature); });
     map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {

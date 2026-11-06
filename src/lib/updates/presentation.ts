@@ -22,6 +22,13 @@ export function resultHref(update: Update) {
   const place = places.find(p => p.relationships.some(r => r.election === 2026 && r.level === 'municipality' && r.relation === 'equals' && r.areaId === update.municipality_id));
   return place ? placeUrl(place) : `/api/v1/elections/2026/areas/municipality/${update.municipality_id}`;
 }
+export function coalitionHref(update: Update) {
+  if (update.kind !== 'council_decided' || update.action === 'withdrawn' || update.superseded_by
+    || update.after?.kind !== 'council_decided' || update.after.winner) return null;
+  const result = resultHref(update);
+  return result.startsWith('/2026/places/') ? `${result}/coalition`
+    : `/majority-builder?q=${encodeURIComponent(cleanName(update.municipality_name))}`;
+}
 export const updateLabel = (update: Update) => update.action !== 'announced' ? 'Correction' : {
   ward_won: 'Ward result', council_decided: 'Council outcome', count_complete: 'Count complete',
 }[update.kind];

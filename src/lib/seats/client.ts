@@ -31,6 +31,9 @@ function update(announce = false) {
   }
   screen.querySelector<HTMLElement>('[data-coalition-status]')!.textContent = selection.status;
   const state = screen.querySelector<HTMLElement>('.coalition-state')!;
+  const win = screen.querySelector<HTMLElement>('[data-majority-win]');
+  if (win) win.hidden = selection.total < data.majority;
+  screen.dataset.majorityReached = String(selection.total >= data.majority);
   state.classList.toggle('reached', selection.total >= data.majority);
   state.classList.toggle('short', selection.total > 0 && selection.total < data.majority);
   for (const button of screen.querySelectorAll<HTMLButtonElement>('[data-coalition-party]')) {

@@ -48,12 +48,16 @@ const area: ResolvedArea | undefined = district ? districtSelection(district) : 
       </div>
       <aside class="map-panel" aria-label="Areas and results">
         <div class="map-panel-navigation">
-          <button id="reset-selection" type="button" hidden>← Areas in view</button>
+          <button id="reset-selection" type="button" hidden>Clear selection</button>
           <button id="map-home" type="button" hidden>← South Africa</button>
         </div>
-        <div class="panel-intro"><h2 id="map-area-title">Provinces</h2><p id="map-area-description" hidden></p></div>
-        <div id="ward-result" aria-live="polite" aria-atomic="true" hidden></div>
-        <div id="map-browse">
+        <section id="map-selection" class="map-selection" aria-labelledby="map-area-title" hidden>
+          <p class="map-selection-label">Selected area</p>
+          <div class="panel-intro"><h2 id="map-area-title"></h2><p id="map-area-description" hidden></p></div>
+          <div id="ward-result" aria-live="polite" aria-atomic="true"></div>
+        </section>
+        <div id="map-browse" aria-labelledby="map-browse-title">
+          <div class="panel-intro"><h2 id="map-browse-title">Provinces</h2></div>
           <p id="map-view-status" role="status">Loading areas…</p>
           <ul id="map-area-list" aria-label="Areas in view"></ul>
         </div>

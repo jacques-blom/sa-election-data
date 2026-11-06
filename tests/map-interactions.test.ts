@@ -223,7 +223,7 @@ test('dismissing and removing map tooltips clears state and detaches event liste
 });
 
 test('Google explorer browses boundaries, selects whole areas and preserves ward results across zooms', async t => {
-  for (const id of ['map-app','map-loading','ward-result','map-browse','map-area-list','map-notice','map-area-title','map-area-description','reset-selection','map-home','map-view-status','map-boundary-label','map-result-scope','map-result-legend','map-search-status','map-hover','election-map']) elements.set(id, new ElementStub());
+  for (const id of ['map-app','map-loading','ward-result','map-selection','map-browse','map-browse-title','map-area-list','map-notice','map-area-title','map-area-description','reset-selection','map-home','map-view-status','map-boundary-label','map-result-scope','map-result-legend','map-search-status','map-hover','election-map']) elements.set(id, new ElementStub());
   t.mock.method(globalThis, 'setTimeout', () => 0 as unknown as ReturnType<typeof setTimeout>);
   type FeatureStub = { getId(): string; getProperty(name: string): unknown };
   class DataStub {
@@ -289,9 +289,31 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
   assert.equal(elements.get('map-area-list')!.children.length, 9);
   assert.equal(map.data.features.size, 9);
   assert.equal(map.data.style!(map.data.features.get('9')!).fillColor, '#2872ba');
-  assert.equal(elements.get('map-area-title')!.textContent, 'Provinces');
+  assert.equal(elements.get('map-browse-title')!.textContent, 'Provinces');
+  assert.equal(elements.get('map-selection')!.hidden, true);
+  map.data.handlers.get('click')!({ feature: map.data.features.get('9') }); await settle();
+  assert.equal(elements.get('map-selection')!.hidden, false);
+  assert.equal(elements.get('map-area-title')!.textContent, 'Western Cape');
+  assert.equal(elements.get('ward-result')!.children[0]!.href, '/2026/provinces/western-cape');
+  assert.equal(elements.get('map-browse')!.hidden, false);
+  assert.equal(new URL(savedUrl).searchParams.get('province'), 'western-cape');
+  map.zoom = 6;
+  map.bounds = { west: 18.4, south: -34, east: 18.5, north: -33.9 };
+  map.fire('idle'); await settle();
+  assert.equal(elements.get('map-browse-title')!.textContent, 'Municipalities in view');
+  assert.equal(elements.get('map-area-title')!.textContent, 'Western Cape', 'zooming retains the selected province above municipalities');
+  assert.equal(elements.get('ward-result')!.children[0]!.href, '/2026/provinces/western-cape');
+  const municipalityRow = elements.get('map-area-list')!.children.find(row => row.children.some(child => child.href === '/2026/places/cape-town'))!;
+  municipalityRow.children[0]!.dispatchEvent(new Event('click')); await settle();
+  assert.equal(elements.get('map-area-title')!.textContent, 'Cape Town');
+  assert.equal(elements.get('ward-result')!.children[0]!.href, '/2026/places/cape-town');
+  assert.equal(elements.get('map-browse')!.hidden, false);
+  assert.equal(new URL(savedUrl).searchParams.get('place'), 'cape-town');
+  assert.equal(new URL(savedUrl).searchParams.has('province'), false);
   map.zoom = 8; map.fire('idle'); await settle();
-  assert.equal(elements.get('map-area-title')!.textContent, 'Wards in view');
+  assert.equal(elements.get('map-browse-title')!.textContent, 'Wards in view');
+  assert.equal(elements.get('map-area-title')!.textContent, 'Cape Town', 'zooming retains the selected municipality above wards');
+  assert.equal(elements.get('ward-result')!.children[0]!.href, '/2026/places/cape-town');
   assert.equal(elements.get('map-area-list')!.children.length, 1);
   const beforeHover = requests.length;
   map.data.handlers.get('mouseover')!({ feature: map.data.features.get(ward.id) });
@@ -299,7 +321,9 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
   assert.equal(requests.length, beforeHover, 'hover does not request results');
   elements.get('map-area-list')!.children[0]!.children[0]!.dispatchEvent(new Event('click')); await settle();
   assert.equal(elements.get('map-area-title')!.textContent, 'Ward 1');
-  assert.equal(map.data.style!(map.data.features.get(ward.id)!).strokeWeight, 3);
+  assert.equal(elements.get('map-selection')!.hidden, false);
+  assert.equal(elements.get('map-browse')!.hidden, false, 'selecting a ward keeps areas in view available');
+  assert.equal(map.data.style!(map.data.features.get(ward.id)!).strokeWeight, 1.5);
   const result = elements.get('ward-result')!.children[0];
   assert.equal(result!.children.at(-1)!.href, '/2026/wards/19100001');
   map.zoom = 4; map.fire('idle'); await settle();
@@ -307,6 +331,7 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
   assert.match(elements.get('map-area-description')!.textContent, /outside this view/);
   assert.equal(new URL(savedUrl).searchParams.get('ward'), ward.id);
   elements.get('reset-selection')!.dispatchEvent(new Event('click'));
+  assert.equal(elements.get('map-selection')!.hidden, true);
   assert.equal(elements.get('map-browse')!.hidden, false);
   assert.equal(new URL(savedUrl).searchParams.has('ward'), false);
   const area = { id: '3', name: 'Gauteng', kind: 'province', description: 'Province', url: '/2026/provinces/gauteng', bbox: [27, -27, 29, -25], geometry: { level: 'province', id: '3' } };
@@ -314,6 +339,8 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
   elements.get('map-app')!.dispatchEvent(event); await settle();
   assert.equal(event.defaultPrevented, true);
   assert.equal(elements.get('map-area-title')!.textContent, 'Gauteng');
+  assert.equal(elements.get('map-selection')!.hidden, false);
+  assert.equal(elements.get('map-browse')!.hidden, false, 'search selections keep areas in view available');
   assert(elements.get('ward-result')!.children.some(child => child.href === area.url));
   assert.deepEqual(map.fits.at(-1), { west: 27, south: -27, east: 29, north: -25 });
   assert.equal(new URL(savedUrl).searchParams.get('province'), 'gauteng');

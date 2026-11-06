@@ -8,3 +8,5 @@
 @media(max-width:540px){.updates-simulation{padding:20px}.updates-simulation h2{font-size:22px}.updates-simulation-controls .button{font-size:10px;padding:9px 10px}}
 
 .updates-about{margin-top:28px;font-size:12px;line-height:1.7;color:var(--muted)}.updates-about summary{color:var(--ink)}
+
+.update-builder-link{display:inline-flex;align-items:center;min-height:44px;padding:11px 14px;border-radius:9px;background:#e7edda;color:var(--ink)}.update-builder-link:hover{background:#dce7ca;text-decoration:none}

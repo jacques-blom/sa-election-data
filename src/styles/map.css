@@ -22,6 +22,9 @@
 .map-panel-navigation button{border:0;background:none;color:var(--muted);padding:0;min-height:36px;margin:-8px 0 12px;text-align:left;font:inherit;font-size:12px;cursor:pointer}
 .panel-intro h2{font-size:25px;letter-spacing:-.6px;margin:0 0 8px}
 .panel-intro p{font-size:12px;line-height:1.6;color:var(--muted);margin:0 0 18px}
+.map-selection{padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid var(--line)}
+.map-selection-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.map-selection .button{width:100%;white-space:normal;text-align:center}
 #map-view-status{font-size:10px;color:var(--muted);margin:0 0 8px}
 #map-area-list{list-style:none;padding:0;margin:0}
 .map-area-row{position:relative;border-bottom:1px solid var(--line)}

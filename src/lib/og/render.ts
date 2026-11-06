@@ -12,7 +12,12 @@ await initWasm(wasm);
 const fonts = [mediumFont, boldFont].map(data => Uint8Array.from(atob(data.slice(data.indexOf(',') + 1)), char => char.charCodeAt(0)));
 
 export function renderOgImage(page: OgPage, map?: OgMap) {
-  const renderer = new Resvg(ogSvg(page, icon, map), { font: { fontBuffers: fonts, defaultFontFamily: 'Space Grotesk' } });
+  return renderSvgImage(ogSvg(page, icon, map));
+}
+
+/** Shared deterministic PNG rendering for previews and requested result graphics. */
+export function renderSvgImage(svg: string) {
+  const renderer = new Resvg(svg, { font: { fontBuffers: fonts, defaultFontFamily: 'Space Grotesk' } });
   try {
     const image = renderer.render();
     try { return new Uint8Array(image.asPng()); }

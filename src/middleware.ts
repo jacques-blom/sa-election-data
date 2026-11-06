@@ -7,9 +7,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const request = context.request;
   // Development simulations never share the public results cache.
   if (context.url.searchParams.has('demo') && ['/updates', '/api/v1/updates'].includes(context.url.pathname)) return next();
-  const publicPage = context.url.pathname === '/' || context.url.pathname === '/updates' || /^\/(2000|2006|2011|2016|2021|2026)(\/|$)/.test(context.url.pathname);
+  const publicPage = ['/', '/updates', '/majority-builder'].includes(context.url.pathname) || /^\/(2000|2006|2011|2016|2021|2026)(\/|$)/.test(context.url.pathname);
+  const builderSeats = context.url.pathname === '/api/majority-builder';
   const ogImage = context.url.pathname.startsWith('/og/') && context.url.pathname.endsWith('.png');
-  if (request.method !== 'GET' || (!context.url.pathname.startsWith('/api/v1/') && !publicPage && !ogImage)
+  if (request.method !== 'GET' || (!context.url.pathname.startsWith('/api/v1/') && !publicPage && !ogImage && !builderSeats)
     || request.headers.has('Authorization') || request.headers.has('Cookie')) return next();
   // OG images ignore all queries, including private search or address context.
   const key = new Request(ogImage ? new URL(context.url.pathname, context.url.origin).href : context.url.href, { method: 'GET' });
