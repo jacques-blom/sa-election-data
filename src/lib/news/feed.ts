@@ -61,7 +61,7 @@ export async function fetchNewsFeed(url: string, fetcher: typeof fetch = fetch):
     signal: AbortSignal.timeout(8_000),
     redirect: 'manual',
   });
-  if (!response.ok || !response.body) throw new Error('News feed unavailable');
+  if (!response.ok || !response.body) throw new Error(`News feed unavailable (HTTP ${response.status})`);
   const reader = response.body.getReader(), decoder = new TextDecoder();
   let bytes = 0, xml = '';
   try {
