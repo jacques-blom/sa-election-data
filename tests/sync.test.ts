@@ -18,6 +18,8 @@ import { election, refreshSource } from '../workers/sync/publish.ts';
 import { enqueueDue, scheduledSync } from '../workers/sync/schedule.ts';
 import { acquireLock, clearPending, ensureSource, readState, recordFailure, releaseLock, waitForFetchSlot } from '../workers/sync/state.ts';
 import { feedOptions, getUpdates } from '../src/lib/updates/feed.ts';
+import { getCouncilDashboard } from '../src/lib/overview/dashboard.ts';
+import { backfillDashboard } from '../scripts/lib/dashboard-backfill.ts';
 
 const source = sourceFor(election, '9909');
 const initialTime = '2026-11-05T13:00:00Z';
@@ -127,6 +129,7 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       await db.prepare(`CREATE TRIGGER fail_publication BEFORE UPDATE OF active_snapshot_id ON source_documents
         BEGIN SELECT RAISE(ABORT,'simulated publication failure'); END`).run();
       await assert.rejects(refreshSource(env, source, names), /simulated publication failure/);
+      assert.equal((await db.prepare('SELECT snapshot_id FROM council_dashboard WHERE source_id=?').bind(source.id).first<{snapshot_id:string}>())!.snapshot_id, firstId);
       assert.equal((await readState(db, source)).active_snapshot_id, firstId);
       assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM area_results').first<{ n: number }>())!.n, 3);
       await db.prepare('DROP TRIGGER fail_publication').run();
@@ -138,6 +141,26 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       }>();
       const row = (await hydrateResults(db, env.RAW_RESULTS, rows.results))[0]!;
       assert.equal(JSON.parse(row.payload).parties[0].votes.source_total, 29);
+    });
+
+    await t.test('dashboard summaries backfill unchanged results and only match the active source snapshot', async () => {
+      const pointer=(await readState(db,source)).active_snapshot_id;
+      await db.prepare('DELETE FROM council_dashboard WHERE source_id=?').bind(source.id).run();
+      const events=(await getUpdates(db,feedOptions(new URLSearchParams()))).updates.length;
+      assert.equal((await refreshSource(env,source,names)).outcome,'results_unchanged');
+      assert.equal((await readState(db,source)).active_snapshot_id,pointer);
+      assert.equal((await getUpdates(db,feedOptions(new URLSearchParams()))).updates.length,events);
+      assert.equal((await db.prepare('SELECT snapshot_id FROM council_dashboard WHERE source_id=?').bind(source.id).first<{snapshot_id:string}>())!.snapshot_id,pointer);
+      await db.prepare("UPDATE council_dashboard SET summary_json=json_set(summary_json,'$.version',1) WHERE source_id=?").bind(source.id).run();
+      await refreshSource(env,source,names);
+      assert.equal((await db.prepare("SELECT json_extract(summary_json,'$.version') AS version FROM council_dashboard WHERE source_id=?").bind(source.id).first<{version:number}>())!.version,2);
+      assert.equal((await readState(db,source)).active_snapshot_id,pointer,'summary upgrades preserve result snapshots');
+      let dashboard=await getCouncilDashboard(db,env.RAW_RESULTS);
+      assert.equal(dashboard.councils.find(c=>c.id==='9909')!.snapshot!.id,'9909');
+      await db.prepare("UPDATE council_dashboard SET snapshot_id='stale' WHERE source_id=?").bind(source.id).run();
+      dashboard=await getCouncilDashboard(db,env.RAW_RESULTS);
+      assert.equal(dashboard.councils.find(c=>c.id==='9909')!.snapshot,null,'stale summaries never enter highlights');
+      await refreshSource(env,source,names);
     });
 
     await t.test('conditional requests update freshness and outages keep the last good snapshot', async () => {
@@ -155,6 +178,20 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
       await refreshSource(env, source, names);
       assert.equal((await syncHealth(db)).failed_sources, 0);
       await db.prepare("UPDATE sync_status SET backoff_until=NULL WHERE id='live'").run();
+    });
+
+    await t.test('dashboard backfill reads published packs without changing results or announcements', async () => {
+      const pointer=(await readState(db,source)).active_snapshot_id;
+      const events=(await getUpdates(db,feedOptions(new URLSearchParams()))).updates.length;
+      await db.prepare('DELETE FROM council_dashboard WHERE source_id=?').bind(source.id).run();
+      const dry=await backfillDashboard(db,env.RAW_RESULTS);
+      assert.equal(dry.generated,1);assert.equal(dry.written,0);assert.deepEqual(dry.failures,[]);
+      assert.equal(await db.prepare('SELECT 1 FROM council_dashboard WHERE source_id=?').bind(source.id).first(),null);
+      const applied=await backfillDashboard(db,env.RAW_RESULTS,{apply:true});
+      assert.equal(applied.written,1);assert.deepEqual(applied.failures,[]);
+      assert.equal((await backfillDashboard(db,env.RAW_RESULTS,{apply:true})).checked,0);
+      assert.equal((await readState(db,source)).active_snapshot_id,pointer);
+      assert.equal((await getUpdates(db,feedOptions(new URLSearchParams()))).updates.length,events);
     });
 
     await t.test('one source lease is granted at a time and an expired lease cannot release its successor', async () => {

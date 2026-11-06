@@ -43,6 +43,12 @@ export function publicShareUrl(href: string, ballot?: 'pr' | 'ward') {
     keep('province', /^[1-9]$/);
     keep('type', /^(all|wins|councils|complete|corrections)$/);
   }
+  if (url.pathname === '/') {
+    keep('province', /^[1-9]$/);
+    keep('status', /^(majority|no-majority|pending)$/);
+    keep('party', /^\d+$/);
+    keep('changed', /^1$/);
+  }
   return publicUrl(url);
 }
 

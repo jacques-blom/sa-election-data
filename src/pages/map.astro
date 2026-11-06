@@ -2,6 +2,7 @@
 import PageShare from '../components/PageShare.astro';
 import Site from '../layouts/Site.astro';
 import PlaceSearch from '../components/PlaceSearch.astro';
+import AddressResult from '../components/AddressResult.astro';
 import { places } from '../lib/places/catalogue.ts';
 import { administrative } from '../lib/maps/administrative.ts';
 import { findDistrict, districtSelection } from '../lib/maps/districts.ts';
@@ -30,8 +31,9 @@ const area: ResolvedArea | undefined = district ? districtSelection(district) : 
     <div class="page-heading-actions"><a class="button" href="/">Browse results ↗</a><PageShare/></div>
   </div>
   <div class="map-shell" id="map-app" data-place={place} data-ward={ward} data-area={area ? JSON.stringify(area) : undefined} data-bounds={chosen?.bbox ? JSON.stringify(chosen.bbox) : undefined}>
-    <div class="map-toolbar">
+    <div class="map-toolbar" data-address-lookup>
       <PlaceSearch id="map-query" mode="all" query={query}/>
+      <AddressResult/>
       <p id="map-search-status" role="status" hidden={!query || !!chosen}>
         {query && !chosen && <a href={`/search?q=${encodeURIComponent(query)}`}>View search results →</a>}
       </p>

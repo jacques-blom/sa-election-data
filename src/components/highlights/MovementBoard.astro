@@ -1,0 +1,23 @@
+---
+import type { ElectionHighlights } from '../../lib/overview/highlights.ts';
+import PartyLogo from '../PartyLogo.astro';
+import { partyStyle } from '../../lib/places/format.ts';
+interface Props { rows: ElectionHighlights['gains']; kind: 'gains' | 'losses'; previousYear: number }
+const { rows, kind, previousYear } = Astro.props;
+---
+<article class:list={['insight-panel', 'insight-movers', `insight-movers--${kind}`]}>
+  <div class="insight-panel-title"><h3>{kind === 'gains' ? 'Biggest local gains' : 'Biggest local losses'}</h3><span aria-hidden="true">{kind === 'gains' ? '↗' : '↘'}</span></div>
+  {rows.length ? <ol class="insight-ranking">{rows.map((m, i) => <li>
+    <a href={m.council.href} class="insight-movement">
+      <span class="insight-rank" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+      <div class="insight-movement-body">
+        <div class="insight-movement-heading"><span class="insight-party"><PartyLogo party={{party_id:m.party.id}} size="small"/><abbr title={m.party.name}>{partyStyle(m.party.name)[0]}</abbr></span><strong class="insight-delta">{m.delta > 0 ? '+' : '−'}{Math.abs(m.delta).toFixed(1)}<small> pp</small></strong></div>
+        <span class="insight-place">{m.council.name}<small>{m.council.province}</small></span>
+        <div class="insight-share-chart" role="img" aria-label={`${previousYear}: ${m.previousShare.toFixed(1)}%. Now: ${m.currentShare.toFixed(1)}%.`}>
+          <span class="insight-share-before" style={`width:${m.previousShare}%`}/><span style={`width:${m.currentShare}%;background:${partyStyle(m.party.name)[1]}`}/>
+        </div>
+        <div class="insight-share-labels"><span>{m.previousShare.toFixed(1)}% <small>in {previousYear}</small></span><span>{m.currentShare.toFixed(1)}% <small>now</small></span></div>
+      </div>
+    </a>
+  </li>)}</ol> : <p class="insight-empty">{kind === 'gains' ? 'No qualifying gains' : 'No qualifying losses'} in the comparable completed counts yet.</p>}
+</article>

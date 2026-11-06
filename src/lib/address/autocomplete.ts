@@ -37,9 +37,11 @@ function initialize(root: HTMLElement) {
   const trigger = root.querySelector<HTMLElement>('[data-search-open]');
   const dialogOnly = root.dataset.presentation === 'dialog';
   const header = root.dataset.presentation === 'header';
+  const mobileInline = root.dataset.mobileInline === 'true';
   const attribution = root.querySelector<HTMLElement>('[data-search-attribution]')!;
   const narrow = window.matchMedia('(max-width: 600px)');
-  if (narrow.matches) input.placeholder = 'Place or address';
+  const desktopPlaceholder = input.placeholder;
+  if (narrow.matches) input.placeholder = root.dataset.mobilePlaceholder ?? 'Place or address';
   let predictions: google.maps.places.PlacePrediction[] = [];
   let areas: ResolvedArea[] = [];
   let resolverController: AbortController | undefined;
@@ -106,7 +108,7 @@ function initialize(root: HTMLElement) {
   }
 
   function openDialog() {
-    if (disabled() || header || (!narrow.matches && !dialogOnly) || dialog.open || suppressFocus) return;
+    if (disabled() || header || mobileInline || (!narrow.matches && !dialogOnly) || dialog.open || suppressFocus) return;
     home.style.minHeight = `${home.getBoundingClientRect().height}px`;
     previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -245,6 +247,7 @@ function initialize(root: HTMLElement) {
     const prediction = predictions[index - areas.length];
     if (!prediction) return;
     const version = ++selection;
+    root.dispatchEvent(new Event('place-search:pending', { bubbles: true }));
     resolving = true;
     resolverController?.abort();
     const controller = new AbortController();
@@ -301,7 +304,7 @@ function initialize(root: HTMLElement) {
     queueSuggestions();
   });
   input.addEventListener('pointerdown', event => {
-    if (!header && narrow.matches && !dialog.open) {
+    if (!header && !mobileInline && narrow.matches && !dialog.open) {
       // Keep the initiating tap from moving focus to the input's old position.
       event.preventDefault();
       openDialog();
@@ -333,6 +336,7 @@ function initialize(root: HTMLElement) {
       void select(active);
     } else if (event.key === 'Escape') {
       event.preventDefault();
+      root.dispatchEvent(new Event('place-search:cancel', { bubbles: true }));
       ++selection;
       resolving = false;
       resolverController?.abort();
@@ -350,6 +354,15 @@ function initialize(root: HTMLElement) {
     input.value = '';
     input.dispatchEvent(new Event('input'));
     input.focus();
+  });
+  root.addEventListener('place-search:sync-query', () => {
+    ++selection;
+    resolving = false;
+    resolverController?.abort();
+    clear.hidden = !input.value;
+    if (!input.value) token = undefined;
+    hidePanel();
+    closeDialog();
   });
   scopeToggle?.addEventListener('click', () => {
     localScope = !localScope;
@@ -380,7 +393,7 @@ function initialize(root: HTMLElement) {
     if (!dialog.open && !form.contains(event.target as Node)) hidePanel();
   };
   document.addEventListener('pointerdown', outside);
-  function dismiss() { ++selection; resolving = false; resolverController?.abort(); hidePanel(); input.blur(); closeDialog(); }
+  function dismiss() { root.dispatchEvent(new Event('place-search:cancel', { bubbles: true })); ++selection; resolving = false; resolverController?.abort(); hidePanel(); input.blur(); closeDialog(); }
   root.addEventListener('place-search:disabled', () => {
     dismiss();
     root.dispatchEvent(new Event('place-search:input', { bubbles: true }));
@@ -388,9 +401,10 @@ function initialize(root: HTMLElement) {
   root.querySelector('[data-search-close]')!.addEventListener('click', dismiss);
   root.querySelector('.place-search-fallback')?.addEventListener('click', dismiss);
   root.querySelector('.place-search-directory')?.addEventListener('click', dismiss);
+  root.querySelector('[data-search-action]')?.addEventListener('click', dismiss);
   dialog.addEventListener('cancel', event => { event.preventDefault(); dismiss(); });
   const resize = () => {
-    input.placeholder = narrow.matches ? 'Place or address' : 'Municipality, ward or address';
+    input.placeholder = narrow.matches ? root.dataset.mobilePlaceholder ?? 'Place or address' : desktopPlaceholder;
     if (!narrow.matches && !dialogOnly) { hidePanel(); closeDialog(); }
   };
   narrow.addEventListener('change', resize);

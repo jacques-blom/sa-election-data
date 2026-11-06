@@ -6,14 +6,17 @@ source-detail panels, manual refresh links and repeated provisional badges are o
 the footer identifies IEC results as provisional. Delayed or failed updates still show
 a notice. Detailed provenance remains in the API and copied share summaries.
 
-- Home: a compact heading with voting-district reporting progress, a full-width
-  place/address search, a compact council-majority strip, then three columns: province results map, national party
-  vote shares and all eight metros. Metros show municipal PR leaders and their own
-  reporting progress; missing, zero and tied results remain explicit. On phones,
-  national results come first, then the map and metros. Province cards follow below.
-  The province map is always visible,
-  rendered as SVG with clickable provinces, preliminary party shares and a legend.
-  It needs no JavaScript, WebGL or map-tile downloads; `/map` handles geographic exploration.
+- Home (`/`): a council dashboard with place/address search, a coloured outcome ring,
+  clickable majority/no-majority/pending/changed totals, party majority counts, and council
+  cards with party-coloured seat bars. All 213 metro and local councils are included;
+  metros appear first, with available results prioritised within metros and locals. National highlights sit alongside the directory.
+  Highlights and council filters stay visible at every screen size. Homepage highlights
+  link to `/highlights`, where supporting methodology and longer rankings are available.
+- National results (`/national-results`): the former homepage's national vote shares,
+  province map, metro vote results, province summaries and election-year slider.
+  Current national history links and `/2026` resolve here; old elections remain at
+  `/{year}`. Maps retain their explicit vote-share scope. `/map` provides detailed
+  geographic exploration.
 - Provinces: selected party vote shares alongside a map of municipal PR leaders,
   then a searchable municipality directory with full party tables.
 - Municipalities and wards: provisional leader, vote share and margin over the
@@ -67,11 +70,12 @@ in parallel. These changes preserve those integrations.
 
 ## Journeys and integration
 
-Home search combines directory matches with Google place/address suggestions.
+One prominent home search combines council filtering, directory matches and Google place/address suggestions. A matching-councils link in the suggestions opens the filtered council list. The same input stays inline on phones.
 Directory queries use a bounded, uncached `POST /api/search`, so raw addresses
 do not enter search URLs. Directory matches open their place/province page;
-selected Google areas open their canonical results page or map extent; selected addresses open a Google map and
-ward lookup inline. Missing Google access still permits directory suggestions.
+selected Google areas open their canonical results page or map extent; selected addresses open the matching
+ward results directly, including from “Find local results”. The ward page shows the selected address and a
+pin on its map. Boundary matches ask the reader to choose a ward. Missing Google access still permits directory suggestions.
 Province filters support server-side GET requests and
 immediate client-side filtering. Essential content and tables work without JS.
 `/search` is the shared destination for place and address search, with browsable
@@ -117,30 +121,101 @@ leaders. Unknown or tied results use a neutral fill. Maps are not council-outcom
 trackers. Small province silhouettes on the result cards are decorative; the
 home-page SVG provides native province links for pointer, touch and keyboard use.
 
-## Council overview
+## Council dashboard and highlights
 
-The current-election homepage includes a compact council-majority strip above
-the existing map, national votes and metros. It counts single-party majorities,
-councils with no overall majority, and pending/unavailable allocations, with a
-party breakdown of reported majorities. Only complete reconciled IEC allocations
-enter the first two counts. Estimates never become reported outcomes. Grouped
-independents cannot be a single-party majority. The denominator uses the IEC's
-expected municipality count when consistent with the directory; otherwise it is
-explicitly limited to councils in the available results.
+The homepage is the council directory. All metros appear before local councils.
+Within metros and locals, reported allocations appear first, followed by counts in
+progress, councils awaiting results, and unavailable data, then alphabetical order.
+Outcome totals are calculated from the same
+complete catalogue as the cards. National totals and highlights stay nationwide when
+councils are filtered. Selecting a national total opens that outcome across the country.
+The fourth headline figure counts councils whose majority changed since 2021;
+selecting it enables the change filter nationwide and clears other filters. Changes
+overlap with the outcome counts and are not a fourth segment in the outcome ring.
+The Explore councils section contains outcome choices, a custom province menu,
+a "Changed since 2021" toggle and party-majority tabs. The toggle is off by default
+and combines with the other council filters to show reported gains or losses of
+single-party majorities. The selected party is highlighted in place, with no additional
+party pill. Party counts reflect all reported majorities in the selected province,
+independently of search, outcome, party selection or scroll position. Choosing
+one party also shows its majorities gained and lost since 2021 just above the grid.
+Those counts cover all comparable reported councils in the selected province,
+including losses outside the party's current-majority list. Search and the changed
+toggle do not narrow this summary. Missing comparisons show dashes, not zero.
+Choosing another outcome clears an incompatible party selection. The whole council card
+links to its results, with the outcome badge beside its name; a separate majority
+builder link appears only when a reported single-party majority is not established.
+Outcome badges are hidden while an outcome filter is selected. Pending badges use
+the short label "Pending"; estimated seat data remains identified in the graphic's
+accessible description and the builder link.
+Province, outcome, party and change links work without JavaScript and are shareable.
+JavaScript filters the list immediately and reveals another 24 councils as its end
+approaches the viewport, retaining the visible extent and selections across live updates.
+Without IntersectionObserver or JavaScript, all matching councils remain accessible.
+The unified search can contain private addresses, so typed text is kept out of filter
+URLs as well as public shares. Legacy council-name query URLs remain readable.
+The majority-change highlight is labelled "Outright majorities gained/lost": seat majorities
+do not establish which party or coalition governs a municipality.
 
-An always-visible “Are you a political mastermind?” banner links to `/majority-builder`,
-where every current council can be searched, including pending allocations. The
-invitation sits outside the council summary card and remains compact above the
-existing map, votes and metro panels.
+Only complete reconciled IEC seat allocations enter Majority and No majority.
+Estimates stay Pending, identified in seat-graphic descriptions and links to the builder.
+Grouped independents cannot be a single-party majority or a selected coalition bloc.
+Read failures display Unavailable separately. Missing results remain searchable.
+The current view explicitly covers metro and local councils, not district councils.
+Cards link to results and, when seats are available without a reported single-party
+majority, the existing majority builder.
+`/majority-builder` redirects to the homepage directory, retaining province/name filters
+and the Pending filter. Builder return links also use the homepage.
 
-Packed live results use the existing sync milestone state, matched to the exact
-source snapshot captured by the overview. Only the council milestone is selected;
-the homepage does not download every municipality's R2 pack. Local/legacy D1
-payloads and the already-hydrated metros use the same seat validator as council
-pages. A missing milestone or snapshot mismatch stays pending/unavailable. A
-database failure displays an unavailable overview without hiding other results.
-Historical pages omit this current-election overview. Governing agreements are
-not inferred from seats; the repository does not yet record those arrangements.
+Highlights are nationwide and independent of the directory's filters:
+
+- Majority changes compare reported allocations in both elections: a party gains or
+  loses its majority, or one majority party replaces another. No-majority to
+  no-majority is not a majority change. The home highlight card opens `/highlights#majority-changes`;
+  the full council list opens via `?changed=1`.
+- Biggest gains/losses rank combined ward + municipal PR vote-share changes in
+  percentage points since the immediately previous election. Current counts must be
+  complete. Both party lists must be complete with unambiguous identities. The union
+  of parties includes parties absent from a complete current list; missing or partial
+  lists never establish zero. Comparisons are published area results, not adjusted
+  for boundary changes. The leading gain and loss have paired share bars; more entries
+  and coverage details are available on `/highlights#vote-swings`.
+- Close pending ward races use ward votes only, a margin no greater than 2 percentage
+  points, at least 50% but less than 100% of districts reporting, and no explicit ward
+  seat award. Ties remain ties. The vote gap and reporting coverage accompany the
+  top-contender bars. These are provisional leads, not forecasts or council majorities.
+- Where ward progress is absent, close pending council counts use municipal PR votes
+  and the municipality's published district progress, with the same 2-point and 50%
+  thresholds. Councils with reported allocations are excluded. Ballot basis is labelled;
+  a vote lead does not establish council control. If no close race qualifies, a
+  "Count to watch" shows actual progress in a still-counting council, prioritising metros.
+
+The sync publishes a small `council_dashboard` summary in the same guarded transaction
+as each municipality's active result pointer. It contains council seats, combined vote
+shares, district progress, a close pending council count and up to six closest qualifying
+wards. Readers match the
+summary to the captured snapshot; stale summaries cannot enter rankings. Keeping each
+municipality's closest six is sufficient to find the nationwide closest six using the
+same sort order. Routine homepage reads do not download all municipality or ward packs.
+Legacy/local D1 imports use the same derivation. During rollout only metros need fallback
+pack reads; validated council milestones supply reported outcomes elsewhere. Missing
+highlight coverage is disclosed. A source error or stale successful check shows a notice.
+
+### Rollout
+
+Apply `0007_council_dashboard.sql` before deploying the updated sync Worker. Deploy the
+frontend with the sync change. Existing municipality summaries backfill during their
+next scheduled reconciliation, even if the source results have not changed; backfilling
+neither changes the result snapshot nor creates announcements. To populate summaries
+immediately from existing published packs, run `pnpm data:dashboard --remote` for a
+read-only dry run, then `pnpm data:dashboard --remote --apply`. The backfill skips current
+summaries, bounds reads to four sources at once, and guards each write against the active
+snapshot. It does not refetch IEC data, change source pointers or create announcements.
+It can be rerun if a source advances during a read. Omitting `--remote` targets local data.
+The frontend tolerates an absent summary table and incomplete backfill using the existing
+result paths. Missing highlight data is labelled unavailable rather than an absence of
+close races. Running the UI locally does not apply migrations or deploy the sync Worker;
+live-data development needs the summary rollout too.
 
 ## Verification and delivery
 
@@ -171,7 +246,7 @@ are unavailable.
 The slider links 2000, 2006, 2011, 2016, 2021 and 2026 wherever
 an active result exists for the same IEC area ID. National history is at `/{year}`;
 province, municipality, ward and voting-district URLs retain the selected year.
-The current national page remains `/`. Links work without JavaScript; the native
+The current national page is `/national-results`. Links work without JavaScript; the native
 range input updates results on input, without a document reload, while preserving
 focus and scroll position. Scrubbing changes the displayed election without changing
 the loaded URL, canonical metadata or browser history. Sharing links use the displayed

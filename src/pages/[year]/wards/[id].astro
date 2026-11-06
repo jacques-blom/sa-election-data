@@ -1,5 +1,6 @@
 ---
 import PageShare from '../../../components/PageShare.astro';
+import WardAddress from '../../../components/WardAddress.astro';
 import ElectionHistory from '../../../components/ElectionHistory.astro';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
@@ -33,7 +34,8 @@ const title = result ? `Ward ${wardNumber(id)}, ${municipalityName}` : 'Ward res
 <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{parent ? <><span> / </span><a href={placeUrl(parent,year)}>{municipalityName}</a></> : municipalityName && <><span> / </span><span>{municipalityName}</span></>}<span> / </span><span>{result ? `Ward ${wardNumber(id)}` : 'Ward'}</span></nav>
 {result ? <>
 <div class="page-top page-share-heading"><div><p class="eyebrow">{province} · {municipalityName} · {year}</p><h1>Ward {wardNumber(id)}</h1></div><PageShare result/></div>
-<div id="ward-majority" data-history-current-only hidden={year !== latestYear}>{year === latestYear && parent && <MajorityBanner name={parent.name} href={`${placeUrl(parent)}/coalition`}/>}</div>
+<WardAddress id={id}/>
+<div id="ward-majority" data-history-current-only hidden={year !== latestYear}>{year === latestYear && parent && <MajorityBanner name={parent.name} href={`${placeUrl(parent)}/coalition`} municipalityId={result.municipalityId}/>}</div>
 <div id="ward-results" class="results-layout"><ResultChart result={result} ballot="ward" tabs={false} name={title}/><aside class="aside-stack ward-context"><section class="card scope-card">
 {parent ? <><h2>Municipality results</h2><a class="button" href={placeUrl(parent,year)}>View {municipalityName} results ↗</a></> : <><h2>Explore nearby wards</h2><a class="button" href={mapLink('south-africa',id)}>Return to the map ↗</a></>}
 </section><ElectionHistory year={year} level="ward" id={id}/></aside></div>

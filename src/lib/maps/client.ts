@@ -11,7 +11,7 @@ import type { BoundaryLevel } from './detail.ts';
 import { pollWhileVisible } from '../live/poll.ts';
 import { formatNumber, partyStyle } from '../places/format.ts';
 import { ballotLabel, LEADER_BATCH_SIZE, NEUTRAL_COLOR, type MapLeader, type MapLeadersResponse } from './leader-types.ts';
-import type { MapWardResponse, WardInfo } from './ward-types.ts';
+import type { MapWardResponse } from './ward-types.ts';
 import type { Feature } from 'geojson';
 
 const element = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -41,12 +41,9 @@ let ready = false;
 let map: google.maps.Map;
 let selectedArea: ResolvedArea | undefined;
 let areaOutline: google.maps.Data;
-let point: google.maps.Circle | undefined;
 let boundaryFailed = false;
 let boundaryLimited = false;
 let overlay: { level: BoundaryLevel } = { level: 'province' };
-let searchVersion = 0;
-let searchRequest: AbortController | undefined;
 let listKey = '';
 let colorRequest: AbortController | undefined;
 let colorsFailed = false;
@@ -243,9 +240,6 @@ function clearSelection() {
   selectedArea = undefined;
   selection = null;
   generation++;
-  ++searchVersion;
-  searchRequest?.abort();
-  point?.setMap(null);
   areaOutline?.forEach(feature => areaOutline.remove(feature));
   selectionFailed = false;
   refreshNotice();
@@ -371,13 +365,8 @@ function renderResult(data: MapWardResponse) {
   append(card, link);
   panel.replaceChildren(card);
 }
-async function chooseWard(id: string, known?: WardPick, fit = false, keepAddress = false) {
-  if (!keepAddress) {
-    ++searchVersion;
-    searchRequest?.abort();
-    point?.setMap(null);
-    element<HTMLElement>('map-search-status').hidden = true;
-  }
+async function chooseWard(id: string, known?: WardPick, fit = false) {
+  element<HTMLElement>('map-search-status').hidden = true;
   const current = ++generation;
   selectedArea = undefined;
   areaOutline.forEach(feature => areaOutline.remove(feature));
@@ -420,39 +409,6 @@ async function refreshSelection(signal: AbortSignal) {
     }
   } catch {
     if (current === generation && !signal.aborted) { selectionFailed = true; refreshNotice(); }
-  }
-}
-async function showAddress(place: google.maps.places.Place) {
-  clearSelection();
-  const current = searchVersion;
-  searchRequest = new AbortController();
-  const signal = searchRequest.signal;
-  const status = element<HTMLElement>('map-search-status');
-  status.hidden = false;
-  status.textContent = 'Finding this address’s ward…';
-  try {
-    if (!place.location) throw new Error('No location');
-    if (place.viewport) map.fitBounds(place.viewport, 35);
-    else { map.setCenter(place.location); map.setZoom(15); }
-    point = new google.maps.Circle({ map, center: place.location, radius: 25, fillColor: '#175b99', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 3, clickable: false });
-    const response = await fetch('/api/locate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(place.location.toJSON()), signal });
-    if (!response.ok) throw new Error('Lookup unavailable');
-    const data = await response.json() as { wards: WardInfo[] };
-    if (current !== searchVersion) return;
-    if (data.wards.length === 1) {
-      await chooseWard(data.wards[0]!.id, data.wards[0], false, true);
-      if (current === searchVersion) status.textContent = 'Showing the ward at this address. A ward match doesn’t confirm your voting station.';
-    } else if (data.wards.length) {
-      status.textContent = 'This address is close to a boundary. Choose a ward to view its results.';
-      for (const ward of data.wards) {
-        const button = text('button', `Ward ${ward.number}, ${ward.municipality}`, 'button');
-        button.type = 'button';
-        button.addEventListener('click', () => void chooseWard(ward.id, ward, false, true));
-        append(status, button);
-      }
-    } else status.textContent = 'No ward matched this address. Try a nearby street or browse the map.';
-  } catch {
-    if (current === searchVersion) status.textContent = 'This address couldn’t be looked up. Try again or browse the map.';
   }
 }
 async function start() {
@@ -527,7 +483,7 @@ async function start() {
     });
     window.addEventListener('pagehide', event => {
       if (!event.persisted) stopPolling();
-      boundaries.cancel(); colorRequest?.abort(); searchRequest?.abort();
+      boundaries.cancel(); colorRequest?.abort();
     });
     window.addEventListener('pageshow', event => { if (event.persisted) void boundaries.update(); });
   } catch {
@@ -535,19 +491,13 @@ async function start() {
     loading.textContent = 'Google Maps could not load. Search for an area or use Browse results above.';
   }
 }
-const started = start();
+void start();
 app.addEventListener('place-search:area', event => {
   if (!ready) return; // A working search can still open the area's results when Maps is unavailable.
   event.preventDefault();
   element<HTMLElement>('map-search-status').hidden = true;
   void showArea((event as CustomEvent<ResolvedArea>).detail);
 });
-app.addEventListener('place-search:select', async event => {
-  await started;
-  if (ready) void showAddress((event as CustomEvent<google.maps.places.Place>).detail);
-});
 app.addEventListener('place-search:input', () => {
-  ++searchVersion;
-  searchRequest?.abort();
   element<HTMLElement>('map-search-status').hidden = true;
 });

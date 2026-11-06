@@ -12,7 +12,7 @@ const councils = data.councils;
     <div><h2 id="council-overview-heading">Council majorities</h2><p>{councils ? `${councils.singleParty + councils.noMajority} of ${councils.total} allocations reported${councils.hasExpectedTotal ? '' : ' · councils in our results'}` : 'Council outcomes are temporarily unavailable.'}</p></div>
     {councils && <dl class="council-overview-counts">
       <div><dt>Single-party majority</dt><dd>{councils.singleParty}</dd></div>
-      <div><dt>No overall majority</dt><dd>{councils.noMajority}</dd></div>
+      <div><dt>No majority</dt><dd>{councils.noMajority}</dd></div>
       <div><dt>Pending / unavailable</dt><dd>{councils.pending}</dd></div>
     </dl>}
     <a class="council-updates-link" href="/updates?type=councils">Council updates <span aria-hidden="true">↗</span></a>

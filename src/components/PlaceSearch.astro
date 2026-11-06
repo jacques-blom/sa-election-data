@@ -12,6 +12,9 @@ interface Props {
   compact?: boolean;
   disabled?: boolean;
   presentation?: 'inline' | 'header' | 'dialog';
+  placeholder?: string;
+  mobilePlaceholder?: string;
+  mobileInline?: boolean;
 }
 const { id, mode = 'area', query = '', action = '/#search-heading', area, compact = false, presentation = 'inline' } = Astro.props;
 const routeYear = Astro.url.pathname.match(/^\/(\d{4})(?:\/|$)/)?.[1];
@@ -21,7 +24,7 @@ const label = area ? `Find a place or address around ${area.name}` : 'Find a pla
 const bounds = addressSearchBounds(area?.bbox);
 const directoryHref = Astro.url.pathname === '/search' ? '#area-directory' : '/search#area-directory';
 ---
-<div id={`${id}-search`} data-search-disabled={String(disabled)} aria-disabled={disabled ? "true" : undefined} class:list={['place-search', `place-search--${presentation}`, { 'place-search--compact': compact }]} data-place-search data-presentation={presentation} data-mode={mode} data-configured={String(configured)} data-search-bbox={bounds ? JSON.stringify(area?.bbox) : undefined} data-search-area={bounds ? area?.name : undefined}>
+<div id={`${id}-search`} data-search-disabled={String(disabled)} aria-disabled={disabled ? "true" : undefined} class:list={['place-search', `place-search--${presentation}`, { 'place-search--compact': compact }]} data-place-search data-mobile-placeholder={Astro.props.mobilePlaceholder} data-mobile-inline={Astro.props.mobileInline} data-presentation={presentation} data-mode={mode} data-configured={String(configured)} data-search-bbox={bounds ? JSON.stringify(area?.bbox) : undefined} data-search-area={bounds ? area?.name : undefined}>
   {presentation === 'dialog' && <a class="header-search-trigger" href="/search" data-search-open aria-disabled={disabled ? "true" : undefined} tabindex={disabled ? -1 : undefined} title={disabled ? `Search is available for the ${latestYear} election` : undefined} aria-label="Search places and addresses" aria-haspopup="dialog" aria-controls={`${id}-dialog`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></a>}
   <div data-search-home hidden={presentation === 'dialog'} tabindex="-1">
     <form class="place-search-form" action={action} method="get" role="search">
@@ -31,12 +34,13 @@ const directoryHref = Astro.url.pathname === '/search' ? '#area-directory' : '/s
       <div class="place-search-field">
         {presentation === 'header' && <a class="place-search-back" href="/" aria-label="Back to results"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 5-7 7 7 7M5 12h15"/></svg></a>}
         <svg class="place-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-        <input disabled={disabled} id={id} type="search" value={query} placeholder="Municipality, ward or address" maxlength="200" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-describedby={`${id}-hint`}/>
+        <input disabled={disabled} id={id} type="search" value={query} placeholder={Astro.props.placeholder ?? 'Municipality, ward or address'} maxlength="200" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-describedby={`${id}-hint`}/>
         <button class="place-search-clear" type="button" aria-label="Clear search" data-search-clear disabled={disabled} hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
         <button class="button primary place-search-submit" type="submit" disabled={disabled} aria-label="Search"><span class="place-search-submit-label">Search</span> <span aria-hidden="true">↗</span></button>
       </div>
       <div class="place-search-panel" data-search-panel hidden>
         <p class="place-search-message" data-search-message></p>
+        <slot name="results-action"/>
         <ul class="place-search-options" id={`${id}-options`} role="listbox" aria-label="Suggested places and addresses"></ul>
         <a class="place-search-fallback" href={directoryHref}>Browse the area directory →</a>
         <div class="place-search-attribution" data-search-attribution hidden><span class="google-maps-attribution" translate="no">Google Maps</span></div>

@@ -14,7 +14,7 @@ registerHooks({ resolve(specifier, context, next) {
 } });
 
 const years = [2000, 2006, 2011, 2016, 2021, 2026];
-const path = (year: number) => year === 2026 ? '/' : `/${year}`;
+const path = (year: number) => year === 2026 ? '/national-results' : `/${year}`;
 const page = (year: number, regional = false) => `<!doctype html><html><head>
   <title>${year} election results</title><link rel="canonical" href="https://counted.co.za${path(year)}">
   </head><body><main id="main" ${year === 2026 ? 'data-live-results' : ''}>
@@ -109,7 +109,7 @@ test('scrubbing away from 2026 and back keeps the thumb, layout, search text and
     assert.equal(window.location.href, originalUrl);
     assert.equal(window.history.length, originalHistory);
     assert.equal(document.title, '2026 election results');
-    assert.equal(document.querySelector('link[rel=canonical]')!.getAttribute('href'), 'https://counted.co.za/');
+    assert.equal(document.querySelector('link[rel=canonical]')!.getAttribute('href'), 'https://counted.co.za/national-results');
     const { resultsUrl } = await import('../src/lib/history/view.ts');
     assert.equal(resultsUrl().href, 'https://counted.co.za/2021?ballot=ward&q=Cape#results', 'sharing uses the displayed election');
     view.select(2026);
@@ -201,7 +201,7 @@ test('a historical entry keeps search and council panels hidden through scrubbin
     view.select(2026); await view.respond(2026);
     assert.equal(view.document.querySelector('h1')!.textContent, '2026 election results');
     const { resultsUrl } = await import('../src/lib/history/view.ts');
-    assert.equal(resultsUrl().pathname, '/', 'live polling fetches the displayed current election');
+    assert.equal(resultsUrl().pathname, '/national-results', 'live polling fetches the displayed current election');
     const { updateResults } = await import('../src/lib/live/results.ts');
     const next = new view.window.DOMParser().parseFromString(page(2026), 'text/html');
     updateResults(view.document.querySelector('#main')! as unknown as HTMLElement, next.querySelector('#main')! as unknown as HTMLElement);

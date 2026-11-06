@@ -1,0 +1,24 @@
+---
+import type { ElectionHighlights } from '../../lib/overview/highlights.ts';
+import { partyStyle } from '../../lib/places/format.ts';
+interface Props { councils: ElectionHighlights['fragmentedCouncils'] }
+const { councils } = Astro.props;
+---
+<article class="insight-panel insight-maths insight-maths--divided" aria-labelledby="divided-councils-title">
+  <h3 id="divided-councils-title">Most divided councils</h3>
+  <p class="insight-caption">The lowest largest-party share of council seats. Ties included.</p>
+  <ol class="insight-seat-list">{councils.slice(0,6).map(r => <li data-divided-council={r.council.id} data-largest-share={r.share}>
+    <a href={r.council.builderHref}>
+      <div class="insight-seat-heading">
+        <span><strong>{r.council.name}</strong><small title={r.leaders.map(p=>p.name).join(' / ')}>{r.leaders.map(p=>partyStyle(p.name)[0]).join(' / ')}{r.leaders.length>1?' tied':''} · {r.count}{r.leaders.length>1?' seats each':` of ${r.council.seats!.total} seats`}</small></span>
+        <span class="insight-seat-gap"><strong>{r.share.toFixed(1)}%</strong><small>largest share</small></span>
+      </div>
+      <div class="insight-threshold-chart insight-divided-bar" role="img" aria-label={`${r.council.seats!.total} council seats. ${r.council.seats!.parties.filter(p=>p.count>0).map(p=>`${p.id==='0'?'Independents combined':partyStyle(p.name)[0]}: ${p.count}`).join(', ')}. ${r.council.seats!.majority} needed for a majority.`}>
+        {r.council.seats!.parties.filter(p=>p.count>0).map(p=><span title={`${p.id==='0'?'Independents combined':p.name}: ${p.count} seats`} style={`width:${p.count/r.council.seats!.total*100}%;background:${partyStyle(p.name)[1]}`}/>)}
+        <i style={`left:${r.council.seats!.majority/r.council.seats!.total*100}%`}/>
+      </div>
+      <span class="insight-seat-caption"><span>{r.short} {r.short===1?'seat':'seats'} short · {r.council.seats!.majority} needed</span><b>Build a majority ↗</b></span>
+    </a>
+  </li>)}</ol>
+  {!councils.length && <p class="insight-empty">No reported hung councils with party seats yet.</p>}
+</article>

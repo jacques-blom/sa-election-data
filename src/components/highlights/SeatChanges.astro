@@ -1,0 +1,26 @@
+---
+import type { ElectionHighlights } from '../../lib/overview/highlights.ts';
+import PartyLogo from '../PartyLogo.astro';
+import { formatNumber, partyStyle } from '../../lib/places/format.ts';
+import { latestYear } from '../../lib/history/comparison.ts';
+interface Props { changes: ElectionHighlights['seatChanges']; previousYear: number }
+const { changes, previousYear } = Astro.props;
+const changed = changes.parties.filter(p => p.delta !== 0);
+// Keep the largest losses as well as gains, then display from the largest gain down.
+const rows = [...changed].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id))
+  .slice(0, 8).sort((a, b) => b.delta - a.delta || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+const maximum = Math.max(1, ...rows.map(p => Math.abs(p.delta)));
+---
+<article class="insight-panel insight-seat-changes" id="seat-changes" aria-labelledby="seat-changes-title">
+  <h3 id="seat-changes-title">Seat gains/losses</h3>
+  <p class="insight-caption">Net change in ward + PR council seats since {previousYear}.{changed.length > rows.length && ` The ${rows.length} largest changes.`}</p>
+  {rows.length ? <>
+    <div class="insight-seat-change-key" aria-hidden="true"><span>Party</span><span><span>Losses ←</span><span>→ Gains</span></span><span>Net seats</span></div>
+    <ol class="insight-seat-change-list">{rows.map(p => <li data-seat-party={p.id} data-seat-delta={p.delta}>
+      <span class="insight-seat-change-party"><span class="insight-party"><PartyLogo party={{party_id:p.id}} size="small"/><abbr title={p.name}>{partyStyle(p.name)[0]}</abbr></span><small><span class="sr-only">{previousYear}: </span>{formatNumber(p.previous)} <span aria-hidden="true">→</span><span class="sr-only">; {latestYear}: </span> {formatNumber(p.current)} seats</small></span>
+      <span class="insight-net-seat-bar" role="img" aria-label={`Net ${p.delta > 0 ? 'gain' : 'loss'} of ${formatNumber(Math.abs(p.delta))} seats`}><span>{p.delta < 0 && <i style={`width:${Math.abs(p.delta) / maximum * 100}%`}/>}</span><span>{p.delta > 0 && <i style={`width:${p.delta / maximum * 100}%`}/>}</span></span>
+      <strong class:list={{'is-gain':p.delta>0,'is-loss':p.delta<0}}>{p.delta>0?'+':'−'}{formatNumber(Math.abs(p.delta))}</strong>
+    </li>)}</ol>
+  </> : <p class="insight-empty">{changes.comparable ? 'No net seat changes across the comparable councils yet.' : 'Waiting for councils with reported seat allocations in both elections.'}</p>}
+  <p class="insight-footnote">The same {changes.comparable} councils in both elections. Estimates and missing comparisons are excluded.{changes.currentTotal !== changes.previousTotal && <> Council sizes changed: {formatNumber(changes.previousTotal)} → {formatNumber(changes.currentTotal)} total seats.</>}</p>
+</article>

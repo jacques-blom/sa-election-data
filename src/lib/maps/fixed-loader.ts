@@ -1,4 +1,4 @@
-export {};
+import { selectedAddress } from '../address/selected-address.ts';
 const mounted = new Map<HTMLElement, () => void>();
 // Keep the renderer, WebGL worker and tile requests off the critical path.
 let renderer:Promise<typeof import('./fixed-client.ts')>|undefined;
@@ -7,8 +7,10 @@ const observer=new IntersectionObserver(entries=>{
   if(!entry.isIntersecting)continue;
   observer.unobserve(entry.target);
   const figure=entry.target as HTMLElement;
-  renderer??=import('./fixed-client.ts');
-  void renderer.then(module=>{
+  const options = JSON.parse(figure.dataset.options ?? '{}') as { level?: string; id?: string };
+  const selected = options.level === 'ward' && options.id && selectedAddress(options.id);
+  const module = selected ? import('./address-map.ts') : (renderer ??= import('./fixed-client.ts'));
+  void module.then(module=>{
    if(!figure.isConnected || !figure.hasAttribute('data-region-map') || mounted.has(figure))return;
    const dispose = module.mountRegionMap(figure);
    if(dispose)mounted.set(figure,dispose);

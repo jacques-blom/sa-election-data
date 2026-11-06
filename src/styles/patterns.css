@@ -1,0 +1,167 @@
+/* Original artwork shared with sa-election-mockups. Decoration never encodes results. */
+:root {
+  --pattern-beadwork: url('/patterns/beadwork.svg');
+  --pattern-shweshwe: url('/patterns/shweshwe.svg');
+  --pattern-shweshwe-ink: url('/patterns/shweshwe-ink.svg');
+  --pattern-bands: url('/patterns/bands.svg');
+}
+
+/* Let the diamonds read as beadwork, with a soft edge into the paper. */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -20px auto;
+  width: 65%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to top, #f5f3e9, transparent 55%), var(--pattern-beadwork) repeat center / 224px 56px;
+  opacity: .34;
+  mask-image: linear-gradient(110deg, transparent 3%, #000 85%);
+}
+
+.footer { padding-top: 54px; }
+.footer::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 28px;
+  background: var(--pattern-beadwork) repeat-x center / 112px 28px;
+  opacity: .8;
+  pointer-events: none;
+}
+
+/* Full repeats sit above the content, outside seats, bars and party colours. */
+.place-card::before,
+.card.council-seats::before,
+.overview-municipality::before,
+.coalition-visual-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 28px;
+  border-radius: inherit;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background: var(--pattern-beadwork) repeat-x center / 112px 28px;
+  opacity: .85;
+  pointer-events: none;
+}
+.card.place-card { padding-top: 48px; }
+.card.council-seats { position: relative; padding-top: 52px; }
+article.overview-municipality { padding-top: 48px; }
+.coalition-screen .coalition-visual-panel { padding-top: 44px; }
+
+/* The comparison card is an indigo surface; its textile grows out of the edge. */
+.highlight-panel.highlight-panel--changes {
+  isolation: isolate;
+  background: #263e63;
+  border-color: #263e63;
+  color: #fffdf5;
+}
+.highlight-panel--changes::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 44%;
+  z-index: -1;
+  background: var(--pattern-shweshwe) repeat right center / 64px 64px;
+  opacity: .28;
+  mask-image: linear-gradient(to right, transparent, #000);
+  pointer-events: none;
+}
+.highlight-panel--changes .highlight-big-number { color: #fff3d7; }
+.highlight-panel--changes .highlight-heading > span,
+.highlight-panel--changes .highlight-empty,
+.highlight-panel--changes .highlight-change-flow b { color: #f0f3f7; }
+.highlight-panel--changes a:hover { color: #fffdf5; text-decoration: underline; }
+
+/* Beadwork meets the curved card edge, rather than living in a separate box. */
+.highlight-panel.highlight-panel--movement { padding-top: 46px; }
+.highlight-panel--movement::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 24px;
+  background: var(--pattern-beadwork) repeat-x center / 112px 28px;
+  opacity: .7;
+  pointer-events: none;
+}
+
+/* A woven edge belongs to the warm card; the result has its own clear space. */
+.highlight-panel.highlight-panel--race {
+  background: #efe7d7;
+  border-color: #e0d5c1;
+  padding-inline-end: 48px;
+}
+.highlight-panel--race::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 28px;
+  background: var(--pattern-bands) repeat center / 70px 56px;
+  opacity: .55;
+  pointer-events: none;
+}
+
+/* On dense analysis panels, just the original linework fades into the corner. */
+.insight-movers, .insight-seat-changes { position: relative; isolation: isolate; }
+.insight-movers::before,
+.insight-seat-changes::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 140px;
+  height: 100px;
+  z-index: -1;
+  border-top-right-radius: inherit;
+  background: var(--pattern-shweshwe-ink) repeat right top / 64px 64px;
+  opacity: .16;
+  mask-image: linear-gradient(225deg, #000, transparent 70%);
+  pointer-events: none;
+}
+
+/* Guidance uses the warm banded treatment, with space reserved for the artwork. */
+.card.scope-card { padding-bottom: 64px; }
+.scope-card::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 40px;
+  background: var(--pattern-bands) repeat-x center / 80px 64px;
+  opacity: .8;
+  pointer-events: none;
+}
+.ai-callout::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 72px;
+  border-radius: 0 20px 20px 0;
+  background: var(--pattern-bands) repeat center / 90px 72px;
+  opacity: .85;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .ai-callout::after { inset: auto 0 0; width: auto; height: 48px; border-radius: 0 0 20px 20px; }
+}
+@media (max-width: 540px) {
+  .header::before { width: 82%; bottom: -12px; background-size: auto, 168px 42px; opacity: .28; }
+  .footer { padding-top: 48px; }
+  .card.place-card, .card.council-seats { padding-top: 46px; }
+}
+
+/* Keep decorative artwork out of printed results and high-contrast interfaces. */
+@media print, (forced-colors: active) {
+  .header::before, .footer::before, .place-card::before,
+  .card.council-seats::before, .overview-municipality::before,
+  .coalition-visual-panel::before,
+  .highlight-panel--changes::before, .highlight-panel--movement::before,
+  .highlight-panel--race::before, .insight-movers::before,
+  .insight-seat-changes::before, .scope-card::after, .ai-callout::after { display: none; }
+  .highlight-panel.highlight-panel--changes { background: var(--paper); color: var(--ink); border-color: var(--line); }
+  .highlight-panel--changes .highlight-big-number,
+  .highlight-panel--changes .highlight-heading > span,
+  .highlight-panel--changes .highlight-empty,
+  .highlight-panel--changes .highlight-change-flow b { color: inherit; }
+}

@@ -59,7 +59,14 @@ The selected soft-corner Flag X is now a small, editable SVG: `public/brand/coun
 
 ### Real-site implementation
 
-The existing home, municipality, town, ward and search pages use `src/styles/design.css` on top of their component foundations. The shared header flows into the paper background with a fading beadwork pattern; the footer uses a small repeat. Place cards carry a narrow beadwork band, reporting indicators use indigo based on actual district reporting, and guidance cards use the banded treatment. Patterns stay outside chart marks.
+The existing home, municipality, town, ward and search pages use `src/styles/design.css` on top of their component foundations. `src/styles/patterns.css`, imported by the shared layout, owns decorative treatments using the original mockup SVGs in `public/patterns/`:
+
+- Beadwork fades into the shared header and forms a complete 28px repeat in the footer, place cards, municipality cards, council seat panels and majority builders. Keep the whole diamond visible instead of cropping it to a few pixels.
+- The dashboard’s majority-change card uses an indigo surface with shweshwe fading in from its right edge, as in the mockup. Its movement card carries beadwork along the top edge; the pending-race card has a warm woven side edge. Avoid inset pattern swatches: the artwork belongs to the surface itself.
+- Dense movement and seat-change panels use a faint corner of shweshwe linework. `shweshwe-ink.svg` retains the original geometry with indigo strokes on a transparent field, so it blends into the existing panel colour without an opaque rectangle.
+- The warm banded treatment finishes ward/place guidance cards and the AI callout. On phones the callout’s side panel becomes a bottom band, leaving the text and button the full width.
+
+These CSS pseudo-elements are decorative, ignore pointer input and disappear in print and forced-colour modes. They carry no result meaning, never cover chart marks and add no JavaScript or image dependencies. Reporting indicators continue to use indigo based on actual district reporting.
 
 The home page says “Local election results”, with place search and a national outline, rather than treating Cape Town as the whole country. The map is geographic context, not a national coverage or results map. The available-area count comes from the current place catalogue. The map reuses the prototype’s simplified MDB province display paths and is unsuitable for address lookup.
 

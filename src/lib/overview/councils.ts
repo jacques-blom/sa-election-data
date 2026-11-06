@@ -6,7 +6,7 @@ type CouncilRow = { area_id: string; source_id?: string; snapshot_id: string; pa
 type CouncilState = { source_id: string; snapshot_id: string; council_json: string | null };
 type Party = { id: string; name: string; count: number };
 export type CouncilOutcome = { id: string; status: 'pending' }
-  | { id: string; status: 'reported' | 'estimated'; total: number; majority: number; winner: Party | null };
+  | { id: string; status: 'reported' | 'estimated'; total: number; majority: number; winner: Party | null; parties: Party[] };
 export type CouncilOverview = ReturnType<typeof summariseCouncils>;
 
 /** The sync publishes these validated milestones atomically with its result pointer.
@@ -33,7 +33,7 @@ function allocationOutcome(id: string, total: number, majority: number, parties:
     || parties.reduce((sum, p) => sum + p.count, 0) !== total) return { id, status: 'pending' };
   // ID 0 is a collection of independent councillors, not a single party.
   const winner = parties.find(p => p.id !== '0' && p.count >= majority) ?? null;
-  return { id, status, total, majority, winner };
+  return { id, status, total, majority, winner, parties: [...parties].sort((a, b) => b.count - a.count || a.id.localeCompare(b.id)) };
 }
 
 export function summariseCouncils(rows: CouncilRow[], states: CouncilState[], expected: number | null) {

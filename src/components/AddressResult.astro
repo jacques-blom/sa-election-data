@@ -2,10 +2,5 @@
 import '../styles/address.css';
 ---
 <p data-address-status role="status" aria-live="polite"></p>
-<div class="address-result" data-address-result hidden>
-  <h2 data-selected-name></h2><p data-selected-address></p>
-  <div class="address-google-map" data-google-map aria-label="Selected location and electoral ward"></div>
-  <div data-address-wards aria-live="polite"></div>
-  <p class="small">Ward boundaries: <a href="https://services7.arcgis.com/oeoyTUJC8HEeYsRB/arcgis/rest/services/MDBWards2026/FeatureServer/0">MDB, 2026</a> · <a href="https://registertovote.elections.org.za/">Check your voting station with the IEC ↗</a></p>
-</div>
+<div class="address-ward-links" data-address-wards aria-live="polite"></div>
 <script>import '../lib/address/client.ts';</script>

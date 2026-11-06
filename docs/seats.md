@@ -48,23 +48,21 @@ labelled **IEC-reported**, **provisional**, rather than independently declared.
 
 ## Playground
 
-`/majority-builder` lists all 213 current metros and local municipalities, including
-councils with no usable seats yet. Search supports council names, aliases and codes,
-with province and allocation filters. It works as a server-rendered GET form and
-filters instantly with JavaScript. Pending includes current-count estimates.
-The directory uses validated local payloads or snapshot-matched council milestones;
-only metros require R2 reads for the initial page. Other cards load their seat
-targets as they enter the viewport, in batches of at most eight through
-`/api/majority-builder?councils=...`. Unread packs and failed reads are not labelled
-as pending allocations. The helper reads only each council record, with four
-concurrent pack reads, and uses the same validator as the playground. Actual
-unavailable allocations retain an awaiting-seats state. Without JavaScript,
-unloaded councils link straight to their playground.
-An optional random-council button picks from the visible councils with known seats.
+The homepage is the shared council directory: all 213 current metros and local
+municipalities, with all metros first and available results prioritised within metros and locals.
+It offers outcome chips, province filtering, party summary links and links
+into the builder. Its cards display reported or estimated seat bars; estimates stay
+Pending. `/majority-builder` redirects to that directory, preserving name/province
+and Pending selections. See [the council dashboard](overview.md#council-dashboard-and-highlights).
+The bounded `/api/majority-builder?councils=...` seat helper remains available for
+existing callers. Source read failures are not evidence of pending allocations.
 
-The homepage has an always-visible invitation; current municipality, town, ward,
-voting-district, province and council-update pages have small contextual banners.
-The builder provides a target, majority success state, reset and next-council link.
+Current municipality, ward and voting-district pages hide their contextual invitation
+when a party already holds a reported or estimated seat majority. Ward and voting-district
+invitations use the parent council's allocation, not their local vote shares. Grouped
+independents do not count as a single party. Province and council-update pages retain
+their general invitations. The builder keeps its target, majority success
+state, reset and next-council link; choosing another council returns to the homepage.
 
 `/2026/places/{slug}/coalition` adapts the mockup's party controls, semicircular
 seat diagram, segmented bar and share tools to the municipality's current seats.

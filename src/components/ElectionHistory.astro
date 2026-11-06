@@ -8,7 +8,7 @@ const { year, level, id, currentOnly = false, embedded = false } = Astro.props;
 let available: number[] = [];
 try { available = currentOnly ? [latestYear] : await availableYears(env.RESULTS_DB, level, id); } catch {}
 const years: number[] = ELECTIONS.map(e => e.year).filter(y => available.includes(y) || y === year);
-const suffix = Astro.url.pathname.replace(/^\/\d{4}/, '').replace(/\/$/, '');
+const suffix = level === 'national' ? '' : Astro.url.pathname.replace(/^\/\d{4}/, '').replace(/\/$/, '');
 const query = new URLSearchParams();
 for (const key of ['ballot', 'q']) if (Astro.url.searchParams.has(key)) query.set(key, Astro.url.searchParams.get(key)!);
 const href = (value: number) => (suffix ? `/${value}${suffix}` : nationalUrl(value)) + (query.size ? `?${query}` : '');

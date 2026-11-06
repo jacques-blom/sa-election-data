@@ -10,7 +10,6 @@ body:has(.coalition-screen) main{padding-top:18px;padding-bottom:20px}
 .coalition-builder{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;align-items:stretch}
 .coalition-visual-panel,.coalition-choices{border-radius:20px;min-width:0;padding:24px}
 .coalition-visual-panel{background:#e7eddb;display:flex;flex-direction:column;position:relative;align-self:start;position:sticky;top:15px}
-.coalition-visual-panel:before{content:'';position:absolute;inset:0 0 auto;height:8px;background:url('/patterns/beadwork.svg') repeat-x center/180px;border-radius:20px 20px 0 0}
 .coalition-figure{display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px 0;flex:1}
 .coalition-total{text-align:center}.coalition-total>strong{display:block;font-size:clamp(54px,9svh,88px);font-weight:500;letter-spacing:-4px;line-height:1;font-variant-numeric:tabular-nums}.coalition-total>span{display:block;font-size:12px;color:#536d50;margin-top:7px}
 .coalition-diagram{width:100%;max-width:360px;text-align:center}.coalition-diagram .seat-arc{max-height:23svh}

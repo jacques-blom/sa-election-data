@@ -9,7 +9,7 @@ import { normaliseCouncilSearch } from './directory-filter.ts';
 import { councilSeats } from './allocation.ts';
 export { matchesBuilderCouncil, normaliseCouncilSearch } from './directory-filter.ts';
 
-export const builderPath = '/majority-builder';
+export const builderPath = '/#councils';
 const councilPlaces = places.filter(p => p.kind === 'metro' || p.kind === 'municipality');
 export function builderCouncils(outcomes: CouncilOutcome[] = [], loadedIds: ReadonlySet<string> = new Set()) {
   const byId = new Map(outcomes.map(outcome => [outcome.id, outcome]));

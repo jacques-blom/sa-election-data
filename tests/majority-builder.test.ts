@@ -53,8 +53,8 @@ test('every current metro and local council is searchable even with no available
 
 test('allocation filters distinguish reported seats from estimates and missing allocations', () => {
   const councils = builderCouncils([
-    { id: '9006', status: 'reported', total: 230, majority: 116, winner: { id: '1', name: 'Party A', count: 120 } },
-    { id: '3003', status: 'estimated', total: 270, majority: 136, winner: null },
+    { id: '9006', status: 'reported', total: 230, majority: 116, winner: { id: '1', name: 'Party A', count: 120 }, parties: [{id:'1',name:'Party A',count:120},{id:'2',name:'Party B',count:110}] },
+    { id: '3003', status: 'estimated', total: 270, majority: 136, winner: null, parties: [{id:'1',name:'Party A',count:135},{id:'2',name:'Party B',count:135}] },
   ], new Set(builderCouncils().map(c => c.id)));
   assert.equal(councils.filter(c => matchesBuilderCouncil(c, '', '', 'reported')).length, 1);
   const pending = councils.filter(c => matchesBuilderCouncil(c, '', '', 'pending'));

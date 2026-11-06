@@ -32,7 +32,7 @@ const visiblePartyCount = 5;
     <SeatMethod seats={seats} result={result}/>
   </>}
 </section>
-{!historical && <MajorityBanner name={name} href={`${href}/coalition`}/>}
+{!historical && <MajorityBanner name={name} href={`${href}/coalition`} seats={seats}/>}
 <style>
   .council-seat-basis{font-size:11px;color:var(--muted);margin:0 0 6px}.council-majority-detail{font-size:14px;line-height:1.6;margin:0 0 20px;color:var(--muted)}
   .council-seats{margin-bottom:24px}.council-seats h2{font-size:25px}.seat-caution{font-size:13px;color:#765b24;line-height:1.6;max-width:680px;margin:8px 0 20px}.council-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px}.council-visual{align-self:start}.seat-threshold{text-align:center;font-size:13px;line-height:1.6}.seat-threshold strong{font-size:28px;display:inline-block;margin-right:4px}.seat-threshold span{display:block;font-size:11px;color:var(--muted)}.seat-party-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(40px,1.2fr) 28px;gap:12px;align-items:center;margin:15px 0}.seat-party-name{display:flex;gap:8px;align-items:center;font-size:12px;overflow-wrap:anywhere}.seat-party-name abbr{text-decoration:none}.seat-party-row>strong{text-align:right;font-variant-numeric:tabular-nums}.seat-track{display:block;height:14px;border-radius:4px;overflow:hidden;background:#edf0e4}.seat-track i{display:block;height:100%;border-radius:4px}.council-seats:has(.seat-caution){border-color:#dcd5b8}.more-parties{margin:18px 0 0}.more-parties>summary{min-height:44px;align-content:center}

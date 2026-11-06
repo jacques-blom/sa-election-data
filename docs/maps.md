@@ -52,7 +52,19 @@ refresh every 30 seconds while visible and online. Missing data stays neutral.
 The URL retains the camera, selected ward or canonical selected area. Address
 text and Google place IDs are never put in URLs or saved to the catalogue.
 
-Result-page previews still use MapLibre/Protomaps for our own electoral data.
+Address selections on every search surface open the matching ward's result page
+directly. Multiple matches offer a ward choice; missing matches and lookup errors
+keep the search available. Only the selected Google place ID, ward ID and an
+expiry timestamp are retained in sessionStorage for one hour, scoped to the tab.
+The destination fetches fresh address details once for its address label and map.
+Neither the address nor its coordinates enter URLs, shared links or browser storage.
+If storage is blocked, navigation still opens ward results without the address context.
+
+Result-page previews use MapLibre/Protomaps for our own electoral data. A ward
+opened from an address instead uses Google Maps in the existing map slot, with
+the ward outline and address pin. Its heading includes the address and a link to
+the map. The address and pin are hidden while viewing historical results; live
+result refreshes preserve both. Other wards never inherit the selection.
 The following archive sections describe those previews and the underlying
 boundary datasets; selected Google addresses are displayed on Google maps.
 

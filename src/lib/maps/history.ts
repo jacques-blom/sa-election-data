@@ -10,6 +10,7 @@ export function updateRegionMap(current: HTMLElement, next: HTMLElement) {
   const caption = current.querySelector<HTMLElement>('[data-map-caption]');
   if (caption) caption.textContent = historical
     ? `${latestYear} boundaries · historical boundaries unavailable.`
+    : current.dataset.addressMap === 'true' ? 'Selected address · Ward boundary: MDB, 2026'
     : next.querySelector('[data-map-caption]')!.textContent;
   const link = current.querySelector<HTMLAnchorElement>('figcaption a');
   const nextLink = next.querySelector<HTMLAnchorElement>('figcaption a');

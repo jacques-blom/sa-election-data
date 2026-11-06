@@ -43,9 +43,9 @@ function global(name: string, value: unknown) {
 const settle = async () => { for (let i=0;i<4;i++) await setImmediate(); };
 const event = (type: string, fields = {}) => Object.assign(new Event(type,{cancelable:true}),fields);
 
-async function mount({ configured = true, mobile = false, presentation = 'inline', resolution = async (_selection: object): Promise<object> => ({alternatives:[]}), electionAreas = async (_query: string): Promise<object[]> => [], predictions = async (_request: object) => [] as object[] } = {}) {
+async function mount({ configured = true, mobile = false, mobileInline = false, presentation = 'inline', resolution = async (_selection: object): Promise<object> => ({alternatives:[]}), electionAreas = async (_query: string): Promise<object[]> => [], predictions = async (_request: object) => [] as object[] } = {}) {
   const root = new ElementStub(), form = new ElementStub(), input = new ElementStub(), options = new ElementStub();
-  root.dataset = { mode: 'all', configured: String(configured), presentation };
+  root.dataset = { mode: 'all', configured: String(configured), presentation, mobileInline: String(mobileInline) };
   input.id = 'search';
   const panel = new ElementStub(), message = new ElementStub(), clear = new ElementStub(), home = new ElementStub(), dialog = new ElementStub(), mobileSlot = new ElementStub();
   root.queries = new Map([['form',form],['[data-search-panel]',panel],['[data-search-message]',message],['[data-search-clear]',clear],['[data-search-home]',home],['[data-search-mobile]',mobileSlot],['dialog',dialog],['[data-search-attribution]',new ElementStub()],['[data-search-close]',new ElementStub()]]);
@@ -91,6 +91,17 @@ test('Google outages keep labelled election-area suggestions available',async()=
   await ui.choose();
   assert.deepEqual(ui.navigations,['/2026/places/knysna']);
   assert.equal(ui.form.submissions,0);
+});
+
+test('homepage search stays inline on mobile and external resets cancel stale suggestions',async()=>{
+  let resolveOld: (areas:object[])=>void = ()=>{};
+  const ui=await mount({configured:false,mobile:true,mobileInline:true,electionAreas:()=>new Promise(resolve=>{resolveOld=resolve;})});
+  await ui.type('Cape');assert.equal(ui.dialog.open,false);assert.equal(ui.form.parent,ui.home);
+  const requests=ui.requests.length;
+  ui.input.value='';ui.root.dispatchEvent(event('place-search:sync-query'));
+  resolveOld([{id:'cpt',name:'Cape Town',description:'Metro',url:'/2026/places/cape-town'}]);await settle();
+  assert.equal(ui.panel.hidden,true);assert.equal(ui.options.children.length,0);assert.equal(ui.dialog.open,false);
+  assert.equal(ui.requests.length,requests,'clearing council filters does not issue a search or open a dialog');
 });
 
 test('addresses use Google details once and typed text stays in POST bodies',async()=>{

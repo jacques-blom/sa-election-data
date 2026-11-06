@@ -1,0 +1,15 @@
+---
+const { id } = Astro.props;
+---
+<div class="ward-address" data-ward-address={id} hidden>
+  <p data-ward-address-label role="status"></p>
+  <div class="ward-address-links"><a href={`#region-map-ward-${id}`} data-ward-address-map>See address on map ↓</a><span class="google-maps-attribution" translate="no">Google Maps</span></div>
+</div>
+<script>import '../lib/address/ward-context.ts';</script>
+<style>
+  .ward-address{margin:-8px 0 24px;padding:14px 18px;border:1px solid var(--line);border-radius:14px;max-width:720px}
+  .ward-address[hidden]{display:none}
+  .ward-address p{margin:0 0 8px;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+  .ward-address-links{display:flex;justify-content:space-between;gap:16px;font-size:12px}
+  .ward-address-links a{text-decoration:underline}
+</style>

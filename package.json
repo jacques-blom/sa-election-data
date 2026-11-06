@@ -21,6 +21,7 @@
     "data:load": "node scripts/load-local.ts",
     "data:export": "node scripts/export.ts",
     "data:logos": "node scripts/import-party-logos.ts",
+    "data:dashboard": "node scripts/backfill-dashboard.ts",
     "test": "node --test tests/*.test.ts",
     "deploy:dry-run": "pnpm build && wrangler deploy --dry-run",
     "deploy": "pnpm build && wrangler deploy --profile personal",

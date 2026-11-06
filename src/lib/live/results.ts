@@ -9,7 +9,7 @@ export function updateResults(current: HTMLElement, next: HTMLElement, yearChang
   // a detached range input cannot restore its active pointer drag.
   morphdom(current, next, {
     childrenOnly: true,
-    skipFromChildren: element => element.matches('form, election-history, [data-place-search], [data-address-lookup]')
+    skipFromChildren: element => element.matches('form, election-history, [data-place-search], [data-address-lookup], [data-ward-address]')
       || element.hasAttribute('data-region-map'),
     onBeforeElUpdated(from, to) {
       // Headlines load independently; retain them across election-result polls.
@@ -27,7 +27,7 @@ export function updateResults(current: HTMLElement, next: HTMLElement, yearChang
         from.removeAttribute('aria-disabled');
       }
       // Search/autocomplete owns its form, input values, and event listeners.
-      if (from.matches('form, election-history, [data-place-search], [data-address-lookup]')) {
+      if (from.matches('form, election-history, [data-place-search], [data-address-lookup], [data-ward-address]')) {
         if (yearChange && from instanceof HTMLFormElement && to instanceof HTMLFormElement) from.action = to.action;
         return false;
       }

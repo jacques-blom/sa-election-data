@@ -12,7 +12,7 @@ export function resolveArea(selection: AreaSelection, candidates: Place[]): Area
   const names = selection.names.map(normalizeAreaName).filter(Boolean);
   if (selection.types.includes('country')) return { area: {
     id: 'south-africa', name: 'South Africa', kind: 'country', description: 'National results',
-    url: '/', bbox: [16.3, -34.9, 32.9, -22.1],
+    url: '/national-results', bbox: [16.3, -34.9, 32.9, -22.1],
   }, alternatives: [] };
   if (selection.types.includes('administrative_area_level_1')) {
     const province = Object.values(administrative.provinces).find(p => names.includes(normalizeAreaName(p.name)) || names.includes(normalizeAreaName(p.code)));

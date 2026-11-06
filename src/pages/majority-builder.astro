@@ -1,49 +1,10 @@
 ---
-import { env } from 'cloudflare:workers';
-import Site from '../layouts/Site.astro';
-import PageShare from '../components/PageShare.astro';
-import { builderCouncils, getBuilderCouncils, matchesBuilderCouncil } from '../lib/seats/directory.ts';
-import { provinces } from '../lib/overview/results.ts';
-import '../styles/majority-builder.css';
-let councils = builderCouncils();
-let failed = false;
-try { councils = await getBuilderCouncils(env.RESULTS_DB, env.RAW_RESULTS); }
-catch (error) { console.error('Builder directory unavailable', error); failed = true; }
-const query = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 100);
-const province = provinces.find(p => p.id === Astro.url.searchParams.get('province'))?.id ?? '';
-const status = ['reported', 'pending'].includes(Astro.url.searchParams.get('status') ?? '') ? Astro.url.searchParams.get('status')! : '';
-const shown = councils.filter(c => matchesBuilderCouncil(c, query, province, status)).length;
-Astro.response.status = failed ? 503 : 200;
-Astro.response.headers.set('Cache-Control', failed ? 'no-store' : 'public, max-age=15, s-maxage=15');
-if (failed) Astro.response.headers.set('Retry-After', '60');
+// Keep existing links working while using one council directory on the homepage.
+const params = new URLSearchParams();
+for (const key of ['q', 'province']) {
+  const value = Astro.url.searchParams.get(key);
+  if (value) params.set(key, value);
+}
+if (Astro.url.searchParams.get('status') === 'pending') params.set('status', 'pending');
+return Astro.redirect('/' + (params.size ? `?${params}` : '') + '#councils', 302);
 ---
-<Site title="Majority builder" description="Pick a South African council, combine parties and see if you can build a majority. Explore reported seats and estimates while counting continues." canonicalPath="/majority-builder" noindex={failed || Astro.url.searchParams.size > 0} liveResults>
-  <section class="builder-hero" aria-labelledby="builder-title">
-    <div class="builder-hero-copy"><div class="page-share-heading"><p class="eyebrow">The coalition challenge</p><PageShare/></div>
-      <h1 id="builder-title">Majority builder</h1>
-      <p class="builder-intro">Pick a council. Mix and match parties. Can you get over the line?</p>
-      <div class="builder-hero-actions"><a class="button primary" href="#choose-council">Choose your council ↓</a><button class="button" type="button" data-builder-random hidden>Pick one for me ↗</button></div>
-    </div>
-    <div class="builder-hero-art" aria-hidden="true"><div class="builder-token-grid">{Array.from({length:35}, (_,i)=><i class:list={{'token-filled':i<19,'token-accent':i>=12&&i<19}}/>)}</div></div>
-  </section>
-  {failed && <p class="notice" role="status">Seat summaries are unavailable. Choose a council to check its latest seats.</p>}
-  <section id="choose-council" class="builder-directory" aria-labelledby="choose-council-heading">
-    <div class="builder-directory-heading"><h2 id="choose-council-heading">Choose your council</h2></div>
-    <form id="builder-search" class="builder-search" method="get" action="/majority-builder#choose-council" role="search">
-      <div class="builder-search-name"><label for="builder-query">Council name or municipal code</label><input id="builder-query" name="q" type="search" value={query} maxlength="100" placeholder="Try Johannesburg, Knysna or CPT" autocomplete="off"/></div>
-      <div><label for="builder-province">Province</label><select id="builder-province" name="province"><option value="">All provinces</option>{provinces.map(p=><option value={p.id} selected={province===p.id}>{p.name}</option>)}</select></div>
-      <div><label for="builder-status">Seat allocation</label><select id="builder-status" name="status"><option value="">All councils</option><option value="reported" selected={status==='reported'}>Reported seats</option><option value="pending" selected={status==='pending'}>Allocation pending</option></select></div>
-      <button class="button primary" type="submit">Find councils</button>
-    </form>
-    <p class="builder-result-count" data-builder-count role="status" aria-live="polite">{shown} of {councils.length} councils</p>
-    <div class="builder-council-grid">{councils.map(c => <article id={`builder-council-${c.id}`} class:list={['builder-council-card', {'builder-council-card--pending': c.loaded&&c.status==='pending'}]} data-builder-card data-council={c.id} data-loaded={String(c.loaded)} data-search={c.search} data-province={c.provinceId} data-status={c.status} hidden={!matchesBuilderCouncil(c,query,province,status)}>
-      <div class="builder-card-top"><span>{c.metro ? 'Metro' : c.province}</span><span data-builder-seat-status class:list={['builder-seat-status',{'builder-seat-status--pending':c.status!=='reported'}]}>{!c.loaded?'Open to play':c.status==='reported'?'Reported seats':c.status==='estimated'?'Current estimates':'Seats pending'}</span></div>
-      <h3><a href={c.href}>{c.name}</a></h3>
-      <div class="builder-card-target" data-builder-target hidden={c.majority===null}><strong data-builder-majority>{c.majority}</strong><span>seats for a majority<small><span data-builder-total>{c.total}</span> council seats</small></span></div>
-      <div class="builder-card-wait" data-builder-wait hidden={c.majority!==null}><strong>—</strong><span data-builder-wait-text>{c.loaded?'Awaiting seats':'Choose to explore'}</span></div>
-      <a class="builder-card-play" href={c.href} data-builder-play><span data-builder-play-label>{c.loaded&&c.status==='pending'?'Check seats': 'Play this council'}</span><span aria-hidden="true">→</span></a>
-    </article>)}</div>
-    <div class="builder-no-results" data-builder-empty hidden={shown>0}><h3>No councils found</h3><a class="button" href="/majority-builder#choose-council">Show all councils</a></div>
-  </section>
-</Site>
-<script>import '../lib/seats/directory-client.ts';</script>

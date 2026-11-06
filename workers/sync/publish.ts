@@ -8,6 +8,8 @@ import { acquireLock, ensureSource, readState, releaseLock, waitForFetchSlot, ty
 import { archivedRaw, packRecords, prepareRecords, type DirectoryRecord } from './pack.ts';
 import { reserveBudget } from './budget.ts';
 import { updateStatements } from './updates.ts';
+import { dashboardStatement } from './dashboard.ts';
+import { COUNCIL_SNAPSHOT_VERSION } from '../../src/lib/overview/snapshot.ts';
 
 export const election = ELECTIONS.find((entry) => entry.year === LIVE_YEAR)!;
 
@@ -66,8 +68,11 @@ export async function refreshSource(env: SyncEnv, source: Source, names: Readonl
   let published = false;
   try {
     const previous = await readState(db, source);
+    const dashboardReady = source.kind !== 'municipality' || !!await db.prepare(
+      'SELECT 1 FROM council_dashboard WHERE source_id=? AND snapshot_id=? AND json_extract(summary_json, \'$.version\')=?')
+      .bind(source.id, previous.active_snapshot_id, COUNCIL_SNAPSHOT_VERSION).first();
     const partyDirectoryHash = sha256(JSON.stringify([...names].sort(([a], [b]) => a.localeCompare(b))));
-    const reusable = previous.object_key && previous.normalizer_version === NORMALIZER_VERSION
+    const reusable = dashboardReady && previous.object_key && previous.normalizer_version === NORMALIZER_VERSION
       && previous.party_directory_hash === partyDirectoryHash;
     await reserveBudget(db, 'checks', 1);
     await waitForFetchSlot(db);
@@ -106,6 +111,16 @@ export async function refreshSource(env: SyncEnv, source: Source, names: Readonl
     await reserveBudget(db, 'decoded_bytes', Buffer.byteLength(fetched.body));
     const content = prepareRecords(normalize(root, source, names));
     if (previous.object_key && previous.content_snapshot_id === previous.active_snapshot_id && previous.content_sha256 === content.hash) {
+      // Roll out a missing summary even when the election results have not changed.
+      // Match the old pointer and publication lease; this does not create a result announcement.
+      if (!dashboardReady) {
+        const now = new Date().toISOString();
+        const summary = dashboardStatement(db, source, content, previous.active_snapshot_id!,
+          `EXISTS(SELECT 1 FROM sync_locks WHERE name=? AND token=? AND expires_at>?)
+           AND EXISTS(SELECT 1 FROM source_documents WHERE id=? AND active_snapshot_id=?)`,
+          [source.id, lock, now, source.id, previous.active_snapshot_id]);
+        if (summary) await summary.run();
+      }
       let rawKey = previous.last_raw_key!;
       // Summary discovery contains details absent from the normalized national
       // rows. Keep its latest validated body for conditional-request replays.
@@ -148,6 +163,8 @@ export async function refreshSource(env: SyncEnv, source: Source, names: Readonl
     const fence = [source.id, lock, publishedAt, source.id, previous.active_snapshot_id];
     const statements: D1PreparedStatement[] = await updateStatements(env, source, content,
       previous.active_snapshot_id, snapshotId, fetched.checkedAt, publishedAt, guard, fence);
+    const dashboard = dashboardStatement(db, source, content, snapshotId, guard, fence);
+    if (dashboard) statements.push(dashboard);
     for (const { key, directory: row } of content.records) {
       const old = directory.get(key);
       directory.delete(key);

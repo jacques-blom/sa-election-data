@@ -21,10 +21,12 @@ export const OG_IMAGE_VERSION = 'v3';
 
 const pages: Record<string, OgPage> = {
   '/ai': { title: 'Use Counted with AI', label: 'Your questions. Counted’s data.', subtitle: 'Connect ChatGPT or Claude and explore election results.' },
+  '/national-results': { title: 'National results', label: `Local elections ${latestYear}`, subtitle: 'Party vote shares, provinces and election history.', year: latestYear },
   '/majority-builder': { title: 'Majority builder', label: 'Can you get over the line?', subtitle: 'Choose a council. Combine parties. Every combination is hypothetical.', year: latestYear },
   '/map': { title: 'Explore the map', label: `Local elections ${latestYear}`, subtitle: 'Find your province, municipality and ward.', year: latestYear },
   '/find-address': { title: 'Find your ward', label: 'Start with your community', subtitle: 'Explore local elections near you.' },
   '/search': { title: 'Find local results', label: 'Start with your community', subtitle: 'Search by municipality, ward, town or address.' },
+  '/highlights': { title: 'Election highlights', label: `Local elections ${latestYear}`, subtitle: 'Majority changes, local swings and close races.', year: latestYear },
   '/updates': { title: 'Latest election updates', label: `Follow the count · ${latestYear}`, subtitle: 'Ward and council updates from across South Africa.', year: latestYear },
   '/api': { title: 'Election data, open to everyone.', label: 'API & data documentation', subtitle: 'Build, explore and research with public election data.' },
   '/privacy': { title: 'Your privacy', label: 'About Counted', subtitle: 'How Counted handles your information.' },
@@ -45,7 +47,7 @@ export function ogImageUrl(canonical: string) {
 
 export async function ogPageForPath(pathname: string, lookupPlace?: (slug: string) => Promise<Place | undefined>): Promise<OgPage | null> {
   const path = pathname.split(/[?#]/, 1)[0]!.replace(/\/+$/, '') || '/';
-  if (path === '/') return nationalOgPage();
+  if (path === '/') return { title: 'Council results', label: `Local elections ${latestYear}`, subtitle: 'Majorities, pending councils and election highlights.', year: latestYear };
   if (Object.hasOwn(pages, path)) return pages[path]!;
   const match = /^\/(\d{4})(?:\/(provinces|districts|places|wards|voting-districts)\/([a-zA-Z0-9-]+)(\/coalition)?)?$/.exec(path);
   if (!match) return null;
