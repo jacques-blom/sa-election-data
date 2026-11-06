@@ -70,11 +70,14 @@ in parallel. These changes preserve those integrations.
 Home search combines directory matches with Google place/address suggestions.
 Directory queries use a bounded, uncached `POST /api/search`, so raw addresses
 do not enter search URLs. Directory matches open their place/province page;
-selected Google areas use `/?q=...`; selected addresses open a Google map and
+selected Google areas open their canonical results page or map extent; selected addresses open a Google map and
 ward lookup inline. Missing Google access still permits directory suggestions.
 Province filters support server-side GET requests and
 immediate client-side filtering. Essential content and tables work without JS.
-`/search` remains the separate place-search route owned by the place work.
+`/search` is the shared destination for place and address search, with browsable
+directory results and a name-search form for visitors without JavaScript.
+The search field replaces the header only on mobile (up to 600px).
+`/find-address` permanently redirects to `/search`.
 
 The sitemap now includes all nine province URLs. Query pages are noindex and
 canonicalize to the unfiltered route. Province links and content render on the

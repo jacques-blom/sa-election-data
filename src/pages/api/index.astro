@@ -1,13 +1,16 @@
 ---
+import ShareDialog from '../../components/ShareDialog.astro';
+import PageShare from '../../components/PageShare.astro';
 import { Content, getHeadings } from '../../../docs/api.md';
 import Brand from '../../components/Brand.astro';
 import Analytics from '../../components/Analytics.astro';
 import SocialImage from '../../components/SocialImage.astro';
+import { publicUrl } from '../../lib/site.ts';
 
 const sections = getHeadings().filter((heading) => heading.depth === 2);
 const title = 'API documentation · Counted';
 const description = 'Use South African local election results in your own apps and research. Public endpoints, examples, historical data and source freshness explained.';
-const canonical = new URL('/api', Astro.url.origin).href;
+const canonical = publicUrl('/api');
 ---
 
 <!doctype html>
@@ -50,7 +53,7 @@ const canonical = new URL('/api', Astro.url.origin).href;
         </div>
       </aside>
       <main id="documentation">
-        <article><Content /></article>
+        <article><PageShare/><Content /></article>
         <footer>
           Independent of the IEC. Always check a result’s source and freshness before using it.
           <a href="/disclaimer">Disclaimer</a>
@@ -58,6 +61,7 @@ const canonical = new URL('/api', Astro.url.origin).href;
         </footer>
       </main>
     </div>
+    <ShareDialog/>
   </body>
 </html>
 
@@ -83,7 +87,10 @@ const canonical = new URL('/api', Astro.url.origin).href;
   aside a:hover { text-decoration: underline; }
   .resources { border-top: 1px solid #ced8cd; padding-top: 1rem; font-size: 0.8rem; }
   main { min-width: 0; max-width: 50rem; }
-  article { line-height: 1.8; overflow-wrap: anywhere; }
+  article { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1.5rem; line-height: 1.8; overflow-wrap: anywhere; }
+  article > :global(*) { grid-column: 1 / -1; min-width: 0; }
+  article > :global(h1) { grid-column: 1; grid-row: 1; }
+  article > :global(.page-share) { grid-column: 2; grid-row: 1; align-self: center; }
   article :global(h1) { font-size: clamp(2rem, 4.5vw, 3.4rem); letter-spacing: -0.045em; line-height: 1.12; margin: 1rem 0 1.75rem; }
   article :global(h2) { font-size: 1.7rem; letter-spacing: -0.025em; line-height: 1.3; margin: 3rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid #ced8cd; scroll-margin-top: 1rem; }
   article :global(h3) { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
@@ -105,6 +112,8 @@ const canonical = new URL('/api', Astro.url.origin).href;
     aside ul { display: flex; flex-wrap: wrap; column-gap: 1.25rem; margin: 0; }
     .resources { display: flex; flex-wrap: wrap; column-gap: 1.25rem; margin-top: 0.75rem; border: 0; padding: 0; }
     article :global(h2) { font-size: 1.5rem; }
+    article > :global(h1) { grid-column: 1 / -1; }
+    article > :global(.page-share) { grid-column: 1 / -1; grid-row: 2; justify-self: start; margin-bottom: 1.5rem; }
   }
   @media (max-width: 380px) { header { align-items: start; flex-direction: column; gap: 0.75rem; } }
 </style>

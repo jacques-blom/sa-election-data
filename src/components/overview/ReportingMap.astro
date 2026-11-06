@@ -5,7 +5,7 @@ interface Props { entries: Awaited<ReturnType<typeof getNationalOverview>>['prov
 const { entries } = Astro.props;
 ---
 <figure class="overview-map">
-  <figcaption><span>Voting districts reporting</span><span>Select a province ↓</span></figcaption>
+  <figcaption>Voting districts reporting</figcaption>
   <svg viewBox="0 0 610 490" aria-label="Reporting progress by province">
     <defs><pattern id="unknown-reporting" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e4e7dc"/><path d="M0 8L8 0" stroke="#a6b0a1" stroke-width="1"/></pattern></defs>
     {entries.map(({ province, result }) => {

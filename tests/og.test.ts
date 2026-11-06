@@ -39,6 +39,8 @@ test('OG links discard addresses, search terms, ballot and coalition state', () 
   assert.equal(ogImageUrl('https://counted.co.za/?address=private#result'), 'https://counted.co.za/og/v3/index.png');
   assert.equal(ogImageUrl('https://counted.co.za/search/?q=private&lat=-33'), 'https://counted.co.za/og/v3/search.png');
   assert.equal(ogImageUrl('https://counted.co.za/2026/places/cape-town/coalition?parties=1,2'), 'https://counted.co.za/og/v3/2026/places/cape-town/coalition.png');
+  assert.equal(ogImageUrl('http://localhost:4321/2026/places/witzenberg?ballot=ward'), 'https://counted.co.za/og/v3/2026/places/witzenberg.png');
+  assert.equal(ogImageUrl('https://preview.example/api'), 'https://counted.co.za/og/v3/api.png');
 });
 
 test('provisional votes, complete counts, seats and claimed confirmation cannot enter an OG image', async () => {

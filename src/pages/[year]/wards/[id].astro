@@ -1,4 +1,5 @@
 ---
+import PageShare from '../../../components/PageShare.astro';
 import ElectionHistory from '../../../components/ElectionHistory.astro';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
@@ -30,14 +31,14 @@ const title = result ? `Ward ${wardNumber(id)}, ${municipalityName}` : 'Ward res
 <Site liveResults={year === latestYear && Astro.response.status !== 404} title={`${title} — ${year} results`} description={`Published ward-ballot votes, reporting progress and sources for ${title}.`} noindex={!result || !parent}>
 <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{parent ? <><span> / </span><a href={placeUrl(parent,year)}>{municipalityName}</a></> : municipalityName && <><span> / </span><span>{municipalityName}</span></>}<span> / </span><span>{result ? `Ward ${wardNumber(id)}` : 'Ward'}</span></nav>
 {result ? <>
-<div class="page-top"><div><p class="eyebrow">{province} · {municipalityName} · {year}</p><h1>Ward {wardNumber(id)}</h1>{year === latestYear && <a class="button" style="margin-top:18px" href={mapLink(parent?.slug ?? 'south-africa',id)}>View this ward on the map ↗</a>}</div></div>
+<div class="page-top page-share-heading"><div><p class="eyebrow">{province} · {municipalityName} · {year}</p><h1>Ward {wardNumber(id)}</h1></div><PageShare result/></div>
 <div id="ward-results" class="results-layout"><ResultChart result={result} ballot="ward" tabs={false} name={title}/><aside class="aside-stack ward-context"><section class="card scope-card">
 {parent ? <><h2>Municipality results</h2><a class="button" href={placeUrl(parent,year)}>View {municipalityName} results ↗</a></> : <><h2>Explore nearby wards</h2><a class="button" href={mapLink('south-africa',id)}>Return to the map ↗</a></>}
 {related.map(p => <p class="small" style="margin:18px 0 0">This ward overlaps <a href={placeUrl(p,year)}>{p.name}’s statistical place boundary</a>.</p>)}</section><ElectionHistory year={year} level="ward" id={id}/></aside></div>
 <section style="margin-top:28px"><h2>Voting districts in this ward</h2><div class="links">{districts.map(d=><a href={`/${year}/voting-districts/${d.area_id}`}>{d.name.replace(/^\d+\s*-\s*/,"")} ↗</a>)}</div></section>
-{year === latestYear && boundary&&<RegionMap options={{level:"ward",id,bbox:boundary.bbox}} title={`Ward ${wardNumber(id)} and its voting districts`} href={mapLink(parent?.slug??"south-africa",id)} caption="The ward outline and its voting districts. Select a district to see its results."/>}
+{year === latestYear && boundary&&<RegionMap options={{level:"ward",id,bbox:boundary.bbox}} title={`Ward ${wardNumber(id)} and its voting districts`} href={mapLink(parent?.slug??"south-africa",id)} caption="Voting district boundaries"/>}
 <div class="links"><a href={parent ? placeUrl(parent,year)+'#wards' : mapLink('south-africa',id)}>Browse other wards</a></div>
-</> : <section class="empty"><h1>{failed ? 'Results are temporarily unavailable.' : 'Ward results unavailable.'}</h1><p>{failed ? 'Please try again shortly.' : 'Select another ward on the map to see its published results.'}</p><a href="/map">Explore the map →</a></section>}
+</> : <section class="empty"><div class="page-share-heading"><h1>{failed ? 'Results are temporarily unavailable.' : 'Ward results unavailable.'}</h1><PageShare/></div><p>{failed ? 'Please try again shortly.' : 'Select another ward on the map to see its published results.'}</p><a href="/map">Explore the map →</a></section>}
 </Site>
 
 <style>

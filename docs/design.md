@@ -17,8 +17,8 @@ Jacques registered **counted.co.za** on 5 November 2026. Use Counted consistentl
 in the wordmark, page titles, accessible labels and API documentation. Keep the
 existing soft-corner Flag X icon beside the live-text name.
 
-The existing Workers address remains the live public URL until counted.co.za is
-connected and verified. Internal Worker, D1, queue and bucket names can retain
+Use **https://counted.co.za** for public links, canonical URLs, sharing and
+documentation. Internal Worker, D1, queue and bucket names can retain
 `sa-election-data`; those resource names are not the public brand.
 
 ## Visual design

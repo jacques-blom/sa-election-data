@@ -1,4 +1,5 @@
 import { formatTime } from '../places/format.ts';
+import { publicUrl } from '../site.ts';
 
 export type ShareFormat = 'portrait' | 'square' | 'status';
 export type ShareParty = { name: string; short: string; color: string; value: number | null; share: number | null };
@@ -20,14 +21,29 @@ export type ShareCard = {
   council?: { majority: number; selected: number; groups: { seats: number; color: string; selected: boolean }[] };
 };
 
-/** Share only the public result route and an explicit ballot/party selection. */
+/** Keep public view selections, never search text, addresses or Google place IDs. */
 export function publicShareUrl(href: string, ballot?: 'pr' | 'ward') {
   const url = new URL(href);
+  const params = new URLSearchParams(url.search);
   const parties = url.pathname.endsWith('/coalition') ? url.searchParams.get('parties') : null;
   url.search = ''; url.hash = '';
   if (ballot) url.searchParams.set('ballot', ballot);
   if (parties && /^[\w,-]+$/.test(parties)) url.searchParams.set('parties', parties);
-  return url.href;
+  const keep = (key: string, pattern: RegExp) => {
+    const value = params.get(key);
+    if (value && pattern.test(value)) url.searchParams.set(key, value);
+  };
+  if (url.pathname === '/map') {
+    for (const key of ['place', 'province', 'district']) keep(key, /^[a-z0-9-]+$/i);
+    keep('ward', /^\d{8}$/);
+    keep('view', /^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?,\d+(?:\.\d+)?$/);
+  }
+  if (url.pathname === '/updates') {
+    keep('event', /^[1-9]\d*$/);
+    keep('province', /^[1-9]$/);
+    keep('type', /^(all|wins|councils|complete|corrections)$/);
+  }
+  return publicUrl(url);
 }
 
 export function shareCaption(card: ShareCard, url: string) {

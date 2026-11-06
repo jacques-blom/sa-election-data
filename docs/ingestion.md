@@ -159,8 +159,8 @@ All resources belong to the personal Blom Media LLC account:
 - `sa-election-data-refresh`: three concurrent consumers; up to eight source jobs per message, processed sequentially.
 - `sa-election-data-failed`: dead-letter queue after five retries.
 
-The public service is at <https://sa-election-data.jacques.workers.dev>.
-Live health is at <https://sa-election-data.jacques.workers.dev/api/v1/sync>.
+The public service is at <https://counted.co.za>.
+Live health is at <https://counted.co.za/api/v1/sync>.
 The account needs Workers Paid for this importer; the Free plan's 10 ms Cron
 CPU limit is insufficient for parsing and validating the result documents.
 

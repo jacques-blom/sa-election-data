@@ -19,12 +19,13 @@ const disabled = Astro.props.disabled ?? (!!routeYear && Number(routeYear) !== l
 const configured = !!import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 const label = area ? `Find a place or address around ${area.name}` : 'Find a place or address in South Africa';
 const bounds = addressSearchBounds(area?.bbox);
+const directoryHref = Astro.url.pathname === '/search' ? '#area-directory' : '/search#area-directory';
 ---
 <div id={`${id}-search`} data-search-disabled={String(disabled)} aria-disabled={disabled ? "true" : undefined} class:list={['place-search', `place-search--${presentation}`, { 'place-search--compact': compact }]} data-place-search data-presentation={presentation} data-mode={mode} data-configured={String(configured)} data-search-bbox={bounds ? JSON.stringify(area?.bbox) : undefined} data-search-area={bounds ? area?.name : undefined}>
-  {presentation === 'dialog' && <a class="header-search-trigger" href="/find-address" data-search-open aria-disabled={disabled ? "true" : undefined} tabindex={disabled ? -1 : undefined} title={disabled ? `Search is available for the ${latestYear} election` : undefined} aria-label="Search places and addresses" aria-haspopup="dialog" aria-controls={`${id}-dialog`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></a>}
+  {presentation === 'dialog' && <a class="header-search-trigger" href="/search" data-search-open aria-disabled={disabled ? "true" : undefined} tabindex={disabled ? -1 : undefined} title={disabled ? `Search is available for the ${latestYear} election` : undefined} aria-label="Search places and addresses" aria-haspopup="dialog" aria-controls={`${id}-dialog`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></a>}
   <div data-search-home hidden={presentation === 'dialog'} tabindex="-1">
     <form class="place-search-form" action={action} method="get" role="search">
-      <label for={id}>{label}</label>
+      <label class="sr-only" for={id}>{label}</label>
       {bounds && <div class="place-search-scope" data-search-scope hidden><span data-search-scope-label>Around {area?.name}</span><button type="button" data-search-scope-toggle disabled={disabled} aria-pressed="false">Search all South Africa</button></div>}
       <div class="place-search-control">
       <div class="place-search-field">
@@ -37,19 +38,19 @@ const bounds = addressSearchBounds(area?.bbox);
       <div class="place-search-panel" data-search-panel hidden>
         <p class="place-search-message" data-search-message></p>
         <ul class="place-search-options" id={`${id}-options`} role="listbox" aria-label="Suggested places and addresses"></ul>
-        <a class="place-search-fallback" href="/search">Browse the area directory →</a>
-        <div class="place-search-attribution" data-search-attribution hidden><span>Google place suggestions from</span><span class="google-maps-attribution" translate="no">Google Maps</span></div>
+        <a class="place-search-fallback" href={directoryHref}>Browse the area directory →</a>
+        <div class="place-search-attribution" data-search-attribution hidden><span class="google-maps-attribution" translate="no">Google Maps</span></div>
       </div>
       </div>
       <p class="sr-only" data-search-announcement role="status" aria-live="polite" aria-atomic="true"></p>
-      <p class="place-search-hint" id={`${id}-hint`}><span data-search-disabled-hint hidden={!disabled}>Search is available for the {latestYear} election.</span><span data-search-enabled-hint hidden={disabled}>Search municipalities, districts and wards, or use a Google address to find your ward. {!configured && <span>Google address suggestions are unavailable.</span>} {presentation !== 'header' && <a href="/privacy">Privacy</a>}</span></p>
+      <p class="place-search-hint" id={`${id}-hint`} hidden={!disabled && configured}><span data-search-disabled-hint hidden={!disabled}>Search is available for the {latestYear} election.</span><span data-search-enabled-hint hidden={disabled}>{!configured && 'Address search unavailable. Search by area name.'}</span></p>
     </form>
   </div>
   <dialog id={`${id}-dialog`} class="place-search-dialog" aria-labelledby={`${id}-dialog-title`}>
     <header class="place-search-dialog-header"><button class="place-search-back" type="button" data-search-close><span aria-hidden="true">←</span> Back</button><h2 id={`${id}-dialog-title`}>Find local results</h2></header>
     <div class="place-search-dialog-content" data-search-mobile></div>
     <slot name="result"/>
-    <a class="place-search-directory" href="/search">Browse the area directory →</a>
+    <a class="place-search-directory" href={directoryHref}>Browse the area directory →</a>
   </dialog>
 </div>
 <script>import '../lib/address/autocomplete.ts';</script>

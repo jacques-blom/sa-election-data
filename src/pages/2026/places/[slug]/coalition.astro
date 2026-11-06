@@ -1,4 +1,5 @@
 ---
+import PageShare from '../../../../components/PageShare.astro';
 import { env } from 'cloudflare:workers';
 import Site from '../../../../layouts/Site.astro';
 import SeatDiagram from '../../../../components/SeatDiagram.astro';
@@ -30,23 +31,23 @@ const resultUrl = place ? placeUrl(place) : '/search';
 ---
 <Site title={`Coalition playground${place ? ` · ${place.name}` : ''}`} description="Choose parties and see how their council seats add up. Every combination is hypothetical." noindex liveResults={!!municipality}>
   <section class="coalition-screen" data-coalition={model ? JSON.stringify(model) : undefined}>
-    <header class="coalition-heading"><div><a class="coalition-back" href={resultUrl}>← {place?.name ?? 'Find a municipality'}</a><h1>Coalition playground</h1></div>{available && <button class="button" data-coalition-share disabled>Share scenario</button>}</header>
+    <header class="coalition-heading page-share-heading"><div><a class="coalition-back" href={resultUrl}>← {place?.name ?? 'Find a municipality'}</a><h1>Coalition playground</h1></div><PageShare coalition={available}/></header>
     {model && seats && seats.status !== 'unavailable' && municipality ? <>
       <p class="coalition-basis"><strong>Hypothetical · {seatLabel(seats)}</strong>{seats.status === 'estimated' && <span>Based on the current count. Seats can change.</span>}<span>{progressLabel(progressOf(municipality))} of districts reporting</span></p>
       {resultDelay(municipality) && <p class="notice coalition-delay">{resultDelay(municipality)}</p>}
       <div class="coalition-builder">
-        <section class="coalition-visual-panel" aria-label="Selected council seats"><div class="coalition-panel-top"><span class="eyebrow">Your selection</span><span class="pill">Hypothetical</span></div>
-          <div class="coalition-figure"><div class="coalition-total"><strong data-coalition-total>0</strong><span>of {model.total} seats selected</span></div><div class="coalition-diagram"><SeatDiagram seats={seats} empty/><span>One dot = one seat</span></div></div>
+        <section class="coalition-visual-panel" aria-label="Selected council seats">
+          <div class="coalition-figure"><div class="coalition-total"><strong data-coalition-total>0</strong><span>of {model.total} seats selected</span></div><div class="coalition-diagram"><SeatDiagram seats={seats} empty/></div></div>
           <div class="coalition-state"><span data-coalition-status>Choose parties</span><small>{model.majority} needed</small></div>
-          <div class="coalition-meter" role="img" aria-label={`No seats selected. A majority needs ${model.majority} seats.`}><div class="coalition-bar"><div class="coalition-meter-fill">{model.parties.map(p => <i data-coalition-segment={p.id} style={`width:0%;background:${p.color}`}/>)}</div><i class="majority-marker"><span>50%</span></i></div><div class="coalition-key" aria-hidden="true">No parties selected</div></div>
+          <div class="coalition-meter" role="img" aria-label={`No seats selected. A majority needs ${model.majority} seats.`}><div class="coalition-bar"><div class="coalition-meter-fill">{model.parties.map(p => <i data-coalition-segment={p.id} style={`width:0%;background:${p.color}`}/>)}</div><i class="majority-marker"><span>50%</span></i></div><div class="coalition-key" aria-hidden="true"></div></div>
         </section>
-        <section class="coalition-choices" aria-labelledby="coalition-choose-heading"><div class="card-heading"><h2 id="coalition-choose-heading">Choose parties</h2><span>Tap to add or remove</span></div>
+        <section class="coalition-choices" aria-labelledby="coalition-choose-heading"><div class="card-heading"><h2 id="coalition-choose-heading">Parties</h2></div>
           <div class="coalition-party-grid">{model.parties.filter(p => p.selectable).map(p => <button class="coalition-party" data-coalition-party={p.id} aria-pressed="false" aria-label={`${p.name}, ${p.seats} ${model.status === 'estimated' ? 'estimated ' : ''}seats`} style={`--party:${p.color}`}><span class="coalition-party-name">{p.short}{p.short !== p.name && <small>{p.name}</small>}</span><strong>{p.seats}<small>seats</small></strong><span class="coalition-toggle-symbol" aria-hidden="true">+</span></button>)}<button class="coalition-reset" data-coalition-reset disabled>Clear selection</button></div>
-          {model.parties.some(p => !p.selectable) && <p class="small">{model.parties.filter(p => !p.selectable).reduce((n, p) => n + p.seats, 0)} independent seats stay unselected. The feed groups independent candidates together, so they cannot be chosen individually.</p>}
+          {model.parties.some(p => !p.selectable) && <p class="small">{model.parties.filter(p => !p.selectable).reduce((n, p) => n + p.seats, 0)} independent seats cannot be selected individually in this data.</p>}
         </section>
       </div>
       <p class="sr-only" data-coalition-announcement role="status" aria-live="polite"></p>
-      <div class="coalition-context"><p>Choose any combination. Reaching a seat majority does not establish a governing agreement.</p><details><summary>How this works &amp; source</summary><ResultStatus result={municipality}/><SeatMethod seats={seats} result={municipality}/><p class="small">Shared links keep your selected parties and open the latest seats. Text and image exports include the figures and time shown when exported.</p></details></div>
+      <div class="coalition-context"><details><summary>How this works &amp; source</summary><ResultStatus result={municipality}/><SeatMethod seats={seats} result={municipality}/><p class="small">A seat majority does not confirm a governing agreement.</p></details></div>
       <noscript><p class="notice">Enable JavaScript to select parties. <a href={resultUrl}>View council seats</a>.</p></noscript>
     </> : <section class="empty"><h2>{failed ? 'Results are temporarily unavailable.' : seats?.status === 'unavailable' ? 'Seat estimate unavailable' : seats ? 'One party reaches the majority threshold' : 'Council seats are not available here'}</h2><p>{seats?.status === 'unavailable' ? seats.reason : seats ? 'View the municipality’s seat breakdown for the current figures.' : 'The playground needs a complete seat breakdown for a whole municipality.'}</p><a class="button" href={resultUrl}>View results →</a></section>}
   </section>

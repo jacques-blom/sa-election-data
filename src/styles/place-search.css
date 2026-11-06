@@ -1,8 +1,7 @@
 .place-search{min-width:0;width:100%;color:var(--ink)}
 .place-search-form{position:relative;margin:0}
 .place-search-control{position:relative}
-.place-search-form>label{display:block;margin:0 0 10px;font-size:12px;font-weight:550;color:var(--muted)}
-.place-search-scope{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin:-4px 0 10px;font-size:11px;color:var(--muted)}
+.place-search-scope{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin:0 0 10px;font-size:11px;color:var(--muted)}
 .place-search-scope button{border:0;background:none;color:var(--ink);font:inherit;text-decoration:underline;text-underline-offset:3px;min-height:32px;padding:4px 0;text-align:left}
 .place-search--compact .place-search-submit{min-width:44px;padding-inline:12px}
 .place-search--compact .place-search-submit-label{display:none}
@@ -46,6 +45,7 @@
 .place-search-directory{display:inline-block;margin:0 24px calc(24px + env(safe-area-inset-bottom));font-size:12px;padding-block:8px}
 .place-search [hidden]{display:none}
 .place-search-fallback{display:block;border-top:1px solid var(--line);padding:14px 18px;font-size:12px;min-height:44px}
+.place-search-dialog .place-search-fallback{display:none}
 .header-search{flex-shrink:0;width:44px}
 .header-search-trigger{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:1px solid var(--line);border-radius:var(--radius-control,12px);background:var(--paper);color:var(--ink);text-decoration:none}
 .header-search-trigger:hover{background:var(--sage)}
@@ -56,7 +56,6 @@
 .header-search-result .address-google-map{height:280px}
 .search-header{position:sticky;top:0;z-index:50;background:#f5f3e9;border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .search-header-inner{max-width:1044px;margin:auto;padding:14px 32px}
-.place-search--header .place-search-form>label,.place-search--header .place-search-hint{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .place-search--header .place-search-field{padding-left:6px}
 .place-search--header .place-search-icon{display:none}
 .place-search--header .place-search-back{text-decoration:none}

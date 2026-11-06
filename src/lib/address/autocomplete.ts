@@ -174,7 +174,7 @@ function initialize(root: HTMLElement) {
     if (disabled()) return;
     const query = input.value.trim();
     if (query.length < 2) {
-      if (dialog.open || pendingSubmit === version) showMessage('Enter a place, street address or landmark in South Africa.');
+      if (pendingSubmit === version) showMessage('Enter a place or address.');
       return;
     }
     showMessage('Looking for places…');
@@ -209,10 +209,10 @@ function initialize(root: HTMLElement) {
     options.removeAttribute('aria-busy');
     const count = areas.length + predictions.length;
     if (!count) showMessage(outcomes.some(result => result.status === 'rejected')
-      ? 'Suggestions couldn’t load. Try again or browse the area directory.'
-      : localScope ? 'No suggestions nearby. Try another name or choose Search all South Africa.'
-      : 'No suggestions found. Try a municipality, district, ward number with its municipality, or a street address.');
-    else if (!configured || outcomes.some(result => result.status === 'rejected')) showMessage('Some suggestions are unavailable. You can still choose a result below.');
+      ? 'Suggestions couldn’t load. Try again.'
+      : localScope ? 'No matches nearby. Try searching all South Africa.'
+      : 'No matches. Try another place or address.');
+    else if (configured && outcomes.some(result => result.status === 'rejected')) showMessage('Some suggestions are unavailable.');
     if (pendingSubmit === version && count) void select(active >= 0 ? active : 0);
     pendingSubmit = undefined;
   }
@@ -386,6 +386,8 @@ function initialize(root: HTMLElement) {
     root.dispatchEvent(new Event('place-search:input', { bubbles: true }));
   });
   root.querySelector('[data-search-close]')!.addEventListener('click', dismiss);
+  root.querySelector('.place-search-fallback')?.addEventListener('click', dismiss);
+  root.querySelector('.place-search-directory')?.addEventListener('click', dismiss);
   dialog.addEventListener('cancel', event => { event.preventDefault(); dismiss(); });
   const resize = () => {
     input.placeholder = narrow.matches ? 'Place or address' : 'Municipality, ward or address';

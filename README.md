@@ -5,9 +5,9 @@ local election results easier to find, understand and reuse. It combines a resul
 website with a public, read-only API and an importer for the Electoral Commission
 of South Africa (IEC)'s public results feeds. It is not an official IEC service.
 
-[Public service](https://sa-election-data.jacques.workers.dev) ·
-[API documentation](https://sa-election-data.jacques.workers.dev/api) ·
-[Sync health](https://sa-election-data.jacques.workers.dev/api/v1/sync)
+[Public service](https://counted.co.za) ·
+[API documentation](https://counted.co.za/api) ·
+[Sync health](https://counted.co.za/api/v1/sync)
 
 ## What is in this repository?
 
@@ -122,6 +122,13 @@ Geography and map tiles stay local in that environment. See Cloudflare's
 [local development guide](https://developers.cloudflare.com/workers/local-development/)
 for how remote bindings differ from local emulation.
 
+## MCP access
+
+AI clients can read the same stored results through the public, read-only
+Streamable HTTP endpoint at `/mcp` when running this version. See
+[MCP setup and design](docs/mcp.md) for its eight tools, methodology resource,
+client configuration and deployment settings. No API key is needed.
+
 ## How IEC syncing works
 
 The source catalogue in [`src/lib/data/catalogue.ts`](src/lib/data/catalogue.ts)
@@ -198,6 +205,9 @@ do not grant access. Replace them before deploying a fork.
    Worker names and D1/R2 bindings. The deployment scripts currently select a
    profile named `personal`; create your own profile with that name or adjust the
    scripts. The optional `scripts/usage.ts` report also contains an account ID.
+   For a fork, set your public origin in `src/lib/site.ts` and update
+   `MCP_ALLOWED_HOSTS` in both environments in `wrangler.jsonc`. Counted uses
+   `https://counted.co.za` for public metadata, share links and MCP result links.
 2. Provision a shared D1 database, private result and map R2 buckets, a refresh
    Queue and a dead-letter Queue. Keep binding names such as `RESULTS_DB`,
    `RAW_RESULTS`, `MAP_TILES` and `RESULT_JOBS` aligned with the code. Keep the

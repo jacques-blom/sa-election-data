@@ -9,17 +9,21 @@ export function canShareImage(file: File) {
 }
 
 /** The PNG is ready before the click so the device share menu keeps user activation. */
-export async function shareImage(file: File, text: string, title: string, whatsapp: boolean) {
+export async function shareImage(file: File, text: string, title: string) {
   if (canShareImage(file)) {
     await navigator.share({ files: [file], title, text });
     return 'native';
   }
-  downloadImage(file);
-  if (whatsapp) {
-    // wa.me can prefill text, but cannot attach an image. The UI explains that step.
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
-    return 'whatsapp';
-  }
   if (navigator.share) await navigator.share({ title, text });
+  downloadImage(file);
   return 'saved';
+}
+
+export async function sharePage(title: string, text: string, url: string) {
+  if (navigator.share) {
+    await navigator.share({ title, text, url });
+    return 'native';
+  }
+  await navigator.clipboard.writeText(url);
+  return 'copied';
 }

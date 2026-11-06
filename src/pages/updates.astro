@@ -1,4 +1,5 @@
 ---
+import PageShare from '../components/PageShare.astro';
 import Site from '../layouts/Site.astro';
 import UpdateCard from '../components/UpdateCard.astro';
 import { env } from 'cloudflare:workers';
@@ -49,9 +50,8 @@ const canPoll = !!data && !simulation && !options.before && !options.after && !o
       {simulation.step < simulation.total && <a class="button" href={feedUrl({}, '/updates', simulation.total)}>Show all</a>}
     </div><a class="updates-simulation-exit" href="/updates">Exit simulation</a></div>
   </section>}
-  <section class="updates-heading" aria-labelledby="updates-title">
-    <div><p class="eyebrow">2026 local elections · South Africa</p><h1 id="updates-title">Latest updates</h1><p class="lead">Ward wins, council outcomes and completed counts<br/>from the IEC’s published results.</p></div>
-    <div class="updates-heading-note"><span class="updates-symbol" aria-hidden="true">✓</span><p>IEC-reported results<br/><strong>Provisional until declared</strong></p></div>
+  <section class="updates-heading page-share-heading" aria-labelledby="updates-title">
+    <div><p class="eyebrow">2026 local elections · South Africa</p><h1 id="updates-title">Latest updates</h1></div><PageShare/>
   </section>
   <div class="updates-layout">
     <section class="updates-main" aria-label="Election updates">
@@ -65,20 +65,15 @@ const canPoll = !!data && !simulation && !options.before && !options.after && !o
         </form>
         <nav class="updates-tabs" aria-label="Update type">{updateTypes.map(([value, label]) => <a href={pageUrl({ ...options, type: value, before: null, after: null, event: null })} aria-current={options.type === value ? 'page' : undefined}>{label}</a>)}</nav>
       </>}
-      <div class="updates-list-heading"><h2>{options.event ? 'Saved announcement' : options.before ? 'Earlier updates' : 'Latest milestones'}</h2>{filtered && !options.event ? <a href={allUrl}>Clear filters</a> : <span>All times SAST</span>}</div>
+      {options.event || options.before || filtered ? <div class="updates-list-heading"><h2 class:list={{ 'sr-only': !options.event && !options.before }}>{options.event ? 'Saved announcement' : options.before ? 'Earlier updates' : 'Latest milestones'}</h2>{filtered && !options.event && <a href={allUrl}>Clear filters</a>}</div> : <h2 class="sr-only">Latest milestones</h2>}
       {canPoll && <div class="updates-poll" data-updates-poll data-endpoint={feedUrl({ ...options, limit: 1 }, '/api/v1/updates')} data-latest-id={data?.latest_id ?? 0}><p role="status" data-updates-message hidden></p><a class="button updates-new" href={latestUrl} data-updates-new hidden>Show new updates ↑</a></div>}
       {error ? <div class="updates-empty" role="status"><span class="updates-empty-icon" aria-hidden="true">↻</span><h3>{Astro.response.status === 503 ? 'We couldn’t load the updates' : 'Unable to show these updates'}</h3><p>{error}</p><a class="button" href={Astro.response.status === 503 ? Astro.url.pathname + Astro.url.search : '/updates'}>{Astro.response.status === 503 ? 'Try again' : 'View all updates'}</a></div>
         : groups.size ? [...groups].map(([day, updates]) => <section class="updates-day" aria-label={`Updates published ${day}`}><h2 class="updates-date">{day}</h2><ol class="updates-timeline">{updates.map(update => <li><UpdateCard update={update} simulationStep={simulation?.step}/></li>)}</ol></section>)
-        : <div class="updates-empty"><span class="updates-empty-icon" aria-hidden="true">✓</span><h3>{filtered ? 'No updates match these filters' : options.before ? 'You’re all caught up' : 'Waiting for the next milestone'}</h3><p>{filtered ? 'Try another area or province, or see updates from across South Africa.' : options.before ? 'There are no earlier announcements in this feed.' : simulation ? 'Choose Next update to add the first sample result, or Show all to see every scenario.' : 'New ward wins, council outcomes and completed counts will appear here as we record them. You can explore the latest vote totals while you wait.'}</p><a class="button" href={simulation ? feedUrl({}, '/updates', simulation.total) : filtered || options.before ? allUrl : '/'}>{simulation ? 'Show all sample updates' : filtered || options.before ? 'View all updates' : 'Explore election results →'}</a></div>}
+        : <div class="updates-empty"><h3>{filtered ? 'No matching updates' : options.before ? 'No earlier updates' : 'No updates yet'}</h3><a class="button" href={simulation ? feedUrl({}, '/updates', simulation.total) : filtered || options.before ? allUrl : '/'}>{simulation ? 'Show all sample updates' : filtered || options.before ? 'View all updates' : 'Explore election results →'}</a></div>}
       {data?.next_before && <a class="button updates-older" href={pageUrl({ ...options, before: data.next_before, after: null, event: null })}>Earlier updates ↓</a>}
       {options.before && <p class="updates-back"><a href={latestUrl}>Back to latest updates ↑</a></p>}
-      {data && <p class="updates-feed-note">{simulation ? 'This is a local simulation with fictional outcomes. It does not contain real election announcements.' : 'This feed records milestones observed by Counted. It is not a complete history of election-night announcements.'}</p>}
+      <details class="updates-about"><summary>About these updates</summary><p>{simulation ? 'Fictional results for testing.' : 'IEC results are provisional and may be revised. This feed records changes observed by Counted, not every election announcement.'}</p><div class="links"><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">IEC source ↗</a><a href={feedUrl({}, '/api/v1/updates', simulation?.step)}>Updates API ↗</a></div></details>
     </section>
-    <aside class="updates-aside" aria-label="About these updates">
-      <section class="updates-guide"><p class="eyebrow">Following the results</p><h2>What appears here</h2><p>Updates are posted when an outcome or count status changes.</p><ol><li><span aria-hidden="true">01</span><div><h3>Ward wins</h3><p>A ward seat appears in the IEC’s published results.</p></div></li><li><span aria-hidden="true">02</span><div><h3>Council outcomes</h3><p>A complete seat allocation shows a majority, or a hung council.</p></div></li><li><span aria-hidden="true">03</span><div><h3>Completed counts</h3><p>All expected voting districts in a municipality have reported.</p></div></li></ol></section>
-      <section class="updates-explainer"><h2>Results can still change</h2><p>A completed count or reported seat allocation can still be revised. Results remain provisional until the IEC’s official declaration.</p><p>Corrections link back to earlier announcements, so you can see what changed.</p><a href="https://results.elections.org.za/dashboards/lge/LGEResultsDashboard.aspx">Visit the IEC dashboard ↗</a></section>
-      <a class="updates-data" href={feedUrl({}, '/api/v1/updates', simulation?.step)}><span>{simulation ? 'Preview the response' : 'Build with this data'}</span><strong>{simulation ? 'View the simulated API' : 'Get updates via the API'} <span aria-hidden="true">↗</span></strong></a>
-    </aside>
   </div>
 </Site>
 <script>
@@ -93,8 +88,8 @@ const canPoll = !!data && !simulation && !options.before && !options.after && !o
       if (!response.ok) throw new Error('Updates unavailable');
       const data = await response.json();
       if (!data || typeof data !== 'object' || !('latest_id' in data)) throw new Error('Invalid updates response');
-      if (Number(data.latest_id) > latestId) { link.hidden = false; message.hidden = false; message.textContent = 'New updates are available.'; }
+      if (Number(data.latest_id) > latestId) { link.hidden = false; message.hidden = false; message.classList.add('sr-only'); message.textContent = 'New updates are available.'; }
       else { message.hidden = true; message.textContent = ''; }
-    }, () => { message.hidden = false; message.textContent = 'Checking for updates is temporarily unavailable. Retrying automatically.'; });
+    }, () => { message.hidden = false; message.classList.remove('sr-only'); message.textContent = 'Updates paused. Retrying…'; });
   }
 </script>

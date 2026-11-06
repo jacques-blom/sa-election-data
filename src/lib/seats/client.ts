@@ -1,6 +1,7 @@
 import { coalitionSelection, type CoalitionData } from './coalition.ts';
 import { coalitionShareCard } from './share-image.ts';
 import { openShare } from '../sharing/client.ts';
+import { publicShareUrl } from '../sharing/model.ts';
 
 let selected = new Set((new URL(location.href).searchParams.get('parties') ?? '').split(',').filter(Boolean));
 let previousSnapshot: string | undefined;
@@ -53,7 +54,7 @@ function update(announce = false) {
     const span = document.createElement('span'), dot = document.createElement('i');
     dot.style.background = p.color; span.appendChild(dot); span.appendChild(document.createTextNode(`${p.short} ${p.seats}`)); return span;
   }));
-  if (!selection.parties.length) key.textContent = 'No parties selected';
+  if (!selection.parties.length) key.textContent = '';
   screen.querySelectorAll<HTMLButtonElement>('[data-coalition-reset], [data-coalition-share]').forEach(b => { b.disabled = !selection.parties.length; });
   const snapshotChanged = previousSnapshot !== undefined && previousSnapshot !== data.source.snapshotId;
   if (announce || snapshotChanged) screen.querySelector('[data-coalition-announcement]')!.textContent = `${snapshotChanged ? 'Seat figures updated. ' : ''}${description}`;
@@ -71,7 +72,7 @@ document.addEventListener('click', event => {
   } else if (target.hasAttribute('data-coalition-reset')) { selected.clear(); update(true); }
   else if (target.hasAttribute('data-coalition-share')) {
     const data = model();
-    if (data) openShare(coalitionShareCard(data, selected), shareUrl(data));
+    if (data) openShare(coalitionShareCard(data, selected), publicShareUrl(shareUrl(data)));
   }
 });
 document.addEventListener('results:updated', () => update());

@@ -37,15 +37,18 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.4",
+    "@modelcontextprotocol/server": "^2.4.0",
     "@protomaps/basemaps": "^5.7.2",
     "@resvg/resvg-wasm": "^2.6.2",
     "astro": "^7.4.5",
     "maplibre-gl": "^6.16.0",
     "morphdom": "^2.7.8",
-    "pmtiles": "^4.5.0"
+    "pmtiles": "^4.5.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@modelcontextprotocol/client": "^2.4.0",
     "@types/geojson": "^7946.0.16",
     "@types/google.maps": "^3.66.9",
     "@types/node": "^24.19.2",

@@ -41,12 +41,14 @@ function initialize(root:HTMLElement){
         if(!response.ok)throw new Error('lookup unavailable');
         const data=await response.json() as {wards:{id:string;number:number;municipality:string;url:string;geometryUrl:string}[]};
         if(sequence!==selected)return;
-        const note=document.createElement('p');
-        note.textContent=data.wards.length>1?'This pin is on or very close to a ward boundary. Check the map and both ward results.':data.wards.length?'The selected map pin falls in this ward.':'We couldn’t match this pin to a ward. Try a nearby street address or browse the area directory.';
-        wardLinks.appendChild(note);
+        if(data.wards.length!==1){
+          const note=document.createElement('p');
+          note.textContent=data.wards.length?'Near a ward boundary. Check both ward results.':'No ward match. Try a nearby address.';
+          wardLinks.appendChild(note);
+        }
         const links=document.createElement('div');links.className='address-ward-links';wardLinks.appendChild(links);
         for(const ward of data.wards){const link=document.createElement('a');link.className='button primary';link.href=ward.url;link.textContent=`Ward ${ward.number}, ${ward.municipality} results ↗`;links.appendChild(link);}
-        status.textContent=data.wards.length?'Ward lookup complete.':'No ward match found.';
+        status.textContent='';
         map.data.setStyle({fillColor:'#277dae',fillOpacity:.12,strokeColor:'#175b99',strokeWeight:2});
         for(const ward of data.wards){try{const response=await fetch(ward.geometryUrl,{signal:controller.signal});if(response.ok){const geometry=await response.json();if(sequence===selected)map.data.addGeoJson(geometry as object);}}catch{/* Results links remain useful if an outline fails. */}}
       }catch(error){if(sequence!==selected || (error instanceof DOMException && error.name==='AbortError'))return;status.textContent='We couldn’t look up this ward. Please try another address or use our area directory.';}

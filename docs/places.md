@@ -36,13 +36,14 @@ Build/reconciliation scripts and generated validation report are documented in
 - `/2026/places/:slug`: municipality or statistical main-place scope.
 - `/2026/wards/:id`: all 4,485 reconciled wards, with voting-district links.
 - `/2026/voting-districts/:id`: district figures with separate ballots; noindex for now.
-- `/search?q=...`: server-rendered name/alias search with disambiguation and pagination.
-- `/find-address`: shared election-area and Google address search.
+- `/search`: shared election-area and Google address search, with a browsable town/municipality directory. The search field becomes the header only on mobile.
+- `/search?q=...`: server-rendered name/alias search with disambiguation and pagination, including a form for visitors without JavaScript; query pages are noindex.
+- `/find-address`: permanent redirect to `/search` for existing links.
 - `/2026/districts/:slug`: district scope and member municipality links; district council ballot results are unavailable in this dataset.
 - `/api/v1/places?q=...&page=1`: compact directory search and bounds.
 - `/api/v1/places/:slug` and `/2026/places/:slug.md`: scope and current result snapshots.
 
-`/sitemap.xml` contains 16,558 URLs at this import: home, API, map, address finder,
+`/sitemap.xml` contains 16,558 URLs at this import: home, API, map, search,
 9 provinces, 213 municipalities, 11,847 eligible main places and 4,485 wards.
 It enumerates the directory on request and caches for five minutes, independent
 of election result publication. A build does not need to fetch all result data.

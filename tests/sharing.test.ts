@@ -4,7 +4,7 @@ import { resultFromRow } from '../src/lib/places/results.ts';
 import { resultShareCard } from '../src/lib/sharing/results.ts';
 import { coalitionShareCard } from '../src/lib/seats/share-image.ts';
 import { imageDescription, publicShareUrl, shareCaption } from '../src/lib/sharing/model.ts';
-import { shareImage } from '../src/lib/sharing/actions.ts';
+import { shareImage, sharePage } from '../src/lib/sharing/actions.ts';
 
 function stubGlobal(t: TestContext, name: string, value: unknown) {
   const original = Object.getOwnPropertyDescriptor(globalThis, name);
@@ -105,15 +105,15 @@ test('share links allow only public ballot and coalition selections, with one UR
   assert.doesNotMatch(text, /address=|lat=|q=/);
 });
 
-test('WhatsApp uses the prepared PNG and caption through native file sharing', async t => {
+test('sharing sends the prepared PNG and caption through the device share menu', async t => {
   let shared: unknown;
   stubGlobal(t, 'navigator', { canShare: () => true, share: async (data: unknown) => { shared = data; } });
   const file = new File(['png'], 'counted.png', { type: 'image/png' });
-  assert.equal(await shareImage(file, 'A short caption', 'Counted', true), 'native');
+  assert.equal(await shareImage(file, 'A short caption', 'Counted'), 'native');
   assert.deepEqual(shared, { files: [file], title: 'Counted', text: 'A short caption' });
 });
 
-test('WhatsApp web fallback downloads the PNG and opens a caption-only composer', async t => {
+test('browsers without native sharing save the PNG without opening another app', async t => {
   const links: { href: string; download: string; clicked: boolean; click(): void }[] = [];
   let opened: unknown[] = [];
   stubGlobal(t, 'navigator', { canShare: () => false });
@@ -123,15 +123,51 @@ test('WhatsApp web fallback downloads the PNG and opens a caption-only composer'
   stubGlobal(t, 'window', { open: (...args: unknown[]) => { opened = args; } });
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const file = new File(['png'], 'counted.png', { type: 'image/png' });
-  assert.equal(await shareImage(file, 'Short & simple\nhttps://counted.co.za/', 'Counted', true), 'whatsapp');
+  assert.equal(await shareImage(file, 'Short & simple\nhttps://counted.co.za/', 'Counted'), 'saved');
   assert.equal(links[0]!.download, 'counted.png');
   assert.equal(links[0]!.clicked, true);
   assert.match(links[0]!.href, /^blob:/);
-  assert.deepEqual(opened, ['https://wa.me/?text=Short%20%26%20simple%0Ahttps%3A%2F%2Fcounted.co.za%2F', '_blank', 'noopener,noreferrer']);
+  assert.deepEqual(opened, []);
 });
 
-test('cancelling the device share menu does not download or open WhatsApp', async t => {
+test('cancelling the device share menu does not fall back to a download', async t => {
   const cancellation = new DOMException('Cancelled', 'AbortError');
   stubGlobal(t, 'navigator', { canShare: () => true, share: async () => { throw cancellation; } });
-  await assert.rejects(shareImage(new File(['png'], 'image.png'), 'Caption', 'Counted', true), { name: 'AbortError' });
+  await assert.rejects(shareImage(new File(['png'], 'image.png'), 'Caption', 'Counted'), { name: 'AbortError' });
+});
+
+test('page links keep public map and update selections without sharing search or address details', () => {
+  const map = new URL(publicShareUrl('https://counted.co.za/map?place=cape-town&ward=19100001&view=18.42,-33.92,10&q=private&google-place=private&address=private#private'));
+  assert.deepEqual([...map.searchParams], [['place', 'cape-town'], ['ward', '19100001'], ['view', '18.42,-33.92,10']]);
+  assert.equal(map.hash, '');
+  assert.equal(publicShareUrl('https://counted.co.za/updates?event=42&province=1&type=wins&q=private&demo=1&step=2'), 'https://counted.co.za/updates?event=42&province=1&type=wins');
+  assert.equal(publicShareUrl('https://counted.co.za/search?q=private&page=2'), 'https://counted.co.za/search');
+});
+
+test('shares from local and preview hosts use the public domain and retain ballot or coalition selections', () => {
+  assert.equal(publicShareUrl('http://localhost:4321/2026/places/witzenberg?q=private', 'ward'),
+    'https://counted.co.za/2026/places/witzenberg?ballot=ward');
+  assert.equal(publicShareUrl('https://preview.example/2026/places/witzenberg/coalition?parties=1,2&address=private'),
+    'https://counted.co.za/2026/places/witzenberg/coalition?parties=1%2C2');
+});
+
+test('page sharing sends the title, description and public URL to the device share menu', async t => {
+  let shared: unknown;
+  stubGlobal(t, 'navigator', { share: async (data: unknown) => { shared = data; } });
+  assert.equal(await sharePage('Counted', 'Explore results', 'https://counted.co.za/map'), 'native');
+  assert.deepEqual(shared, { title: 'Counted', text: 'Explore results', url: 'https://counted.co.za/map' });
+});
+
+test('page sharing copies the public link when native sharing is unavailable', async t => {
+  let copied = '';
+  stubGlobal(t, 'navigator', { clipboard: { writeText: async (text: string) => { copied = text; } } });
+  assert.equal(await sharePage('Counted', 'Explore results', 'https://counted.co.za/map'), 'copied');
+  assert.equal(copied, 'https://counted.co.za/map');
+});
+
+test('cancelling text-only native sharing does not download an image or copy a link', async t => {
+  const cancellation = new DOMException('Cancelled', 'AbortError');
+  stubGlobal(t, 'navigator', { canShare: () => false, share: async () => { throw cancellation; } });
+  await assert.rejects(shareImage(new File(['png'], 'image.png'), 'Caption', 'Counted'), { name: 'AbortError' });
+  await assert.rejects(sharePage('Counted', 'Explore results', 'https://counted.co.za/'), { name: 'AbortError' });
 });

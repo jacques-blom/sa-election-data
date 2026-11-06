@@ -1,8 +1,8 @@
-import { canShareImage, downloadImage, shareImage } from './actions.ts';
+import { canShareImage, downloadImage, shareImage, sharePage } from './actions.ts';
 import { drawShareImage } from './image.ts';
 import { publicShareUrl, shareCaption, type ShareCard, type ShareFormat } from './model.ts';
 
-let current: { card: ShareCard; url: string } | null = null;
+let current: { card: ShareCard | null; url: string; title: string; text: string } | null = null;
 let readyFile: File | null = null;
 let renderVersion = 0;
 let opener: HTMLElement | null = null;
@@ -10,14 +10,16 @@ const dialog = () => document.querySelector<HTMLDialogElement>('[data-share-dial
 const feedback = (message: string) => { dialog().querySelector<HTMLElement>('[data-share-feedback]')!.textContent = message; };
 const caption = () => dialog().querySelector<HTMLTextAreaElement>('[data-share-caption]')!;
 async function render() {
-  if (!current) return;
+  if (!current?.card) return;
   const version = ++renderVersion;
   const { card } = current;
   const sheet = dialog(), canvas = sheet.querySelector<HTMLCanvasElement>('canvas')!;
   const loading = sheet.querySelector<HTMLElement>('[data-share-loading]')!;
-  const actions = sheet.querySelectorAll<HTMLButtonElement>('[data-share-whatsapp], [data-share-native], [data-share-save]');
+  const help = sheet.querySelector<HTMLElement>('[data-share-help]')!;
+  const actions = sheet.querySelectorAll<HTMLButtonElement>('[data-share-native], [data-share-save]');
   actions.forEach(button => { button.disabled = true; });
   readyFile = null; canvas.hidden = true; loading.hidden = false; loading.textContent = 'Creating your image…';
+  help.hidden = true;
   feedback('');
   try {
     const format = sheet.querySelector<HTMLInputElement>('[name="share-format"]:checked')!.value as ShareFormat;
@@ -33,26 +35,51 @@ async function render() {
     readyFile = new File([blob], `counted-${slug}-${format}.png`, { type: 'image/png' });
     canvas.hidden = false; loading.hidden = true;
     actions.forEach(button => { button.disabled = false; });
-    sheet.querySelector<HTMLElement>('[data-share-help]')!.textContent = canShareImage(readyFile)
-      ? 'Choose WhatsApp in your device’s share menu to send the image.'
-      : 'We’ll save the image and open WhatsApp. Attach the saved image before sending.';
+    help.hidden = canShareImage(readyFile);
+    help.textContent = help.hidden ? '' : 'Your browser will save the image so you can attach it to your post.';
   } catch {
     if (version !== renderVersion) return;
     loading.textContent = 'The image couldn’t be created. Try another format or copy the caption below.';
   }
 }
 
-export function openShare(card: ShareCard, url: string) {
-  current = { card: structuredClone(card), url };
+function showShare() {
+  if (!current) return;
+  const sheet = dialog();
+  const hasImage = !!current.card;
+  sheet.classList.toggle('share-dialog--page', !hasImage);
+  sheet.querySelector('h2')!.textContent = current.card?.kind === 'coalition' ? 'Share scenario' : hasImage ? 'Share results' : 'Share this page';
+  sheet.querySelectorAll<HTMLElement>('.share-preview, .share-formats, [data-share-save]').forEach(el => { el.hidden = !hasImage; });
+  sheet.querySelector<HTMLButtonElement>('[data-share-native]')!.disabled = hasImage;
+  sheet.querySelector<HTMLElement>('[data-share-help]')!.hidden = true;
+  feedback('');
+  renderVersion++; readyFile = null;
   opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  caption().value = shareCaption(card, url);
-  if (!dialog().open) dialog().showModal();
-  void render();
+  caption().value = current.card ? shareCaption(current.card, current.url) : `${current.text}\n\n${current.url}`;
+  if (!sheet.open) sheet.showModal();
+  if (hasImage) void render();
+}
+
+export function openShare(card: ShareCard, url: string) {
+  current = { card: structuredClone(card), url, title: `${card.area} · Counted`, text: card.caption };
+  showShare();
 }
 
 document.addEventListener('click', async event => {
   const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('button') : null;
   if (!button) return;
+  if (button.hasAttribute('data-share-page')) {
+    // Read the current result trigger on each click, including after live updates.
+    const result = button.dataset.sharePage === 'result' ? document.querySelector<HTMLButtonElement>('main [data-share-result]') : null;
+    if (result) {
+      openShare(JSON.parse(result.dataset.shareResult!) as ShareCard, publicShareUrl(location.href, result.dataset.shareBallot as 'pr' | 'ward' | undefined));
+    } else {
+      const text = document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content || document.title;
+      current = { card: null, url: publicShareUrl(location.href), title: document.title, text };
+      showShare();
+    }
+    return;
+  }
   if (button.hasAttribute('data-share-result')) {
     openShare(JSON.parse(button.dataset.shareResult!) as ShareCard, publicShareUrl(location.href, button.dataset.shareBallot as 'pr' | 'ward' | undefined));
     return;
@@ -67,14 +94,18 @@ document.addEventListener('click', async event => {
         feedback(button.hasAttribute('data-share-copy-link') ? 'Link copied.' : 'Caption copied.');
       } catch { caption().focus(); caption().select(); feedback('Select and copy the caption and link above.'); }
     } else if (readyFile && button.hasAttribute('data-share-save')) {
-      downloadImage(readyFile); feedback('Image saved. Ready to attach to your post.');
-    } else if (readyFile && (button.hasAttribute('data-share-whatsapp') || button.hasAttribute('data-share-native'))) {
-      const outcome = await shareImage(readyFile, caption().value, `${current.card.area} · Counted`, button.hasAttribute('data-share-whatsapp'));
-      if (outcome === 'whatsapp') feedback('Image saved. Attach it in WhatsApp before sending.');
-      if (outcome === 'saved') feedback('Image saved. Use “Copy caption” to add the text to your post.');
+      downloadImage(readyFile); feedback('Image saved.');
+    } else if (button.hasAttribute('data-share-native')) {
+      if (readyFile) {
+        const outcome = await shareImage(readyFile, caption().value, current.title);
+        if (outcome === 'saved') feedback('Image saved. Use “Copy caption” to add the text to your post.');
+      } else if (!current.card) {
+        const outcome = await sharePage(current.title, current.text, current.url);
+        if (outcome === 'copied') feedback('Link copied. Paste it into your message or post.');
+      }
     }
   } catch (error) {
-    if (!(error instanceof Error && error.name === 'AbortError')) feedback('Sharing is unavailable. Save the image and copy the caption instead.');
+    if (!(error instanceof Error && error.name === 'AbortError')) feedback(current?.card ? 'Sharing is unavailable. Save the image and copy the caption instead.' : 'Sharing is unavailable. Use “Copy link” or copy the caption below.');
   }
 });
 document.addEventListener('change', event => {

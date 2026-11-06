@@ -5,7 +5,6 @@
 .municipality-ward-finder>h2{font-size:25px;line-height:1.2;margin:0 0 22px}
 .municipality-ward-finder [data-address-status]{font-size:13px;line-height:1.6;margin:18px 0}
 .municipality-ward-finder [data-address-status]:empty{display:none}
-.municipality-ward-finder .address-privacy{margin:18px 0 0;font-size:11px}
 .municipality-ward-finder .links{margin-top:14px}
 .municipality-ward-finder .address-result h2{font-size:22px;overflow-wrap:anywhere}
 .municipality-ward-finder .address-result>p,.municipality-ward-finder [data-address-wards]{font-size:13px;line-height:1.65;overflow-wrap:anywhere}

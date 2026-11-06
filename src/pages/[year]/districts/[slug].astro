@@ -1,4 +1,5 @@
 ---
+import PageShare from '../../../components/PageShare.astro';
 import Site from '../../../layouts/Site.astro';
 import PlaceSearch from '../../../components/PlaceSearch.astro';
 import AddressResult from '../../../components/AddressResult.astro';
@@ -13,13 +14,13 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300');
 ---
 <Site title={`${district.name} District Municipality`} description={`Explore the local municipalities and wards within ${district.name} District Municipality, ${district.province}.`}>
   <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">South Africa</a><span>/</span><a href={provinceUrl(province)}>{province.name}</a><span>/</span><span>{district.name}</span></nav>
-  <div class="page-top"><div><p class="eyebrow">District municipality · {district.code} · 2026</p><h1>{district.name}</h1><p class="lead">{municipalities.length} local municipalities in {district.province}.</p><a class="button" href={`/map?district=${district.id}`}>Explore the whole district on the map ↗</a></div></div>
-  <p class="notice">District council ballot results are not available in this dataset. Choose a local municipality below for its council and ward results.</p>
+  <div class="page-top page-share-heading"><div><p class="eyebrow">District municipality · {district.code} · 2026</p><h1>{district.name}</h1><p class="lead">{municipalities.length} local municipalities in {district.province}.</p><a class="button" href={`/map?district=${district.id}`}>Explore district map ↗</a></div><PageShare/></div>
+  <p class="notice">District council results unavailable. Local municipality results are below.</p>
   <section data-address-lookup aria-label="Find an area in this district">
     <PlaceSearch id="district-search" area={{name: district.name, bbox: district.bbox}}/>
     <AddressResult/>
   </section>
   <div class="section-heading"><h2>Local municipalities</h2></div>
-  <div class="cards">{municipalities.map(place => <a class="card place-card" href={placeUrl(place)}><span class="eyebrow">Local municipality</span><h3>{place.name}</h3><p>Municipality and ward results →</p></a>)}</div>
+  <div class="cards">{municipalities.map(place => <a class="card place-card" href={placeUrl(place)}><h3>{place.name} <span aria-hidden="true">↗</span></h3></a>)}</div>
   <p class="coverage-note">District membership: <a href={district.membershipSource}>Municipal Demarcation Board, 2026</a>. The map outline follows the current member municipalities’ reconciled ward boundaries.</p>
 </Site>

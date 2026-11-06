@@ -3,12 +3,14 @@ import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
+import { SITE_ORIGIN } from './src/lib/site.ts';
 
 // Keep machine-specific development hosts in ignored local configuration.
 if (existsSync('.env')) loadEnvFile('.env');
 const allowedHosts = (process.env.DEV_ALLOWED_HOSTS ?? '').split(',').map(host => host.trim()).filter(Boolean);
 
 export default defineConfig({
+	site: SITE_ORIGIN,
 	server: {
 		allowedHosts,
 	},

@@ -17,6 +17,7 @@ export function syncSearchState(next: Document) {
     }
     root.querySelector<HTMLElement>('[data-search-enabled-hint]')!.hidden = disabled;
     root.querySelector<HTMLElement>('[data-search-disabled-hint]')!.hidden = !disabled;
+    root.querySelector<HTMLElement>('.place-search-hint')!.hidden = !disabled && root.dataset.configured === 'true';
     if (changed && disabled) root.dispatchEvent(new Event('place-search:disabled'));
   }
 }

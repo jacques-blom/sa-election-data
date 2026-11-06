@@ -314,14 +314,14 @@ test('Google explorer browses boundaries, selects whole areas and preserves ward
   elements.get('map-app')!.dispatchEvent(event); await settle();
   assert.equal(event.defaultPrevented, true);
   assert.equal(elements.get('map-area-title')!.textContent, 'Gauteng');
-  assert.equal(elements.get('ward-result')!.children[1]!.href, area.url);
+  assert(elements.get('ward-result')!.children.some(child => child.href === area.url));
   assert.deepEqual(map.fits.at(-1), { west: 27, south: -27, east: 29, north: -25 });
   assert.equal(new URL(savedUrl).searchParams.get('province'), 'gauteng');
   assert(!requests.some(url => url.includes('/api/locate')), 'whole-area selection must never use a point-to-ward lookup');
   const district = { id: 'DC4', name: 'Garden Route District Municipality', kind: 'district', description: 'District municipality', url: '/2026/districts/garden-route', bbox: [20, -35, 24, -33], geometry: { level: 'district', id: 'DC4' } };
   elements.get('map-app')!.dispatchEvent(new CustomEvent('place-search:area', { cancelable: true, detail: district })); await settle();
   assert.equal(new URL(savedUrl).searchParams.get('district'), 'DC4');
-  assert.equal(elements.get('ward-result')!.children[1]!.href, district.url);
+  assert(elements.get('ward-result')!.children.some(child => child.href === district.url));
   assert(requests.includes('/api/v1/geometry/district/DC4'));
   const suburb = { id: 'newlands-cape-town', googlePlaceId: 'newlands-cape-town', name: 'Newlands', kind: 'area', description: 'Newlands, Cape Town', bbox: [18.40, -34.01, 18.48, -33.95], url: '/map?google-place=newlands-cape-town' };
   elements.get('map-app')!.dispatchEvent(new CustomEvent('place-search:area', { cancelable: true, detail: suburb })); await settle();

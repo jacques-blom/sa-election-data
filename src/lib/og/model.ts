@@ -6,6 +6,7 @@ import { provinces } from '../overview/results.ts';
 import { findPlace, wardNumber } from '../places/catalogue.ts';
 import type { Place } from '../places/types.ts';
 import type { OgMapTarget } from './maps.ts';
+import { publicUrl } from '../site.ts';
 
 /**
  * Deliberately contains no result fields. The source has no verified declaration
@@ -21,7 +22,7 @@ export const OG_IMAGE_VERSION = 'v3';
 const pages: Record<string, OgPage> = {
   '/map': { title: 'Explore the map', label: `Local elections ${latestYear}`, subtitle: 'Find your province, municipality and ward.', year: latestYear },
   '/find-address': { title: 'Find your ward', label: 'Start with your community', subtitle: 'Explore local elections near you.' },
-  '/search': { title: 'Find your area', label: 'Start with your community', subtitle: 'Search South Africa’s towns, cities and municipalities.' },
+  '/search': { title: 'Find local results', label: 'Start with your community', subtitle: 'Search by municipality, ward, town or address.' },
   '/updates': { title: 'Latest election updates', label: `Follow the count · ${latestYear}`, subtitle: 'Ward and council updates from across South Africa.', year: latestYear },
   '/api': { title: 'Election data, open to everyone.', label: 'API & data documentation', subtitle: 'Build, explore and research with public election data.' },
   '/privacy': { title: 'Your privacy', label: 'About Counted', subtitle: 'How Counted handles your information.' },
@@ -37,7 +38,7 @@ export const nationalOgPage = (year: number = latestYear): OgPage => ({
 export function ogImageUrl(canonical: string) {
   const url = new URL(canonical);
   const path = url.pathname.replace(/\/+$/, '');
-  return new URL(`/og/${OG_IMAGE_VERSION}/${path.slice(1) || 'index'}.png`, url.origin).href;
+  return publicUrl(`/og/${OG_IMAGE_VERSION}/${path.slice(1) || 'index'}.png`);
 }
 
 export async function ogPageForPath(pathname: string, lookupPlace?: (slug: string) => Promise<Place | undefined>): Promise<OgPage | null> {

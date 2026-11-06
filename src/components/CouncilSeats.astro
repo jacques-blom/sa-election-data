@@ -4,7 +4,6 @@ import { partyStyle, type Result } from '../lib/places/results.ts';
 import PartyLogo from './PartyLogo.astro';
 import SeatDiagram from './SeatDiagram.astro';
 import SeatMethod from './SeatMethod.astro';
-import ResultStatus from './ResultStatus.astro';
 interface Props { result: Result; href: string }
 const { result, href } = Astro.props;
 const seats = councilSeats(result.level, result.results);
@@ -14,8 +13,8 @@ const visiblePartyCount = 5;
 <section class="card council-seats" aria-label={seats.status === 'unavailable' ? 'Council seats' : seatLabel(seats)}>
   {seats.status === 'unavailable' ? <><h2>Council seats pending</h2><p class="small">{seats.reason}</p></> : <>
     <div class="card-heading"><h2>{seatLabel(seats)}</h2><span class="pill">{seats.status === 'estimated' ? 'Current count' : 'Provisional'}</span></div>
-    {seats.status === 'estimated' && <p class="seat-caution">Based on votes counted so far. Unfinished wards and the remaining votes can change these seats.</p>}
-    <div class="council-grid"><div class="council-visual"><SeatDiagram seats={seats}/><p class="seat-threshold"><strong>{seats.majority}</strong> seats needed for a majority <span>in a {seats.total}-seat council · One dot = one seat</span></p><ResultStatus result={result}/></div>
+    {seats.status === 'estimated' && <p class="seat-caution">Estimates can change as counting continues.</p>}
+    <div class="council-grid"><div class="council-visual"><SeatDiagram seats={seats}/><p class="seat-threshold"><strong>{seats.majority}</strong> seats for a majority <span>{seats.total}-seat council</span></p></div>
       <div>
         {canBuildCoalition(seats) && <a class="button primary coalition-entry" href={`${href}/coalition`}>Try a coalition →</a>}
         <div class="chart-key"><span>Party</span><span>{seats.status === 'estimated' ? 'Estimated seats' : 'Seats'}</span></div>

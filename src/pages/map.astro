@@ -1,4 +1,5 @@
 ---
+import PageShare from '../components/PageShare.astro';
 import Site from '../layouts/Site.astro';
 import PlaceSearch from '../components/PlaceSearch.astro';
 import { places } from '../lib/places/catalogue.ts';
@@ -24,9 +25,9 @@ const area: ResolvedArea | undefined = district ? districtSelection(district) : 
   : chosen ? { id: chosen.id, name: chosen.name, kind: chosen.kind, description: `${chosen.kind} · ${chosen.province}`, url: `/2026/places/${chosen.slug}`, bbox: chosen.bbox, geometry: chosen.geometry } : undefined;
 ---
 <Site title="Explore election results on the map" description="Browse South African provinces, municipalities and wards. Explore the map to see published 2026 election results." canonicalPath="/map">
-  <div class="map-heading">
+  <div class="map-heading page-share-heading">
     <div><h1>Explore the map</h1></div>
-    <a class="button" href="/">Browse results ↗</a>
+    <div class="page-heading-actions"><a class="button" href="/">Browse results ↗</a><PageShare/></div>
   </div>
   <div class="map-shell" id="map-app" data-place={place} data-ward={ward} data-area={area ? JSON.stringify(area) : undefined} data-bounds={chosen?.bbox ? JSON.stringify(chosen.bbox) : undefined}>
     <div class="map-toolbar">
@@ -50,7 +51,7 @@ const area: ResolvedArea | undefined = district ? districtSelection(district) : 
           <button id="reset-selection" type="button" hidden>← Areas in view</button>
           <button id="map-home" type="button" hidden>← South Africa</button>
         </div>
-        <div class="panel-intro"><h2 id="map-area-title">Provinces</h2><p id="map-area-description">Choose a province to zoom in.</p></div>
+        <div class="panel-intro"><h2 id="map-area-title">Provinces</h2><p id="map-area-description" hidden></p></div>
         <div id="ward-result" aria-live="polite" aria-atomic="true" hidden></div>
         <div id="map-browse">
           <p id="map-view-status" role="status">Loading areas…</p>

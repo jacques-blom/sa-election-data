@@ -21,7 +21,7 @@ const visibleParties = compact ? 5 : 7;
   {ballot.parties.slice(0,visibleParties).map(p => <PartyRow party={p} movement={partyMovement(result,p,'source_total')}/>)}
   {ballot.parties.length > visibleParties && <details class="more-parties"><summary>Show all {ballot.parties.length} parties</summary>{ballot.parties.slice(visibleParties).map(p => <PartyRow party={p} movement={partyMovement(result,p,'source_total')}/>)}</details>}
   {ballot.unlisted !== null && ballot.unlisted > 0 && <div class="overview-unlisted"><span>Unlisted parties</span><strong>{(ballot.unlisted / ballot.total! * 100).toFixed(1)}%<small>{formatNumber(ballot.unlisted)} votes</small></strong></div>}
-  {ballot.total === null && <p class="notice">The published figures do not provide a reliable total for vote shares. Party vote counts are shown as published.</p>}
+  {ballot.total === null && <p class="notice">Published figures don’t support reliable vote shares.</p>}
   {ballot.total === 0 && <p class="notice">No votes have been published yet.</p>}
   {(ballot.total !== null || ballot.partial) && <p class="overview-vote-note">{ballot.total !== null && <><strong>{formatNumber(ballot.total)}</strong> valid ballots</>}{ballot.partial && result.level === 'province' && <>{ballot.total !== null && ' · '}Selected parties shown</>}</p>}
 </section>

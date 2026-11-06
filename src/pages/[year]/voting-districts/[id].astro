@@ -1,4 +1,5 @@
 ---
+import PageShare from '../../../components/PageShare.astro';
 import ElectionHistory from '../../../components/ElectionHistory.astro';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
@@ -31,7 +32,7 @@ const ballot=Astro.url.searchParams.get('ballot')==='ward'?'ward':'pr';
 ---
 <Site liveResults={year === latestYear && Astro.response.status !== 404} title={`${title} — ${year} election results`} description={`Election results for voting district ${id}, with party vote shares and reporting progress.`} noindex>
 <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{parent&&<><span>/</span><a href={parent.url.replace('/2026/',`/${year}/`)}>{parent.name}</a></>}{boundary&&<><span>/</span><a href={`/${year}/wards/${boundary.ward_id}`}>Ward {wardNumber(boundary.ward_id)}</a></>}</nav>
-{result?<><div class="page-top"><div><p class="eyebrow">Voting district {id} · {year}</p><h1>{title}</h1></div></div>
+{result?<><div class="page-top page-share-heading"><div><p class="eyebrow">Voting district {id} · {year}</p><h1>{title}</h1></div><PageShare result/></div>
 
-<ResultChart result={result} ballot={ballot} name={title}/>{boundary?<RegionMap historical={year !== latestYear} options={{level:'voting-district',id,bbox:[boundary.minx,boundary.miny,boundary.maxx,boundary.maxy]}} title={`${title} voting district boundary`} href={mapLink(parent?.slug??'south-africa',boundary.ward_id)} caption="Voting district boundary. This does not confirm your registered voting station."><ElectionHistory slot="history" year={year} level="voting-district" id={id} embedded/></RegionMap>:<ElectionHistory year={year} level="voting-district" id={id}/>}<div class="links">{wardId&&<a href={`/${year}/wards/${wardId}`}>Whole ward result →</a>}</div></>:<section class="empty"><h1>{title}</h1><p>{failed?'Please try again shortly.':'Try another district or browse the map.'}</p><a href="/map">Explore map →</a></section>}
+<ResultChart result={result} ballot={ballot} name={title}/>{boundary?<RegionMap historical={year !== latestYear} options={{level:'voting-district',id,bbox:[boundary.minx,boundary.miny,boundary.maxx,boundary.maxy]}} title={`${title} voting district boundary`} href={mapLink(parent?.slug??'south-africa',boundary.ward_id)} caption="Voting district boundary. This does not confirm your registered voting station."><ElectionHistory slot="history" year={year} level="voting-district" id={id} embedded/></RegionMap>:<ElectionHistory year={year} level="voting-district" id={id}/>}<div class="links">{wardId&&<a href={`/${year}/wards/${wardId}`}>Whole ward result →</a>}</div></>:<section class="empty"><div class="page-share-heading"><h1>{title}</h1><PageShare/></div><p>{failed?'Please try again shortly.':'Try another district or browse the map.'}</p><a href="/map">Explore map →</a></section>}
 </Site>

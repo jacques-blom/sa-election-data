@@ -1,4 +1,5 @@
 ---
+import PageShare from '../../../components/PageShare.astro';
 import ElectionHistory from '../../../components/ElectionHistory.astro';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
@@ -34,32 +35,31 @@ const hasMap=!!place?.bbox && !!boundary;
 <Site liveResults={year === latestYear && Astro.response.status !== 404} title={place?`${place.name} election results ${year}`:'Area not found'} description={place?.description??'Find local election results by place name.'} noindex={!place?.indexable||Astro.response.status!==200}>
 <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{province&&<><span>/</span><a href={provinceUrl(province,year)}>{province.name}</a></>}{town&&parents.length===1&&<><span>/</span><a href={placeUrl(parents[0]!,year)}>{parents[0]!.name}</a></>}</nav>
 {place?<>
-<div class="page-top"><div><p class="eyebrow">{place.province} · {place.kind==='metro'?'Metropolitan municipality':place.kind} · {year}</p><h1>{place.name}</h1></div></div>
+<div class="page-top page-share-heading"><div><p class="eyebrow">{place.province} · {place.kind==='metro'?'Metropolitan municipality':place.kind} · {year}</p><h1>{place.name}</h1></div><PageShare result/></div>
 
-{town&&<p class="notice">These results cover the whole wards overlapping {place.name}, including areas outside the town. There is no separate town-only result.</p>}
+{town&&<p class="notice">Whole-ward results include areas outside {place.name}.</p>}
 {data?.municipality?<>
 <div id="municipality-seats">{!town&&year === latestYear&&<CouncilSeats result={data.municipality} href={placeUrl(place,year)}/>}</div>
 {!town?<div id="municipality-results" class="results-layout municipality-results">
   <ResultChart result={data.municipality} ballot={ballot} name={place.name}/>
   <aside class="municipality-tools" aria-label="Map and address lookup">
-    {hasMap&&place.bbox&&boundary&&<RegionMap compact historical={year !== latestYear} options={{bbox:place.bbox,level:boundary.level,id:boundary.id,code:administrative.municipalities[boundary.id]?.code}} title={`${place.name} and its wards`} href={mapLink(place.slug)} caption="Select a ward to see its results."><ElectionHistory slot="history" year={year} level="municipality" id={parentIds[0] ?? ''} embedded/></RegionMap>}
+    {hasMap&&place.bbox&&boundary&&<RegionMap compact historical={year !== latestYear} options={{bbox:place.bbox,level:boundary.level,id:boundary.id,code:administrative.municipalities[boundary.id]?.code}} title={`${place.name} and its wards`} href={mapLink(place.slug)} caption="Ward boundaries"><ElectionHistory slot="history" year={year} level="municipality" id={parentIds[0] ?? ''} embedded/></RegionMap>}
     {!hasMap && <ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''}/>}
     <section id="find-your-ward" class="card municipality-ward-finder" data-address-lookup aria-labelledby="ward-address-heading">
       <h2 id="ward-address-heading">Find your ward by address</h2>
       <PlaceSearch id="municipality-address" mode="address" action="/search" compact area={place.bbox ? {name:place.name,bbox:place.bbox} : undefined}/>
       <AddressResult/>
-      <p class="small address-privacy">Google receives your search. Counted doesn’t save your address. <a href="/privacy">Privacy</a></p>
       <div class="links"><a href="#wards">Browse all {data.wards.length} wards ↓</a></div>
       <noscript><p class="small">Address search needs JavaScript. Browse the wards below or <a href="/search">search by area name</a>.</p></noscript>
     </section>
   </aside>
 </div>:null}
 <Wards preview={town} searchable={town} wards={data.wards} title={town?`Ward results around ${place.name}`:'Ward results'} note={town?'Whole-ward results':'Ward ballot'}/>
-{town&&year === latestYear&&place.bbox&&boundary&&<RegionMap options={{bbox:place.bbox,level:boundary.level,id:boundary.id,wardIds:place.relationships.filter(r=>r.level==='ward').map(r=>r.areaId)}} title={`${place.name} and its wards`} href={mapLink(place.slug)} caption="Dashed outline: statistical place boundary. Shaded areas: overlapping wards. Select a ward."><ElectionHistory slot="history" year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly embedded/></RegionMap>}
+{town&&year === latestYear&&place.bbox&&boundary&&<RegionMap options={{bbox:place.bbox,level:boundary.level,id:boundary.id,wardIds:place.relationships.filter(r=>r.level==='ward').map(r=>r.areaId)}} title={`${place.name} and its wards`} href={mapLink(place.slug)} caption="Dashed: statistical place boundary · Shaded: overlapping wards"><ElectionHistory slot="history" year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly embedded/></RegionMap>}
 {town&&!hasMap&&<ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly/>}
-{town&&<section class="card scope-card"><div class="card-heading"><h2>Which results cover {place.name}?</h2></div>{place.boundaryContext?.notes.map(note=><p>{note}</p>)}<div class="links">{parents.map(parent=><a href={placeUrl(parent,year)}>Whole {parent.name} council result ↗</a>)}<a href="/find-address">Find the ward at your address →</a></div><details><summary>How we matched this place to wards</summary><p>{place.boundaryContext?.method}</p><ul>{place.sources.map(s=><li><a href={s.url}>{s.label} ↗</a></li>)}</ul></details></section>}
+{town&&<section class="card scope-card"><div class="card-heading"><h2>Which results cover {place.name}?</h2></div>{place.boundaryContext?.notes.map(note=><p>{note}</p>)}<div class="links">{parents.map(parent=><a href={placeUrl(parent,year)}>Whole {parent.name} council result ↗</a>)}<a href="/search">Find the ward at your address →</a></div><details><summary>How we matched this place to wards</summary><p>{place.boundaryContext?.method}</p><ul>{place.sources.map(s=><li><a href={s.url}>{s.label} ↗</a></li>)}</ul></details></section>}
 {data.missingWardIds.length>0&&<p class="notice">Results are not available for mapped wards: {data.missingWardIds.join(', ')}.</p>}
 
 </>:<><ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly={town}/><section class="empty"><h2>{year === latestYear ? 'Results are temporarily unavailable.' : 'Historical results unavailable.'}</h2><p>{year === latestYear ? 'Please try again shortly.' : 'This area has no mapped result for this election. Select another year above.'}</p><a href={place.sources[0]?.url}>View the source →</a></section></>}
-</>:<section class="empty"><h1>{failed?'Results are temporarily unavailable.':'Area not found.'}</h1><a href="/search">Find your area →</a></section>}
+</>:<section class="empty"><div class="page-share-heading"><h1>{failed?'Results are temporarily unavailable.':'Area not found.'}</h1><PageShare/></div><a href="/search">Find your area →</a></section>}
 </Site>

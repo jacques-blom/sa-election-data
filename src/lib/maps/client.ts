@@ -113,11 +113,12 @@ function updateHeading() {
     description.textContent = selection ? `${selection.municipality}${overlay.level !== 'ward' || !inView.has(selected) ? ' · outside this view' : ''}` : 'Loading results…';
   } else {
     title.textContent = overlay.level === 'province' ? plural : `${plural} in view`;
-    description.textContent = overlay.level === 'ward' ? 'Choose a ward to see its result.' : `Choose ${overlay.level === 'province' ? 'a province' : 'a municipality'} to zoom in.`;
+    description.textContent = '';
   }
+  description.hidden = !description.textContent;
   viewStatus.textContent = inView.size ? `${inView.size.toLocaleString('en-ZA')} ${plural.toLowerCase()} in view`
     : 'No areas in view. Pan towards South Africa.';
-  if (boundaryLimited) viewStatus.textContent = 'Zoom in to see wards. Showing municipalities for this wider view.';
+  if (boundaryLimited) viewStatus.textContent = 'Zoom in to see wards.';
 }
 function leaderLabel(leader?: MapLeader) {
   if (!leader) return 'Loading result…';
@@ -264,13 +265,13 @@ async function showArea(area: ResolvedArea, fit = true) {
   updateHeading();
   updateUrl();
   if (area.googlePlaceId) {
-    panel.replaceChildren(text('p', 'Showing Google Maps’ view of this area. A matching results boundary is not available yet; choose a ward to see its results.', 'map-hint'));
+    panel.replaceChildren(text('p', 'Google Maps’ view; electoral boundary unavailable.', 'map-hint'));
     if (area.bbox && fit) fitBounds(area.bbox);
     return;
   }
   const link = text('a', area.kind === 'district' ? 'View local municipalities ↗' : `View ${area.name} results ↗`, 'button primary');
   link.href = area.url;
-  panel.replaceChildren(text('p', area.kind === 'district' ? 'Explore the local municipalities in this district.' : 'Results for this whole area.', 'map-hint'), link);
+  panel.replaceChildren(link);
   if (area.bbox && fit) fitBounds(area.bbox);
   if (!area.geometry) return;
   try {

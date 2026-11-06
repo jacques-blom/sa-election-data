@@ -9,19 +9,19 @@ ETag/If-None-Match and a 15-second cache lifetime.
 ## Quick start
 
 No API key or account is needed. The base URL is
-`https://sa-election-data.jacques.workers.dev/api/v1`.
+`https://counted.co.za/api/v1`.
 
 List the available elections:
 
 ```sh
-curl 'https://sa-election-data.jacques.workers.dev/api/v1/elections'
+curl 'https://counted.co.za/api/v1/elections'
 ```
 
 Find a municipality, then follow its `results_url` to get votes, party rows,
 progress and source information:
 
 ```js
-const base = 'https://sa-election-data.jacques.workers.dev';
+const base = 'https://counted.co.za';
 const response = await fetch(`${base}/api/v1/elections/2026/areas?level=municipality&limit=5`);
 if (!response.ok) throw new Error(`API returned ${response.status}`);
 const page = await response.json();
@@ -53,6 +53,8 @@ Substitute 2000, 2006, 2011, 2016 or 2021 for historical elections. Area-list le
 are `national`, `province`, `municipality`, `ward`, and `voting-district`.
 List endpoints accept `limit` (1–200, default 50) and `offset` (default 0).
 Area lists can filter by `province_id`, `municipality_id`, and `ward_id`.
+They also accept `q`, a literal case-insensitive area-name fragment of at most
+80 characters, to discover IDs within a selected election.
 IDs are the IEC's IDs **within that election**. A matching ID does not establish
 that two elections used the same boundary.
 
@@ -196,6 +198,21 @@ reconciled IEC allocation takes precedence in the website and coalition playgrou
 The dashboard feeds used here do not supply a complete separate dataset for
 district-council ballots. National and provincial summaries are source-reported
 snapshots, not an artificial sum of municipalities fetched at different times.
+
+## MCP access
+
+AI clients can use the public, read-only `/mcp` Streamable HTTP endpoint after
+deploying the MCP-enabled version. It exposes election discovery, named-place
+mapping, area results, source health and milestone updates. No API key is needed.
+Use `list_elections`, then `list_areas` and `get_results` with an explicit year,
+or `search_places` and `get_place` for 2026 geographic mappings. Read the
+`counted://methodology` resource for interpretation rules. Lists and party rows
+are paginated, with at most 50 records per call; source totals and quality flags
+continue to describe the complete source. The repository's `docs/mcp.md` explains
+the tool contracts, client setup and deployment configuration.
+
+Unlike the REST GET endpoints above, `/mcp` accepts protocol POST requests and
+OPTIONS. JSON-RPC responses are not publicly cached.
 
 ## Source
 
