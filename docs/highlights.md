@@ -1,11 +1,11 @@
 # Election highlights
 
-`/highlights` is the dedicated editorial overview of the 2026 municipal count. It reuses `getCouncilDashboard` and the existing versioned council summaries; it adds no source fetches, migrations or writes. The homepage retains its short highlights sidebar.
+`/highlights` is the dedicated editorial overview of the 2026 municipal count. It reuses `getCouncilDashboard` and the existing versioned council summaries; it adds no source fetches, migrations or writes. The homepage has a compact highlights strip after its first eight councils, hidden while filtering.
 
-Homepage highlight cards open the matching section on `/highlights`: majority changes,
-vote-share changes or close races. Individual place names within the cards link to
+Homepage highlight headings open the matching section on `/highlights`: majority changes,
+vote-share changes or close races. Individual place names within the strip link to
 their council or ward results. Both destinations use ordinary links with separate
-keyboard focus. The heading and footer open the full page. Detailed
+keyboard focus. The Highlights heading opens the full page. Categories without qualifying data are omitted. Detailed
 rankings and methodology live on that page rather than in an expandable home section.
 
 The page combines five sections rather than separate pages for each ranking:

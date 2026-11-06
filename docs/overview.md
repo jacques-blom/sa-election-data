@@ -6,12 +6,17 @@ source-detail panels, manual refresh links and repeated provisional badges are o
 the footer identifies IEC results as provisional. Delayed or failed updates still show
 a notice. Detailed provenance remains in the API and copied share summaries.
 
-- Home (`/`): a council dashboard with place/address search, a coloured outcome ring,
-  clickable majority/no-majority/pending/changed totals, party majority counts, and council
-  cards with party-coloured seat bars. All 213 metro and local councils are included;
-  metros appear first, with available results prioritised within metros and locals. National highlights sit alongside the directory.
-  Highlights and council filters stay visible at every screen size. Homepage highlights
-  link to `/highlights`, where supporting methodology and longer rankings are available.
+- Home (`/`): place/address search followed by one outcome selector: All councils,
+  each party with a reported majority, No majority and Pending. Counts and allocation
+  coverage follow the selected province, independently of search and outcome selection.
+  All 213 metro and local councils appear in compact rows with seat bars, party counts
+  and majority thresholds. Estimates are visibly labelled and remain Pending.
+  Metros appear first, with available results prioritised within metros and locals.
+  Short, unpatterned highlights follow the first eight councils on desktop and mobile;
+  filters hide them to keep matching results together. Majority changes are under
+  More filters; party selection reveals a compact gains/losses summary. The header
+  omits its duplicate search on this page. Detailed highlights and methodology remain
+  at `/highlights`.
 - National results (`/national-results`): the former homepage's national vote shares,
   province map, metro vote results, province summaries and election-year slider.
   Current national history links and `/2026` resolve here; old elections remain at

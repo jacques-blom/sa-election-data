@@ -3,42 +3,35 @@ import type { CouncilDashboard } from '../../lib/overview/dashboard.ts';
 import { partyStyle, formatNumber } from '../../lib/places/format.ts';
 import { wardNumber } from '../../lib/places/catalogue.ts';
 import { latestYear } from '../../lib/history/comparison.ts';
-interface Props { data: CouncilDashboard | null }
-const { data } = Astro.props;
+interface Props { data: CouncilDashboard | null; hidden?: boolean }
+const { data, hidden = false } = Astro.props;
 const h = data?.highlights;
 const previousYear = data?.previousYear ?? 2021;
-const majorityLabel = (party: {name:string} | null) => party ? `${partyStyle(party.name)[0]}` : 'No majority';
+const majorityLabel = (party: { name: string } | null) => party ? `${partyStyle(party.name)[0]} majority` : 'No majority';
 const wardRace = h?.races[0];
 const race = wardRace ?? h?.councilRaces[0];
 const watch = h?.watch;
 const raceHref = race ? wardRace ? `/${latestYear}/wards/${race.id}` : race.council.href : '';
 const raceName = race ? wardRace ? `${race.council.name} · Ward ${wardNumber(race.id)}` : race.council.name : '';
-const topVotes = race?.leaders.reduce((n,p)=>n+p.votes,0) ?? 0;
+const hasHighlights = !!(h?.changes.length || h?.gains.length || h?.losses.length || race || watch);
 ---
-<section class="dashboard-highlights" id="highlights" aria-labelledby="highlights-heading">
-    <h2 id="highlights-heading" class="highlights-title"><a href="/highlights">Election highlights</a></h2>
-    <div class="highlight-sections">
-      <section class="highlight-panel highlight-panel--changes" aria-labelledby="changes-heading">
-        <div class="highlight-heading"><h3 id="changes-heading"><a class="highlight-card-link" href="/highlights#majority-changes">Outright majorities gained/lost</a></h3><span>Since {previousYear}</span></div>
-        <div class="highlight-big-number">{data ? h!.changes.length : '—'}<svg viewBox="0 0 68 38" fill="none" aria-hidden="true"><path d="M2 11h56m-9-9 10 9-10 9M66 27H10m9-9L9 28l10 9" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        {h?.changes.length ? <div class="highlight-changes-list">{h.changes.slice(0,2).map(c=><div class="highlight-change-row"><a class="highlight-place-link" href={c.href}>{c.name}</a><span class="highlight-change-flow"><span style={`--party:${c.previousWinner?partyStyle(c.previousWinner.name)[1]:'#7a858b'}`}><i/>{majorityLabel(c.previousWinner)}</span><b aria-hidden="true">→</b><span style={`--party:${c.winner?partyStyle(c.winner.name)[1]:'#7a858b'}`}><i/>{majorityLabel(c.winner)}</span></span></div>)}</div>
-          : <p class="highlight-empty">{!data?'Temporarily unavailable':h?.comparable?'No changes in comparable results yet':'Waiting for reported allocations'}</p>}
-        <span class="highlight-more" aria-hidden="true">Explore changes →</span>
-      </section>
-      <section class="highlight-panel highlight-panel--movement" aria-labelledby="movement-heading">
-        <div class="highlight-heading"><h3 id="movement-heading"><a class="highlight-card-link" href="/highlights#vote-swings">Biggest moves</a></h3><span>Since {previousYear}</span></div>
-        {h && (h.gains.length || h.losses.length) ? <div class="highlight-movers">{(['gains','losses'] as const).map(kind=>{
-          const m=h?.[kind][0];
-          return <div class:list={['highlight-mover',`highlight-mover--${kind}`]}>{m?<div class="highlight-mover-result"><strong>{m.delta>0?'+':'−'}{Math.abs(m.delta).toFixed(1)}<small> pp</small></strong><span class="highlight-mover-party">{partyStyle(m.party.name)[0]}</span><a class="highlight-mover-place highlight-place-link" href={m.council.href}>{m.council.name}</a><div class="highlight-share-bars" role="img" aria-label={`${previousYear}: ${m.previousShare.toFixed(1)} percent. ${latestYear}: ${m.currentShare.toFixed(1)} percent.`}><i style={`width:${m.previousShare}%;background:#adb6ac`}/><i style={`width:${m.currentShare}%;background:${partyStyle(m.party.name)[1]}`}/></div><span class="highlight-share-values">{m.previousShare.toFixed(1)}% → {m.currentShare.toFixed(1)}%</span></div>:<><strong>—</strong><span class="highlight-mover-party">{kind==='gains'?'Gains':'Losses'}</span><span class="highlight-mover-place">Awaiting comparable counts</span></>}</div>;
-        })}</div> : <p class="highlight-empty">{!data || data.summaryCoverage < data.total ? 'Vote-share comparisons are still loading.' : 'No completed counts with comparable results yet.'}</p>}
-        <span class="highlight-basis">Vote share · Combined ward + PR ballots</span>
-      </section>
-      <section class="highlight-panel highlight-panel--race" aria-labelledby="races-heading">
-        <div class="highlight-heading"><h3 id="races-heading"><a class="highlight-card-link" href="/highlights#close-races">{race ? 'Closest pending race' : watch ? 'Count to watch' : 'Pending counts'}</a></h3>{(race || watch) && <span class="highlight-live"><i/> Still counting</span>}</div>
-        {race ? <div class="highlight-race-content"><div class="highlight-big-number">{race.tied?'Tied':formatNumber(race.margin)}<small>{race.tied?`${race.leaders.length} at the top`:'votes apart'}</small></div><a class="highlight-race-place highlight-place-link" href={raceHref}>{raceName}</a><div class="highlight-race-bars" aria-label={`Top contenders’ ${wardRace?'ward':'municipal PR'} votes`}>{race.leaders.slice(0,3).map(p=><div><span>{partyStyle(p.name)[0]}</span><i><b style={`width:${topVotes?p.votes/topVotes*100:0}%;background:${partyStyle(p.name)[1]}`}/></i><strong>{formatNumber(p.votes)}</strong></div>)}</div><span class="highlight-basis">{wardRace?'Ward votes':'Municipal PR votes'} · {race.marginPoints.toFixed(2)} pp gap<br/>{race.progress.completed}/{race.progress.expected} districts reporting →</span></div>
-          : watch ? <div class="highlight-race-content"><div class="highlight-big-number">{watch.progress!.percent.toFixed(1)}<small>% reported</small></div><a class="highlight-race-place highlight-place-link" href={watch.href}>{watch.name}</a><div class="highlight-count-progress" role="img" aria-label={`${watch.progress!.completed} of ${watch.progress!.expected} districts reporting`}><i style={`width:${watch.progress!.percent}%`}/></div><span class="highlight-basis">{watch.progress!.completed}/{watch.progress!.expected} districts reporting<br/>Council allocation pending →</span></div>
-          : <><p class="highlight-empty">{!data || data.summaryCoverage < data.total ? 'Pending-count highlights are still loading.' : 'No qualifying counts still in progress.'}</p><span class="highlight-more" aria-hidden="true">Explore pending counts →</span></>}
-      </section>
-    </div>
-    <div class="highlight-bottom"><a href="/highlights">Explore all highlights →</a></div>
-</section>
+{hasHighlights && <section class="dashboard-highlights" id="highlights" data-dashboard-highlights hidden={hidden} aria-labelledby="highlights-heading">
+  <h2 id="highlights-heading"><a href="/highlights">Highlights</a></h2>
+  <div class="dashboard-highlight-list">
+    {!!h?.changes.length && <section class="dashboard-highlight">
+      <h3><a href="/highlights#majority-changes">{h.changes.length} majority {h.changes.length === 1 ? 'change' : 'changes'}</a></h3>
+      <p class="dashboard-highlight-basis">Since {previousYear}</p>
+      <ul>{h.changes.slice(0, 2).map(c => <li><a href={c.href}>{c.name}</a><span>{majorityLabel(c.previousWinner)} → {majorityLabel(c.winner)}</span></li>)}</ul>
+    </section>}
+    {!!(h?.gains.length || h?.losses.length) && <section class="dashboard-highlight">
+      <h3><a href="/highlights#vote-swings">Biggest moves</a></h3>
+      <p class="dashboard-highlight-basis">Ward + PR vote share · Since {previousYear}</p>
+      <ul>{[h?.gains[0], h?.losses[0]].filter(Boolean).map(m => m && <li><a href={m.council.href}>{m.council.name}</a><span>{partyStyle(m.party.name)[0]} <strong>{m.delta > 0 ? '+' : '−'}{Math.abs(m.delta).toFixed(1)} <abbr title="percentage points">pp</abbr></strong></span></li>)}</ul>
+    </section>}
+    {(race || watch) && <section class="dashboard-highlight">
+      <h3><a href="/highlights#close-races">{race ? 'Closest pending race' : 'Count to watch'}</a></h3>
+      {race ? <><p class="dashboard-highlight-basis">{wardRace ? 'Ward votes' : 'Municipal PR votes'}</p><ul><li><a href={raceHref}>{raceName}</a><span><strong>{race.tied ? 'Tied' : `${formatNumber(race.margin)} votes apart`}</strong></span></li></ul><p class="dashboard-highlight-basis">{race.progress.completed}/{race.progress.expected} districts reporting</p></>
+        : watch && <><ul><li><a href={watch.href}>{watch.name}</a><span>Seats pending</span></li></ul><p class="dashboard-highlight-basis">{watch.progress!.completed}/{watch.progress!.expected} districts reporting</p></>}
+    </section>}
+  </div>
+</section>}

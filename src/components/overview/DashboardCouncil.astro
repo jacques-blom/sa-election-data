@@ -1,0 +1,40 @@
+---
+import type { DashboardCouncil } from '../../lib/overview/dashboard.ts';
+import { matchesCouncil, type CouncilFilters } from '../../lib/overview/dashboard-filter.ts';
+import { partyStyle } from '../../lib/places/format.ts';
+import { progressLabel } from '../../lib/overview/results.ts';
+
+interface Props { council: DashboardCouncil; filters: CouncilFilters; available: boolean; previousYear: number }
+const { council: c, filters, available, previousYear } = Astro.props;
+const s = c.seats;
+const status = available ? c.status : 'unavailable';
+const title = status === 'majority' ? `${partyStyle(c.winner!.name)[0]} majority`
+  : status === 'unavailable' ? 'Data unavailable'
+  : status === 'no-majority' ? 'No majority'
+  : s?.status === 'estimated' ? 'Estimated seats' : 'Seats pending';
+const parties = s?.parties.filter(p => p.count > 0) ?? [];
+---
+<article id={`council-${c.id}`} class="dashboard-council" data-council-row data-search={c.search} data-province={c.provinceId} data-status={status} data-party={c.winnerId} data-changed={String(c.changed)} data-comparable={String(c.comparable)} data-previous-party={c.previousWinnerId} hidden={!matchesCouncil(c, filters)}>
+  <div class="dashboard-council-name">
+    <h3><a class="dashboard-council-link" href={c.href}>{c.name}</a></h3>
+    <p>{c.province}</p>
+  </div>
+  <div class="dashboard-seat-graphic" hidden={!s && !(status === 'pending' && c.progress)}>
+    {s && <>
+      <div class="dashboard-seat-bar" role="img" aria-label={`${s.status === 'estimated' ? 'Estimated seats. ' : ''}${parties.map(p => `${partyStyle(p.name)[0]} ${p.count}`).join(', ')}. ${s.majority} seats for a majority.`}>
+        {parties.map(p => <i style={`width:${p.count / s.total * 100}%;background:${partyStyle(p.name)[1]}`}/>)}
+        <b class="dashboard-seat-marker" aria-hidden="true"/>
+      </div>
+      <div class="dashboard-seat-legend">
+        {parties.slice(0, 3).map(p => <span><i style={`background:${partyStyle(p.name)[1]}`} aria-hidden="true"/><abbr title={p.name}>{partyStyle(p.name)[0]}</abbr><strong>{p.count}</strong></span>)}
+        {parties.length > 3 && <small>+{parties.length - 3} more</small>}
+      </div>
+      <p class="dashboard-seat-note">{s.total} seats · {s.majority} for a majority</p>
+    </>}
+    {status === 'pending' && c.progress && <p class="dashboard-reporting">{progressLabel(c.progress)} of districts reporting</p>}
+  </div>
+  <div class="dashboard-council-outcome">
+    <span class="dashboard-status">{title}</span>
+    {c.changed && <span class="dashboard-change-label">From {c.previousWinner ? `${partyStyle(c.previousWinner.name)[0]} majority` : 'no majority'} in {previousYear}</span>}
+  </div>
+</article>

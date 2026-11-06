@@ -62,19 +62,19 @@ The selected soft-corner Flag X is now a small, editable SVG: `public/brand/coun
 The existing home, municipality, town, ward and search pages use `src/styles/design.css` on top of their component foundations. `src/styles/patterns.css`, imported by the shared layout, owns decorative treatments using the original mockup SVGs in `public/patterns/`:
 
 - Beadwork fades into the shared header and forms a complete 28px repeat in the footer, place cards, municipality cards, council seat panels and majority builders. Keep the whole diamond visible instead of cropping it to a few pixels.
-- The dashboard’s majority-change card uses an indigo surface with shweshwe fading in from its right edge, as in the mockup. Its movement card carries beadwork along the top edge; the pending-race card has a warm woven side edge. Avoid inset pattern swatches: the artwork belongs to the surface itself.
+- The homepage keeps patterns in the shared header and footer. Council rows and the compact highlights strip use neutral surfaces so party seat bars carry the colour.
 - Dense movement and seat-change panels use a faint corner of shweshwe linework. `shweshwe-ink.svg` retains the original geometry with indigo strokes on a transparent field, so it blends into the existing panel colour without an opaque rectangle.
 - The warm banded treatment finishes ward/place guidance cards and the AI callout. On phones the callout’s side panel becomes a bottom band, leaving the text and button the full width.
 
 These CSS pseudo-elements are decorative, ignore pointer input and disappear in print and forced-colour modes. They carry no result meaning, never cover chart marks and add no JavaScript or image dependencies. Reporting indicators continue to use indigo based on actual district reporting.
 
-The home page says “Local election results”, with place search and a national outline, rather than treating Cape Town as the whole country. The map is geographic context, not a national coverage or results map. The available-area count comes from the current place catalogue. The map reuses the prototype’s simplified MDB province display paths and is unsuitable for address lookup.
+The home page says “2026 council results” and leads with one place/address search. Compact council rows replace the card grid; each shows its name, province, seat split and outcome once. Estimated seats and district reporting remain explicit. National vote shares and the province map live at `/national-results`.
 
 Ballot and status views retain their data, denominators, warnings and source times. On phones, party names sit above the bar so long published names remain readable. The header also styles the map navigation being built in parallel. Page types with no implementation are not linked as working features.
 
 ### Home page and navigation
 
-The home page serves the whole country. Its first action is place search, supported by a South Africa map of reporting progress. Follow it with the national count, completed councils, councils without a single-party majority, and all nine provinces. Each province opens a municipality list. Metro leaders remain an insight view and a secondary home-page link.
+The home page serves the whole country. Its first action is place search, followed by allocation coverage, province selection and a single row of outcome filters. Each party with a reported majority has an option alongside All councils, No majority and Pending. Counts follow the province; party selection never promotes estimates into majorities. More filters contains majority changes. The first eight council rows precede a quiet highlights strip, which disappears while filtering. National results, Highlights and Explore map remain distinct navigation destinations.
 
 The prototype has 15 municipality pages: all eight metros plus Makana, Mossel Bay, Polokwane, Ray Nkonyeni, Mbombela, Rustenburg and Sol Plaatje. Search also recognises example town names such as Makhanda, Margate, Nelspruit and Kimberley. Each province has at least one example page.
 
@@ -82,7 +82,7 @@ National and province figures describe a fictional full count. They are independ
 
 Municipality pages lead with council seats: a seat diagram, seats by party and the majority threshold. Use the complete, reconciled IEC allocation when available; otherwise show **Estimated council seats**, calculated from both ballots with reported ward wins and independent seats accounted for. State that it is based on the current count and can change, and provide reporting coverage and the model's assumptions. PR vote percentages alone are insufficient. If the inputs do not reconcile, show why a seat estimate is unavailable and retain the vote results. See [seat methodology](seats.md). Province and national views retain reporting coverage and scoped vote aggregates; combining seat counts across councils does not describe control of any one council. Insights show rankings and trends. The ward page shows the contest while counting and the representative after declaration. The contact guide uses more text because it gives instructions.
 
-On mobile, the first screen shows the name, search and map. Province cards remain readable without tapping. Share images need a separate check at messaging-app size. Never rely on colour or geographic size alone. Label reporting progress as districts, and explain that a closest-race bar compares only the top two parties.
+On mobile, the first screen prioritises the title, search and council filters. Rows place the council name and outcome above the seat bar. Highlights never precede the council results. Share images need a separate check at messaging-app size. Never rely on colour or geographic size alone. Label reporting progress as districts.
 
 Basic maps, local search and results already exist in ElectionSePush and ElectAI. The proposed emphasis is comparisons across places, changes between updates, reusable public data and summaries people can send to their communities. Councillor lookup also exists; connect it to the result status, verified contacts and practical guidance.
 
