@@ -1,5 +1,6 @@
 ---
 import ChaosPromo from './ChaosPromo.astro';
+import CoalitionExplainer from './CoalitionExplainer.astro';
 import { electionCouncilSeats } from '../lib/history/seats.ts';
 import { majorityWinner } from '../lib/seats/majority.ts';
 import { latestYear } from '../lib/history/comparison.ts';
@@ -13,7 +14,8 @@ import Icon from './Icon.astro';
 interface Props { result: Result; href: string; name: string }
 const { result, href, name }=Astro.props;
 const seats=electionCouncilSeats(result);
-const promoMajority=seats.status!=='unavailable'&&majorityWinner(seats)?seats.status:undefined;
+const winner=majorityWinner(seats);
+const promoMajority=seats.status!=='unavailable'&&winner?seats.status:undefined;
 const parties=seats.status==='unavailable'?[]:seats.parties.filter(p=>p.count>0);
 const votes=ballotResults(result,'source_total');
 const share=parties.map(p=>votes.parties.find(v=>v.source_entry_id===p.source_entry_id)?.share??null);
@@ -39,6 +41,7 @@ const otherShare=otherShares.every(s=>s!==null)?otherShares.reduce<number>((n,s)
     </div>
     {parties.slice(0,visiblePartyCount).map((p,i)=><CouncilSeatRow party={p} total={seats.total} majority={seats.majority} voteShare={share[i]??null}/>)}
     {otherParties.length>0&&<details class="council-more"><CouncilSeatRow summary party={{other:true,count:otherParties.reduce((n,p)=>n+p.count,0)}} total={seats.total} majority={seats.majority} voteShare={otherShare}/>{otherParties.map((p,i)=><CouncilSeatRow party={p} total={seats.total} majority={seats.majority} voteShare={share[i+visiblePartyCount]??null}/>)}</details>}
+    {!winner&&<CoalitionExplainer headingLevel="h4"/>}
     {!historical&&<ChaosPromo name={name} href={`${href}/coalition`} majority={promoMajority}/>}
   </>}
 </section>

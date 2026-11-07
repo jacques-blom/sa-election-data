@@ -1,0 +1,169 @@
+---
+import Icon from './Icon.astro';
+
+interface Props { headingLevel?: 'h2' | 'h4' }
+const { headingLevel: Heading = 'h2' } = Astro.props;
+
+const parties = [
+  { name: 'A', seats: 4 },
+  { name: 'B', seats: 3 },
+  { name: 'C', seats: 2 },
+  { name: 'D', seats: 1 },
+];
+const council = parties.flatMap(party => Array.from({ length: party.seats }, () => party.name));
+const deal = ['A', 'A', 'A', 'A', 'C', 'C', 'B', 'B', 'B', 'D'];
+---
+<details class="coalition-explainer" id="explain-coalitions">
+  <summary class="explainer-heading">
+    <span class="explainer-icon"><Icon name="users" size={20}/></span>
+    <span><strong>Explain SA Coalitions</strong><small>Why team up? And why is it tricky?</small></span>
+    <span class="explainer-toggle"><Icon name="plus" size={19}/></span>
+  </summary>
+  <div class="explainer-body">
+    <p class="explainer-intro">A coalition is two or more parties agreeing to govern together. Here’s how it works in a council.</p>
+    <p class="explainer-example">An imaginary council · 10 seats · 6 for a majority</p>
+    <ol class="explainer-steps">
+      <li class="explainer-step">
+        <div class="explainer-copy">
+          <span class="explainer-number" aria-hidden="true">01</span>
+          <Heading>Most seats ≠ a majority</Heading>
+          <p>SA’s election system gives different parties a share of the seats. Sometimes none wins more than half. That’s a <strong>hung council</strong>.</p>
+        </div>
+        <div class="explainer-visual">
+          <div class="explainer-seats" role="img" aria-label="Ten council seats: Party A has four, B has three, C has two and D has one. No party has the six seats needed for a majority.">
+            {council.map(party => <span class="explainer-seat" data-party={party} aria-hidden="true">{party}</span>)}
+          </div>
+          <div class="explainer-legend" aria-hidden="true">{parties.map(party => <span><i data-party={party.name}></i>{party.name} · {party.seats}</span>)}</div>
+          <p class="explainer-caption">A is the biggest. <strong>Four still isn’t six.</strong></p>
+        </div>
+      </li>
+      <li class="explainer-step">
+        <div class="explainer-copy">
+          <span class="explainer-number" aria-hidden="true">02</span>
+          <Heading>Make a deal. Vote together.</Heading>
+          <p>Parties negotiate who leads and what to do. Councillors elect the mayor and vote on budgets. Partners stay separate parties, but agree to work together.</p>
+        </div>
+        <div class="explainer-visual">
+          <div class="explainer-equation" role="img" aria-label="Party A’s four seats plus Party C’s two seats make six: a majority.">
+            <span data-party="A"><small>Party A</small><strong>4</strong></span>
+            <b aria-hidden="true">+</b>
+            <span data-party="C"><small>Party C</small><strong>2</strong></span>
+            <b aria-hidden="true">=</b>
+            <span class="explainer-total"><small>Together</small><strong>6</strong></span>
+          </div>
+          <p class="explainer-caption"><strong>Enough seats. Now agree on a plan.</strong></p>
+          <div class="explainer-agreement"><Icon name="check" size={16}/><span>Who leads · What gets funded · How to settle disputes</span></div>
+        </div>
+      </li>
+      <li class="explainer-step">
+        <div class="explainer-copy">
+          <span class="explainer-number" aria-hidden="true">03</span>
+          <Heading>The deal has to hold</Heading>
+          <p>Partners can disagree over policies, jobs or spending. A small party can tip the balance. If support breaks down, budgets and decisions can stall.</p>
+        </div>
+        <div class="explainer-visual explainer-experiment">
+          <div class="explainer-together">
+            <p class="explainer-support"><strong>6 / 10</strong><span>back the deal</span></p>
+            <div class="explainer-seats explainer-support-seats" role="img" aria-label="A and C back the deal with six seats out of ten, exactly the majority needed.">
+              {deal.map(party => <span class="explainer-seat" data-party={party} data-outside={party === 'B' || party === 'D' ? '' : undefined} aria-hidden="true">{party}</span>)}
+            </div>
+            <p class="explainer-threshold">↑ 6 needed. No seats to spare.</p>
+          </div>
+          <details class="explainer-walkout">
+            <summary><span>What if Party C leaves?</span><Icon name="chevronDown" size={16}/></summary>
+            <div class="explainer-withdrawn">
+              <p class="explainer-support"><strong>4 / 10</strong><span>still back the deal</span></p>
+              <div class="explainer-seats explainer-support-seats" role="img" aria-label="Party C withdraws its two votes. Only A’s four seats still back the deal, two short of six. All ten elected seats remain.">
+                {deal.map(party => <span class="explainer-seat" data-party={party} data-withdrawn={party === 'C' ? '' : undefined} data-outside={party === 'B' || party === 'D' ? '' : undefined} aria-hidden="true">{party}</span>)}
+              </div>
+              <p class="explainer-threshold">↑ Still 6 needed. Now 2 short.</p>
+              <p class="explainer-caption">C keeps its seats. A needs new support to pass a budget.</p>
+            </div>
+          </details>
+        </div>
+      </li>
+    </ol>
+    <aside class="explainer-takeaway"><Icon name="check" size={20}/><p><strong>Coalitions can work.</strong> They can give more voters a voice. Clear agreements, compromise and trust help parties turn shared votes into services.</p></aside>
+    <div class="explainer-footnotes">
+      <p>Why six? A council budget needs support from more than half of all councillors. Other votes can follow different rules. Losing a partner doesn’t automatically remove a mayor.</p>
+      <div class="explainer-sources">
+        <a href="https://www.gov.za/CoalitionsDialogue/faqs" target="_blank" rel="noopener noreferrer">SA government: coalitions <Icon name="arrowUpRight" size={13}/></a>
+        <a href="https://www.gov.za/documents/constitution/constitution-republic-south-africa-1996-chapter-7-local-government-07-feb" target="_blank" rel="noopener noreferrer">Constitution: council votes <Icon name="arrowUpRight" size={13}/></a>
+      </div>
+    </div>
+  </div>
+</details>
+
+<style>
+  @font-face{font-family:Silkscreen;src:url('/fonts/Silkscreen-Regular.ttf') format('truetype');font-display:swap}
+  .coalition-explainer{margin:0 0 18px;border:1px solid #b8c5ae;background:#fffdf5;color:#193b32;font-size:13px;line-height:1.6}
+  .coalition-explainer summary:focus-visible,.coalition-explainer a:focus-visible{outline:3px solid #b74628;outline-offset:4px}
+  .explainer-heading{display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 14px;list-style:none;cursor:pointer;box-sizing:border-box}
+  .explainer-heading::-webkit-details-marker,.explainer-walkout>summary::-webkit-details-marker{display:none}
+  .explainer-heading>span:nth-child(2){flex:1;min-width:0}
+  .explainer-heading strong{display:block;font-size:14px;font-weight:650;line-height:1.4}
+  .explainer-heading small{display:block;font-size:11px;color:#50624d;margin-top:2px}
+  .explainer-icon{display:grid;place-items:center;width:36px;height:36px;flex:none;background:#e9eddf;border:1px solid #c6cebc;box-shadow:2px 2px 0 #c6cebc}
+  .explainer-toggle{display:flex;flex:none}
+  .coalition-explainer[open]>.explainer-heading{border-bottom:1px solid #c6cebc;background:#eef0e4}
+  .coalition-explainer[open]>.explainer-heading .explainer-toggle{transform:rotate(45deg)}
+  .explainer-body{padding:18px}
+  .explainer-intro{font-size:14px;line-height:1.6;margin:0 0 14px;max-width:62ch}
+  .explainer-example{font-size:11px;line-height:1.6;margin:0;padding-bottom:16px;color:#50624d}
+  .explainer-steps{padding:0;margin:0;list-style:none}
+  .explainer-step{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:24px;border-top:1px solid #d5dcca;padding:20px 0}
+  .explainer-copy{position:relative;padding-left:34px}
+  .explainer-number{position:absolute;left:0;top:1px;font-family:Silkscreen,monospace;font-size:11px;color:#68795a}
+  .explainer-copy :is(h2,h4){font-size:16px;line-height:1.4;letter-spacing:-.25px;margin:0 0 7px}
+  .explainer-copy p{font-size:13px;line-height:1.65;margin:0;color:#435544}
+  .explainer-visual{min-width:0}
+  [data-party=A]{--seat-bg:#235c53;--seat-ink:#fffdf5}
+  [data-party=B]{--seat-bg:#e4c56b;--seat-ink:#193b32}
+  [data-party=C]{--seat-bg:#79537c;--seat-ink:#fffdf5}
+  [data-party=D]{--seat-bg:#96b5c1;--seat-ink:#193b32}
+  .explainer-seats{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;padding-bottom:5px}
+  .explainer-seat{position:relative;display:grid;place-items:center;height:27px;background:var(--seat-bg);color:var(--seat-ink);font-size:11px;line-height:1;font-weight:700;border-bottom:3px solid #193b3233;border-radius:2px 2px 0 0}
+  .explainer-seat::after{content:'';position:absolute;height:4px;bottom:-6px;left:2px;right:2px;border-inline:3px solid var(--seat-bg)}
+  .explainer-legend{display:flex;justify-content:space-between;gap:8px;margin:12px 0 8px;font-size:11px}
+  .explainer-legend>span{display:flex;align-items:center;gap:5px}
+  .explainer-legend i{width:7px;height:7px;background:var(--seat-bg)}
+  .explainer-caption{font-size:12px;line-height:1.6;margin:9px 0 0}
+  .explainer-equation{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .explainer-equation>span{display:flex;flex:1;flex-direction:column;align-items:center;padding:8px 6px;background:var(--seat-bg);color:var(--seat-ink)}
+  .explainer-equation small{font-size:10px;white-space:nowrap}
+  .explainer-equation strong{font-family:Silkscreen,monospace;font-weight:400;font-size:26px;line-height:1.2}
+  .explainer-equation .explainer-total{background:#e6edcf;color:#193b32;border:1px solid #b8c5ae;box-shadow:2px 2px 0 #b8c5ae}
+  .explainer-agreement{display:flex;align-items:flex-start;gap:6px;font-size:11px;line-height:1.6;color:#50624d;margin-top:7px}
+  .explainer-agreement :global(svg){flex:none;margin-top:1px}
+  .explainer-support{display:flex;align-items:baseline;gap:8px;margin:0 0 10px;font-size:11px}
+  .explainer-support strong{font-family:Silkscreen,monospace;font-size:20px;font-weight:400;line-height:1.3}
+  .explainer-support-seats{position:relative}
+  .explainer-support-seats::after{content:'';position:absolute;left:calc(60% + 1px);top:-5px;bottom:-2px;border-left:2px dashed #193b32}
+  .explainer-seat[data-outside]{--seat-bg:#e5e8dc;--seat-ink:#52604d}
+  .explainer-seat[data-withdrawn]{background:repeating-linear-gradient(135deg,#e9e1e8 0 3px,#fffdf5 3px 6px);color:#79537c;border:1px dashed #79537c;text-decoration:line-through}
+  .explainer-threshold{font-size:11px;margin:9px 0;color:#50624d}
+  .explainer-walkout{display:flex;flex-direction:column}
+  .explainer-walkout>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:8px 10px;border:1px solid #a4b495;background:#eef0e4;list-style:none;cursor:pointer;font-size:12px;font-weight:600;box-sizing:border-box}
+  .explainer-walkout>summary :global(svg){flex:none}
+  .explainer-walkout[open]>summary :global(svg){transform:rotate(180deg)}
+  .explainer-withdrawn{padding-top:12px}
+  .explainer-withdrawn .explainer-support strong,.explainer-withdrawn .explainer-threshold{color:#9b3a21}
+  .explainer-experiment:has(.explainer-walkout[open]) .explainer-together{display:none}
+  .explainer-takeaway{display:flex;align-items:flex-start;gap:10px;background:#e9eddf;border-left:3px solid #667e51;padding:12px;margin:0}
+  .explainer-takeaway :global(svg){flex:none;margin-top:2px}
+  .explainer-takeaway p{font-size:13px;line-height:1.65;margin:0}
+  .explainer-footnotes{font-size:11px;color:#50624d;margin-top:14px}
+  .explainer-footnotes p{margin:0;line-height:1.7}
+  .explainer-sources{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:4px}
+  .explainer-sources a{display:inline-flex;align-items:center;gap:4px;min-height:44px;color:inherit;font-size:11px;text-underline-offset:3px}
+  @media(hover:hover){.explainer-heading:hover,.explainer-walkout>summary:hover{background:#e9eddf}}
+  @media(max-width:599px){
+    .explainer-body{padding:16px}
+    .explainer-step{grid-template-columns:1fr;gap:16px;padding:18px 0}
+    .explainer-visual{margin-left:34px}
+    .explainer-heading{gap:10px;padding:10px 12px}
+    .explainer-heading strong{font-size:13px}
+    .explainer-seat{font-size:10px;height:25px}
+  }
+  @media(max-width:359px){.explainer-visual{margin-left:0}.explainer-seats{gap:3px}.explainer-icon{width:30px;height:32px}.explainer-heading{gap:8px}.explainer-body{padding:14px}}
+</style>

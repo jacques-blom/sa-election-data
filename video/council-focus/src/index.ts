@@ -1,3 +1,3 @@
 import {registerRoot} from 'remotion';
-import {Root} from './Video';
+import {Root} from './Recut';
 registerRoot(Root);

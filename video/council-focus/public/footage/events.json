@@ -1,67 +1,82 @@
 [
   {
-    "clip": "01-directory",
+    "clip": "05-search",
     "seconds": 0.0,
     "action": "start"
   },
   {
-    "clip": "01-directory",
-    "seconds": 2.801,
-    "action": "Scroll from Buffalo City to Cape Town"
+    "clip": "05-search",
+    "seconds": 0.25,
+    "action": "Tap search"
   },
   {
-    "clip": "01-directory",
-    "seconds": 6.855,
+    "clip": "05-search",
+    "seconds": 1.241,
+    "action": "Open Tshwane suggestion"
+  },
+  {
+    "clip": "05-search",
+    "seconds": 2.065,
+    "action": "Council loaded"
+  },
+  {
+    "clip": "05-search",
+    "seconds": 3.265,
     "action": "stop"
   },
   {
-    "clip": "02-council",
+    "clip": "06-chart",
     "seconds": 0.0,
     "action": "start"
   },
   {
-    "clip": "02-council",
-    "seconds": 2.5,
-    "action": "Scroll to council seats"
-  },
-  {
-    "clip": "02-council",
-    "seconds": 6.508,
-    "action": "stop"
-  },
-  {
-    "clip": "03-history",
-    "seconds": 0.0,
-    "action": "start"
-  },
-  {
-    "clip": "03-history",
-    "seconds": 1.4,
+    "clip": "06-chart",
+    "seconds": 0.3,
     "action": "Inspect 2021"
   },
   {
-    "clip": "03-history",
-    "seconds": 3.641,
+    "clip": "06-chart",
+    "seconds": 1.142,
     "action": "Inspect 2026"
   },
   {
-    "clip": "03-history",
-    "seconds": 6.683,
+    "clip": "06-chart",
+    "seconds": 1.977,
+    "action": "Switch to vote share"
+  },
+  {
+    "clip": "06-chart",
+    "seconds": 2.828,
+    "action": "Highlight DA"
+  },
+  {
+    "clip": "06-chart",
+    "seconds": 3.872,
     "action": "stop"
   },
   {
-    "clip": "04-coalitions",
+    "clip": "07-coalitions",
     "seconds": 0.0,
     "action": "start"
   },
   {
-    "clip": "04-coalitions",
-    "seconds": 2.7,
-    "action": "Swipe through recorded administrations to 2024"
+    "clip": "07-coalitions",
+    "seconds": 0.4,
+    "action": "Touch swipe through administrations"
   },
   {
-    "clip": "04-coalitions",
-    "seconds": 8.508,
+    "clip": "07-coalitions",
+    "seconds": 2.089,
+    "action": "Open administrations and sources"
+  },
+  {
+    "clip": "07-coalitions",
+    "seconds": 2.781,
+    "action": "Scroll to recorded members and notes"
+  },
+  {
+    "clip": "07-coalitions",
+    "seconds": 4.087,
     "action": "stop"
   }
 ]

@@ -5,6 +5,7 @@ import { coalitionDeal, gamePartyLabel } from '../lib/seats/game.ts';
 import { drawSpeakerComment } from '../lib/seats/commentary.ts';
 import { matchingPoliticalHistory } from '../lib/seats/political-history.ts';
 import Icon from './Icon.astro';
+import CoalitionExplainer from './CoalitionExplainer.astro';
 interface Props { model: CoalitionData }
 const { model } = Astro.props;
 const deal = coalitionDeal(model, (Astro.url.searchParams.get('parties') ?? '').split(','));
@@ -17,6 +18,7 @@ const leaders = Object.fromEntries(selectable.map(p => [p.short, coalitionLeader
 const unavailableSeats = model.parties.filter(p => !p.selectable).reduce((sum, p) => sum + p.seats, 0);
 ---
 <div class="coalition-game" data-speaker-memory={JSON.stringify(speaker)}>
+  <CoalitionExplainer/>
   <div class="chaos-board">
     <section class="coalition-visual-panel" aria-label="Your hypothetical coalition">
       <div class="chaos-scenario-banner"><span class="chaos-scenario-badge">Fictional scenario</span><span>Satirical game</span></div>

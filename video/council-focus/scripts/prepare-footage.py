@@ -1,7 +1,7 @@
 from pathlib import Path
 import subprocess, shutil, concurrent.futures
 root=Path(__file__).resolve().parents[1]
-src=Path('/tmp/council-mobile-recordings')
+src=Path('/tmp/council-recut-recordings')
 dst=root/'public/footage'
 ffmpeg=root/'node_modules/ffmpeg-static/ffmpeg'
 def convert(p):

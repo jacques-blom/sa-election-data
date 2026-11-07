@@ -12,6 +12,14 @@ The reusable `ChaosPromo` uses Madam Speaker’s v3 sprite, pixel type and a sin
 
 The 20-second Remotion trailer now records real Johannesburg play: DA + ActionSA, 138 estimated seats against a 136-seat majority. A genuine fictional draw removes ActionSA’s 44 seats. The end card uses `counted.co.za/chaos`; the prior Witzenberg cut is retained locally in `video/coalition-chaos/out/v2/`.
 
+## Coalition explainer
+
+“Explain SA Coalitions” sits above the game, collapsed by default. `CoalitionExplainer.astro` follows an imaginary ten-seat council through a hung result, a six-seat agreement and the loss of a partner’s support. Lettered, coloured seats distinguish the example from real parties. A nested native disclosure lets readers withdraw and restore Party C’s support while retaining all ten elected seats; it works without JavaScript and does not change the game selection. Existing live-refresh handling preserves both disclosures.
+
+The same explainer appears in municipality seat cards when a usable reported or estimated allocation has no single-party majority, including historical results. It sits after the seat breakdown and before the game invitation. Unavailable allocations and outright-majority councils do not show it; the existing estimate labels remain in place.
+
+The copy links to the [government’s coalition FAQ](https://www.gov.za/CoalitionsDialogue/faqs) and [Constitution, sections 157 and 160](https://www.gov.za/documents/constitution/constitution-republic-south-africa-1996-chapter-7-local-government-07-feb). The majority example uses a budget vote, distinguishes other voting rules, and explains that losing a partner does not automatically remove a mayor. It covers both bargaining difficulties and the potential benefits of cooperation.
+
 ## The design hypothesis
 
 A calculator becomes a short, replayable political story: invite parties, cross the majority line, discover who has bargaining power, test a fictional crisis, then renegotiate. The tension is between a lean agreement where every partner matters and a larger deal with a numerical cushion. Players choose their own parties. Seat arithmetic is identical for every party; dated, sourced relationships add context-specific stories without assigning reliability scores.

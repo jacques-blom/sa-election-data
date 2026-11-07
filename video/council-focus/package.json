@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "check": "tsc --noEmit",
-    "render": "remotion render src/index.ts CouncilFocus out/counted-councils-4x3.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p --concurrency=2 && node scripts/finalize.mjs",
-    "poster": "remotion still src/index.ts CouncilFocus out/counted-councils-cover.png --frame=900",
+    "render": "remotion render src/index.ts CouncilFocus out/counted-councils-4x3.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p --concurrency=3 && node scripts/finalize.mjs",
+    "poster": "remotion still src/index.ts CouncilFocus out/counted-councils-cover.png --frame=12",
     "studio": "remotion studio src/index.ts --no-open",
-    "audio": "python3 scripts/create-audio.py",
     "preview": "node scripts/prepare-preview.mjs",
     "source": "python3 scripts/package-source.py"
   },
