@@ -1,0 +1,54 @@
+{
+  "composition": "CoalitionChaosFeed",
+  "width": 1080,
+  "height": 1350,
+  "fps": 30,
+  "frames": 600,
+  "source": "The same genuine Johannesburg recordings described in source.json.",
+  "build": {
+    "sourceRegions": {
+      "municipality": [
+        22,
+        20,
+        500,
+        49
+      ],
+      "score": [
+        22,
+        82,
+        500,
+        174
+      ],
+      "partyChoices": [
+        22,
+        310,
+        500,
+        256
+      ],
+      "testButton": [
+        22,
+        722,
+        500,
+        78
+      ]
+    },
+    "presentation": "The four largest parties are framed in a larger two-by-two view. Regions from the same source frame are repositioned without changing their text, totals or selection states.",
+    "holdAtCompositionFrame": 116,
+    "testTap": "The board holds just before the modal opens; an editorial touch marker indicates the same Test the deal press at its repositioned location."
+  },
+  "outcome": {
+    "sourceRegion": [
+      22,
+      145,
+      496,
+      602
+    ],
+    "holdAtCompositionFrame": 114,
+    "contextLabel": "Estimated seats · Fictional drama",
+    "position": {
+      "left": 60,
+      "top": 100,
+      "width": 960
+    }
+  }
+}

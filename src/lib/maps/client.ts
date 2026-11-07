@@ -10,6 +10,7 @@ import { parseView, type AreaPick, type WardPick } from './viewport.ts';
 import type { BoundaryLevel } from './detail.ts';
 import { pollWhileVisible } from '../live/poll.ts';
 import { formatNumber, partyStyle } from '../places/format.ts';
+import { progressLabel } from '../overview/progress.ts';
 import { ballotLabel, LEADER_BATCH_SIZE, NEUTRAL_COLOR, type MapLeader, type MapLeadersResponse } from './leader-types.ts';
 import type { MapWardResponse } from './ward-types.ts';
 import type { Feature } from 'geojson';
@@ -134,6 +135,10 @@ function paintResults() {
       label.textContent = leaderLabel(leader);
       label.style.setProperty('--result-color', color);
       label.title = leader?.party ?? label.textContent;
+      if (leader?.government) {
+        const note = text('small', leader.government, 'map-area-government');
+        label.appendChild(note);
+      }
     }
     if (leader?.party) key.set(leader.party, color);
     delayed ||= leader?.delayed ?? false;
@@ -357,7 +362,16 @@ function renderResult(data: MapWardResponse) {
       append(card, row);
     }
     append(card, text('p', 'Change since 2021 in percentage points. Changes compare combined ballot shares; boundaries may differ.', 'comparison-note'));
-    if (result.progress) append(card, text('p', `${result.progress.completed} of ${result.progress.expected} districts reported`, 'map-hint'));
+    if (result.progress) {
+      const status = text('div', '', 'map-reporting');
+      const progress = document.createElement('progress');
+      progress.max = result.progress.expected;
+      progress.value = result.progress.completed;
+      progress.setAttribute('aria-label', 'Voting districts reporting');
+      progress.setAttribute('aria-valuetext', `${progressLabel(result.progress)} reporting`);
+      append(status, progress, text('span', `${progressLabel(result.progress)} reporting`));
+      append(card, status);
+    }
     if (result.freshness) append(card, text('p', result.freshness, 'map-hint'));
   }
   const link = text('a', 'Full ward results ↗', 'button primary');
@@ -488,7 +502,7 @@ async function start() {
     window.addEventListener('pageshow', event => { if (event.persisted) void boundaries.update(); });
   } catch {
     loading.hidden = false;
-    loading.textContent = 'Google Maps could not load. Search for an area or use Browse results above.';
+    loading.textContent = 'Google Maps could not load. Search for an area or open Results in the navigation.';
   }
 }
 void start();

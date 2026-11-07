@@ -1,0 +1,56 @@
+{
+  "revision": 4,
+  "recorded": "2026-11-07",
+  "route": "/2026/places/johannesburg/coalition",
+  "entry": "https://counted.co.za/chaos",
+  "viewport": {
+    "width": 540,
+    "height": 960
+  },
+  "fps": 30,
+  "recordings": [
+    {
+      "file": "build-joburg-v4.mp4",
+      "sourceStartSeconds": 0,
+      "sourceEndSeconds": 3.825,
+      "playbackRate": 0.85
+    },
+    {
+      "file": "roll-joburg-v4.mp4",
+      "sourceStartSeconds": 0,
+      "sourceEndSeconds": 3.8,
+      "playbackRate": 1,
+      "freezeAtFrame": 114,
+      "outputDurationSeconds": 5.1
+    }
+  ],
+  "presentation": "Temporary recording CSS enlarges the game and puts all 23 parties in a scrollable roster. Estimates remain labelled. Touch marks show actual pointer presses.",
+  "parties": [
+    {
+      "name": "DA",
+      "id": "52",
+      "seats": 93
+    },
+    {
+      "name": "ActionSA",
+      "id": "1511",
+      "seats": 43
+    }
+  ],
+  "seatStatus": "estimated",
+  "majority": 136,
+  "total": 270,
+  "roll": "“It’s a matter of principle.”",
+  "exit": "ActionSA",
+  "remaining": 93,
+  "gameLogicChanged": false,
+  "randomnessOverridden": false,
+  "edits": "Two normal takes of the same 136-seat starting coalition. Updated photo-referenced sprites, with Helen Zille as the Johannesburg DA cameo. Timing and framing only; no seat totals or outcome text altered. Outcome source begins 0.30 seconds after the normal reroll and holds at frame114 after the exit.",
+  "sourceReportedAt": "2026-11-07T14:56:36.602Z",
+  "artVersion": "v4",
+  "localCameo": {
+    "party": "DA",
+    "name": "Helen Zille",
+    "municipalityId": "3003"
+  }
+}

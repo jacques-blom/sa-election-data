@@ -1,53 +1,55 @@
 ---
-import { councilSeats, seatLabel } from '../lib/seats/allocation.ts';
-import { councilOutcome } from '../lib/seats/majority.ts';
+import ChaosPromo from './ChaosPromo.astro';
+import { electionCouncilSeats } from '../lib/history/seats.ts';
+import { majorityWinner } from '../lib/seats/majority.ts';
 import { latestYear } from '../lib/history/comparison.ts';
-import MajorityBanner from './MajorityBanner.astro';
-import { partyStyle, type Result } from '../lib/places/results.ts';
-import PartyLogo from './PartyLogo.astro';
-import SeatDiagram from './SeatDiagram.astro';
-import SeatMethod from './SeatMethod.astro';
-import CivicGuide from './CivicGuide.astro';
+import { ballotResults, partyStyle, type Result } from '../lib/places/results.ts';
+import { councilShareCard } from '../lib/sharing/council.ts';
+import { governmentCaption, governmentContext } from '../lib/governance/index.ts';
+import CouncilSeatRow from './CouncilSeatRow.astro';
+import ShareView from './overview/ShareView.astro';
+import ResultStatus from './ResultStatus.astro';
+import Icon from './Icon.astro';
 interface Props { result: Result; href: string; name: string }
-const { result, href, name } = Astro.props;
-const seats = councilSeats(result.level, result.results);
-const historical = result.year !== latestYear;
-const headline = councilOutcome(seats, historical);
-const parties = seats.status === 'unavailable' ? [] : seats.parties.filter(p => p.count > 0);
-const largest = parties.find(p => p.party_id !== '0' && p.entry_type !== 'aggregate');
-const visiblePartyCount = 5;
+const { result, href, name }=Astro.props;
+const seats=electionCouncilSeats(result);
+const promoMajority=seats.status!=='unavailable'&&majorityWinner(seats)?seats.status:undefined;
+const parties=seats.status==='unavailable'?[]:seats.parties.filter(p=>p.count>0);
+const votes=ballotResults(result,'source_total');
+const share=parties.map(p=>votes.parties.find(v=>v.source_entry_id===p.source_entry_id)?.share??null);
+const card=councilShareCard(result,name,seats);
+const government=governmentCaption(governmentContext(result.id,result.year));
+if(card&&government)card.caption+=`\n\n${government}`;
+const historical=result.year!==latestYear;
+const visiblePartyCount=3;
+const otherParties=parties.slice(visiblePartyCount);
+const otherShares=share.slice(visiblePartyCount);
+const otherShare=otherShares.every(s=>s!==null)?otherShares.reduce<number>((n,s)=>n+s!,0):null;
 ---
-<section class="card council-seats" data-outcome={headline.state} aria-label={seats.status === 'unavailable' ? 'Council seats' : seatLabel(seats)}>
-  <div class="council-outcome-heading"><span class="council-state-icon" aria-hidden="true">{headline.state === 'majority' ? '✓' : headline.state === 'hung' ? '↔' : '…'}</span><div><p class="council-seat-basis">{historical ? `${result.year} election outcome` : 'Council outcome'} · {seats.status === 'unavailable' ? 'Awaiting allocation' : seatLabel(seats)}</p><h2>{headline.title}</h2></div><span class="pill">{seats.status === 'estimated' ? 'Estimate' : historical ? 'Historical' : seats.status === 'unavailable' ? 'Pending' : 'IEC reported'}</span></div>
-  <p class="council-meaning">{headline.meaning}</p>
-  {seats.status === 'unavailable' ? <p class="small">{headline.detail}</p> : <>
-    <p class="council-majority-detail">{headline.detail}</p>
-    {largest && <div class="majority-distance">
-      <div class="majority-distance-label"><span><strong>{partyStyle(largest.party_name)[0]}: {largest.count}</strong> {seats.status === 'estimated' ? 'estimated seats' : 'seats'}</span><span><strong>{seats.majority}</strong> needed</span></div>
-      <div class="majority-distance-track" role="img" aria-label={`${partyStyle(largest.party_name)[0]} has ${largest.count} ${seats.status === 'estimated' ? 'estimated ' : ''}seats out of ${seats.total}. More than half, or ${seats.majority}, needed for a majority.`}><i style={`width:${largest.count / seats.total * 100}%;background:${partyStyle(largest.party_name)[1]}`}/><b aria-hidden="true"/></div>
-      <div class="majority-distance-scale" aria-hidden="true"><span>0</span><span>Halfway · a majority needs more</span><span>{seats.total}</span></div>
-    </div>}
-    <div class="council-grid"><div class="council-visual"><SeatDiagram seats={seats}/><p class="seat-threshold"><strong>{seats.majority}</strong> seats for a majority <span>{seats.total}-seat council</span></p></div>
-      <div>
-        <div class="chart-key"><span>Party</span><span>{seats.status === 'estimated' ? 'Estimated seats' : 'Seats'}</span></div>
-        {parties.slice(0, visiblePartyCount).map(p => <div class="seat-party-row"><span class="seat-party-name"><PartyLogo party={p} size="small"/><abbr title={p.party_name}>{partyStyle(p.party_name)[0]}</abbr></span><span class="seat-track" aria-hidden="true"><i style={`width:${p.count / seats.total * 100}%;background:${partyStyle(p.party_name)[1]}`}/></span><strong>{p.count}</strong></div>)}
-        {parties.length > visiblePartyCount && <details class="more-parties"><summary>Show {parties.length - visiblePartyCount} more {parties.length - visiblePartyCount === 1 ? 'party' : 'parties'}</summary>
-          {parties.slice(visiblePartyCount).map(p => <div class="seat-party-row"><span class="seat-party-name"><PartyLogo party={p} size="small"/><abbr title={p.party_name}>{partyStyle(p.party_name)[0]}</abbr></span><span class="seat-track" aria-hidden="true"><i style={`width:${p.count / seats.total * 100}%;background:${partyStyle(p.party_name)[1]}`}/></span><strong>{p.count}</strong></div>)}
-        </details>}
+<section class="card council-seats" aria-label="Council seats" data-seat-status={seats.status}>
+  <header class="council-heading"><div><h3>Council seats</h3>{seats.status==='estimated'?<span class="seat-state seat-state--estimate">Estimate</span>:!historical&&seats.status==='reported'&&<span class="seat-state">Provisional</span>}</div>{card&&<ShareView card={card}/>}</header>
+  <ResultStatus result={result} showProgress={seats.status==='estimated'}/>
+  {seats.status==='unavailable'?<div class="seats-pending"><Icon name="clock" size={22}/><p>{historical?'Seat allocation unavailable.':'Seat allocation pending.'}<small>The vote breakdown is below.</small></p></div>:<>
+    {seats.status==='estimated'&&<p class="seat-estimate-note">From votes counted so far. Final seats may change.</p>}
+    <div class="seat-composition" role="img" aria-label={`${seats.total} council seats; ${seats.majority} for a majority. ${parties.map(p=>`${partyStyle(p.party_name)[0]} ${p.count}`).join(', ')}`}>
+      <div class="seat-composition-labels"><span>{seats.total} seats</span><strong>{seats.majority} for a majority</strong></div>
+      <div class="seat-composition-bar" style={`--majority:${seats.majority/seats.total*100}%`}>
+        {parties.map(p=><i style={`width:${p.count/seats.total*100}%;background:${partyStyle(p.party_name)[1]}`} aria-hidden="true"/>)}<b aria-hidden="true"/>
       </div>
     </div>
-    <SeatMethod seats={seats} result={result}/>
+    {parties.slice(0,visiblePartyCount).map((p,i)=><CouncilSeatRow party={p} total={seats.total} majority={seats.majority} voteShare={share[i]??null}/>)}
+    {otherParties.length>0&&<details class="council-more"><CouncilSeatRow summary party={{other:true,count:otherParties.reduce((n,p)=>n+p.count,0)}} total={seats.total} majority={seats.majority} voteShare={otherShare}/>{otherParties.map((p,i)=><CouncilSeatRow party={p} total={seats.total} majority={seats.majority} voteShare={share[i+visiblePartyCount]??null}/>)}</details>}
+    {!historical&&<ChaosPromo name={name} href={`${href}/coalition`} majority={promoMajority}/>}
   </>}
-  <CivicGuide topic="seats"/>
 </section>
-{!historical && <MajorityBanner name={name} href={`${href}/coalition`} seats={seats}/>}
 <style>
-  .council-seats{border-top:4px solid #a0ad96}.council-seats[data-outcome=majority]{border-top-color:#35654b}.council-seats[data-outcome=hung]{border-top-color:#b98a36}.council-seats[data-outcome=estimated]{border-top-color:#587994}
-  .council-outcome-heading{display:flex;align-items:center;gap:14px}.council-outcome-heading>div{flex:1;min-width:0}.council-outcome-heading h2{margin:0;line-height:1.2}.council-outcome-heading>.pill{flex-shrink:0}
-  .council-state-icon{width:44px;height:44px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;background:#e9ece4;font-size:24px}.council-seats[data-outcome=majority] .council-state-icon{background:#dfecd9;color:#285239}.council-seats[data-outcome=hung] .council-state-icon{background:#f2e5c8;color:#71541f}
-  .council-meaning{font-size:14px;line-height:1.65;max-width:760px;margin:16px 0 8px}.majority-distance{padding:17px 18px;background:#f2f3eb;border-radius:12px;margin:0 0 24px}.majority-distance-label,.majority-distance-scale{display:flex;justify-content:space-between;gap:10px;font-size:12px}.majority-distance-label strong{font-weight:600}.majority-distance-track{position:relative;height:16px;background:#dce3d2;border-radius:4px;margin:10px 0}.majority-distance-track i{display:block;height:100%;border-radius:4px}.majority-distance-track b{position:absolute;left:50%;top:-4px;height:24px;border-left:2px dashed var(--ink)}.majority-distance-scale{font-size:10px;color:var(--muted)}.majority-distance-scale>span:nth-child(2){text-align:center}
-  @media(max-width:650px){.council-outcome-heading{flex-wrap:wrap;gap:10px}.council-state-icon{width:36px;height:36px}.council-outcome-heading>.pill{margin-left:46px}.council-meaning{font-size:13px}.majority-distance{padding:14px 12px}.majority-distance-scale{font-size:9px}}
-  .council-seat-basis{font-size:11px;color:var(--muted);margin:0 0 6px}.council-majority-detail{font-size:14px;line-height:1.6;margin:0 0 20px;color:var(--muted)}
-  .council-seats{margin-bottom:24px}.council-seats h2{font-size:25px}.seat-caution{font-size:13px;color:#765b24;line-height:1.6;max-width:680px;margin:8px 0 20px}.council-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px}.council-visual{align-self:start}.seat-threshold{text-align:center;font-size:13px;line-height:1.6}.seat-threshold strong{font-size:28px;display:inline-block;margin-right:4px}.seat-threshold span{display:block;font-size:11px;color:var(--muted)}.seat-party-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(40px,1.2fr) 28px;gap:12px;align-items:center;margin:15px 0}.seat-party-name{display:flex;gap:8px;align-items:center;font-size:12px;overflow-wrap:anywhere}.seat-party-name abbr{text-decoration:none}.seat-party-row>strong{text-align:right;font-variant-numeric:tabular-nums}.seat-track{display:block;height:14px;border-radius:4px;overflow:hidden;background:#edf0e4}.seat-track i{display:block;height:100%;border-radius:4px}.council-seats:has(.seat-caution){border-color:#dcd5b8}.more-parties{margin:18px 0 0}.more-parties>summary{min-height:44px;align-content:center}
-  @media(max-width:650px){.council-grid{grid-template-columns:1fr;gap:20px}.council-seats h2{font-size:23px}.seat-party-row{margin:12px 0}.council-visual{max-width:100%}}
+  .council-seats{padding:calc(var(--council-beadwork-height,0px) + 16px) 18px 16px;border-radius:14px;margin:0;border:1px solid var(--line)}
+  .council-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.council-heading>div{display:flex;align-items:center;flex-wrap:wrap;gap:5px 10px}.council-heading h3{font-size:20px;letter-spacing:-.5px;margin:0}.council-heading :global(.share-trigger){display:flex;gap:6px;min-height:44px;padding:8px 10px;font-size:12px}
+  .seat-state{font-size:10px;color:var(--muted);padding:4px 7px;border-radius:5px;background:#edf1e4}.seat-state--estimate{background:#f3e4b9;color:#725819}.seat-estimate-note{font-size:12px;line-height:1.5;margin:0 0 12px;color:var(--muted)}
+  .seat-composition{margin:0 0 16px}.seat-composition-labels{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font-size:11px;color:var(--muted)}.seat-composition-labels strong{font-weight:550;color:var(--ink)}
+  .seat-composition-bar{display:flex;position:relative;height:24px;background:#e9eddf;border-radius:5px}.seat-composition-bar i{min-width:0}.seat-composition-bar i:first-child{border-radius:5px 0 0 5px}.seat-composition-bar i:nth-last-child(2){border-radius:0 5px 5px 0}.seat-composition-bar b{position:absolute;left:var(--majority);top:-5px;bottom:-5px;border-left:2px solid var(--ink);box-shadow:-1px 0 0 var(--paper),1px 0 0 var(--paper)}
+  .council-more>:global(summary){list-style:none}.council-more>:global(summary)::-webkit-details-marker{display:none}.council-more[open]>:global(summary .council-other-toggle svg){transform:rotate(180deg)}
+  .council-more :global(.council-party abbr){white-space:normal;overflow-wrap:anywhere}
+  .seats-pending{display:flex;gap:12px;align-items:start;color:var(--muted);padding:12px 0}.seats-pending p{margin:0;font-size:14px}.seats-pending small{display:block;font-size:12px;margin-top:6px}
+  @media(max-width:360px){.council-seats{padding:calc(var(--council-beadwork-height,0px) + 12px) 14px 12px}.council-heading h3{font-size:18px}.council-heading>div{gap:4px 7px}}
 </style>

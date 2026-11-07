@@ -1,24 +1,21 @@
 ---
 import { latestYear } from '../lib/history/comparison.ts';
-import { progressOf, progressLabel, resultDelay } from '../lib/overview/results.ts';
-import { formatNumber, type Result } from '../lib/places/results.ts';
-import ReportingProgress from './ReportingProgress.astro';
+import { progressOf, resultDelay } from '../lib/overview/results.ts';
+import type { Result } from '../lib/places/results.ts';
+import ReportingStatus from './ReportingStatus.astro';
 
-interface Props { result: Result; showProgress?: boolean }
-const { result, showProgress = true } = Astro.props;
+interface Props { result: Result; showProgress?: boolean; showDelay?: boolean }
+const localSnapshot = import.meta.env.DEV && import.meta.env.COUNTED_LOCAL_SNAPSHOT === true;
+const { result, showProgress = true, showDelay = !localSnapshot } = Astro.props;
 const progress = progressOf(result);
 const delay = resultDelay(result);
 ---
 {showProgress && result.year === latestYear && <div class="result-progress">
-  <p>{progress ? <><strong>{progressLabel(progress)}</strong> of districts reporting <span>· {formatNumber(progress.completed)} of {formatNumber(progress.expected)}</span></> : 'Reporting progress unavailable'}</p>
-  {progress && <ReportingProgress progress={progress} variant="bar"/>}
-  <a class="reporting-help" href="/guide#reporting">Reporting progress is not voter turnout ↗</a>
+  {progress ? <ReportingStatus progress={progress} help/> : <p>Reporting progress unavailable</p>}
 </div>}
-{delay && <p class="notice" role="status">{delay}</p>}
+{showDelay && delay && <p class="notice" role="status">{delay}</p>}
 
 <style>
-  .result-progress{margin:16px 0;color:var(--muted);font-size:11px;line-height:1.6}
-  .result-progress p{margin:0 0 7px}.result-progress strong{color:var(--ink)}
-  .result-progress span{display:inline-block}
-  .reporting-help{display:inline-block;margin-top:6px;text-underline-offset:3px;font-size:11px}
+  .result-progress{margin:16px 0;color:var(--muted);font-size:12px;line-height:1.6}
+  .result-progress p{margin:0}
 </style>

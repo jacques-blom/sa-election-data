@@ -19,9 +19,9 @@ const page = (year: number, regional = false) => `<!doctype html><html><head>
   <title>${year} election results</title><link rel="canonical" href="https://counted.co.za${path(year)}">
   </head><body><main id="main" ${year === 2026 ? 'data-live-results' : ''}>
   <section><h1>${year} election results</h1><div id="home-count" data-history-current-only ${year === 2026 ? '' : 'hidden'}>50% reporting</div></section>
-  <section id="home-search" data-history-current-only data-address-lookup ${year === 2026 ? '' : 'hidden'}>
-    <div id="overview-search" data-place-search data-search-disabled="${year !== 2026}" data-configured="true">
-      <form><input type="search" ${year === 2026 ? '' : 'disabled'}><button ${year === 2026 ? '' : 'disabled'}>Search</button></form>
+  <section id="home-search" data-address-lookup>
+    <div id="overview-search" data-place-search data-search-year="${year}" data-search-disabled="false" data-configured="true">
+      <form><input type="search"><button>Search</button></form>
       <p class="place-search-hint" hidden><span data-search-enabled-hint>Search places</span><span data-search-disabled-hint hidden>2026 only</span></p>
     </div>
   </section>
@@ -32,7 +32,7 @@ const page = (year: number, regional = false) => `<!doctype html><html><head>
     : `<figure id="province-results-map"><svg><a href="/${year}/provinces/western-cape">Results map</a></svg>`}
     <election-history id="election-history" data-scope="national:ZA" data-current="${years.indexOf(year)}">
       <div><output>${year}</output></div>
-      <input type="range" min="0" max="5" value="${years.indexOf(year)}" aria-valuetext="${year}">
+      <select>${years.map((y,index)=>`<option value="${index}" ${year===y?'selected':''}>${y}</option>`).join('')}</select>
       <nav>${years.map(y => `<a data-year="${y}" href="${path(y)}" ${year === y ? 'aria-current="page"' : ''}>${y}</a>`).join('')}</nav>
       <p data-history-status role="status" hidden></p>
     </election-history>
@@ -52,13 +52,13 @@ async function setup(year = 2026, regional = false) {
     const url = new URL(String(input));
     const target = Number(url.pathname.slice(1)) || 2026;
     assert.equal(url.searchParams.get('ballot'), 'ward');
-    assert.equal(url.searchParams.get('q'), 'Cape');
+    assert.equal(url.searchParams.get('q'), null, 'Search text does not propagate into election links');
     return new Promise(resolve => pending.set(target, resolve));
   };
   await import(`../src/lib/history/client.ts?test=${++instance}`);
   const document = window.document;
   const control = document.querySelector('election-history')!;
-  const input = control.querySelector('input')!;
+  const input = control.querySelector('select')!;
   const disconnected: string[] = [];
   const observer = new window.MutationObserver(records => {
     for (const record of records) for (const node of record.removedNodes) {
@@ -69,7 +69,7 @@ async function setup(year = 2026, regional = false) {
   return { window, document, control, input, pending, disconnected,
     select(target: number) {
       input.value = String(years.indexOf(target));
-      input.dispatchEvent(new window.Event('input', { bubbles: true }));
+      input.dispatchEvent(new window.Event('change', { bubbles: true }));
     },
     async respond(target: number, success = true) {
       assert(pending.has(target), `Expected a request for ${target}`);
@@ -88,7 +88,7 @@ async function setup(year = 2026, regional = false) {
   };
 }
 
-test('scrubbing away from 2026 and back keeps the thumb, layout, search text and canonical route', async () => {
+test('year selection away from 2026 and back keeps the selector, layout, search text and canonical route', async () => {
   const view = await setup();
   try {
     const { document, window, control, input } = view;
@@ -96,14 +96,15 @@ test('scrubbing away from 2026 and back keeps the thumb, layout, search text and
     search.value = 'Witzenberg';
     const originalUrl = window.location.href;
     const originalHistory = window.history.length;
-    const panels = ['home-count', 'home-search', 'home-councils'].map(id => document.getElementById(id)! as DOMElement);
+    const panels = ['home-count', 'home-councils'].map(id => document.getElementById(id)! as DOMElement);
     view.select(2021);
     assert.equal(control.querySelector('output')!.textContent, '2021', 'selection updates before the response');
     await view.respond(2021);
     assert.equal(document.querySelector('h1')!.textContent, '2021 election results');
     assert.equal(input.value, '4');
     assert.equal(control.querySelector('[aria-current]')!.textContent, '2021');
-    assert.equal(search.disabled, true);
+    assert.equal(search.disabled, false);
+    assert.equal(document.querySelector('[data-place-search]')!.getAttribute('data-search-year'),'2021');
     assert.equal(search.value, 'Witzenberg');
     assert(panels.every(panel => !panel.hidden && panel.inert && panel.getAttribute('aria-disabled') === 'true'));
     assert.equal(window.location.href, originalUrl);
@@ -119,13 +120,13 @@ test('scrubbing away from 2026 and back keeps the thumb, layout, search text and
     assert.equal(search.disabled, false);
     assert.equal(search.value, 'Witzenberg');
     assert(panels.every(panel => !panel.hidden && !panel.inert && !panel.hasAttribute('aria-disabled')));
-    assert.equal(document.querySelector('election-history input'), input);
+    assert.equal(document.querySelector('election-history select'), input);
     assert.equal(document.querySelector('#home-search input'), search);
-    assert.deepEqual(view.disconnected, [], 'the slider never leaves the document during a drag');
+    assert.deepEqual(view.disconnected, [], 'the selector never leaves the document during a year change');
   } finally { await view.close(); }
 });
 
-test('scrubbing retains the detailed map canvas and slider, labels current boundaries, and restores its caption', async () => {
+test('year selection retains the detailed map canvas and selector, labels current boundaries, and restores its caption', async () => {
   const view = await setup(2026, true);
   try {
     const figure = view.document.querySelector('[data-region-map]')!;
@@ -143,13 +144,13 @@ test('scrubbing retains the detailed map canvas and slider, labels current bound
     assert.equal(figure.querySelector('canvas'), canvas);
     assert.equal(figure.getAttribute('data-map-historical'), 'false');
     assert.equal(figure.querySelector('[data-map-caption]')!.textContent, 'Municipal PR leaders');
-    assert.equal(view.document.querySelector('election-history input'), view.input);
+    assert.equal(view.document.querySelector('election-history select'), view.input);
     assert.equal(updates, 2, 'only actual map state changes request a repaint');
     assert.deepEqual(view.disconnected, []);
   } finally { await view.close(); }
 });
 
-test('a direct historical page omits the map, then retains it once a current-year scrub loads it', async () => {
+test('a direct historical page omits the map, then retains it once a current-year selection loads it', async () => {
   const view = await setup(2021, true);
   try {
     assert.equal(view.document.querySelector('.region-map-canvas'), null);
@@ -159,12 +160,12 @@ test('a direct historical page omits the map, then retains it once a current-yea
     view.select(2021); await view.respond(2021);
     assert.equal(view.document.querySelector('.region-map-canvas'), canvas);
     assert.equal(view.document.querySelector('[data-region-map]')!.getAttribute('data-map-historical'), 'true');
-    assert.equal(view.document.querySelector('election-history input'), view.input);
+    assert.equal(view.document.querySelector('election-history select'), view.input);
     assert.deepEqual(view.disconnected, []);
   } finally { await view.close(); }
 });
 
-test('rapid scrubbing ignores stale responses and returning to the rendered year cancels pending selection', async () => {
+test('rapid year selection ignores stale responses and returning to the rendered year cancels pending selection', async () => {
   const view = await setup();
   try {
     view.select(2021); view.select(2016);
@@ -195,7 +196,7 @@ test('a failed year restores the last displayed selection and remains retryable'
   } finally { await view.close(); }
 });
 
-test('a historical entry keeps search and council panels hidden through scrubbing and live refresh', async () => {
+test('a historical entry keeps search available through year selection and live refresh', async () => {
   const view = await setup(2021);
   try {
     view.select(2026); await view.respond(2026);
@@ -205,10 +206,12 @@ test('a historical entry keeps search and council panels hidden through scrubbin
     const { updateResults } = await import('../src/lib/live/results.ts');
     const next = new view.window.DOMParser().parseFromString(page(2026), 'text/html');
     updateResults(view.document.querySelector('#main')! as unknown as HTMLElement, next.querySelector('#main')! as unknown as HTMLElement);
-    for (const id of ['home-count', 'home-search', 'home-councils']) assert(view.document.getElementById(id)!.hasAttribute('hidden'), id);
+    for (const id of ['home-count', 'home-councils']) assert(view.document.getElementById(id)!.hasAttribute('hidden'), id);
+    assert.equal(view.document.querySelector('#home-search')!.hasAttribute('hidden'),false);
+    assert.equal(view.document.querySelector('[data-place-search]')!.getAttribute('data-search-year'),'2026');
     assert.equal(view.window.location.pathname, '/2021');
     assert.equal(view.document.title, '2021 election results');
-    assert.equal(view.document.querySelector('election-history input'), view.input);
+    assert.equal(view.document.querySelector('election-history select'), view.input);
     assert.deepEqual(view.disconnected, []);
     const link = view.control.querySelector('a[data-year="2016"]')!;
     const click = new view.window.MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true });

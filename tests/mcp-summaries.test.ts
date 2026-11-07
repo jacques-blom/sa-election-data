@@ -30,6 +30,14 @@ test('summaries separate estimated allocations from reported seats and preserve 
   assert.match(summary.freshness_warning!, /delayed/);
 });
 
+test('AI summaries use the dated government comparison independently of votes and seats',()=>{
+  const r=fixture();r.id=r.municipalityId='4404';
+  const comparison=areaSummary(r).government_comparison!;
+  assert.deepEqual(comparison.before!.members,['ANC','IFP']);assert.equal(comparison.before!.date,'2024-08-06');
+  assert.equal(comparison.after,null);assert.equal(comparison.change.status,'unconfirmed');
+  r.year=2021;assert.equal(areaSummary(r).government_comparison,null);
+});
+
 test('summary source totals retain unlisted ballots instead of inflating leading-party shares', () => {
   const r = fixture(); r.level = 'national'; r.id = 'ZA';
   r.results.party_list_scope = 'leading_parties_only';

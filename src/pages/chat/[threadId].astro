@@ -1,0 +1,20 @@
+---
+import ChatPage from '../../components/ChatPage.astro';
+import { env } from 'cloudflare:workers';
+import { threadIdSchema, type ThreadSnapshot } from '../../lib/chat/contracts.ts';
+const id = threadIdSchema.safeParse(Astro.params.threadId);
+if (!id.success) return Astro.redirect('/chat');
+let snapshot: ThreadSnapshot | undefined, loadError = '';
+try {
+  const response = await env.CHAT_THREADS.getByName(id.data).readSnapshot();
+  if (response.ok) snapshot = await response.json<ThreadSnapshot>();
+  else {
+    Astro.response.status = response.status;
+    loadError = response.status === 404 ? 'Conversation not found.' : 'This conversation is temporarily unavailable. Please reconnect.';
+  }
+} catch {
+  Astro.response.status = 503;
+  loadError = 'This conversation is temporarily unavailable. Please reconnect.';
+}
+---
+<ChatPage threadId={id.data} snapshot={snapshot} loadError={loadError} />

@@ -2,8 +2,8 @@ import type { ShareFormat } from './model.ts';
 
 export type ShareContext = {
   url: string;
-  kind: 'page' | 'result' | 'coalition' | 'update';
-  source: 'page' | 'chart' | 'coalition' | 'update';
+  kind: 'page' | 'result' | 'coalition' | 'update' | 'history';
+  source: 'page' | 'chart' | 'coalition' | 'update' | 'history';
   format: ShareFormat | 'link';
 };
 type ShareEvent = 'share_open' | 'share_attempt' | 'share' | 'share_save_image'

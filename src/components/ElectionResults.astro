@@ -1,0 +1,12 @@
+---
+import ElectionHistory from './ElectionHistory.astro';
+interface Props { year: number; level: string; areaId: string }
+const { year, level, areaId } = Astro.props;
+---
+<section class="election-results" aria-labelledby="election-results-heading" id="election-results">
+  <header class="election-results-heading">
+    <h2 id="election-results-heading">{year} results</h2>
+    <ElectionHistory label="Year" year={year} level={level} id={areaId}/>
+  </header>
+  <slot/>
+</section>

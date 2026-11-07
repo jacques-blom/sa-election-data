@@ -2,6 +2,7 @@
 dist/
 # generated types
 .astro/
+.dev/
 worker-configuration.d.ts
 sync-worker-configuration.d.ts
 usage-worker-configuration.d.ts
@@ -11,7 +12,7 @@ usage-worker-configuration.d.ts
 .data/
 
 # dependencies
-node_modules/
+node_modules
 
 # logs
 npm-debug.log*

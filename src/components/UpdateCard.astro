@@ -4,6 +4,9 @@ import { cleanName, resultHref, coalitionHref, updateLabel, updateTitle, milesto
 import { formatNumber, formatTime, partyStyle } from '../lib/places/format.ts';
 import { provinces } from '../lib/overview/results.ts';
 import PartyLogo from './PartyLogo.astro';
+import CouncilDeclaration from './CouncilDeclaration.astro';
+import { latestYear } from '../lib/history/comparison.ts';
+import { COUNCIL_DECLARATION_NOTICE } from '../lib/seats/majority.ts';
 interface Props { update: Update; simulationStep?: number }
 const { update, simulationStep } = Astro.props;
 const simulated = simulationStep !== undefined;
@@ -14,12 +17,13 @@ const winner = result?.winner;
 const seatsWon = winner ? result?.seats?.find(p => p.id === winner.id)?.count : null;
 const evidenceUrl = feedUrl({ event: update.id }, '/api/v1/updates', simulationStep);
 const builderUrl = simulated ? null : coalitionHref(update);
-const shareText = `${updateTitle(update)}. ${cleanName(update.municipality_name)}. ${update.superseded_by ? 'This announcement has been superseded; follow the link for the correction. ' : ''}Provisional IEC results. Reported ${formatTime(update.reported_at)}.`;
+const shareText = `${updateTitle(update)}. ${cleanName(update.municipality_name)}. ${update.superseded_by ? 'This announcement has been superseded; follow the link for the correction. ' : ''}${result?.kind === 'council_decided' ? COUNCIL_DECLARATION_NOTICE : 'Provisional IEC results'}. Reported ${formatTime(update.reported_at)}.`;
 ---
 <article class:list={['update-card', { 'update-card--correction': update.action !== 'announced', 'update-card--superseded': !!update.superseded_by }]} id={`update-${update.id}`}>
   <div class="update-card-top"><span class="update-kind">{simulated && 'Simulated · '}{updateLabel(update)}</span><a class="update-time" href={eventUrl(update.id)} aria-label={`Permanent link to ${simulated ? 'simulated ' : ''}update ${update.id}, ${formatTime(update.published_at)}`}><time datetime={update.published_at}>{sastTime(update.published_at)}</time><span> SAST ↗</span></a></div>
   <p class="update-location">{cleanName(update.municipality_name)} <span aria-hidden="true">·</span> {province?.name}</p>
   <div class="update-title-row">{winner && <PartyLogo party={{ party_id: winner.id }}/>}<h3>{updateTitle(update)}</h3></div>
+  {!simulated && !update.superseded_by && update.action !== 'withdrawn' && result?.kind === 'council_decided' && <CouncilDeclaration year={latestYear}/>}
   {update.superseded_by && <p class="update-revision"><a href={eventUrl(update.superseded_by)}>Read the correction →</a></p>}
   {update.action === 'withdrawn' ? <p class="update-description">The latest IEC figures no longer support the previously reported {update.kind === 'ward_won' ? 'ward winner' : update.kind === 'count_complete' ? 'completed count' : 'council allocation'}.</p> : <>
     {result?.kind === 'ward_won' && ((winner?.candidate && winner.id !== '0') || (result.marginVotes != null && result.marginVotes > 0)) && <p class="update-description">{winner?.candidate && winner.id !== '0' && `${winner.candidate}. `}{result.marginVotes != null && result.marginVotes > 0 && <><strong>{formatNumber(result.marginVotes)} votes</strong> ahead.</>}</p>}

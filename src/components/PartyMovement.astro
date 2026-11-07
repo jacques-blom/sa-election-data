@@ -1,6 +1,9 @@
 ---
-import { movementDescription, movementText, type Movement } from '../lib/history/comparison.ts';
+import Icon from './Icon.astro';
+import { changeValue } from '../lib/history/change.ts';
+import { movementDescription, type Movement } from '../lib/history/comparison.ts';
 interface Props { movement: Movement | null }
 const { movement } = Astro.props;
+const change=movement?.delta!=null?changeValue(movement.delta):null;
 ---
-{movement && <span class:list={['party-movement', { 'party-movement--up': movement.delta !== null && movement.delta >= .05, 'party-movement--down': movement.delta !== null && movement.delta <= -.05, 'party-movement--missing': movement.delta === null }]} title={movementDescription(movement)} aria-label={movementDescription(movement)}><span aria-hidden="true">{movementText(movement)}</span></span>}
+{movement && <span class:list={['party-movement', { 'party-movement--up': change?.direction === 'up', 'party-movement--down': change?.direction === 'down', 'party-movement--missing': movement.delta === null }]} title={movementDescription(movement)} aria-label={movementDescription(movement)}>{change && <Icon name={change.direction==='up'?'arrowUpRight':change.direction==='down'?'arrowDownRight':'minus'} size={12}/>}<span aria-hidden="true">{change?.text??'—'}</span></span>}

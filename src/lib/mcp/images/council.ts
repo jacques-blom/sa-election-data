@@ -1,4 +1,5 @@
 import { DataError } from '../data.ts';
+import { governmentCaption } from '../../governance/index.ts';
 import { partyStyle, formatTime } from '../../places/format.ts';
 import type { ResultImage, Summary } from './model.ts';
 
@@ -38,6 +39,7 @@ export function councilImage(s: Summary, selectedIds: string[]): ResultImage {
     unit: 'seats', rows,
     council: { total, majority, selected: selectedSeats, groups: parties.map(p => ({ seats: p.council_allocation!, color: partyStyle(p.party_name)[1]!, selected: selected.size === 0 || selected.has(p.party_id!) })) },
     notes: [
+      ...(s.government && governmentCaption(s.government) ? [governmentCaption(s.government)!] : []),
       ...(selected.size ? ['Hypothetical arithmetic only. No coalition agreement or governing arrangement is implied.'] : ['Seat distribution does not identify governing coalition membership.']),
       ...(estimated ? ['ESTIMATED from the current count; not an IEC-reported final allocation.'] : ['IEC-reported allocation; reporting completion is not an official declaration.']),
       ...(s.year === 2026 ? ['2026 results remain provisional.'] : []),
@@ -45,6 +47,7 @@ export function councilImage(s: Summary, selectedIds: string[]): ResultImage {
       ...(s.freshness_warning ? [s.freshness_warning] : []),
       `Source: IEC · reported ${formatTime(s.source.reportedAt)}`,
     ], sources: [s.source], data: { year: s.year, level: s.level, area_id: s.area_id, council,
+      government: s.government, recorded_partner_comparison: s.recorded_partner_comparison,
       selected_party_ids: selectedIds, selected_seats: selectedSeats, parties: s.parties,
       progress: s.progress, quality: s.quality, results_url: s.results_url }, alt: '' };
   model.alt = [model.title, model.subtitle, status, model.metric + ' ' + model.metric_label,

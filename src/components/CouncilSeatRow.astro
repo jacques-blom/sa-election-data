@@ -1,0 +1,23 @@
+---
+import PartyLogo from './PartyLogo.astro';
+import Icon from './Icon.astro';
+import { partyStyle } from '../lib/places/format.ts';
+import type { SeatParty } from '../lib/seats/allocation.ts';
+interface Props { party: SeatParty | { other: true; count: number }; total: number; majority: number; voteShare: number | null; summary?: boolean }
+const { party, total, majority, voteShare, summary = false }=Astro.props;
+const other = 'other' in party;
+const [short,color]=other ? ['Other','#9aa68f'] : partyStyle(party.party_name);
+const Row = summary ? 'summary' : 'div';
+---
+<Row class="council-seat-row" style={`--party:${color};--seat-share:${party.count/total*100}%;--majority:${majority/total*100}%`}>
+  <span class="council-party">{other ? <span class="council-other-toggle"><Icon name="chevronDown" size={16}/></span> : <PartyLogo party={party} size="small"/>}<abbr title={other ? 'Other parties' : party.party_name}>{short}</abbr></span>
+  <span class="council-party-track" aria-hidden="true"><i/><b/></span>
+  <span class="council-party-count"><strong>{party.count}<span class="sr-only"> {party.count===1?'seat':'seats'}</span></strong>{voteShare!==null&&<small>{voteShare.toFixed(1)}% <span>votes</span></small>}</span>
+</Row>
+<style>
+  .council-seat-row{display:grid;grid-template-columns:minmax(80px,1fr) minmax(40px,1.4fr) 72px;align-items:center;gap:10px;min-height:48px;padding:5px 0;border-top:1px solid #d9dfd170}
+  .council-party{display:flex;align-items:center;gap:7px;min-width:0;font-size:13px;font-weight:550}.council-party abbr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none}
+  .council-party-track{display:block;height:14px;position:relative;background:#e9eddf;border-radius:3px}.council-party-track i{display:block;height:100%;width:var(--seat-share);background:var(--party);border-radius:3px}.council-party-track b{position:absolute;left:var(--majority);top:-3px;bottom:-3px;border-left:1px dashed #697e6c}
+  .council-party-count{display:grid;justify-items:end;gap:1px;font-variant-numeric:tabular-nums}.council-party-count strong{font-size:23px;line-height:1.1;font-weight:600;letter-spacing:-.5px}.council-party-count small{font-size:10px;color:var(--muted);white-space:nowrap}
+  .council-other-toggle{display:grid;place-items:center;width:24px;height:24px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--sage)}
+</style>

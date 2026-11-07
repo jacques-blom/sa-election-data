@@ -2,13 +2,20 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "sa-election-data",
   "account_id": "1644a80d2d9ee897e4a990ce1e8100ee",
-  "main": "@astrojs/cloudflare/entrypoints/server",
+  "main": "./src/worker.ts",
   "compatibility_date": "2026-11-05",
   "compatibility_flags": ["nodejs_compat"],
   "placement": { "mode": "smart" },
   "assets": { "binding": "ASSETS" },
+  "durable_objects": { "bindings": [{ "name": "CHAT_THREADS", "class_name": "CountedChatThread" }] },
+  "migrations": [{ "tag": "chat-threads-v1", "new_sqlite_classes": ["CountedChatThread"] }],
   "secrets": { "required": ["SERPAPI_API_KEY"] },
   "vars": {
+    "CHAT_ENABLED": "false",
+    // Local .env may override this; production has no inference credential.
+    "OPENROUTER_API_KEY": "",
+    "CHAT_MODEL": "openai/gpt-6.1-terra",
+    "CHAT_DAILY_TURNS": "25",
     "MCP_ALLOWED_HOSTS": "counted.co.za,localhost,127.0.0.1,[::1]"
   },
   "r2_buckets": [
@@ -29,8 +36,12 @@
   // loaded in the local emulator, so keep it on the existing local database.
   "env": {
     "live": {
-      "secrets": { "required": ["SERPAPI_API_KEY"] },
+      "durable_objects": { "bindings": [{ "name": "CHAT_THREADS", "class_name": "CountedChatThread" }] },
+      "secrets": { "required": ["SERPAPI_API_KEY", "OPENROUTER_API_KEY"] },
       "vars": {
+        "CHAT_ENABLED": "false",
+        "CHAT_MODEL": "openai/gpt-6.1-terra",
+        "CHAT_DAILY_TURNS": "25",
         "MCP_ALLOWED_HOSTS": "counted.co.za,localhost,127.0.0.1,[::1]"
       },
       "d1_databases": [

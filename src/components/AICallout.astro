@@ -1,10 +1,13 @@
-<aside class="ai-callout" aria-labelledby="ai-callout-heading">
+---
+import { chatEnabled } from '../lib/chat/availability.ts';
+---
+{chatEnabled && <aside class="ai-callout" aria-labelledby="ai-callout-heading">
   <div>
-    <h2 id="ai-callout-heading">Use Counted with AI</h2>
-    <p>Ask your own questions about the results. Connect Counted to ChatGPT or Claude to compare places, explore changes and make charts.</p>
+    <h2 id="ai-callout-heading">Ask the election data</h2>
+    <p>Compare places, explore what changed and see how a coalition adds up. Ask Counted a question and follow the sources behind the answer.</p>
   </div>
-  <a class="button primary" href="/ai">Connect your assistant <span aria-hidden="true">→</span></a>
-</aside>
+  <a class="button primary" href="/chat">Ask Counted <span aria-hidden="true">→</span></a>
+</aside>}
 
 <style>
   .ai-callout { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 24px 40px; margin-top: 36px; padding: 28px 112px 28px 32px; border: 1px solid var(--line); border-radius: 20px; background: var(--sage); }

@@ -1,0 +1,850 @@
+{
+  "sourceUrl": "https://www.gov.za/about-government/contact-directory/provincial-local-government",
+  "checkedAt": "2026-11-07",
+  "records": {
+    "buffalo-city": {
+      "name": "Buffalo City Metropolitan Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/buffalo-city-metropolitan-municipality"
+    },
+    "cape-town": {
+      "name": "City of Cape Town Metropolitan Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/city-cape-town-metropolitan-municipality"
+    },
+    "dr-beyers-naude": {
+      "name": "Dr Beyers Naudé Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/dr-beyers-naud%C3%A9-local-municipality"
+    },
+    "blue-crane-route": {
+      "name": "Blue Crane Route Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/blue-crane-route-local-municipality"
+    },
+    "makana": {
+      "name": "Makana Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/makana-local-municipality"
+    },
+    "ndlambe": {
+      "name": "Ndlambe Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/ndlambe-local-municipality"
+    },
+    "sundays-river-valley": {
+      "name": "Sunday's River Valley Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/sundays-river-valley-local-municipality"
+    },
+    "kouga": {
+      "name": "Kouga Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/kouga-local-municipality"
+    },
+    "kou-kamma": {
+      "name": "KouKamma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/koukamma-local-municipality"
+    },
+    "mbhashe": {
+      "name": "Mbhashe Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/mbhashe-local-municipality"
+    },
+    "mnquma": {
+      "name": "Mnquma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/mnquma-local-municipality"
+    },
+    "great-kei": {
+      "name": "Great Kei Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/great-kei-local-municipality"
+    },
+    "amahlathi": {
+      "name": "Amahlathi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/amahlathi-local-municipality"
+    },
+    "ngqushwa": {
+      "name": "Ngqushwa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/ngqushwa-local-municipality"
+    },
+    "raymond-mhlaba": {
+      "name": "Raymond Mhlaba Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/raymond-mhlaba-local-municipality"
+    },
+    "inxuba-yethemba": {
+      "name": "Inxuba Yethemba Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/inxuba-yethemba-local-municipality"
+    },
+    "intsika-yethu": {
+      "name": "Intsika Yethu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/intsika-yethu-local-municipality"
+    },
+    "emalahleni-eastern-cape": {
+      "name": "Emalahleni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/emalahleni-local-municipality"
+    },
+    "dr-a-b-xuma": {
+      "name": "Dr AB Xuma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/dr-ab-xuma-local-municipality"
+    },
+    "sakhisizwe": {
+      "name": "Sakhisizwe Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/sakhisizwe-local-municipality"
+    },
+    "enoch-mgijima": {
+      "name": "Enoch Mgijima Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/enoch-mgijima-local-municipality"
+    },
+    "elundini": {
+      "name": "Elundini Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/elundini-local-municipality"
+    },
+    "senqu": {
+      "name": "Senqu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/senqu-local-municipality"
+    },
+    "walter-sisulu": {
+      "name": "Walter Sisulu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/walter-sisulu-local-municipality"
+    },
+    "ngquza-hill": {
+      "name": "Ingquza Hill Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/ingquza-hill-local-municipality"
+    },
+    "port-st-johns": {
+      "name": "Port St Johns Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/port-st-johns-local-municipality"
+    },
+    "nyandeni": {
+      "name": "Nyandeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/nyandeni-local-municipality"
+    },
+    "kumkani-mhlontlo": {
+      "name": "Mhlontlo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/mhlontlo-local-municipality"
+    },
+    "king-sabata-dalindyebo": {
+      "name": "King Sabata Dalindyebo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/king-sabata-dalindyebo-local-municipality"
+    },
+    "matatiele": {
+      "name": "Matatiele Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/matatiele-local-municipality"
+    },
+    "umzimvubu": {
+      "name": "Umzimvubu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/umzimvubu-local-municipality"
+    },
+    "winnie-madikizela-mandela": {
+      "name": "Winnie Madikizela-Mandela Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/winnie-madikizela-mandela-local-municipality"
+    },
+    "ntabankulu": {
+      "name": "Ntabankulu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/ntabankulu-local-municipality"
+    },
+    "ekurhuleni": {
+      "name": "City of Ekurhuleni",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/city-ekurhuleni"
+    },
+    "ethekwini": {
+      "name": "eThekwini Metropolitan Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/ethekwini-metropolitan-municipality"
+    },
+    "letsemeng": {
+      "name": "Letsemeng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/letsemeng-local-municipality"
+    },
+    "kopanong": {
+      "name": "Kopanong Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/kopanong-local-municipality"
+    },
+    "mohokare": {
+      "name": "Mohokare Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/mohokare-local-municipality"
+    },
+    "masilonyana": {
+      "name": "Masilonyana Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/masilonyana-local-municipality"
+    },
+    "tokologo": {
+      "name": "Tokologo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/tokologo-local-municipality"
+    },
+    "tswelopele": {
+      "name": "Tswelopele Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/tswelopele-local-municipality"
+    },
+    "matjhabeng": {
+      "name": "Matjhabeng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/matjhabeng-local-municipality"
+    },
+    "nala": {
+      "name": "Nala Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/nala-local-municipality"
+    },
+    "setsoto": {
+      "name": "Setsoto Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/setsoto-local-municipality"
+    },
+    "dihlabeng": {
+      "name": "Dihlabeng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/dihlabeng-local-municipality"
+    },
+    "nketoana": {
+      "name": "Nketoana Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/nketoana-local-municipality"
+    },
+    "maluti-a-phofung": {
+      "name": "Maluti-a-Phofung Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/maluti-phofung-local-municipality"
+    },
+    "phumelela": {
+      "name": "Phumelela Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/phumelela-local-municipality"
+    },
+    "mantsopa": {
+      "name": "Mantsopa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/mantsopa-local-municipality"
+    },
+    "moqhaka": {
+      "name": "Moqhaka Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/moqhaka-local-municipality"
+    },
+    "ngwathe": {
+      "name": "Ngwathe Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/ngwathe-local-municipality"
+    },
+    "metsimaholo": {
+      "name": "Metsimaholo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/metsimaholo-local-municipality"
+    },
+    "mafube": {
+      "name": "Mafube Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/mafube-local-municipality"
+    },
+    "emfuleni": {
+      "name": "Emfuleni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/emfuleni-local-municipality"
+    },
+    "midvaal": {
+      "name": "Midvaal Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/midvaal-local-municipality"
+    },
+    "lesedi": {
+      "name": "Lesedi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/lesedi-local-municipality"
+    },
+    "mogale-city": {
+      "name": "Mogale City Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/mogale-city-local-municipality"
+    },
+    "merafong-city": {
+      "name": "Merafong Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/merafong-local-municipality"
+    },
+    "rand-west-city": {
+      "name": "Rand West City Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/rand-west-city-local-municipality"
+    },
+    "johannesburg": {
+      "name": "City of Johannesburg Metropolitan Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/city-johannesburg-metropolitan-municipality"
+    },
+    "umdoni": {
+      "name": "Umdoni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umdoni-local-municipality"
+    },
+    "umzumbe": {
+      "name": "Umzumbe Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umzumbe-local-municipality"
+    },
+    "umuziwabantu": {
+      "name": "Umuziwabantu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umuziwabantu-local-municipality"
+    },
+    "ray-nkonyeni": {
+      "name": "Ray Nkonyeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/ray-nkonyeni-local-municipality"
+    },
+    "umshwathi": {
+      "name": "uMshwathi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umshwathi-local-municipality"
+    },
+    "umngeni": {
+      "name": "uMngeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umngeni-local-municipality"
+    },
+    "mpofana": {
+      "name": "Mpofana Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/mpofana-local-municipality"
+    },
+    "impendle": {
+      "name": "Impendle Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/impendle-local-municipality"
+    },
+    "msunduzi": {
+      "name": "Msunduzi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/msunduzi-local-municipality"
+    },
+    "mkhambathini": {
+      "name": "Mkhambathini Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/mkhambathini-local-municipality"
+    },
+    "richmond": {
+      "name": "Richmond Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/richmond-local-municipality"
+    },
+    "okhahlamba": {
+      "name": "Okhahlamba Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/okhahlamba-local-municipality"
+    },
+    "inkosi-langalibalele": {
+      "name": "Inkosi Langalibalele Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/inkosi-langalibalele-local-municipality"
+    },
+    "alfred-duma": {
+      "name": "Alfred Duma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/alfred-duma-local-municipality"
+    },
+    "endumeni": {
+      "name": "Endumeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/endumeni-local-municipality"
+    },
+    "nqutu": {
+      "name": "Nquthu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/nquthu-local-municipality"
+    },
+    "umsinga": {
+      "name": "uMsinga Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umsinga-local-municipality"
+    },
+    "umvoti": {
+      "name": "Umvoti Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umvoti-local-municipality"
+    },
+    "newcastle": {
+      "name": "Newcastle Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/newcastle-local-municipality"
+    },
+    "emadlangeni": {
+      "name": "Emadlangeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/emadlangeni-local-municipality"
+    },
+    "dannhauser": {
+      "name": "Dannhauser Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/dannhauser-local-municipality"
+    },
+    "edumbe": {
+      "name": "eDumbe Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/edumbe-local-municipality"
+    },
+    "uphongolo": {
+      "name": "uPhongolo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/uphongolo-local-municipality"
+    },
+    "abaqulusi": {
+      "name": "AbaQulusi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/abaqulusi-local-municipality"
+    },
+    "nongoma": {
+      "name": "Nongoma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/nongoma-local-municipality"
+    },
+    "ulundi": {
+      "name": "Ulundi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/ulundi-local-municipality"
+    },
+    "umhlabuyalingana": {
+      "name": "Umhlabuyalingana Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umhlabuyalingana-local-municipality"
+    },
+    "jozini": {
+      "name": "Jozini Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/jozini-local-municipality"
+    },
+    "inkosi-umtubatuba": {
+      "name": "Inkosi Mtubatuba Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/inkosi-mtubatuba-local-municipality"
+    },
+    "big-five-hlabisa": {
+      "name": "Big 5 Hlabisa Local Municipality (The)",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/big-5-hlabisa-local-municipality"
+    },
+    "umfolozi": {
+      "name": "uMfolozi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umfolozi-local-municipality"
+    },
+    "umhlathuze": {
+      "name": "City of uMhlathuze Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/city-umhlathuze-local-municipality"
+    },
+    "umlalazi": {
+      "name": "uMlalazi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umlalazi-local-municipality"
+    },
+    "mthonjaneni": {
+      "name": "Mthonjaneni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/mthonjaneni-local-municipality"
+    },
+    "nkandla": {
+      "name": "Nkandla Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/nkandla-local-municipality"
+    },
+    "mandeni": {
+      "name": "Mandeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/mandeni-local-municipality"
+    },
+    "kwadukuza": {
+      "name": "KwaDukuza Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/kwadukuza-local-municipality"
+    },
+    "ndwedwe": {
+      "name": "Ndwedwe Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/ndwedwe-local-municipality"
+    },
+    "maphumulo": {
+      "name": "Maphumulo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/maphumulo-local-municipality"
+    },
+    "greater-kokstad": {
+      "name": "Greater Kokstad Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/greater-kokstad-local-municipality"
+    },
+    "johannes-phumani-pungula": {
+      "name": "Johannes Phumani Phungula Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/johannes-phumani-phungula-local-municipality"
+    },
+    "umzimkhulu": {
+      "name": "Umzimkhulu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/umzimkhulu-local-municipality"
+    },
+    "dr-nkosazana-dlamini-zuma": {
+      "name": "Dr Nkosazana Dlamini Zuma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/kzn-municipalities/dr-nkosazana-dlamini-zuma-local-municipality"
+    },
+    "greater-giyani": {
+      "name": "Greater Giyani Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/greater-giyani-local-municipality"
+    },
+    "greater-letaba": {
+      "name": "Greater Letaba Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/greater-letaba-local-municipality"
+    },
+    "greater-tzaneen": {
+      "name": "Greater Tzaneen Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/greater-tzaneen-local-municipality"
+    },
+    "ba-phalaborwa": {
+      "name": "Ba-Phalaborwa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/ba-phalaborwa-local-municipality"
+    },
+    "maruleng": {
+      "name": "Maruleng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/maruleng-local-municipality"
+    },
+    "musina": {
+      "name": "Musina Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/musina-local-municipality"
+    },
+    "thulamela": {
+      "name": "Thulamela Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/thulamela-local-municipality"
+    },
+    "makhado": {
+      "name": "Makhado Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/makhado-local-municipality"
+    },
+    "blouberg": {
+      "name": "Blouberg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/blouberg-local-municipality"
+    },
+    "molemole": {
+      "name": "Molemole Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/molemole-local-municipality"
+    },
+    "polokwane": {
+      "name": "Polokwane Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/polokwane-local-municipality"
+    },
+    "lepele-nkumpi": {
+      "name": "Lepelle-Nkumpi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/lepelle-nkumpi-local-municipality"
+    },
+    "thabazimbi": {
+      "name": "Thabazimbi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/thabazimbi-local-municipality"
+    },
+    "lephalale": {
+      "name": "Lephalale Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/lephalale-local-municipality"
+    },
+    "bela-bela": {
+      "name": "Bela-Bela Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/bela-bela-local-municipality"
+    },
+    "mogalakwena": {
+      "name": "Mogalakwena Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/mogalakwena-local-municipality"
+    },
+    "modimolle-mookgophong": {
+      "name": "Modimolle-Mookgophong Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/modimolle-mookgophong-local-municipality"
+    },
+    "ephraim-mogale": {
+      "name": "Ephraim Mogale Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/ephraim-mogale-local-municipality"
+    },
+    "elias-motsoaledi": {
+      "name": "Elias Motswaledi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/elias-motswaledi-local-municipality"
+    },
+    "makhuduthamaga": {
+      "name": "Makhudutamaga Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/makhudutamaga-local-municipality"
+    },
+    "fetakgomo-tubatse": {
+      "name": "Fetakgomo Tubatse Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/lp-municipalities/fetakgomo-tubatse-local-municipality"
+    },
+    "mangaung": {
+      "name": "Mangaung Metropolitan Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/fs-municipalities/mangaung-metropolitan-municipality"
+    },
+    "chief-albert-luthuli": {
+      "name": "Chief Albert Luthuli Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/chief-albert-luthuli-local-municipality"
+    },
+    "msukaligwa": {
+      "name": "Msukaligwa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/msukaligwa-local-municipality"
+    },
+    "mkhondo": {
+      "name": "Mkhondo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/mkhondo-local-municipality"
+    },
+    "dr-pixley-ka-isaka-seme": {
+      "name": "Pixley Ka Seme Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/pixley-ka-seme-local-municipality"
+    },
+    "lekwa": {
+      "name": "Lekwa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/lekwa-local-municipality"
+    },
+    "dipaleseng": {
+      "name": "Dipaleseng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/dipaleseng-local-municipality"
+    },
+    "govan-mbeki": {
+      "name": "Govan Mbeki Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/govan-mbeki-local-municipality"
+    },
+    "victor-khanye": {
+      "name": "Victor Khanye Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/victor-khanye-local-municipality"
+    },
+    "emalahleni-mpumalanga": {
+      "name": "Emalahleni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/emalahleni-local-municipality"
+    },
+    "steve-tshwete": {
+      "name": "Steve Tshwete Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/steve-tshwete-local-municipality"
+    },
+    "emakhazeni": {
+      "name": "Emakhazeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/emakhazeni-local-municipality"
+    },
+    "thembisile-hani": {
+      "name": "Thembisile Hani Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/thembisile-hani-local-municipality"
+    },
+    "dr-js-moroka": {
+      "name": "Dr JS Moroka Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/dr-js-moroka-local-municipality"
+    },
+    "thaba-chweu": {
+      "name": "Thaba Chweu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/thaba-chweu-local-municipality"
+    },
+    "nkomazi": {
+      "name": "Nkomazi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/nkomazi-local-municipality"
+    },
+    "bushbuckridge": {
+      "name": "Bushbuckridge Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/bushbuckridge-local-municipality"
+    },
+    "city-of-mbombela": {
+      "name": "City of Mbombela Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/mp-municipalities/city-mbombela-local-municipality"
+    },
+    "richtersveld": {
+      "name": "Richtersveld Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/richtersveld-local-municipality"
+    },
+    "nama-khoi": {
+      "name": "Nama Khoi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/nama-khoi-local-municipality"
+    },
+    "kamiesberg": {
+      "name": "Kamiesberg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/kamiesberg-local-municipality"
+    },
+    "hantam": {
+      "name": "Hantam Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/hantam-local-municipality"
+    },
+    "karoo-hoogland": {
+      "name": "Karoo Hoogland Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/karoo-hoogland-local-municipality"
+    },
+    "khai-ma": {
+      "name": "Khâi-ma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/kh%C3%A2i-ma-local-municipality"
+    },
+    "ubuntu": {
+      "name": "Ubuntu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/ubuntu-local-municipality"
+    },
+    "umsobomvu": {
+      "name": "Umsobomvu Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/umsobomvu-local-municipality"
+    },
+    "emthanjeni": {
+      "name": "Emthanjeni Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/emthanjeni-local-municipality"
+    },
+    "kareeberg": {
+      "name": "Kareeberg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/kareeberg-local-municipality"
+    },
+    "renosterberg": {
+      "name": "Renosterberg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/renosterberg-local-municipality"
+    },
+    "thembelihle": {
+      "name": "Thembelihle Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/thembelihle-local-municipality"
+    },
+    "siyathemba": {
+      "name": "Siyathemba Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/siyathemba-local-municipality"
+    },
+    "siyancuma": {
+      "name": "Siyancuma Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/siyancuma-local-municipality"
+    },
+    "kai-garib": {
+      "name": "Kai !Garib Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/kai-garib-local-municipality"
+    },
+    "kheis": {
+      "name": "!Kheis Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/kheis-local-municipality"
+    },
+    "tsantsabane": {
+      "name": "Tsantsabane Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/tsantsabane-local-municipality"
+    },
+    "kgatelopele": {
+      "name": "Kgatelopele Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/kgatelopele-local-municipality"
+    },
+    "dawid-kruiper": {
+      "name": "Dawid Kruiper Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/dawid-kruiper-local-municipality"
+    },
+    "sol-plaatje": {
+      "name": "Sol Plaatje Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/sol-plaatje-local-municipality"
+    },
+    "dikgatlong": {
+      "name": "Dikgatlong Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/dikgatlong-local-municipality"
+    },
+    "magareng": {
+      "name": "Magareng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/magareng-local-municipality"
+    },
+    "phokwane": {
+      "name": "Phokwane Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/phokwane-local-municipality"
+    },
+    "joe-morolong": {
+      "name": "Joe Morolong Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/joe-morolong-local-municipality"
+    },
+    "ga-segonyana": {
+      "name": "Ga-segonyana Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/ga-segonyana-local-municipality"
+    },
+    "gamagara": {
+      "name": "Gamagara Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nc-municipalities/gamagara-local-municipality"
+    },
+    "nelson-mandela-bay": {
+      "name": "Nelson Mandela Bay Metropolitan Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/ec-municipalities/nelson-mandela-bay-metropolitan-municipality"
+    },
+    "moretele": {
+      "name": "Moretele Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/moretele-local-municipality"
+    },
+    "madibeng": {
+      "name": "Madibeng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/madibeng-local-municipality"
+    },
+    "rustenburg": {
+      "name": "Rustenburg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/rustenburg-local-municipality"
+    },
+    "kgetlengrivier": {
+      "name": "Kgetlengrivier Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/kgetlengrivier-local-municipality"
+    },
+    "moses-kotane": {
+      "name": "Moses Kotane Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/moses-kotane-local-municipality"
+    },
+    "ratlou": {
+      "name": "Ratlou Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/ratlou-local-municipality"
+    },
+    "tswaing": {
+      "name": "Tswaing Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/tswaing-local-municipality"
+    },
+    "mafikeng": {
+      "name": "Mahikeng Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/mahikeng-local-municipality"
+    },
+    "ditsobotla": {
+      "name": "Ditsobotla Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/ditsobotla-local-municipality"
+    },
+    "ramotshere-moiloa": {
+      "name": "Ramotshere Moiloa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/ramotshere-moiloa-local-municipality"
+    },
+    "naledi": {
+      "name": "Naledi Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/naledi-local-municipality"
+    },
+    "mamusa": {
+      "name": "Mamusa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/mamusa-local-municipality"
+    },
+    "greater-taung": {
+      "name": "Greater Taung Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/greater-taung-local-municipality"
+    },
+    "lekwa-teemane": {
+      "name": "Lekwa-Teemane Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/lekwa-teemane-local-municipality"
+    },
+    "kagisano-molopo": {
+      "name": "Kagisano-Molopo Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/kagisano-molopo-local-municipality"
+    },
+    "matlosana": {
+      "name": "City of Matlosana Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/city-matlosana-local-municipality"
+    },
+    "maquassi-hills": {
+      "name": "Maquassi Hills Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/nw-municipalities/maquassi-hills-local-municipality"
+    },
+    "tshwane": {
+      "name": "City of Tshwane Metropolitan Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/gp-municipalities/city-tshwane-metropolitan-municipality"
+    },
+    "matzikama": {
+      "name": "Matzikama Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/matzikama-local-municipality"
+    },
+    "cederberg": {
+      "name": "Cederberg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/cederberg-local-municipality"
+    },
+    "bergrivier": {
+      "name": "Bergrivier Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/bergrivier-local-municipality"
+    },
+    "saldanha-bay": {
+      "name": "Saldanha Bay Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/saldanha-bay-local-municipality"
+    },
+    "swartland": {
+      "name": "Swartland Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/swartland-local-municipality"
+    },
+    "witzenberg": {
+      "name": "Witzenberg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/witzenberg-local-municipality"
+    },
+    "drakenstein": {
+      "name": "Drakenstein Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/drakenstein-local-municipality"
+    },
+    "stellenbosch": {
+      "name": "Stellenbosch Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/stellenbosch-local-municipality"
+    },
+    "breede-valley": {
+      "name": "Breede Valley Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/breede-valley-local-municipality"
+    },
+    "langeberg": {
+      "name": "Langeberg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/langeberg-local-municipality"
+    },
+    "theewaterskloof": {
+      "name": "Theewaterskloof Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/theewaterskloof-local-municipality"
+    },
+    "overstrand": {
+      "name": "Overstrand Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/overstrand-local-municipality"
+    },
+    "cape-agulhas": {
+      "name": "Cape Agulhas Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/cape-agulhas-local-municipality"
+    },
+    "swellendam": {
+      "name": "Swellendam Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/swellendam-local-municipality"
+    },
+    "kannaland": {
+      "name": "Kannaland Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/kannaland-local-municipality"
+    },
+    "hessequa": {
+      "name": "Hessequa Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/hessequa-local-municipality"
+    },
+    "mossel-bay": {
+      "name": "Mossel Bay Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/mossel-bay-local-municipality"
+    },
+    "george": {
+      "name": "George Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/george-local-municipality"
+    },
+    "oudtshoorn": {
+      "name": "Oudtshoorn Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/oudtshoorn-local-municipality"
+    },
+    "bitou": {
+      "name": "Bitou Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/bitou-local-municipality"
+    },
+    "knysna": {
+      "name": "Knysna Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/knysna-local-municipality"
+    },
+    "laingsburg": {
+      "name": "Laingsburg Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/laingsburg-local-municipality"
+    },
+    "prince-albert": {
+      "name": "Prince Albert Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/prince-albert-local-municipality"
+    },
+    "beaufort-west": {
+      "name": "Beaufort West Local Municipality",
+      "url": "https://www.gov.za/about-government/contact-directory/wc-municipalities/beaufort-west-local-municipality"
+    }
+  }
+}

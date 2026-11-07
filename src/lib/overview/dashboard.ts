@@ -1,4 +1,5 @@
 import type { AreaRecord } from '../data/normalize.ts';
+import { governmentContext } from '../governance/index.ts';
 import { joinedResults, resultColumns, hydrateResults } from '../data/packed-results.ts';
 import { latestYear, previousElection } from '../history/comparison.ts';
 import { places, placeUrl } from '../places/catalogue.ts';
@@ -9,6 +10,7 @@ import { readCouncilStates, summariseCouncils, type CouncilOutcome } from './cou
 import { provinces } from './results.ts';
 import { councilSnapshot, majorityParty, COUNCIL_SNAPSHOT_VERSION, type CouncilSnapshot } from './snapshot.ts';
 import type { CouncilStatus } from './dashboard-filter.ts';
+import { getDistrictResults, type DistrictView } from '../districts/results.ts';
 
 type Row = ResultRow & { province_id: string | null; ward_id: string | null };
 type StoredSummary = { source_id: string; snapshot_id: string; summary_json: string };
@@ -18,7 +20,7 @@ const record = (row: Row): AreaRecord => ({ level: row.level, id: row.area_id, n
   reportedAt: row.reported_at, payload: JSON.parse(row.payload) });
 
 export function dashboardCouncils(current = new Map<string, CouncilSnapshot>(), previous = new Map<string, CouncilSnapshot>(),
-  outcomes: CouncilOutcome[] = [], unavailable = new Set<string>()) {
+  outcomes: CouncilOutcome[] = [], unavailable = new Set<string>(), districtResults = new Map<string,DistrictView>()) {
   const byId = new Map(outcomes.map(o => [o.id, o]));
   const localCouncils = councilPlaces.map(place => {
     const id = place.relationships.find(r => r.level === 'municipality' && r.relation === 'equals' && r.election === latestYear)!.areaId;
@@ -34,20 +36,20 @@ export function dashboardCouncils(current = new Map<string, CouncilSnapshot>(), 
       kind: place.kind === 'metro' ? 'metro' as const : 'local' as const,
       metro: place.kind === 'metro', href: placeUrl(place), builderHref: `${placeUrl(place)}/coalition`,
       search: normaliseCouncilSearch([place.name, ...place.aliases, place.province, id].join(' ')),
-      status, seats, winner, largest: uniqueLargest, winnerId: status === 'majority' ? winner!.id : '',
+      status, seats, government: governmentContext(id), winner, largest: uniqueLargest, winnerId: status === 'majority' ? winner!.id : '',
       comparable, changed: !!comparable && (winner?.id ?? null) !== (previousWinner?.id ?? null), previousWinner, previousWinnerId: previousWinner?.id ?? '',
-      snapshot, previous: before, progress: snapshot?.progress ?? null };
+      snapshot, previous: before, progress: snapshot?.progress ?? null, districtVotes: null as DistrictView | null };
   });
   // District councils have a separate ballot and indirectly elected seats. The
-  // current IEC feed covers only metros/locals; never aggregate those into a
-  // district outcome or describe the missing district source as a pending count.
+  // district ballot does not establish full council control. Never aggregate
+  // member councils or turn a district vote lead into a majority.
   const districtCouncils = districts.map(d => ({
     id: d.id, name: `${d.name} District`, province: d.province, provinceId: d.provinceId,
     kind: 'district' as const, metro: false, href: districtUrl(d), builderHref: undefined,
     search: normaliseCouncilSearch(`${d.name} District Municipality ${d.province} ${d.code}`),
-    status: 'unavailable' as const, seats: null, winner: null, largest: null, winnerId: '',
-    comparable: false, changed: false, previousWinner: null, previousWinnerId: '',
-    snapshot: null, previous: null, progress: null,
+    status: districtResults.has(d.id) ? 'pending' as const : 'unavailable' as const, seats: null, winner: null, largest: null, winnerId: '',
+    comparable: false, changed: false, previousWinner: null, previousWinnerId: '', government: null,
+    snapshot: null, previous: null, progress: null, districtVotes: districtResults.get(d.id) ?? null,
   }));
   return [...localCouncils, ...districtCouncils].sort((a, b) => Number(b.metro) - Number(a.metro) || resultOrder(a) - resultOrder(b)
     || a.name.localeCompare(b.name, 'en-ZA'));
@@ -90,7 +92,7 @@ export function dashboardHighlights(councils: DashboardCouncil[]) {
  * Existing local imports are derived from D1. During rollout, only metros need fallback pack reads. */
 export async function getCouncilDashboard(db: D1Database, bucket?: R2Bucket) {
   const previousYear = previousElection(latestYear)!;
-  const [currentRows, oldRows, states, stored] = await Promise.all([
+  const [currentRows, oldRows, states, stored, districtResults] = await Promise.all([
     db.prepare(`SELECT ${resultColumns} ${joinedResults} WHERE r.year=? AND r.level='municipality'`).bind(latestYear).all<Row>(),
     db.prepare(`SELECT ${resultColumns} ${joinedResults} WHERE r.year=? AND r.level='municipality'`).bind(previousYear).all<Row>().catch(error => {
       console.error('Council history unavailable', error); return { results: [] as Row[] };
@@ -100,6 +102,7 @@ export async function getCouncilDashboard(db: D1Database, bucket?: R2Bucket) {
       if (/no such table: (?:main\.)?council_dashboard/i.test(String(error))) return { results: [] as StoredSummary[] };
       throw error;
     }),
+    getDistrictResults(db).catch(error => { console.error('District summaries unavailable',error); return new Map<string,DistrictView>(); }),
   ]);
   const summaries = new Map(stored.results.map(s => [s.source_id, s]));
   const current = new Map<string, CouncilSnapshot>(), previous = new Map<string, CouncilSnapshot>(), unavailable = new Set<string>();
@@ -135,13 +138,13 @@ export async function getCouncilDashboard(db: D1Database, bucket?: R2Bucket) {
     const rows = oldRows.results.slice(i, i + 32);
     try { await hydrateResults(db, bucket, rows); } catch { /* Missing history never hides current outcomes. */ }
     for (const row of rows) if (row.payload) try {
-      const summary = councilSnapshot([record(row)]); if (summary) previous.set(row.area_id, summary);
+      const summary = councilSnapshot([record(row)], previousYear); if (summary) previous.set(row.area_id, summary);
     } catch { /* Exclude invalid history from comparisons. */ }
   }
   const outcomes = summariseCouncils(currentRows.results, states, null).entries;
   for (const row of currentRows.results) if (!current.has(row.area_id) && !row.payload
     && !states.some(s => s.source_id === row.source_id && s.snapshot_id === row.snapshot_id)) unavailable.add(row.area_id);
-  const councils = dashboardCouncils(current, previous, outcomes, unavailable);
+  const councils = dashboardCouncils(current, previous, outcomes, unavailable, districtResults);
   return { councils, highlights: dashboardHighlights(councils), previousYear,
     summaryCoverage: current.size, total: councils.length,
     delayedCouncils: currentRows.results.filter(r => r.last_error || !Number.isFinite(Date.parse(r.last_success_at ?? ''))

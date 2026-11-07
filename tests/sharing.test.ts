@@ -93,6 +93,11 @@ test('coalition cards count every council seat and keep the selection hypothetic
   assert.equal(card.council!.groups[2]!.selected, false);
   assert.match(card.ballot, /Hypothetical.*estimated/);
   assert.match(card.note, /No agreement implied/);
+  assert.equal(card.sourceLabel, 'Counted estimate using IEC vote totals');
+  assert.match(imageDescription(card), /Source: Counted estimate using IEC vote totals/);
+  const reported = coalitionShareCard({ ...data, status: 'reported' }, ['a', 'b']);
+  assert.equal(reported.sourceLabel, 'IEC');
+  assert.match(imageDescription(reported), /Source: IEC,/);
   assert.equal(coalitionShareCard(data, ['a', 'b']).headline, 'A possible majority.');
 });
 

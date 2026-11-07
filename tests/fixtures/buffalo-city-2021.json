@@ -1,0 +1,328 @@
+{
+  "election": {
+    "year": 2021,
+    "eventId": 1091,
+    "status": "historical"
+  },
+  "area": {
+    "level": "municipality",
+    "id": "1117",
+    "name": "BUF - Buffalo City",
+    "province_id": "1",
+    "municipality_id": "1117",
+    "ward_id": null
+  },
+  "source": {
+    "url": "https://results.elections.org.za/dashboards/lge/MapsJason/2021/EEID1091Munic1117.js",
+    "snapshot_id": "2021:municipality:1117:v2:d8106f05d8f252bb6c8ebdc6383d233acc7c8465c2f48832f449c375271aeca5",
+    "area_reported_at": "2022-01-15T15:50:27.254Z",
+    "sha256": "d8106f05d8f252bb6c8ebdc6383d233acc7c8465c2f48832f449c375271aeca5",
+    "snapshot_fetched_at": "2026-11-05T13:37:58.716Z",
+    "http_last_modified": "Sat, 15 Jan 2022 15:50:30 GMT",
+    "last_checked_at": "2026-11-05T13:37:58.716Z",
+    "latest_document_reported_at": null,
+    "latest_document_sha256": null,
+    "published_at": null,
+    "last_successful_check_at": "2026-11-05T13:37:58.716Z",
+    "last_error": null,
+    "stale_after_seconds": null,
+    "freshness": "historical",
+    "party_directory_url": "https://results.elections.org.za/dashboards/lge/MapsJason/2016/PartyList.js"
+  },
+  "results": {
+    "party_list_scope": "all_rows_in_source",
+    "ballot_scope": "source_combined",
+    "parties": [
+      {
+        "source_entry_id": "7",
+        "entry_type": "party_or_candidate",
+        "party_id": "7",
+        "party_name": "AFRICAN NATIONAL CONGRESS",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 214118,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 59.43,
+        "seats": {
+          "ward": 43,
+          "pr": 18,
+          "total": 61
+        }
+      },
+      {
+        "source_entry_id": "52",
+        "entry_type": "party_or_candidate",
+        "party_id": "52",
+        "party_name": "DEMOCRATIC ALLIANCE",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 70334,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 19.52,
+        "seats": {
+          "ward": 7,
+          "pr": 13,
+          "total": 20
+        }
+      },
+      {
+        "source_entry_id": "945",
+        "entry_type": "party_or_candidate",
+        "party_id": "945",
+        "party_name": "ECONOMIC FREEDOM FIGHTERS",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 43466,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 12.06,
+        "seats": {
+          "ward": 0,
+          "pr": 13,
+          "total": 13
+        }
+      },
+      {
+        "source_entry_id": "6",
+        "entry_type": "party_or_candidate",
+        "party_id": "6",
+        "party_name": "UNITED DEMOCRATIC MOVEMENT",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 3466,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.96,
+        "seats": {
+          "ward": 0,
+          "pr": 1,
+          "total": 1
+        }
+      },
+      {
+        "source_entry_id": "8",
+        "entry_type": "party_or_candidate",
+        "party_id": "8",
+        "party_name": "PAN AFRICANIST CONGRESS OF AZANIA",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 3383,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.94,
+        "seats": {
+          "ward": 0,
+          "pr": 1,
+          "total": 1
+        }
+      },
+      {
+        "source_entry_id": "1318",
+        "entry_type": "party_or_candidate",
+        "party_id": "1318",
+        "party_name": "AFRICAN TRANSFORMATION MOVEMENT",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 3270,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.91,
+        "seats": {
+          "ward": 0,
+          "pr": 1,
+          "total": 1
+        }
+      },
+      {
+        "source_entry_id": "330",
+        "entry_type": "party_or_candidate",
+        "party_id": "330",
+        "party_name": "AFRICAN INDEPENDENT CONGRESS",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 2562,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.71,
+        "seats": {
+          "ward": 0,
+          "pr": 1,
+          "total": 1
+        }
+      },
+      {
+        "source_entry_id": "18",
+        "entry_type": "party_or_candidate",
+        "party_id": "18",
+        "party_name": "AFRICAN CHRISTIAN DEMOCRATIC PARTY",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 2011,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.56,
+        "seats": {
+          "ward": 0,
+          "pr": 1,
+          "total": 1
+        }
+      },
+      {
+        "source_entry_id": "4",
+        "entry_type": "party_or_candidate",
+        "party_id": "4",
+        "party_name": "VRYHEIDSFRONT PLUS | FREEDOM FRONT PLUS",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 1848,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.51,
+        "seats": {
+          "ward": 0,
+          "pr": 1,
+          "total": 1
+        }
+      },
+      {
+        "source_entry_id": "0",
+        "entry_type": "party_or_candidate",
+        "party_id": "0",
+        "party_name": "INDEPENDENTS",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 8383,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 2.33,
+        "seats": {
+          "ward": 0,
+          "pr": 0,
+          "total": 0
+        }
+      },
+      {
+        "source_entry_id": "-2",
+        "entry_type": "aggregate",
+        "party_id": null,
+        "party_name": "OTHER",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 4793,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 1.34,
+        "seats": {
+          "ward": 0,
+          "pr": 0,
+          "total": 0
+        }
+      },
+      {
+        "source_entry_id": "957",
+        "entry_type": "party_or_candidate",
+        "party_id": "957",
+        "party_name": "PATRIOTIC ALLIANCE",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 1115,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.31,
+        "seats": {
+          "ward": 0,
+          "pr": 0,
+          "total": 0
+        }
+      },
+      {
+        "source_entry_id": "1519",
+        "entry_type": "party_or_candidate",
+        "party_id": "1519",
+        "party_name": "INDEPENDENT SOUTH AFRICAN NATIONAL CIVIC ORGANISATION",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 795,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.22,
+        "seats": {
+          "ward": 0,
+          "pr": 0,
+          "total": 0
+        }
+      },
+      {
+        "source_entry_id": "1487",
+        "entry_type": "party_or_candidate",
+        "party_id": "1487",
+        "party_name": "AFRICAN MULTICULTURAL ECONOMIC CONGRESS",
+        "party_name_source": "iec_party_directory",
+        "candidate_name": null,
+        "votes": {
+          "source_total": 750,
+          "ward": null,
+          "pr": null
+        },
+        "source_share_percent": 0.21,
+        "seats": {
+          "ward": 0,
+          "pr": 0,
+          "total": 0
+        }
+      }
+    ],
+    "reported_totals": {
+      "registered_voters": 406486,
+      "ballot_papers_cast": 366802,
+      "valid_ballot_papers": 360294,
+      "spoilt_ballot_papers": 6508
+    },
+    "progress": {
+      "municipalities": {
+        "expected": 1,
+        "completed": 1
+      },
+      "wards": {
+        "expected": 50,
+        "completed": 50
+      },
+      "voting_districts": {
+        "expected": 351,
+        "completed": 351
+      },
+      "seats": {
+        "expected": 100,
+        "completed": 100
+      }
+    }
+  }
+}

@@ -91,6 +91,12 @@ export function createCountedServer(reader: DataReader, apiDocumentation?: strin
     catch (error) { return reply('/api', async () => { throw error; }); }
   });
 
+  server.registerTool('get_government_history', {
+    title: 'Read municipal government and coalition history', annotations, outputSchema,
+    description: 'Read MISTRA municipal administrations through 28 February 2026 and separately verified 2026 governments, where available. Roles, seats and officeholders are at inauguration; later changes may only appear in notes. Active at cutoff does not mean current. Missing coverage is not majority rule. Never infer a government or takeover from seats alone.',
+    inputSchema: z.strictObject({ municipality: z.string().min(1).max(100).regex(/^[a-zA-Z0-9-]+$/).describe('2026 municipal ID, municipal code (e.g. EC101), or municipality slug.') }),
+  }, args => { const path = `/api/v1/governments/${encodeURIComponent(args.municipality)}`; return reply(path, () => reader.api(path)); });
+
   server.registerTool('get_api_docs', {
     title: 'Read the complete API documentation', annotations, outputSchema,
     description: 'Load the authoritative API documentation as Markdown: endpoints, query parameters, response schemas, data coverage, freshness, source provenance, maps, places and MCP workflows. Read before using REST endpoints or building a Python download. No database access is required.',

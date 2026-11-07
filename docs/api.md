@@ -195,9 +195,31 @@ partial; they are never replaced by estimates. See the repository's
 `docs/seats.md` for the model's assumptions and validation rules. A complete,
 reconciled IEC allocation takes precedence in the website and coalition playground.
 
-The dashboard feeds used here do not supply a complete separate dataset for
-district-council ballots. National and provincial summaries are source-reported
-snapshots, not an artificial sum of municipalities fetched at different times.
+National and provincial summaries are source-reported snapshots, not an artificial
+sum of municipalities fetched at different times. District ballots remain separate.
+
+## District ballots
+
+`GET /api/v1/districts/DC42` (or `/api/v1/districts/sedibeng`) returns the current
+2026 district ballot report. These results come from the IEC's public XLS reports,
+checked every five minutes independently of the dashboard JSON sources. The IEC's
+own regeneration interval is unverified. No authentication is needed.
+
+`result` includes `districtId`, `year`, `ballot: "district"`, `reportedAt`,
+`validVotes`, `spoiltVotes`, and `parties` containing `name`, `abbreviation`,
+`votes` and `share` (percentage of valid district ballots, or null for zero total).
+Names and abbreviations come from the report; party IDs are not fabricated.
+`sourceUrl`, `checkedAt`, `lastError` and `stale` describe provenance and ingestion
+health. `reportedAt` is the source's report generation time, converted from SAST
+to UTC; a successful check does not mean new votes were counted.
+
+`status` is `provisional`, `scope` is `directly_elected_40_percent`, and both
+`countingProgress` and `councilControl` are null because the source does not supply
+them. Do not use the district vote leader as a full council majority. Unknown
+districts return 404; a district without an imported report returns 503. A failed
+refresh retains the last validated result with `stale: true`. GET supports CORS,
+ETag conditional requests and a 15-second cache. District ingestion coverage is
+reported separately under `districts` in `/api/v1/sync`.
 
 ## MCP access
 
@@ -307,3 +329,32 @@ status fields must accompany any result presentation.
 be eight digits; duplicates are removed. Invalid or oversized requests return
 400, unknown ward IDs return 404, and unavailable geometry returns 503 without
 caching a partial batch. Successful responses cache for one day.
+
+
+## Municipal government and coalition history
+
+`GET /api/v1/governments?limit=50&offset=0` lists municipalities with recorded government evidence: 80 in MISTRA plus Buffalo City’s separately sourced majority administration. `limit` accepts 1–200. `GET /api/v1/governments/{municipality}` accepts a 2026 IEC municipal ID, stable municipal code, or slug (for example `1102`, `EC101`, or `dr-beyers-naude`) and returns full administration history. GET, HEAD, OPTIONS, CORS and conditional ETag requests are supported. These endpoints work independently of live result storage.
+
+The response includes `source` (the MISTRA edition), `coverage`, `latest`, `records` (MISTRA detail only), `majorityAdministration`, `electionBaseline`, `beforeElection`, `afterElection`, `currentStatus`, and `change`. A documented majority administration has its own `sources`, `evidencePeriod` and `evidenceThrough`; it is not covered by MISTRA’s licence or cutoff. `electionBaseline` is populated on municipal result/summary/place responses when a complete 2021 seat allocation is available. It establishes an electoral majority, never uninterrupted government. Known municipalities without government evidence return `coverage: not-covered` and unverified status. Unknown identifiers return 404. District councils are outside this dataset.
+
+MISTRA 2026 v1.0 covers 175 administrations in 80 municipalities through **28 February 2026**. Roles, seats and officeholders describe inauguration; later changes may appear only in notes. `Active` in a source record is not current status. Preserve `notes`, `issues`, `approximateStart`, and the source cutoff when presenting records. Members and outside supporters are separate roles.
+
+2026 municipal and ward result responses include separate `government` context; place responses include `governments` for their parent councils. Historical election responses do not project these records backwards. MCP `get_government_history` serves the same history; `get_area_summary` also includes `recorded_partner_comparison`, a hypothetical total with an explicit basis and reported/estimated status. Unknown, disputed or ambiguous membership blocks arithmetic. This does not establish a current agreement or takeover.
+
+Verified before/after governments are separately curated with dated public evidence. No records are currently verified in that register. Seat results, even when final, cannot populate it automatically. A former coalition partner governing alone is distinguished from a changed lead party. Electoral majority changes remain separate from government changes.
+
+Attribution: Caromba, L., Simayile, S., & Ndletyana, A. (2026). *MISTRA Coalitions Barometer Dataset, 2026 edition (Version 1.0)* [Data set]. Mapungubwe Institute for Strategic Reflection. <https://coalitions.mistra.org.za>
+
+Original MISTRA coding is CC BY 4.0; IEC seats and municipal identifiers retain their original terms. Dates, municipal mappings and party labels are normalised; notes and source issues are retained. See [source licensing exceptions](https://coalitions.mistra.org.za/sources.html) and [Counted's source explanation](/governments). Counted's MIT code licence does not relicense third-party data.
+
+## Election history series
+
+`GET /api/v1/history/{level}/{area_id}?through=2026&ballot=source_total` reads up to six published election snapshots for one area. Supported levels match the results API. `through` must be a supported election year; later elections are excluded. `ballot` accepts `source_total`, `pr`, or `ward`. National/province history requires `source_total`; municipal history defaults to it, while ward/voting-district history defaults to `ward`. There is no silent ballot fallback.
+
+The response includes `years`, `elections` (denominators, all separately named party votes/shares, reported council allocations, progress, source metadata and quality), `series` (one party’s dated points), `defaultPartyIds` (up to five largest by peak share), `previous` (the immediately preceding election or null), and `caveats`. Points for 2026 remain provisional even at 100% reporting. Government history is separate from council allocations.
+
+Missing elections and grouped/unidentified party rows produce gaps, not invented zeroes. Zero for an absent party requires a complete, ungrouped party list. Summary denominators come from source-reported valid ballots, including unlisted votes. IDs are compared within the same area/parent, without boundary adjustment. Historical allocations preserve OTHER as a group and require fully reconciled ward/PR/total counts; historical seats are never estimated. Live seat validation is unchanged.
+
+The endpoint supports GET, HEAD, OPTIONS, CORS and conditional ETags. Invalid years/ballots return 400; missing imported history returns 404; unavailable storage returns 503. Partial history reads include an explicit warning. MCP area summaries expose this endpoint as `history.trends_url`.
+
+Known post-publication corrections are attached as evidence, never silently written into raw snapshots. Cape Town’s 2021 derived seat allocation incorporates the IEC’s 26 May 2022 recount correction (DA 135, Cape Independence Party 2), guarded by the exact original allocation. `seats.correction` and `elections[].notes` identify the correction. Archived vote counts remain unchanged and explicitly predate the recount. Raw result responses carry `historical_notes`; MCP council summaries and electoral baselines carry their correction source.

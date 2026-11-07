@@ -133,7 +133,7 @@ pmtiles extract https://build.protomaps.com/20261105.pmtiles \
   .data/maps/south-africa-20261105.pmtiles \
   --bbox=16,-35,33,-22 --maxzoom=14 --download-threads=4
 pnpm maps:load
-pnpm dev:local --host 0.0.0.0 --port 4322
+pnpm dev:local --host 0.0.0.0
 ```
 
 `maps:load` uses local bindings and multipart upload; it never uploads to a
@@ -265,7 +265,7 @@ directory or displayed on the Protomaps previews.
 
 Configure `PUBLIC_GOOGLE_MAPS_API_KEY` in ignored `.env` and the frontend build
 environment. Enable Maps JavaScript API and Places API (New), restrict the key
-to these APIs and the site's HTTP referrers, including `http://localhost:4322/*`
+to these APIs and the site's HTTP referrers, including `http://localhost:4321/*`
 for development. This browser key is intentionally public in the built client;
 restriction is essential. Rebuild when changing it. Public privacy and terms
 pages are linked beside the input. The widget retains Google's attribution.

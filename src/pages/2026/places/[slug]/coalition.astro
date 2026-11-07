@@ -1,20 +1,24 @@
 ---
-import PageShare from '../../../../components/PageShare.astro';
-import CivicGuide from '../../../../components/CivicGuide.astro';
+import CoalitionGame from '../../../../components/CoalitionGame.astro';
+import CoalitionStory from '../../../../components/CoalitionStory.astro';
+import GetInvolved from '../../../../components/GetInvolved.astro';
+import CoalitionPicker from '../../../../components/CoalitionPicker.astro';
+import Icon from '../../../../components/Icon.astro';
+import CouncilGovernment from '../../../../components/CouncilGovernment.astro';
+import { governmentContext, governmentCaption } from '../../../../lib/governance/index.ts';
 import RelatedNews from '../../../../components/RelatedNews.astro';
 import { env } from 'cloudflare:workers';
 import Site from '../../../../layouts/Site.astro';
-import SeatDiagram from '../../../../components/SeatDiagram.astro';
 import SeatMethod from '../../../../components/SeatMethod.astro';
 import ResultStatus from '../../../../components/ResultStatus.astro';
-import ReportingProgress from '../../../../components/ReportingProgress.astro';
 import { findDirectoryPlace } from '../../../../lib/places/directory.ts';
 import { placeUrl } from '../../../../lib/places/catalogue.ts';
 import type { Result } from '../../../../lib/places/results.ts';
-import { getBuilderResult, builderPath } from '../../../../lib/seats/directory.ts';
-import { councilSeats, canBuildCoalition, seatLabel } from '../../../../lib/seats/allocation.ts';
+import { getBuilderResult } from '../../../../lib/seats/directory.ts';
+import { councilSeats, canBuildCoalition } from '../../../../lib/seats/allocation.ts';
 import { coalitionData } from '../../../../lib/seats/coalition.ts';
-import { progressOf, progressLabel, resultDelay } from '../../../../lib/overview/results.ts';
+import { progressOf, provinces } from '../../../../lib/overview/results.ts';
+import { coalitionDataNotice } from '../../../../lib/seats/data-notice.ts';
 import '../../../../styles/coalition.css';
 let place: Awaited<ReturnType<typeof findDirectoryPlace>>;
 let municipality: Result | null = null;
@@ -28,38 +32,46 @@ try {
 } catch { failed = true; }
 const seats = municipality ? councilSeats(municipality.level, municipality.results) : null;
 const model = seats && canBuildCoalition(seats) && municipality && place ? coalitionData(place.name, seats, municipality.source) : null;
-const available = !!model;
 const progress = municipality ? progressOf(municipality) : null;
-if (model) model.progress = progress;
+if (model) {
+  model.progress = progress;
+  model.municipalityId = municipality?.id;
+  model.province = place?.province;
+}
+const localSnapshot = import.meta.env.DEV && import.meta.env.COUNTED_LOCAL_SNAPSHOT === true;
+const dataNotice = municipality ? coalitionDataNotice(municipality, localSnapshot) : null;
+if (model && municipality) model.governmentContext = governmentCaption(governmentContext(municipality.id));
 const validCouncil = !!place && ['metro', 'municipality'].includes(place.kind);
 Astro.response.status = failed ? 503 : !validCouncil ? 404 : 200;
 Astro.response.headers.set('Cache-Control', Astro.response.status === 200 ? 'public, max-age=15, s-maxage=15' : 'no-store');
 if (Astro.response.status === 503) Astro.response.headers.set('Retry-After', '60');
 const resultUrl = place ? placeUrl(place) : '/search';
+const province = provinces.find(p => p.name === place?.province);
 ---
-<Site title={`Majority builder${place ? ` · ${place.name}` : ''}`} description="Choose parties and see how their council seats add up. Every combination is hypothetical." noindex liveResults={validCouncil}>
+<Site title={`Coalition Chaos${place ? ` · ${place.name}` : ''}`} description="Fictional scenario · Satirical game. Build a majority with council seat data, then test your deal with invented political plot twists." noindex liveResults={validCouncil && !localSnapshot}>
+  <Fragment slot="header"><nav class="chaos-home" aria-label="Game navigation"><p class="chaos-logo">Coalition <span>Chaos<span class="chaos-dot">.</span></span></p><a class="chaos-results-button" href={validCouncil ? resultUrl : '/'}><span>View election results</span><Icon name="arrowUpRight" size={16}/></a></nav></Fragment>
   <section class="coalition-screen" data-coalition={model ? JSON.stringify(model) : undefined}>
-    <header class="coalition-heading page-share-heading"><div><a class="coalition-back" href={builderPath}>← Choose another council</a><h1>{place?.name ?? 'Choose a council'}</h1></div><div class="page-heading-actions coalition-heading-actions">{validCouncil && <a class="button" href={resultUrl}>View results</a>}<PageShare coalition={available}/></div></header>
-    {model && seats && seats.status !== 'unavailable' && municipality ? <>
-      {resultDelay(municipality) && <p class="notice coalition-delay">{resultDelay(municipality)}</p>}
-      <CivicGuide topic="outcomes" hint={`Build a possible majority: ${model.majority} of ${model.total} seats. This does not show an actual coalition.`}/>
-      <div class="coalition-win" data-majority-win hidden><div><strong>Majority built!</strong><p>Try another combination, or choose your next council.</p></div><button class="button" type="button" data-coalition-reset>Start again</button><a class="button primary" href={builderPath}>Next council →</a></div>
-      <div class="coalition-builder">
-        <section class="coalition-visual-panel" aria-label="Selected council seats">
-          <div class="coalition-figure"><div class="coalition-total"><strong data-coalition-total>0</strong><span>of {model.total} {seats.status === 'estimated' ? 'estimated seats' : 'seats'} selected</span></div><div class="coalition-diagram"><SeatDiagram seats={seats} empty/></div></div>
-          <div class="coalition-state"><span data-coalition-status>Choose parties</span><small>{model.majority} needed</small></div>
-          <div class="coalition-meter" role="img" aria-label={`No seats selected. A majority needs ${model.majority} seats.`}><div class="coalition-bar"><div class="coalition-meter-fill">{model.parties.map(p => <i data-coalition-segment={p.id} style={`width:0%;background:${p.color}`}/>)}</div><i class="majority-marker"><span>50%</span></i></div><div class="coalition-key" aria-hidden="true"></div></div>
-        </section>
-        <section class="coalition-choices" aria-labelledby="coalition-choose-heading"><div class="card-heading"><h2 id="coalition-choose-heading">Parties</h2><div class="coalition-party-meta"><span title={seatLabel(seats)}>Hypothetical</span>{progress ? <span class="coalition-reporting" role="img" aria-label={`${progressLabel(progress)} of voting districts reporting · ${progress.completed} of ${progress.expected}`}><ReportingProgress progress={progress}/><span>reporting</span></span> : <span>Reporting unavailable</span>}</div></div>
-          <div class="coalition-party-grid">{model.parties.filter(p => p.selectable).map(p => <button class="coalition-party" data-coalition-party={p.id} aria-pressed="false" aria-label={`${p.name}, ${p.seats} ${model.status === 'estimated' ? 'estimated ' : ''}seats`} style={`--party:${p.color}`}><span class="coalition-party-name">{p.short}{p.short !== p.name && <small>{p.name}</small>}</span><strong>{p.seats}<small>seats</small></strong><span class="coalition-toggle-symbol" aria-hidden="true">+</span></button>)}<button class="coalition-reset" data-coalition-reset disabled>Clear selection</button></div>
-          {model.parties.some(p => !p.selectable) && <p class="small">{model.parties.filter(p => !p.selectable).reduce((n, p) => n + p.seats, 0)} independent seats cannot be selected individually in this data.</p>}
-        </section>
+    <header class="chaos-intro">
+      <div class="coalition-location">
+        {province && <button type="button" class="coalition-province" data-coalition-picker-open="provinces" aria-haspopup="dialog" aria-controls="coalition-picker" aria-label={`Change province: ${province.name}`}>{province.name}<Icon name="chevronDown" size={12}/></button>}
+        <h1><button type="button" data-coalition-picker-open="councils" aria-haspopup="dialog" aria-controls="coalition-picker" aria-label={`Change council: ${place?.name ?? 'choose a municipality'}`}><span class="coalition-place-name">{place?.name ?? 'Choose a council'}</span><Icon name="chevronDown" size={18}/></button></h1>
+        <button type="button" class="coalition-random" data-coalition-random data-current-council={municipality?.id} aria-label="Play a random municipality"><img class="chaos-random-die" src="/images/coalition/random-die-pixel.webp" width="32" height="32" alt=""/><span data-random-label>Random</span></button>
       </div>
+      <p class="coalition-random-feedback" data-random-feedback role="status" hidden></p>
+    </header>
+    <CoalitionPicker provinceId={province?.id} councilId={municipality?.id}/>
+    {model && seats && seats.status !== 'unavailable' && municipality ? <>
+      {dataNotice && <p class="notice coalition-delay">{dataNotice}</p>}
+      <CoalitionGame model={model}/>
       <p class="sr-only" data-coalition-announcement role="status" aria-live="polite"></p>
-      <div class="coalition-context"><details><summary>How this works &amp; source</summary><ResultStatus result={municipality}/><SeatMethod seats={seats} result={municipality}/><p class="small">A seat majority does not confirm a governing agreement.</p></details></div>
+      {place && <GetInvolved place={place}/>}
+      <CoalitionStory model={model}/>
+      <div class="coalition-context"><details><summary>Rules, real politics &amp; sources</summary><ResultStatus result={municipality} showDelay={!localSnapshot}/><SeatMethod seats={seats} result={municipality}/><p class="small">Tap parties to reach {model.majority} seats, then roll the dice for one fictional scenario. Every roll starts from your original deal. Previously drawn scenarios stay out of the deck until the applicable cards run out. Every party follows the same rules. A “key partner” is one whose departure would put your deal below the majority target. Plot twists do not change the real results or your selection.</p><p class="small">A seat majority does not confirm a governing agreement. The game uses a fixed majority of all council seats; real council votes can involve different attendance and voting rules. The caricatures represent national party leaders, not local candidates.</p><p class="small">Inspired by the kingmaker politics and shifting alliances documented in <a href="https://coalitions.mistra.org.za/">MISTRA’s Coalitions Barometer</a>. In May 2023, Johannesburg elected Al Jama-ah’s Kabelo Gwamanda mayor with 139 votes: a small party can win a very big chair. <a href="https://joburg.org.za/media_/Pages/Media/Media%20Statements/2023%20Media%20Statements/May/Joburg-elects-the-Executive-Mayor.aspx">City record ↗</a></p></details></div>
       <noscript><p class="notice">Enable JavaScript to select parties. <a href={resultUrl}>View council seats</a>.</p></noscript>
-    </> : <section class="empty coalition-waiting"><p class="eyebrow">{failed ? 'Data unavailable' : validCouncil ? 'Council allocation pending' : 'Council not found'}</p><h2>{failed ? 'We couldn’t load this council’s seats.' : validCouncil ? 'This council isn’t ready to play yet.' : 'Choose a whole municipality to play.'}</h2><p>{failed ? 'Please try again. You can also choose another council.' : seats?.status === 'unavailable' ? seats.reason : 'The builder needs a complete reported or estimated seat breakdown.'}</p>{validCouncil && !failed && <p>This page will update when usable seats become available.</p>}<div class="links">{failed && <a class="button" href={Astro.url.pathname}>Try again</a>}<a class="button primary" href={builderPath}>Choose another council →</a>{validCouncil && <a class="button" href={resultUrl}>View latest results</a>}</div></section>}
+    </> : <section class="empty coalition-waiting"><p class="eyebrow">{failed ? 'Data unavailable' : validCouncil ? 'Council allocation pending' : 'Council not found'}</p><h2>{failed ? 'We couldn’t load this council’s seats.' : validCouncil ? 'This council isn’t ready to play yet.' : 'Choose a whole municipality to play.'}</h2><p>{failed ? 'Please try again. You can also choose another council.' : seats?.status === 'unavailable' ? seats.reason : 'The builder needs a complete reported or estimated seat breakdown.'}</p>{validCouncil && !failed && <p>This page will update when usable seats become available.</p>}<div class="links">{failed && <a class="button" href={Astro.url.pathname}>Try again</a>}<button type="button" class="button primary" data-coalition-picker-open="councils" aria-haspopup="dialog" aria-controls="coalition-picker">Choose another council →</button>{validCouncil && <a class="button" href={resultUrl}>View latest results</a>}</div></section>}
+    {validCouncil && place && !model && <GetInvolved place={place}/>}
   </section>
+  {validCouncil && place && <CouncilGovernment municipalityId={place.relationships.find(r=>r.election===2026&&r.level==='municipality'&&r.relation==='equals')!.areaId} result={municipality} builder/>}
   {validCouncil && place && <RelatedNews scope="coalition" area={place.slug}/>}
 </Site>
 <script>import '../../../../lib/seats/client.ts';</script>

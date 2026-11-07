@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { searchElectionAreas } from '../../lib/address/election-search.ts';
+import { env } from 'cloudflare:workers';
+import { searchLocalAreas } from '../../lib/address/local-search.ts';
 import { addressSearchBounds } from '../../lib/address/scope.ts';
 
 const headers = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' };
@@ -26,7 +27,7 @@ export const POST: APIRoute = async ({ request, url }) => {
     const query = body.query.trim();
     if (query.length < 2) return Response.json({ suggestions: [] }, { headers });
     if (body.bbox !== undefined && !addressSearchBounds(body.bbox)) return Response.json({ error: 'Invalid search scope' }, { status: 400, headers });
-    return Response.json({ suggestions: searchElectionAreas(query, body.bbox) }, { headers });
+    return Response.json({ suggestions: await searchLocalAreas(env.GEOGRAPHY_DB ?? env.RESULTS_DB, query, body.bbox) }, { headers });
   } catch (error) {
     return Response.json({ error: error instanceof SyntaxError ? 'Invalid search' : 'Search is temporarily unavailable' }, { status: error instanceof SyntaxError ? 400 : 503, headers });
   }

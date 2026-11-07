@@ -26,7 +26,7 @@ async function selectYear(url: string) {
   const target = key(url), version = ++request;
   const control = document.querySelector<ElectionHistory>('election-history');
   if (!control) return;
-  // Reflect the reader's selection immediately, without moving the native thumb
+  // Reflect the reader's selection immediately, without reverting the control
   // back to a previously rendered year while its results are still loading.
   control.showYear(target);
   if (target === renderedUrl) { setStatus(); document.dispatchEvent(new Event('results:year-changed')); return; }
@@ -42,20 +42,20 @@ async function selectYear(url: string) {
     const current = document.querySelector<HTMLElement>('#main')!;
     const nextControl = next.querySelector<ElectionHistory>('election-history')!;
     if (nextControl.dataset.scope !== control.dataset.scope) throw new Error('Different election area');
-    // Keep the native range and its surrounding card mounted throughout a drag.
+    // Keep the native selector mounted throughout the page update.
     const top = control.getBoundingClientRect().top;
-    const focused = document.activeElement === control.querySelector('input');
+    const focused = document.activeElement === control.querySelector('select');
     document.dispatchEvent(new Event('results:before-year-change'));
     current.toggleAttribute('data-live-results', next.hasAttribute('data-live-results'));
     current.dataset.resultsUrl = target;
     updateResults(current, next, true);
     syncSearchState(page);
-    // Scrubbing is a local view change. Canonical links still open standalone
+    // Selecting a year is a local view change. Canonical links still open standalone
     // election pages, but the loaded route, metadata and history stay intact.
     renderedUrl = target;
     control.showYear(target);
     setStatus();
-    if (focused) control.querySelector<HTMLInputElement>('input')!.focus({ preventScroll: true });
+    if (focused) (control.querySelector('select') as unknown as HTMLSelectElement).focus({ preventScroll: true });
     window.scrollBy({ top: control.getBoundingClientRect().top - top, behavior: 'instant' });
     document.dispatchEvent(new Event('results:year-changed'));
     document.dispatchEvent(new Event('results:updated'));
@@ -75,7 +75,7 @@ class ElectionHistory extends HTMLElement {
     const current = new URL(location.href);
     for (const link of this.links()) {
       const url = new URL(link.href);
-      for (const name of ['ballot', 'q']) {
+      for (const name of ['ballot', 'party', 'metric', 'council']) {
         if (current.searchParams.has(name)) url.searchParams.set(name, current.searchParams.get(name)!);
         else url.searchParams.delete(name);
       }
@@ -88,8 +88,8 @@ class ElectionHistory extends HTMLElement {
     const links = this.links(), index = links.findIndex(link => new URL(link.href).pathname === new URL(url).pathname);
     if (index < 0) return;
     const year = links[index]!.dataset.year!;
-    const input = this.querySelector<HTMLInputElement>('input')!;
-    input.value = String(index); input.setAttribute('aria-valuetext', year);
+    const input = this.querySelector('select') as unknown as HTMLSelectElement;
+    input.value = String(index);
     this.querySelector('output')!.textContent = year;
     this.dataset.current = String(index);
     for (const link of links) {
@@ -99,12 +99,11 @@ class ElectionHistory extends HTMLElement {
   connectedCallback() {
     if (this.initialized) return;
     this.initialized = true;
-    const input = this.querySelector<HTMLInputElement>('input')!;
-    input.addEventListener('input', () => {
+    const input = this.querySelector('select') as unknown as HTMLSelectElement;
+    input.addEventListener('change', () => {
       this.syncLinks();
       const link = this.links()[Number(input.value)];
       if (!link) return;
-      input.setAttribute('aria-valuetext', link.dataset.year!);
       void selectYear(link.href);
     });
     this.addEventListener('click', event => {
@@ -124,10 +123,7 @@ class ElectionHistory extends HTMLElement {
     };
     this.addEventListener('pointerenter', warm);
     this.addEventListener('focusin', warm);
-    const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) { observer.disconnect(); warm(); }
-    });
-    observer.observe(this);
+
   }
 }
 if (!customElements.get('election-history')) customElements.define('election-history', ElectionHistory);

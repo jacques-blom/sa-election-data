@@ -6,6 +6,7 @@ import { resultFromRow, partyStyle, type Result, type ResultRow } from '../place
 import { places, placeUrl } from '../places/catalogue.ts';
 import { hydrateResults, joinedResults } from '../data/packed-results.ts';
 import { readCouncilStates, summariseCouncils, type CouncilOverview } from './councils.ts';
+export { progressLabel } from './progress.ts';
 
 export const provinces = [
   { id: '1', slug: 'eastern-cape', name: 'Eastern Cape', code: 'EC', label: [368, 350] },
@@ -106,8 +107,6 @@ export function progressOf(result: Result, key: keyof AreaRecord['payload']['pro
     || !Number.isSafeInteger(p.completed) || p.completed < 0 || p.completed > p.expected) return null;
   return { expected: p.expected, completed: p.completed, percent: p.completed / p.expected * 100 };
 }
-export const progressLabel = (p: ReturnType<typeof progressOf>) => p === null ? 'Unavailable'
-  : (p.completed === p.expected ? 100 : Math.min(99.9, Math.round(p.percent * 10) / 10)).toFixed(1) + '%';
 export function resultDelay(result: Result, now = Date.now()) {
   if (result.year !== latestYear) return null;
   if (result.source.error) return 'The latest refresh failed. These are the last available figures.';

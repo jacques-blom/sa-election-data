@@ -29,7 +29,7 @@ const area: ResolvedArea | undefined = district ? districtSelection(district) : 
 <Site title="Explore election results on the map" description="Browse South African provinces, municipalities and wards. Explore the map to see published 2026 election results." canonicalPath="/map">
   <div class="map-heading page-share-heading">
     <div><h1>Explore the map</h1></div>
-    <div class="page-heading-actions"><a class="button" href="/">Browse results ↗</a><PageShare/></div>
+    <PageShare/>
   </div>
   <CivicGuide topic="map"/>
   <div class="map-shell" id="map-app" data-place={place} data-ward={ward} data-area={area ? JSON.stringify(area) : undefined} data-bounds={chosen?.bbox ? JSON.stringify(chosen.bbox) : undefined}>

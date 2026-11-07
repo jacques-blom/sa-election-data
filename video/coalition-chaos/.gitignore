@@ -1,0 +1,7 @@
+node_modules/
+out/
+public/gameplay/*.mp4
+public/gameplay/*.webm
+public/audio/*.wav
+
+.bin/

@@ -1,0 +1,9 @@
+---
+import { ArrowUpRight, ArrowDownRight, ArrowRight, ArrowLeft, ArrowUp, ArrowDown, ChevronRight, ChevronDown, Plus, Minus, X, Search, Share2, ChartColumn, MapPin, Map, LocateFixed, Landmark, Users, Vote, CircleQuestionMark, Clock3, ExternalLink, Newspaper, Layers, Grid2x2, CircleCheck, Gamepad2 } from '@lucide/astro';
+export type IconName = keyof typeof icons;
+const icons = { arrowUpRight:ArrowUpRight, arrowDownRight:ArrowDownRight, arrowRight:ArrowRight, arrowLeft:ArrowLeft, arrowUp:ArrowUp, arrowDown:ArrowDown, chevronRight:ChevronRight, chevronDown:ChevronDown, plus:Plus, minus:Minus, x:X, search:Search, share:Share2, chart:ChartColumn, mapPin:MapPin, map:Map, locate:LocateFixed, landmark:Landmark, users:Users, vote:Vote, help:CircleQuestionMark, clock:Clock3, external:ExternalLink, news:Newspaper, layers:Layers, grid:Grid2x2, check:CircleCheck, game:Gamepad2 };
+interface Props { name:IconName; size?:number; class?:string }
+const {name,size=18,class:className}=Astro.props;
+const Glyph=icons[name];
+---
+<Glyph size={size} stroke-width={1.8} class:list={['ui-icon',className]} aria-hidden="true" focusable="false"/>

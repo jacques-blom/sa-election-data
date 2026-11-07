@@ -1,0 +1,5 @@
+import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+const css=readFileSync(new URL('./recording.css',import.meta.url),'utf8');
+const js=`(()=>{document.querySelector('astro-dev-toolbar')?.remove();document.querySelector('[data-trailer-style]')?.remove();const style=document.createElement('style');style.dataset.trailerStyle='';style.textContent=${JSON.stringify(css)};document.head.append(style);if(!window.__trailerTouch){window.__trailerTouch=true;document.addEventListener('pointerdown',event=>{const mark=document.createElement('i');mark.style.cssText='position:fixed;z-index:2147483647;pointer-events:none;width:52px;height:52px;border:4px solid #ed593a;box-shadow:0 0 0 4px #fff8e5;left:'+(event.clientX-26)+'px;top:'+(event.clientY-26)+'px';document.body.append(mark);const animation=mark.animate([{transform:'scale(.65)',opacity:1},{transform:'scale(1.3)',opacity:0}],{duration:460,easing:'ease-out'});animation.onfinish=()=>mark.remove()})};return 'Recording style applied'})()`;
+console.log(execFileSync('agent-browser',['--session',process.argv[2]??'coalition-trailer-v2','eval',js],{encoding:'utf8'}));

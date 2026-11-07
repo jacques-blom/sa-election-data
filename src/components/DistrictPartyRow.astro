@@ -1,0 +1,17 @@
+---
+import type { DistrictParty } from '../lib/districts/results.ts';
+import { formatNumber, partyStyle } from '../lib/places/format.ts';
+import { partyIdByName } from '../lib/parties/logos.ts';
+import PartyLogo from './PartyLogo.astro';
+interface Props { party: DistrictParty }
+const {party} = Astro.props;
+const [short,color] = partyStyle(party.name);
+---
+<div class="party-row">
+  <div class="party-name party-identity">
+    <PartyLogo party={{party_id: partyIdByName(party.name)}}/>
+    <div class="party-identity-text"><span class="sr-only">{party.name}</span><abbr title={party.name} aria-hidden="true" style="text-decoration:none">{party.abbreviation ?? short}</abbr></div>
+  </div>
+  <div class="bar-track" aria-hidden="true"><div class="bar" style={`--share:${party.share ?? 0}%;--party:${color}`}/></div>
+  <div class="party-votes">{party.share === null ? '—' : `${party.share.toFixed(1)}%`}<small>{formatNumber(party.votes)} votes</small></div>
+</div>

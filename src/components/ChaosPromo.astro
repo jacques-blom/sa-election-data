@@ -1,0 +1,35 @@
+---
+interface Props { href?: string; name?: string; featured?: boolean; majority?: 'reported' | 'estimated' }
+const { href = '/chaos', name, featured = false, majority } = Astro.props;
+const target = majority ? '/chaos' : href;
+const caption = majority
+  ? `One party has ${majority === 'estimated' ? 'an estimated' : 'a'} seat majority in ${name ?? 'this municipality'}. Try building one elsewhere in Coalition Chaos.`
+  : name ? `Keep ${name} together.` : 'Build a majority. Survive the drama.';
+---
+<aside class:list={['chaos-promo', { 'chaos-promo--featured': featured, 'chaos-promo--majority': !!majority }]} aria-label="Coalition Chaos game">
+  <a href={target} aria-label={`Play Coalition Chaos${majority ? ' in another municipality' : name ? ` in ${name}` : ''}`}>
+    <span class="chaos-promo-bird" aria-hidden="true"/>
+    <span class="chaos-promo-copy">
+      <strong>{majority ? <>{majority === 'estimated' ? 'A majority on estimates.' : 'A majority here.'} <span>Chaos elsewhere.</span></> : <>Coalition <span>Chaos</span></>}</strong>
+      <span class="chaos-promo-caption">{caption}</span>
+      <span class="chaos-promo-fiction">Fictional scenario</span>
+    </span>
+    <span class="chaos-promo-play">Play <span aria-hidden="true">→</span></span>
+  </a>
+</aside>
+<style>
+  @font-face{font-family:Silkscreen;src:url('/fonts/Silkscreen-Regular.ttf') format('truetype');font-display:swap}
+  .chaos-promo{margin:18px 0 22px;min-width:0}
+  .chaos-promo>a{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:12px;padding:14px 16px;color:#fffdf4;background:#173d33;border:2px solid #173d33;box-shadow:4px 4px 0 #aab69a;text-decoration:none;touch-action:manipulation}
+  .chaos-promo-bird{display:block;width:72px;height:72px;background:url('/images/coalition/speaker-frames-v3.webp') 100% 0/400% 300%;image-rendering:pixelated;filter:drop-shadow(2px 2px 0 #0e271f)}
+  .chaos-promo-copy{min-width:0}.chaos-promo-copy strong{display:block;font-family:Silkscreen,monospace;font-weight:400;font-size:22px;line-height:1.15;color:#f5ce60}.chaos-promo-caption{display:block;font-size:13px;line-height:1.4;margin-top:6px;overflow-wrap:anywhere}
+  .chaos-promo-play{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 12px;background:#f5ce60;color:#173d33;box-shadow:3px 3px 0 #0a241d;font-size:15px;font-weight:700}
+  .chaos-promo-fiction{display:block;margin-top:6px;font-size:12px;font-weight:700;line-height:1.4;color:#f5ce60}
+  .chaos-promo>a:focus-visible{outline:3px solid #d34928;outline-offset:6px}.chaos-promo>a:active .chaos-promo-play{transform:translate(2px,2px);box-shadow:1px 1px 0 #0a241d}
+  .chaos-promo--featured>a{padding:18px 22px;grid-template-columns:96px minmax(0,1fr) auto}.chaos-promo--featured .chaos-promo-bird{width:96px;height:96px}.chaos-promo--featured .chaos-promo-copy strong{font-size:28px}
+  .chaos-promo--majority .chaos-promo-copy strong{font-family:inherit;font-weight:700;font-size:20px;line-height:1.25}
+  @media(hover:hover){.chaos-promo>a:hover .chaos-promo-play{background:#ffe29a}.chaos-promo>a:hover .chaos-promo-bird{background-position:66.6667% 50%}}
+  @media(max-width:600px){.chaos-promo>a,.chaos-promo--featured>a{grid-template-columns:64px minmax(0,1fr) auto;gap:10px;padding:12px}.chaos-promo-bird,.chaos-promo--featured .chaos-promo-bird{width:64px;height:64px}.chaos-promo-copy strong,.chaos-promo--featured .chaos-promo-copy strong{font-size:18px}.chaos-promo-copy strong>span{display:block}.chaos-promo-caption{font-size:12px}.chaos-promo-play{gap:4px;padding:8px;font-size:14px}}
+  @media(max-width:360px){.chaos-promo>a{grid-template-columns:48px minmax(0,1fr) auto;gap:8px;padding:10px}.chaos-promo-bird,.chaos-promo--featured .chaos-promo-bird{width:48px;height:48px}.chaos-promo-copy strong,.chaos-promo--featured .chaos-promo-copy strong{font-size:16px}}
+  @media(max-width:600px){.chaos-promo--majority>a{grid-template-columns:minmax(0,1fr) auto}.chaos-promo--majority .chaos-promo-bird{display:none}.chaos-promo--majority .chaos-promo-copy strong{font-size:18px}}
+</style>

@@ -1,0 +1,87 @@
+---
+import Icon from './Icon.astro';
+interface Props { embedded?: boolean }
+const { embedded = false } = Astro.props;
+const organisations = [
+  {
+    name: 'amaBhungane',
+    description: 'Independent investigative journalism exposing corruption and abuses of power, with reporting that’s free for everyone to read.',
+    url: 'https://amabhungane.org/donate/',
+  },
+  {
+    name: 'Corruption Watch',
+    description: 'Receives reports of corruption from the public, investigates selected cases and campaigns for accountability.',
+    url: 'https://www.corruptionwatch.org.za/your-donation-will-support-our-important-work/',
+  },
+  {
+    name: 'OUTA',
+    description: 'The Organisation Undoing Tax Abuse investigates and challenges corruption, misuse of public money and government maladministration.',
+    url: 'https://www.outa.co.za/join-now-1',
+  },
+];
+---
+
+<section id="give-back" class:list={['give-back', { 'give-back--embedded': embedded }]} aria-labelledby="give-back-heading">
+  <details class="give-back-inner" open={embedded}>
+    <summary>
+      <h2 id="give-back-heading">Give something back</h2>
+      <span>Support independent journalism and accountability.</span>
+      <Icon name="plus" size={18}/>
+    </summary>
+    <div class="give-back-intro">
+      <p>I’m Jacques, the person behind Counted. I don’t need personal financial support, but if you’ve found this project useful and would like to give something back, please consider donating to one of these South African non-profits working for transparency, accountability and democracy.</p>
+    </div>
+    <div class="give-back-organisations">
+      {organisations.map(organisation => <div class="give-back-organisation">
+        <h3>{organisation.name}</h3>
+        <p>{organisation.description}</p>
+        <a href={organisation.url}>Donate to {organisation.name} <span aria-hidden="true">↗</span></a>
+      </div>)}
+    </div>
+  </details>
+</section>
+
+<script>
+  function revealGiveBack() {
+    if (location.hash === '#give-back') {
+      const details = document.querySelector<HTMLDetailsElement>('#give-back details');
+      if (details) details.open = true;
+    }
+  }
+  revealGiveBack();
+  window.addEventListener('hashchange', revealGiveBack);
+</script>
+
+<style>
+  .give-back { max-width: 1240px; margin: 0 auto; padding: 0 32px 24px; color: var(--ink, #163a30); scroll-margin-top: 24px; }
+  .give-back-inner { border-top: 1px solid var(--line, #dce2d2); }
+  .give-back summary { display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;min-height:64px;padding:12px 0;list-style:none;cursor:pointer; }
+  .give-back summary::-webkit-details-marker { display:none; }
+  .give-back summary>span { font-size:12px;font-weight:400;color:var(--muted); }
+  .give-back summary :global(svg) { flex:none; }
+  .give-back details[open] summary :global(svg) { transform:rotate(45deg); }
+  .give-back summary:focus-visible { outline:2px solid var(--ink);outline-offset:4px; }
+  .give-back-intro { max-width:80ch;margin:8px 0 24px; }
+  .give-back h2 { font-size: 18px; font-weight: 550; letter-spacing: -.3px; line-height: 1.3; margin: 0; }
+  .give-back p { font-size: 14px; line-height: 1.75; margin: 0; }
+  .give-back-organisations { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .give-back-organisation { display: flex; flex-direction: column; align-items: start; }
+  .give-back h3 { font-size: 20px; font-weight: 550; letter-spacing: -.4px; line-height: 1.3; margin: 0 0 10px; }
+  .give-back-organisation p { color: var(--muted, #5c715f); margin-bottom: 12px; }
+  .give-back a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-top: auto; font-size: 13px; font-weight: 600; line-height: 1.5; color: inherit; text-underline-offset: 4px; }
+  .give-back a:hover { color: #146c4c; }
+  .give-back--embedded { padding: 40px 0 0; }
+  @media (max-width: 760px) {
+    .give-back { padding-inline: 20px; }
+    .give-back summary { grid-template-columns:1fr auto;gap:4px 12px; }
+    .give-back summary>span { grid-column:1;grid-row:2; }
+    .give-back summary :global(svg) { grid-column:2;grid-row:1/3; }
+    .give-back-organisations { grid-template-columns: 1fr; gap: 20px; }
+    .give-back-organisation + .give-back-organisation { border-top: 1px solid var(--line, #dce2d2); padding-top: 20px; }
+    .give-back--embedded { padding-inline: 0; }
+  }
+  @media (max-width: 540px) {
+    .give-back { padding-inline: 16px; }
+    .give-back--embedded { padding-inline: 0; }
+  }
+</style>

@@ -1,6 +1,7 @@
 import { councilPoints } from '../seats/diagram.ts';
 import { formatNumber, formatTime } from '../places/format.ts';
 import { imageDescription, type ShareCard, type ShareFormat } from './model.ts';
+import { historyFlow } from '../history/flow.ts';
 
 const ink = '#163a30', paper = '#fff9ec', muted = '#b6cbbd', gold = '#edc66e';
 let assets: Promise<HTMLImageElement> | undefined;
@@ -67,7 +68,10 @@ export async function drawShareImage(canvas: HTMLCanvasElement, card: ShareCard,
   box(56, top, 68, 68, paper, 18); ctx.drawImage(logo, 66, top + 14, 48, 40);
   text('Counted', 140, top + 3, 46, paper, 700);
   text('.co.za', 330, top + 19, 28, muted);
-  text(`LOCAL ELECTIONS ${card.year}`, 655, top + 24, 25, muted, 700);
+  if (card.kind === 'coalition') {
+    box(464, top, 560, 68, gold, 4);
+    text('FICTIONAL SCENARIO', 480, top + 13, 42, ink, 700);
+  } else text(`LOCAL ELECTIONS ${card.year}`, 655, top + 24, 25, muted, 700);
   fit(card.area, 56, top + 106, 968, square ? 36 : 44, gold, 500);
   wrap(card.headline, 56, top + 164, 968, square ? 68 : 90);
 
@@ -75,10 +79,60 @@ export async function drawShareImage(canvas: HTMLCanvasElement, card: ShareCard,
   fit(card.metric, 56, metricY, 480, square ? 118 : 156, paper, 700);
   fit(card.metricLabel, 540, metricY + 25, 480, 32, paper);
   fit(card.ballot, 540, metricY + 72, 480, 25, muted);
-  if (card.kind === 'coalition') text('HYPOTHETICAL', 56, metricY - 33, 23, gold, 700);
 
   box(40, chartY, 1000, chartH, paper, 28);
-  if (card.council) {
+  if (card.history) {
+    const h=card.history, flow=historyFlow(h.chart);
+    const x=80, y=chartY+28, width=920, height=chartH-140;
+    ctx.save();ctx.translate(x,y);ctx.scale(width/flow.width,height/flow.height);
+    for (const band of flow.bands) {
+      ctx.fillStyle=band.color;ctx.globalAlpha=h.party&&h.party!==band.id? .06:.32;
+      ctx.fill(new Path2D(band.path));
+    }
+    for (const column of flow.columns) {
+      for(const node of column.nodes.filter(n=>n.known&&n.height>0)){
+        ctx.globalAlpha=h.party&&h.party!==node.id? .15:1;
+        ctx.fillStyle=node.color;ctx.fillRect(column.x,node.top,flow.barWidth,node.height);
+      }
+    }
+    ctx.restore();
+    for (const column of flow.columns) {
+      const columnX=x+column.x/flow.width*width, columnW=flow.barWidth/flow.width*width;
+      if(column.year===h.year){ctx.strokeStyle=ink;ctx.lineWidth=2;ctx.strokeRect(columnX-5,y-5,columnW+10,height+10);}
+      if(!column.available)text('—',columnX,y+height/2-12,25,'#526b5d');
+      text(String(column.year),columnX+columnW/2-29,y+height+14,24,column.year===h.year?ink:'#526b5d',column.year===h.year?700:500);
+    }
+    const legend=[...h.chart.series,{id:'remainder',short:'Other',color:'#b1baa8'}];
+    const selected=flow.columns.find(c=>c.year===h.year);
+    legend.forEach((party,i)=>{
+      const lx=80+(i%3)*306,ly=chartY+chartH-68+Math.floor(i/3)*30;
+      const value=selected?.nodes.find(p=>p.id===party.id);
+      const label=!value?.known||value.value===null?'—':h.metric==='seats'?String(value.value):`${value.value.toFixed(1)}%`;
+      ctx.save();ctx.globalAlpha=h.party&&h.party!==party.id? .35:1;
+      box(lx,ly+4,14,18,party.color,3);fit(party.short,lx+24,ly,158,23,ink,h.party===party.id?700:500);
+      fit(label,lx+192,ly,90,23,ink,700);ctx.restore();
+    });
+  } else if (card.council && card.kind==='result') {
+    const council=card.council, total=card.total||1;
+    text(`${card.total} council seats`,80,chartY+24,26,ink,700);
+    text(`${council.majority} for a majority`,630,chartY+24,26,ink,700);
+    let left=80;
+    for(const group of council.groups){const width=920*group.seats/total;box(left,chartY+66,width,22,group.color,0);left+=width;}
+    const threshold=80+920*council.majority/total;
+    ctx.fillStyle=ink;ctx.fillRect(threshold-2,chartY+60,4,34);
+    const shown=card.parties.slice(0,square?4:5), rowHeight=square?45:story?78:64;
+    shown.forEach((party,i)=>{
+      const y=chartY+112+i*rowHeight;
+      fit(party.short,80,y,240,square?29:34,ink,700);
+      box(345,y+4,458,square?22:28,'#e1e6d9',5);
+      if(party.value)box(345,y+4,458*party.value/total,square?22:28,party.color,5);
+      const marker=345+458*council.majority/total;
+      ctx.save();ctx.strokeStyle='#526b5d';ctx.setLineDash([4,4]);ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(marker,y);ctx.lineTo(marker,y+(square?31:37));ctx.stroke();ctx.restore();
+      fit(String(party.value??'—'),850,y,145,square?31:36,ink,700);
+    });
+    fit(card.parties.length>shown.length?`Top ${shown.length} parties · total bar includes all ${card.parties.length}`:'All parties shown',80,chartY+chartH-38,920,24,'#526b5d');
+  } else if (card.council) {
     const council = card.council;
     const arcScale = square ? 1.5 : story ? 2.05 : 1.7;
     const arcX = square ? 68 : story ? 215 : 268;
@@ -103,7 +157,12 @@ export async function drawShareImage(canvas: HTMLCanvasElement, card: ShareCard,
     // Majority line and selected share make the threshold visible alongside the seat dots.
     const meterY = chartY + chartH - 48;
     box(80, meterY, 920, 12, '#d8dfd4', 6);
-    if (council.selected) box(80, meterY, 920 * council.selected / (card.total || 1), 12, ink, 6);
+    if(card.kind==='coalition'){
+      if (council.selected) box(80, meterY, 920 * council.selected / (card.total || 1), 12, ink, 6);
+    }else{
+      let left=80;
+      for(const group of council.groups){const width=920*group.seats/(card.total||1);box(left,meterY,width,12,group.color,0);left+=width;}
+    }
     const marker = 80 + 920 * council.majority / (card.total || 1);
     ctx.fillStyle = '#b17024'; ctx.fillRect(marker - 2, meterY - 8, 4, 28);
   } else {
@@ -122,9 +181,9 @@ export async function drawShareImage(canvas: HTMLCanvasElement, card: ShareCard,
     fit(scope, 80, chartY + chartH - 40, 920, 24, '#526b5d');
   }
   const p = card.progress;
-  fit(p ? `${formatNumber(p.completed)} / ${formatNumber(p.expected)} districts reporting` : 'Reporting progress unavailable', 56, footer, 968, 26, paper);
+  fit(card.history ? `${card.history.chart.columns[0]?.year}–${card.year} · ${card.history.metric==='seats'?'Reported seats':'Vote share'}` : p ? `${formatNumber(p.completed)} / ${formatNumber(p.expected)} districts reporting` : 'Reporting progress unavailable', 56, footer, 968, 26, paper);
   fit(card.note, 56, footer + 37, 968, 24, muted);
-  fit(`Source: IEC · ${formatTime(card.reportedAt)}`, 56, footer + 74, 968, 24, muted);
+  fit(`Source: ${card.sourceLabel ?? 'IEC'} · ${formatTime(card.reportedAt)}`, 56, footer + 74, 968, 24, muted);
   text('counted.co.za', 56, footer + 114, 28, gold, 700);
   text('Explore the full picture →', 663, footer + 114, 27, paper);
   // Keep important content inside the story/status UI safe zones.

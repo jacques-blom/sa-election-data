@@ -6,4 +6,4 @@ const { result, basis = 'source_total', compact = false } = Astro.props;
 const previous = previousElection(result.year);
 const fallback = basis !== 'source_total' && result.previous && combinedOnly(result.previous);
 ---
-{previous && <p class="comparison-note">{result.previous ? <>Change since {previous} (<a href="/guide#change">percentage points</a>).{fallback && ' Compared with combined ballots.'}{!compact && !['national','province'].includes(result.level) && ' Not adjusted for boundary changes.'}</> : <>{previous} comparison unavailable.</>}</p>}
+{previous && <p class="comparison-note">{result.previous ? <>Change since {previous}.{fallback && ' Compared with combined ballots.'}{!compact && !['national','province'].includes(result.level) && ' Not adjusted for boundary changes.'}</> : <>{previous} comparison unavailable.</>}</p>}

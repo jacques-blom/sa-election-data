@@ -3,6 +3,18 @@ export const methodology = `# Reading Counted election results
 Counted is an independent civic project, not an official IEC service. It serves
 stored IEC municipal election results for 2000, 2006, 2011, 2016, 2021 and 2026.
 
+Government context is separately sourced. Use get_government_history for MISTRA
+administrations through 28 February 2026 and any separately verified governments.
+Documented single-party administrations have their own municipal/IEC sources and
+evidence period. An electionBaseline is only a historical seat majority, never
+proof of continuous government. The history trends_url in an area summary provides
+same-ballot series, historical council allocations, sources and explicit gaps.
+Members, supporters and officeholders in MISTRA are at inauguration; subsequent
+changes may appear only in notes. Active at cutoff is not current. Keep notes,
+source issues and dates. Missing coverage is not proof of single-party rule.
+The 2026 recorded-partner total is hypothetical. Government change requires
+confirmed before/after administrations, even once election results are final.
+
 - Always keep the election year, area, source URL, snapshot ID, IEC report time,
   last successful check, freshness and quality flags with figures you present.
 - The 2026 results are provisional. A vote leader is not necessarily a winner;

@@ -5,6 +5,7 @@ import { Content, getHeadings } from '../../../docs/api.md';
 import Brand from '../../components/Brand.astro';
 import Analytics from '../../components/Analytics.astro';
 import SocialImage from '../../components/SocialImage.astro';
+import GiveBack from '../../components/GiveBack.astro';
 import { publicUrl } from '../../lib/site.ts';
 
 const sections = getHeadings().filter((heading) => heading.depth === 2);
@@ -54,6 +55,7 @@ const canonical = publicUrl('/api');
       </aside>
       <main id="documentation">
         <article><PageShare/><Content /></article>
+        <GiveBack embedded/>
         <footer>
           Independent of the IEC. Always check a result’s source and freshness before using it.
           <a href="/disclaimer">Disclaimer</a>

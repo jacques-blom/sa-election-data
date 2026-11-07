@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+import { formatNumber } from '../lib/places/format.ts';
+interface Props { votes: (number | null)[]; total: number | null; expandable?: boolean }
+const { votes, total, expandable = true } = Astro.props;
+const sum = votes.every(v => v !== null && Number.isFinite(v) && v >= 0)
+  ? votes.reduce<number>((n, v) => n + v!, 0) : null;
+const share = sum !== null && total !== null && total > 0 ? sum / total * 100 : null;
+const Container = expandable ? 'details' : 'div';
+const Row = expandable ? 'summary' : 'div';
+---
+<Container class="more-parties other-parties">
+  <Row class="party-row other-parties-summary">
+    <span class="party-name party-identity">
+      <span class="other-parties-toggle" aria-hidden="true"><Icon name={expandable ? 'chevronDown' : 'layers'} size={16}/></span>
+      <span>Other{expandable && <><span class="sr-only other-parties-open-label">: show remaining parties</span><span class="sr-only other-parties-close-label">: hide remaining parties</span></>}</span>
+    </span>
+    <span class="bar-track" aria-hidden="true"><span class="bar" style={`--share:${share ?? 0}%;--party:#9aa68f`}/></span>
+    <span class="party-votes">{share === null ? '—' : `${share.toFixed(1)}%`}<small>{sum === null ? 'Votes unavailable' : `${formatNumber(sum)} votes`}</small></span>
+  </Row>
+  {expandable && <div class="other-parties-list"><slot/></div>}
+</Container>
+<style>
+  .other-parties.other-parties{margin:0}
+  .other-parties-summary{list-style:none;min-height:44px;font-weight:inherit}
+  .other-parties-summary::-webkit-details-marker{display:none}
+  .other-parties-summary::before{display:none!important}
+  .other-parties-summary .bar{display:block}
+  .other-parties-toggle{display:grid;place-items:center;flex:none;width:24px;height:24px;border:1px solid var(--line);border-radius:8px;background:var(--sage);color:var(--ink)}
+  details.other-parties>summary:hover .other-parties-toggle{border-color:#7b956a;background:#e0e8d6}
+  .other-parties[open] .other-parties-toggle :global(svg){transform:rotate(180deg)}
+  .other-parties-close-label,.other-parties[open] .other-parties-open-label{display:none}
+  .other-parties[open] .other-parties-close-label{display:inline}
+  .other-parties-list{border-top:1px solid var(--line)}
+</style>

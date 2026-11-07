@@ -24,6 +24,9 @@ export async function municipalityResults(db: D1Database, id: string, bucket?: R
   return attachPrevious(db, (await hydrateResults(db, bucket, rows.results)).map(resultFromRow), bucket);
 }
 export async function getPlaceResults(db: D1Database, place: Place, bucket?: R2Bucket, year = latestYear) {
+  // Server-only history stays out of browser bundles that use ballotResults.
+  const { governmentContext } = await import('../governance/index.ts');
+  const { electionMajorityBaseline } = await import('../history/seats.ts');
   const mappedYear = place.relationships.some(r => r.election === year) ? year : latestYear;
   const links = place.relationships.filter(r => r.election === mappedYear && r.level === 'municipality');
   if (!links.length) throw new Error('Place has no municipality mapping for this election');
@@ -39,6 +42,7 @@ export async function getPlaceResults(db: D1Database, place: Place, bucket?: R2B
   const municipality = municipalities[0] ?? null;
   const wards = rows.filter(r=>r.level==='ward').sort((a,b)=>a.municipalityId?.localeCompare(b.municipalityId??'') || wardNumber(a.id)-wardNumber(b.id));
   return { election:year, status:year === latestYear ? 'provisional' : 'historical', place, municipality, municipalities, wards,
+    governments: links.map(link => governmentContext(link.areaId, year, electionMajorityBaseline(municipalities.find(m => m.id === link.areaId)?.previous))).filter(g => g !== null),
     missingWardIds:wardIds.filter(id=>!wards.some(w=>w.id===id)),
     scope:whole ? 'whole_municipality' : 'whole_overlapping_wards_not_town_only' };
 }
@@ -80,7 +84,8 @@ export function freshness(result: Result, now = Date.now()) {
   return !Number.isFinite(age) || age > 900_000 ? 'Updates are delayed. Showing the last available results.' : null;
 }
 export type PlaceResults = Awaited<ReturnType<typeof getPlaceResults>>;
-export function placeMarkdown(data: PlaceResults) {
+export async function placeMarkdown(data: PlaceResults) {
+  const { governmentCaption, membersLabel, memberKeys } = await import('../governance/index.ts');
   const p = data.place;
   const lines = [`# ${p.name} election results — 2026`, '', p.description, '', 'Status: provisional. Reporting completion is not an official declaration.', '', `Scope: ${data.scope}`, ''];
   if (p.boundaryContext) lines.push(...p.boundaryContext.notes, p.boundaryContext.method, 'This is not an address lookup or a town-only vote total.', '');
@@ -92,6 +97,19 @@ export function placeMarkdown(data: PlaceResults) {
     lines.push('');
   }
   if (data.missingWardIds.length) lines.push(`Results unavailable for wards: ${data.missingWardIds.join(', ')}`);
+  for (const government of data.governments.filter(g => g.latest || g.majorityAdministration || g.electionBaseline || g.beforeElection || g.afterElection)) {
+    lines.push('', `## Government and election history — ${government.municipality.name}`, '');
+    const caption = governmentCaption(government);
+    if (caption) lines.push(caption);
+    if (government.afterElection) lines.push(`Confirmed administration: ${membersLabel(government.afterElection.members)}. Verified ${government.afterElection.verifiedAt}.`, ...government.afterElection.sources.map(s=>`Source: ${s.url}`));
+    if (government.beforeElection) lines.push(`Before the 2026 election: ${membersLabel(government.beforeElection.members)}. Verified ${government.beforeElection.verifiedAt}.`, ...government.beforeElection.sources.map(s=>`Source: ${s.url}`));
+    if (government.latest) lines.push(`Last recorded government: ${membersLabel(memberKeys(government.latest))} (members at formation, ${government.latest.start}).`, `Source coverage ends ${government.source.cutoff}. ${government.source.basis}`, government.latest.notes,
+      ...government.latest.issues, `Source: ${government.source.url}`, `Reuse: ${government.source.licence}`);
+    if (government.majorityAdministration) lines.push(government.majorityAdministration.notes, `Evidence: ${government.majorityAdministration.evidencePeriod}.`, ...government.majorityAdministration.sources.map(s=>`Source: ${s.url}`));
+    if (government.electionBaseline) lines.push(`2021 council: ${government.electionBaseline.party.name}, ${government.electionBaseline.seats}/${government.electionBaseline.total} seats. Election allocation, not a record of subsequent government changes.`, `Source: ${government.electionBaseline.source.url}`,
+      ...(government.electionBaseline.correction ? [`IEC correction: ${government.electionBaseline.correction.url}`] : []));
+    lines.push(`History: ${government.historyUrl}`, '');
+  }
   lines.push('## Wards', ...data.wards.map(w => `- [Ward ${wardNumber(w.id)}](/2026/wards/${w.id})`));
   return lines.join('\n');
 }

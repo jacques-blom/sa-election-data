@@ -4,6 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import { searchPlaces, findPlace } from '../src/lib/places/catalogue.ts';
 import { getPlaceResults, ballotResults, freshness, reporting, placeMarkdown } from '../src/lib/places/results.ts';
+import type { VerifiedGovernment } from '../src/lib/governance/index.ts';
 
 function fixture() {
  const sql = new DatabaseSync(':memory:');
@@ -63,7 +64,7 @@ test('impossible progress is hidden, complete reporting remains provisional and 
 });
 test('missing mapped wards are explicit; Markdown preserves source and whole-ward scope',async()=>{
  const {sql,db}=fixture();try {sql.prepare("DELETE FROM area_results WHERE area_id='30605007'").run();const d=await getPlaceResults(db,findPlace('calvinia')!);
- assert.deepEqual(d.missingWardIds,['30605007']);const md=placeMarkdown(d);assert.match(md,/whole_overlapping_wards_not_town_only/);assert.match(md,/Snapshot: new/);assert.match(md,/Results unavailable for wards: 30605007/);assert.match(md,/not an address lookup/);
+ assert.deepEqual(d.missingWardIds,['30605007']);const md=await placeMarkdown(d);assert.match(md,/whole_overlapping_wards_not_town_only/);assert.match(md,/Snapshot: new/);assert.match(md,/Results unavailable for wards: 30605007/);assert.match(md,/not an address lookup/);
  }finally{sql.close();}
 });
 
@@ -75,5 +76,18 @@ test('a place crossing municipality boundaries includes every mapped ward and bo
   assert.deepEqual(result.municipalities.map(m=>m.id).sort(),['6605','9006']);
   assert.deepEqual(result.wards.map(w=>w.id).sort(),['19100012','30605001','30605002','30605006','30605007']);
   assert.ok(!result.wards.some(w=>w.id==='19100001'));assert.equal(result.scope,'whole_overlapping_wards_not_town_only');
+ }finally{sql.close();}
+});
+
+test('Markdown exports use each administration’s own members rather than the current display label',async()=>{
+ const {sql,db}=fixture();try{
+  const data=await getPlaceResults(db,findPlace('calvinia')!);
+  const government=data.governments[0]!;
+  const before:VerifiedGovernment={municipalityId:government.municipality.id,election:2026,phase:'before-election',effectiveFrom:'2026-10-01',verifiedAt:'2026-10-31',members:['DA','PA'],supporters:[],arrangement:'coalition',leadParty:null,sources:[{title:'Fixture',url:'https://example.org/before'}],notes:''};
+  data.governments=[{...government,beforeElection:before,afterElection:{...before,phase:'after-election',effectiveFrom:'2026-11-06',verifiedAt:'2026-11-07',members:['DA'],arrangement:'single-party'},label:'DA'}];
+  const markdown=await placeMarkdown(data);
+  assert.match(markdown,/Before the 2026 election: DA \+ PA\. Verified 2026-10-31/);
+  assert.match(markdown,/Confirmed administration: DA\. Verified 2026-11-07/);
+  assert.match(markdown,/Last recorded government: ANC \+ PA \(members at formation, 2021-11-22\)/);
  }finally{sql.close();}
 });

@@ -1,39 +1,41 @@
 ---
+import Icon, { type IconName } from './Icon.astro';
+import GuideVisual from './GuideVisual.astro';
 import { guides, type GuideTopic } from '../lib/education.ts';
 interface Props { topic: GuideTopic; open?: boolean; hint?: string }
 const { topic, open = false, hint } = Astro.props;
 const guide = guides[topic];
+const symbols:Record<string,IconName>={outcomes:'chart',seats:'grid',ballots:'vote',government:'landmark',district:'layers',ward:'mapPin','voting-district':'locate',reporting:'clock',national:'map',change:'chart',map:'map'};
 ---
 <details class="civic-guide" data-civic-guide={topic} open={open}>
-  <summary><span class="civic-guide-icon" aria-hidden="true">i</span><span>{hint ?? guide.hint}</span><span class="civic-guide-toggle"><span>Explain</span><b aria-hidden="true">+</b></span></summary>
+  <summary><span class="civic-guide-icon"><Icon name={symbols[topic]!} size={19}/></span><span class="civic-guide-title">{guide.title}</span><span class="civic-guide-preview" aria-hidden="true"><i/><i/><i/><i/></span><span class="civic-guide-toggle"><Icon name="plus" size={18}/></span></summary>
   <div class="civic-guide-body">
-    <h3>{guide.title}</h3>
+    <p class="civic-guide-intro">{hint ?? guide.hint}</p>
     <div class="civic-guide-cards">
-      {guide.cards.map(card => <div class="civic-guide-card">
-        <div class="civic-guide-visual" aria-hidden="true">{card.visual}</div>
+      {guide.cards.map((card,index) => <div class="civic-guide-card">
+        {'dots' in card || topic==='outcomes' ? <div class="civic-guide-visual" aria-hidden="true">{card.visual}</div> : <GuideVisual topic={topic} index={index}/>}
         {'dots' in card && <div class="civic-guide-dots" aria-hidden="true">{card.dots?.flatMap((count, group) => Array.from({ length: count }, () => <i data-group={group}/>))}</div>}
         <strong>{card.label}</strong><p>{card.text}</p>
       </div>)}
     </div>
     <p class="civic-guide-note">{guide.note}</p>
-    <a class="civic-guide-source" href={guide.source}>{guide.sourceLabel} <span aria-hidden="true">↗</span></a>
+    <a class="civic-guide-source" href={guide.source}>{guide.sourceLabel} <Icon name="arrowUpRight" size={13}/></a>
   </div>
 </details>
 <style>
-  .civic-guide{margin:14px 0 20px;border:1px solid var(--line);border-radius:12px;background:#eef1e6;color:var(--ink);font-size:12px;line-height:1.55;text-align:left}
-  .civic-guide>summary{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 14px;list-style:none;cursor:pointer}
+  .civic-guide{margin:8px 0 16px;border:1px solid #dce3cf;border-radius:11px;background:#f0f3e9;color:var(--ink);font-size:13px;line-height:1.55;text-align:left}
+  .civic-guide>summary{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px;padding:10px 13px;list-style:none;cursor:pointer;font-weight:500}
   .civic-guide>summary::-webkit-details-marker{display:none}
   .civic-guide>summary:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:10px}
-  .civic-guide>summary:hover{background:#e5ebd9;border-radius:12px}
-  .civic-guide-icon{display:grid;place-items:center;width:18px;height:18px;flex-shrink:0;border:1px solid #87997c;border-radius:50%;font-size:11px;font-weight:600}
-  .civic-guide-toggle{display:flex;align-items:center;gap:12px;margin-left:auto;white-space:nowrap;font-size:11px;color:var(--muted)}
-  .civic-guide-toggle b{font-size:19px;font-weight:400}.civic-guide[open] .civic-guide-toggle b{transform:rotate(45deg)}
-  .civic-guide-body{padding:6px 14px 16px}.civic-guide-body h3{font-size:17px;font-weight:550;letter-spacing:-.3px;margin:6px 0 14px}
+  .civic-guide>summary:hover{color:#146c4c}
+  .civic-guide-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:8px;background:#e1e8d3;font-size:22px;color:#294b3c}.civic-guide-title{flex:1}.civic-guide-preview{display:flex;gap:3px;align-items:end;height:22px}.civic-guide-preview i{width:5px;height:9px;border-radius:2px;background:#91a57b}.civic-guide-preview i:nth-child(2){height:15px;background:#bb9157}.civic-guide-preview i:nth-child(3){height:20px;background:#476c52}.civic-guide-preview i:nth-child(4){height:13px;background:#8599ad}
+  .civic-guide-toggle{display:flex;align-items:center;flex-shrink:0;font-size:20px;font-weight:400;color:var(--muted)}.civic-guide[open] .civic-guide-toggle{transform:rotate(45deg)}
+  .civic-guide-body{padding:6px 14px 16px}.civic-guide-intro{font-size:13px;margin:0 0 14px;color:var(--muted)}
   .civic-guide-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(145px,100%),1fr));gap:10px}
   .civic-guide-card{padding:14px;border:1px solid #dde4d2;border-radius:10px;background:var(--paper);min-width:0}
   .civic-guide-visual{font-size:24px;font-weight:550;letter-spacing:-.7px;line-height:1.3;margin-bottom:14px;overflow-wrap:anywhere}
   .civic-guide-card>strong{display:block;font-size:12px;line-height:1.5}.civic-guide-card>p{font-size:12px;line-height:1.65;color:var(--muted);margin:6px 0 0}
-  .civic-guide-dots{display:flex;gap:3px;margin:-5px 0 14px}.civic-guide-dots i{width:9px;height:12px;border-radius:3px;background:#35654b}.civic-guide-dots [data-group="1"]{background:#b6c3a6}.civic-guide-dots [data-group="2"]{background:#c99553}
+  .civic-guide-dots{display:flex;gap:3px;margin:-5px 0 14px}.civic-guide-dots i{width:11px;height:14px;border-radius:3px;background:#35654b}.civic-guide-dots [data-group="1"]{background:#b6c3a6}.civic-guide-dots [data-group="2"]{background:#c99553}
   .civic-guide-note{font-size:11px;line-height:1.7;margin:14px 0 8px;color:var(--muted)}.civic-guide-source{display:inline-block;font-size:11px;text-underline-offset:3px;padding-block:5px}
-  @media(max-width:540px){.civic-guide>summary{padding:10px 12px;gap:8px}.civic-guide-toggle>span{display:none}.civic-guide-body{padding-inline:12px}.civic-guide-cards{grid-template-columns:1fr}.civic-guide-card{display:grid;grid-template-columns:90px minmax(0,1fr);gap:4px 12px;align-content:start}.civic-guide-visual{grid-column:1;grid-row:1/3;font-size:21px;margin:0}.civic-guide-dots{grid-column:1;grid-row:3;margin:6px 0 0;flex-wrap:wrap;max-width:65px}.civic-guide-card>strong,.civic-guide-card>p{grid-column:2;margin:0}.civic-guide-card>p{grid-row:2/4}.civic-guide-card>strong{font-size:12px}}
+  @media(max-width:540px){.civic-guide-cards{grid-template-columns:1fr}.civic-guide-card{display:grid;grid-template-columns:78px minmax(0,1fr);gap:4px 12px;align-content:start}.civic-guide-visual{grid-column:1;grid-row:1/3;font-size:20px;margin:0}.civic-guide-dots{grid-column:1;grid-row:3;margin:6px 0 0;flex-wrap:wrap;max-width:65px}.civic-guide-card>strong,.civic-guide-card>p{grid-column:2;margin:0}.civic-guide-card>p{grid-row:2/4}.civic-guide-card>strong{font-size:12px}}
 </style>

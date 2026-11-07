@@ -2,4 +2,58 @@
 import PageShare from '../components/PageShare.astro';
 import Site from '../layouts/Site.astro';
 ---
-<Site title="Terms" description="Using Counted election results and address search."><div class="page-top page-share-heading"><h1>Terms</h1><PageShare/></div><section class="card"><p>Counted is an independent civic project. Election figures remain provisional unless the source explicitly declares otherwise. Read each result’s scope, source and timestamp before relying on it.</p><p>Address search uses Google Maps. By using it, you agree to the <a href="https://maps.google.com/help/terms_maps/">Google Maps/Google Earth Additional Terms of Service</a>. Google’s <a href="https://policies.google.com/privacy">Privacy Policy</a> also applies.</p><p>A geographic ward match does not confirm your registration or where you must vote. Check those details with the <a href="https://registertovote.elections.org.za/">IEC</a>. Boundaries and approximate map pins may differ; the IEC is the authority for registration and official results.</p><p>Public data retains its source attribution and any applicable source terms. Google place information is not part of Counted’s downloadable election dataset.</p></section></Site>
+<Site title="Terms" description="Terms for Counted’s election data, civic tools, AI chat and Coalition Chaos game.">
+  <div class="page-top page-share-heading"><h1>Terms</h1><PageShare/></div>
+  <article class="card terms">
+    <p class="small">Last updated: <time datetime="2026-11-07">7 November 2026</time></p>
+    <p>Counted is an independent civic project operated by Jacques Blom. These terms apply to the website, API, data tools, Ask Counted and Coalition Chaos. Please read them before using the service, together with our <a href="/privacy">Privacy Policy</a> and <a href="/disclaimer">Disclaimer</a>. By using Counted, you agree to these terms, subject to your rights under mandatory law.</p>
+    <aside class="terms-notice" aria-labelledby="terms-notice-heading">
+      <h2 id="terms-notice-heading">Please read before relying on Counted</h2>
+      <p>Information can be incomplete, inaccurate or out of date. Coalition Chaos contains fictional scenarios and satire. Check important information with the linked sources. The <a href="#liability">liability limits below</a> affect the losses you may recover, but do not remove rights or remedies that the law protects.</p>
+    </aside>
+
+    <h2 id="independence">Independent and unofficial</h2>
+    <p>Counted is not affiliated with, authorised by or endorsed by the IEC, any political party, politician or municipality. Names, logos, caricatures and references identify the subjects of information or commentary; they do not imply participation, sponsorship or approval. Counted encourages informed civic participation and does not recommend how you should vote.</p>
+
+    <h2 id="satire">Coalition Chaos, satire and caricatures</h2>
+    <p>Coalition Chaos is a satirical educational game. Its imagined negotiations, dialogue, motives, disputes and outcomes are invented, even when they feature real parties or recognisable public figures. They are not actual quotations, reports of private conduct, allegations of wrongdoing or predictions of political behaviour. Caricatures are artistic depictions, not photographs or evidence of a person’s involvement.</p>
+    <p>Historical backstories are separate factual summaries with sources, dates and context. A party’s account is attributed to that party. A historical episode does not establish a current alliance or officeholder. National leader cameos do not identify local candidates. The game simplifies council decisions: withdrawing support changes your fictional deal’s numbers, not the elected council’s seats. Its majority target is not a complete account of the rules for every council vote.</p>
+
+    <h2 id="information">Results, estimates, maps and AI answers</h2>
+    <p>Read each result’s scope, status, source and timestamp. Provisional results may change. Counted’s seat estimates are calculations using available data, not official IEC allocations. A possible seat majority does not confirm a governing agreement. Historical government records describe their stated period, not necessarily the present administration.</p>
+    <p>Verify registration, voting stations and official election results with the <a href="https://www.elections.org.za/">IEC</a>. A geographic ward match or approximate map pin does not confirm where you are registered or entitled to vote. Civic guidance is general information, not legal or other professional advice.</p>
+    <p>Ask Counted uses AI and can produce incorrect statements, calculations or citations. Check its sources before relying on an answer. Do not submit confidential information, personal information about others without a lawful basis, or material you have no right to share. Conversations can be read by anyone with their link; the <a href="/privacy">Privacy Policy</a> explains storage and sharing. Submitting a question permits the processing needed to provide that service as described there; it does not transfer ownership of your content.</p>
+
+    <h2 id="reuse">Sources, intellectual property and sharing</h2>
+    <p>Counted’s original code and documentation are available under the <a href="https://github.com/jacques-blom/sa-election-data/blob/main/LICENSE">repository’s MIT licence</a>. Third-party data, logos, fonts, maps, articles and other assets retain their owners’ rights and applicable licences. Public availability does not itself grant unrestricted reuse. See the <a href="/api">API and source notes</a> for attribution and data terms. Nothing here restricts rights granted by an applicable licence or by law.</p>
+    <p>You may use Counted’s sharing tools to share its generated cards. Keep source attribution, dates, estimate notices and fiction labels legible. Do not present an invented scenario as a real event or imply endorsement by Counted or a depicted person or party. This permission covers Counted’s own contribution and does not grant additional rights in third-party material.</p>
+
+    <h2 id="use">Responsible use and availability</h2>
+    <p>Do not use the service unlawfully, impersonate others, infringe their rights, compromise security, evade access controls or rate limits, or disrupt service for other users. Ordinary browsing and use of the documented public API are welcome. We may restrict abusive requests or suspend affected features for security, maintenance or legal reasons. Features and data may change or be withdrawn; continuous access and permanent storage are not promised.</p>
+
+    <h2 id="third-parties">External services and donations</h2>
+    <p>Address search uses Google Maps. Its <a href="https://maps.google.com/help/terms_maps/">Additional Terms of Service</a> and <a href="https://policies.google.com/privacy">Privacy Policy</a> apply when you use that service. Google place information is not part of Counted’s downloadable election dataset. Other linked sites and services have their own terms and policies. Counted does not control their content or availability.</p>
+    <p>Donation links on <a href="/support">Give something back</a> lead to independent organisations. Counted does not collect those donations or process their payments. Check the recipient’s terms before donating.</p>
+
+    <h2 id="liability">Warranties and limits on liability</h2>
+    <p><strong>To the extent permitted by applicable law, Counted is provided “as is” and “as available”, without guarantees of accuracy, completeness, fitness for a particular purpose or uninterrupted availability.</strong></p>
+    <p>To that same extent, Jacques Blom and Counted’s contributors exclude liability for loss arising from errors or omissions in the service, reliance on its information, interruptions or unavailability, including loss of profits, revenue or data and indirect or consequential loss, whether a claim arises in contract, delict or otherwise.</p>
+    <p><strong>These exclusions do not apply to fraud, wilful misconduct, gross negligence, or any liability that cannot lawfully be excluded. Nothing in these terms waives applicable rights or remedies under the Consumer Protection Act, the Protection of Personal Information Act or other mandatory law.</strong> Where a guarantee or remedy is required by law, it remains available. These terms do not grant immunity for unlawful content or remove another person’s legal rights.</p>
+
+    <h2 id="contact">Corrections, complaints and rights concerns</h2>
+    <p>Contact Jacques Blom at <a href="mailto:me@jacquesblom.com">me@jacquesblom.com</a> for corrections, privacy requests, copyright or other rights concerns, and legal correspondence. Include the page URL, the specific text or image, an explanation of the concern and any supporting source or evidence of ownership. Please avoid sending unnecessary sensitive information.</p>
+    <p>We will assess reports and may correct, clarify or remove content where appropriate. Sending a complaint is not a condition of exercising any legal right, and does not pause a statutory deadline. This contact does not replace any legally prescribed method of formal service.</p>
+
+    <h2 id="law">Governing law and changes</h2>
+    <p>South African law governs these terms, subject to any mandatory protections that apply to you. Disputes may be brought before a court or other competent body with jurisdiction; these terms do not require private arbitration or prevent a complaint to a regulator.</p>
+    <p>Updates will appear here with a revised date and apply prospectively. Changes do not remove rights that have already accrued. If a provision is unlawful or unenforceable, it applies only to the extent lawfully permitted, and the remaining provisions continue where they can operate independently.</p>
+  </article>
+</Site>
+
+<style>
+  .terms { max-width: 50rem; line-height: 1.75; }
+  .terms h2 { margin-top: 2rem; scroll-margin-top: 6rem; }
+  .terms-notice { background: var(--bg); border-left: 4px solid var(--ink); padding: 1rem 1.25rem; margin-block: 1.5rem; }
+  .terms-notice h2 { margin-top: 0; font-size: 1.1rem; }
+  .terms p:last-child { margin-bottom: 0; }
+</style>

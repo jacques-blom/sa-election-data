@@ -1,15 +1,19 @@
 ---
+import ChaosPromo from '../../../components/ChaosPromo.astro';
 import { env } from 'cloudflare:workers';
-import PageShare from '../../../components/PageShare.astro';
+import AreaHeader from '../../../components/AreaHeader.astro';
+import ElectionResults from '../../../components/ElectionResults.astro';
 import Site from '../../../layouts/Site.astro';
 import PlaceSearch from '../../../components/PlaceSearch.astro';
 import AddressResult from '../../../components/AddressResult.astro';
 import CivicGuide from '../../../components/CivicGuide.astro';
+import DistrictVotes from '../../../components/DistrictVotes.astro';
+import { getDistrictResult } from '../../../lib/districts/results.ts';
 import RegionMap from '../../../components/RegionMap.astro';
 import DashboardCouncil from '../../../components/overview/DashboardCouncil.astro';
 import { findDistrict } from '../../../lib/maps/districts.ts';
 import { districtMunicipalities } from '../../../lib/places/hierarchy.ts';
-import { dashboardCouncils, getCouncilDashboard, type CouncilDashboard } from '../../../lib/overview/dashboard.ts';
+import { dashboardCouncils, getCouncilDashboard } from '../../../lib/overview/dashboard.ts';
 import { councilFilters } from '../../../lib/overview/dashboard-filter.ts';
 import { provinces, provinceUrl } from '../../../lib/overview/results.ts';
 import '../../../styles/council-dashboard.css';
@@ -17,25 +21,22 @@ const district = Astro.params.year === '2026' ? findDistrict(Astro.params.slug ?
 if (!district) return new Response('District municipality not found', { status: 404 });
 const province = provinces.find(p => p.id === district.provinceId)!;
 const members = new Set(districtMunicipalities(district).flatMap(p => p.relationships.filter(r => r.election === 2026 && r.level === 'municipality' && r.relation === 'equals').map(r => r.areaId)));
-let data: CouncilDashboard | null = null;
-try { data = await getCouncilDashboard(env.RESULTS_DB, env.RAW_RESULTS); }
-catch (error) { console.error('District member results unavailable', error); }
+const [data, districtData] = await Promise.all([
+  getCouncilDashboard(env.RESULTS_DB, env.RAW_RESULTS).catch(error => { console.error('District member results unavailable',error); return null; }),
+  getDistrictResult(env.RESULTS_DB,district.id).catch(error => { console.error('District votes unavailable',error); return null; }),
+]);
 const councils = (data?.councils ?? dashboardCouncils()).filter(c => members.has(c.id)).sort((a,b) => a.name.localeCompare(b.name, 'en-ZA'));
 const filters = councilFilters(new URLSearchParams());
-Astro.response.headers.set('Cache-Control', data ? 'public, max-age=15, s-maxage=15' : 'no-store');
+Astro.response.headers.set('Cache-Control', data && districtData ? 'public, max-age=15, s-maxage=15' : 'no-store');
 ---
 <Site title={`${district.name} District election results 2026`} description={`Explore ${district.name} District Municipality, ${district.province}, and results for its ${members.size} local councils.`} liveResults>
-  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">South Africa</a><span>/</span><a href={provinceUrl(province)}>{province.name}</a><span>/</span><span aria-current="page">{district.name} District</span></nav>
-  <div class="page-top page-share-heading"><div><p class="eyebrow">District municipality · {district.code} · 2026</p><h1>{district.name} District</h1></div><PageShare/></div>
+  <AreaHeader name={`${district.name} District`} scope="District council" year={2026} level="district" areaId={district.id} parents={[{name:'South Africa',href:'/'},{name:province.name,href:provinceUrl(province)}]}/>
   <div class="district-overview">
     <div>
-      <section class="district-result" aria-labelledby="district-council-heading">
-        <h2 id="district-council-heading">District council</h2>
-        <p class="district-result-status">Results unavailable</p>
-        <p class="small">District votes and council seats aren’t included in our current feed.</p>
-        <CivicGuide topic="district"/>
+      <div class="district-result">
+        <ElectionResults year={2026} level="district" areaId={district.id}><DistrictVotes data={districtData}/></ElectionResults>
         <CivicGuide topic="government" hint="Local services, shared district services: who does what?"/>
-      </section>
+      </div>
       <section data-address-lookup aria-label="Find an area in this district">
         <PlaceSearch id="district-search" compact area={{name: district.name, bbox: district.bbox}}/>
         <AddressResult/>
@@ -43,8 +44,9 @@ Astro.response.headers.set('Cache-Control', data ? 'public, max-age=15, s-maxage
     </div>
     <RegionMap compact options={{level:'district',id:district.id,bbox:district.bbox,municipalityCodes:district.municipalityCodes}} title={`${district.name} District and its local municipalities`} href={`/map?district=${district.id}`} caption="Local municipality boundaries"/>
   </div>
+  <ChaosPromo/>
   <section class="dashboard-directory" aria-labelledby="local-councils-heading">
-    <div class="section-heading"><h2 id="local-councils-heading">Local councils <span class="district-member-count">{councils.length}</span></h2></div>
+    <div class="section-heading"><h2 id="local-councils-heading">Go closer · Local councils <span class="district-member-count">{councils.length}</span></h2></div>
     {!data && <p class="notice">Local council summaries are temporarily unavailable.</p>}
     <div class="dashboard-council-list">{councils.map(c => <DashboardCouncil council={c} filters={filters} available={!!data} previousYear={data?.previousYear ?? 2021}/>)}</div>
   </section>

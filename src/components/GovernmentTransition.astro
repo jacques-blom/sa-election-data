@@ -1,0 +1,52 @@
+---
+import Icon from './Icon.astro';
+import type { GovernmentStory } from '../lib/governance/story.ts';
+interface Props { story: GovernmentStory; href?: string; compact?: boolean; name?: string }
+const { story, href, compact = false, name } = Astro.props;
+const Container = href ? 'a' : 'div';
+const date = (value:string) => new Intl.DateTimeFormat('en-ZA', {month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value));
+const changeLabels = {
+  retained:'Retained', 'partner-governs-alone':'Partner governs alone',
+  'lead-party-changed':'Lead party changed', 'composition-changed':'Arrangement changed',
+};
+const change = story.change.status === 'unconfirmed' ? null : changeLabels[story.change.status];
+---
+<Container class:list={['government-transition', {'government-transition--compact':compact}]} href={href}>
+  {(name || change) && <span class="government-heading">{name&&<span>{name}</span>}{change&&<strong title={story.change.label}>{change}</strong>}{href&&<Icon name="chevronRight" size={13}/>}</span>}
+  <span class="government-comparison">
+    {story.points.map((point,index)=><>
+      {index>0&&<Icon name="arrowRight" class="government-arrow" size={14}/>}
+      <span class="government-point" title={point.title}>
+        <small>{point.label}</small>
+        <span class="government-parties">{point.parties.map((p,i)=><>
+          {i>0&&<Icon name="plus" size={10}/>}
+          <strong title={p.name}><i style={`--party:${p.color}`} aria-hidden="true"/>{p.short}</strong>
+        </>)}</span>
+        {point.date&&<time datetime={point.date}>{date(point.date)}</time>}
+      </span>
+    </>)}
+    {story.pending&&<><Icon name="arrowRight" class="government-arrow" size={14}/><span class="government-point"><small>After election</small><span class="government-pending"><Icon name="clock" size={13}/>Pending</span></span></>}
+  </span>
+</Container>
+<style>
+  .government-transition{text-align:left}
+  .government-transition{display:grid;gap:10px;min-width:0;color:var(--ink);text-decoration:none;font-size:13px;padding:14px 0 0;border-top:1px solid #cbd6bd;grid-column:1/-1}
+  .government-transition:hover .government-heading{text-decoration:underline;text-underline-offset:3px}
+  .government-heading{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px;line-height:1.4}
+  .government-heading>strong{margin-left:auto;font-size:10px;font-weight:500;color:var(--ink)}
+  .government-heading>:global(svg:last-child){margin-left:auto;flex:none}
+  .government-heading>strong+:global(svg){margin-left:0}
+  .government-comparison{display:grid;grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr);align-items:center;gap:10px}
+  .government-point{display:grid;gap:6px;min-width:0;align-self:start}.government-point:only-child{grid-column:1/-1}
+  .government-point>small,.government-point>time{font-size:10px;line-height:1.4;color:var(--muted)}
+  .government-point>time{font-size:9px}
+  .government-parties{display:flex;flex-wrap:wrap;align-items:center;gap:5px;line-height:1.4;min-width:0}
+  .government-parties>strong{display:inline-flex;align-items:center;gap:4px;font-size:inherit;font-weight:550;overflow-wrap:anywhere;min-width:0}
+  .government-parties i{width:7px;height:7px;flex:none;border-radius:2px;background:var(--party)}
+  .government-parties>:global(svg),.government-comparison>:global(.government-arrow){color:var(--muted);flex:none}
+  .government-pending{display:flex;align-items:center;gap:5px;color:var(--muted);line-height:1.4}
+  .government-transition--compact{gap:8px;border:0;padding:10px;background:#edf1e580;border-radius:6px;font-size:11px}
+  .government-transition--compact .government-heading{font-size:10px}
+  .government-transition--compact .government-point{gap:4px}
+  .government-transition--compact .government-point>small{font-size:9px}
+</style>

@@ -1,0 +1,17 @@
+---
+import { governmentContext, type GovernmentContext } from '../lib/governance/index.ts';
+import { governmentStory } from '../lib/governance/story.ts';
+import GovernmentTransition from './GovernmentTransition.astro';
+import type { ElectionMajorityBaseline } from '../lib/history/seats.ts';
+interface Props { municipalityId?: string | null; year?: number; context?: GovernmentContext | null; link?: boolean; baseline?: ElectionMajorityBaseline | null; name?: string }
+const { municipalityId, year = 2026, context, link = true, baseline = null, name } = Astro.props;
+const government = year === 2026 ? context === undefined ? governmentContext(municipalityId ?? '', year, baseline) : context : null;
+const story = governmentStory(government,year);
+const election = government?.electionBaseline;
+---
+{story&&government ? <div class="government-note"><GovernmentTransition story={story} href={link?`/2026/places/${government.municipality.slug}#government`:undefined} compact name={name}/></div>
+  : election&&<span class="government-note government-baseline">2021 seats: <strong>{election.party.name}</strong><small>{election.seats}/{election.total} · election majority</small></span>}
+<style>
+.government-note{display:block;margin-top:10px;min-width:0;width:100%;white-space:normal}.government-baseline{font-size:11px;line-height:1.6;color:var(--muted)}.government-baseline small{display:block;font-size:10px}.government-baseline strong{font-weight:600}
+</style>
+

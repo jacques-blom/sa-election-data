@@ -1,4 +1,5 @@
 import { attachPrevious } from '../history/results.ts';
+import { governmentCaption, governmentContext } from '../governance/index.ts';
 import { partyMovement } from '../history/comparison.ts';
 import { hydrateResults, joinedResults, resultColumns } from '../data/packed-results.ts';
 import { ballotResults, resultFromRow, type Result, type ResultRow } from '../places/results.ts';
@@ -10,11 +11,13 @@ import { LEADER_BATCH_SIZE, NEUTRAL_COLOR, type MapLeader } from './leader-types
 export function leaderFor(id: string, result: Result | null): MapLeader {
   const empty: MapLeader = { id, color: NEUTRAL_COLOR, party: null, share: null, status: 'unavailable', delayed: false };
   if (!result) return empty;
+  const government = result.level === 'municipality' ? governmentCaption(governmentContext(id, result.year)) : null;
+  if (government) empty.government = government;
   const ballot = result.level === 'province' ? summaryBallot(result) : ballotResults(result, result.level === 'ward' ? 'ward' : 'pr');
   const leader = 'topShown' in ballot ? ballot.topShown : ballot.leader;
   const delayed = resultDelay(result) !== null;
   if (!leader) return { ...empty, delayed, status: ballot.tied ? 'tied' : ballot.total === 0 ? 'awaiting' : 'unavailable' };
-  return { id, color: partyStyle(leader.party_name)[1]!, party: leader.party_name, share: leader.share,
+  return { ...empty, id, color: partyStyle(leader.party_name)[1]!, party: leader.party_name, share: leader.share,
     movement: partyMovement(result,leader,result.level === 'province' ? 'source_total' : result.level === 'ward' ? 'ward' : 'pr'),
     status: result.level === 'province' ? 'highest-shown' : 'leading', delayed };
 }
@@ -35,5 +38,8 @@ export async function getMapLeaders(db: D1Database, bucket: R2Bucket | undefined
     .bind(level, JSON.stringify(ids)).all<ResultRow>();
   const hydrated = await attachPrevious(db, (await hydrateResults(db, bucket, rows.results)).map(resultFromRow), bucket);
   const results = new Map(hydrated.map(result => [result.id, result]));
-  return ids.map(id => leaderFor(id, results.get(id) ?? null));
+  return ids.map(id => {
+    const government = level === 'municipality' ? governmentCaption(governmentContext(id)) : null;
+    return { ...leaderFor(id, results.get(id) ?? null), ...(government ? { government } : {}) };
+  });
 }

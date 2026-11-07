@@ -4,6 +4,7 @@ export const councilStatuses = ['majority', 'no-majority', 'pending'] as const;
 export type CouncilStatus = typeof councilStatuses[number] | 'unavailable';
 export const councilKinds = ['metro', 'local', 'district'] as const;
 export type CouncilKind = typeof councilKinds[number];
+export const COUNCIL_PAGE_SIZE = 24;
 export type CouncilFilters = { q: string; province: string; type: CouncilKind | ''; status: string; party: string; changed: boolean };
 export type FilterableCouncil = { search: string; provinceId: string; kind: CouncilKind; status: string; winnerId: string; changed: boolean };
 type MajorityComparison = { provinceId: string; kind: CouncilKind; comparable: boolean; winnerId: string; previousWinnerId: string };

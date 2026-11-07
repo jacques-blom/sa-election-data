@@ -1,0 +1,60 @@
+---
+import Site from '../layouts/Site.astro';
+import Icon from '../components/Icon.astro';
+import { findPlace, placeUrl } from '../lib/places/catalogue.ts';
+import { civicResources, councillorDirectory } from '../lib/civic/resources.ts';
+const candidate = findPlace(Astro.url.searchParams.get('place') ?? '');
+const place = candidate && ['metro', 'municipality'].includes(candidate.kind) ? candidate : undefined;
+const resources = place && civicResources(place);
+---
+<Site title="Take part in local government" description="Practical ways to find your ward representative, follow council decisions and comment on municipal priorities." canonicalPath="/participate">
+  <header class="page-top participate-header">
+    <p class="eyebrow">Beyond election day</p>
+    <h1>Take part in local government</h1>
+    <p class="lead">Start with one local issue, one meeting or one useful question.</p>
+  </header>
+  <nav class="participate-nav" aria-label="Ways to participate">
+    <a href="#representatives">Find your representative</a><a href="#meetings">Follow council meetings</a><a href="#priorities">Raise a priority</a><a href="#budgets">Plans and budgets</a>
+  </nav>
+  <div class="participate-guide">
+    {place && resources && <aside class="participate-local"><strong>Exploring {place.name}</strong><p><a href={resources.contact.url} target="_blank" rel="noopener noreferrer">{resources.contact.label} ↗</a> · <a href={`${placeUrl(place)}/coalition#get-involved`}>Back to the game</a></p></aside>}
+    <section id="representatives"><h2>Find your ward and representative</h2>
+      <p>Find your ward using the map or address search, then check the municipality’s official councillor directory or the IEC lookup. Confirm the ward boundaries and council term, especially after an election.</p>
+      <p>Your ward councillor represents the area. For a service problem, first use the municipality’s reporting channel and keep the reference number. If it remains unresolved, follow the local escalation process and ask the ward office for help.</p>
+      <div class="links"><a href={resources?.wardUrl ?? '/map'}>Find your ward <Icon name="arrowRight" size={15}/></a><a href={councillorDirectory.url} target="_blank" rel="noopener noreferrer">IEC councillor lookup ↗</a></div>
+    </section>
+    <section id="meetings"><h2>Follow council decisions</h2>
+      <p>Look for the next public council meeting, its agenda and the minutes of the previous meeting. If they are hard to find, ask the municipal office for the Speaker’s office or council support team.</p>
+      <ol><li>Choose one agenda item that affects your neighbourhood.</li><li>Check the meeting date, venue or stream and any public attendance arrangements.</li><li>Afterwards, read the minutes or resolution to see what was decided and what happens next.</li></ol>
+      <p>Attending a meeting does not automatically give you a speaking slot. Ask about the municipality’s procedures for questions, petitions and submissions.</p>
+      {resources && <a href={(resources.meetings ?? resources.contact).url} target="_blank" rel="noopener noreferrer">{(resources.meetings ?? resources.contact).label} ↗</a>}
+    </section>
+    <section id="priorities"><h2>Raise a local priority</h2>
+      <p>Ask the ward office or public participation unit about ward meetings and opportunities to contribute to municipal plans. You can participate whether or not you support the parties governing the council.</p>
+      <p>A useful contribution names the place, explains the problem and asks for a specific next step. Include relevant dates, photographs or service reference numbers when appropriate.</p>
+      <blockquote>“The footpath near our library floods after rain. Could the next ward meeting discuss drainage repairs and how to put this priority into the municipal plan?”</blockquote>
+      <p>Keep a copy of what you submit and ask how to follow the response. Use the submission channel and deadline given in the official notice.</p>
+    </section>
+    <section id="budgets"><h2>Have a say on plans and budgets</h2>
+      <p>The Integrated Development Plan (IDP) sets municipal priorities and guides planning. The budget sets out spending and how it will be funded. Look for the draft documents and the notice explaining how residents can comment.</p>
+      <p>Choose a proposal you care about. Explain who it would help, why it matters and any trade-offs you think the council should consider. Check the financial year and closing date: a document or form being online does not mean comments are still open.</p>
+      {resources?.participation && <a href={resources.participation.url} target="_blank" rel="noopener noreferrer">{resources.participation.label} ↗</a>}
+    </section>
+    <section id="caucuses"><h2>Can one party split on a vote?</h2>
+      <p>Yes. A caucus is a party’s group of councillors, and its members do not always vote together. In Cape Town’s 2018 no-confidence vote, around 40 DA councillors backed Patricia de Lille while most of their caucus supported removing her. <a href="https://www.da.org.za/2018/05/da-fedex-confirms-the-cessation-of-patricia-de-lilles-membership" target="_blank" rel="noopener noreferrer">DA’s account of the vote ↗</a></p>
+      <p>Disagreement can have consequences within a party. In March 2023, ActionSA announced that it was terminating two Tshwane councillors’ memberships after concluding that they had voted against its coalition’s candidates. <a href="https://www.actionsa.org.za/actionsa-terminates-membership-of-2-tshwane-councillors/" target="_blank" rel="noopener noreferrer">ActionSA’s statement ↗</a></p>
+      <p>These examples show that a split is possible, not how often it happens. Coalition Chaos invents the size of the split: “half the delegation” is a game rule, not a historical statistic or a prediction about the party you selected. The roll changes support for your deal; it does not simulate expulsions or seat vacancies.</p>
+    </section>
+    <section id="decisions"><h2>How council decisions work</h2>
+      <p>A majority of council members must be present before a vote can be taken. Budgets, by-laws, rates and other matters listed in section 160(2) of the Constitution need a supporting vote from a majority of all council members. Other questions generally use a majority of votes cast, subject to applicable rules.</p>
+      <p>Coalition Chaos uses a fixed majority target to make the seat puzzle easy to follow. A party leaving your fictional deal does not remove its elected seats, and reaching the game’s target does not establish a real governing agreement.</p>
+      <a href="https://www.justice.gov.za/constitution/chp07.html" target="_blank" rel="noopener noreferrer">Constitution: local government and council voting ↗</a>
+    </section>
+    <footer><p>Background: <a href="https://www.cogta.gov.za/index.php/2021/06/01/understanding-local-government/" target="_blank" rel="noopener noreferrer">CoGTA’s guide to local government</a> and <a href="https://www.justice.gov.za/constitution/chp07.html" target="_blank" rel="noopener noreferrer">Chapter 7 of the Constitution</a>. Local procedures and opportunities should be checked with the municipality.</p><a href="/search">Find your municipality <Icon name="arrowRight" size={15}/></a></footer>
+  </div>
+</Site>
+<style>
+  .participate-header{display:block;max-width:760px}.participate-header .lead{margin-top:12px}
+  .participate-nav{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}.participate-nav a{display:flex;align-items:center;min-height:44px;padding:8px 12px;border:1px solid var(--line);font-size:13px;text-decoration:none}
+  .participate-guide{max-width:760px}.participate-guide section{padding:24px 0;border-bottom:1px solid var(--line);scroll-margin-top:24px}.participate-guide h2{font-size:25px;line-height:1.3;margin:0 0 14px}.participate-guide p,.participate-guide li{font-size:15px;line-height:1.8}.participate-guide li{padding-bottom:7px}.participate-guide a{text-underline-offset:3px}.participate-guide section>a{display:inline-block;padding:12px 0}.participate-guide blockquote{margin:20px 0;padding:16px 20px;border-left:3px solid #567157;background:#edf1e2;line-height:1.8}.participate-local{padding:18px;background:#edf1e2;border:1px solid #c8d1ba}.participate-local p{margin-bottom:0}.participate-guide footer{padding:24px 0}.participate-guide footer p{font-size:12px;color:var(--muted)}
+</style>

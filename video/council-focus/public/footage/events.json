@@ -1,0 +1,67 @@
+[
+  {
+    "clip": "01-directory",
+    "seconds": 0.0,
+    "action": "start"
+  },
+  {
+    "clip": "01-directory",
+    "seconds": 2.801,
+    "action": "Scroll from Buffalo City to Cape Town"
+  },
+  {
+    "clip": "01-directory",
+    "seconds": 6.855,
+    "action": "stop"
+  },
+  {
+    "clip": "02-council",
+    "seconds": 0.0,
+    "action": "start"
+  },
+  {
+    "clip": "02-council",
+    "seconds": 2.5,
+    "action": "Scroll to council seats"
+  },
+  {
+    "clip": "02-council",
+    "seconds": 6.508,
+    "action": "stop"
+  },
+  {
+    "clip": "03-history",
+    "seconds": 0.0,
+    "action": "start"
+  },
+  {
+    "clip": "03-history",
+    "seconds": 1.4,
+    "action": "Inspect 2021"
+  },
+  {
+    "clip": "03-history",
+    "seconds": 3.641,
+    "action": "Inspect 2026"
+  },
+  {
+    "clip": "03-history",
+    "seconds": 6.683,
+    "action": "stop"
+  },
+  {
+    "clip": "04-coalitions",
+    "seconds": 0.0,
+    "action": "start"
+  },
+  {
+    "clip": "04-coalitions",
+    "seconds": 2.7,
+    "action": "Swipe through recorded administrations to 2024"
+  },
+  {
+    "clip": "04-coalitions",
+    "seconds": 8.508,
+    "action": "stop"
+  }
+]

@@ -1,0 +1,34 @@
+---
+import Icon from './Icon.astro';
+import { resultStory } from '../lib/history/story.ts';
+import ChangeValue from './ChangeValue.astro';
+import { municipalityGovernmentStory } from '../lib/governance/story.ts';
+import type { Result } from '../lib/places/results.ts';
+import { env } from 'cloudflare:workers';
+import { readCouncilOutcomeStory } from '../lib/overview/council-story.ts';
+import CouncilOutcomeSummary from './CouncilOutcomeSummary.astro';
+import CouncilDeclaration from './CouncilDeclaration.astro';
+import GovernmentTransition from './GovernmentTransition.astro';
+interface Props { result: Result; compact?: boolean }
+const { result, compact = false } = Astro.props;
+const story = resultStory(result);
+const government = result.level === 'municipality' && (!compact || result.year === 2026) ? municipalityGovernmentStory(result.id, result.year) : null;
+let councils = null;
+if (!compact && (result.level === 'national' || result.level === 'province')) try {
+  councils = await readCouncilOutcomeStory(env.RESULTS_DB, env.RAW_RESULTS, result.year, result.level === 'province' ? result.id : undefined);
+} catch (error) { console.error('Council outcome summary unavailable', error); }
+---
+<section class:list={['result-story', { 'result-story--government': government, 'result-story--councils': councils }]} aria-label="What changed" data-result-story>
+  <div class="story-copy"><h2>{story.title}</h2>
+    {result.level === 'municipality' && story.after && <CouncilDeclaration year={result.year} prominent/>}
+    {!compact && story.after && <div class="story-change" aria-label="Election seat majorities">{story.before && <><span><small>{story.before.year} seats</small>{story.before.label}</span><Icon name="arrowRight" size={18}/></>}<span><small>{story.after.year} seats</small>{story.after.label}</span></div>}
+    {!story.after && story.movement?.delta != null && <div class="story-movement"><ChangeValue value={story.movement.delta}/><span>since {story.movement.previousYear}</span></div>}
+  </div>
+  {story.value !== null && <div class="story-number"><strong>{story.leader ? `${story.value.toFixed(1)}%` : story.value}</strong><span>{story.unit}</span></div>}
+  {government && <GovernmentTransition story={government} href="#government"/>}
+  {councils && <CouncilOutcomeSummary data={councils} scope={`${result.level}-${result.id}`}/>}
+</section>
+<style>
+  .result-story--councils{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 20px}
+  .result-story--councils>.story-number{grid-column:2;grid-row:1}
+</style>

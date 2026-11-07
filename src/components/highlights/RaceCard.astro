@@ -3,17 +3,18 @@ import type { ElectionHighlights } from '../../lib/overview/highlights.ts';
 import { partyStyle, formatNumber } from '../../lib/places/format.ts';
 import { wardNumber } from '../../lib/places/catalogue.ts';
 import { latestYear } from '../../lib/history/comparison.ts';
+import ReportingStatus from '../ReportingStatus.astro';
 interface Props { race: ElectionHighlights['races'][number]; ward?: boolean }
 const { race, ward = false } = Astro.props;
 const top = Math.max(...race.leaders.map(p => p.votes), 1);
 const href = ward ? `/${latestYear}/wards/${race.id}` : `${race.council.href}?ballot=pr`;
 ---
 <article class="insight-panel insight-race">
-  <div class="insight-card-kicker"><span>{ward ? `Ward ${wardNumber(race.id)}` : 'Municipal PR votes'}</span><span class="insight-counting">Counting</span></div>
+  <div class="insight-card-kicker"><span>{ward ? `Ward ${wardNumber(race.id)}` : 'Municipal PR votes'}</span></div>
   <h3><a href={href}>{race.council.name} <span aria-hidden="true">↗</span></a></h3>
   <p class="insight-location">{race.council.province}</p>
   <p class="insight-race-margin"><strong>{race.tied ? 'Tied' : formatNumber(race.margin)}</strong><span>{race.tied ? `${race.leaders.length} contenders at the top` : 'votes apart'}<small>{race.marginPoints.toFixed(2)} percentage-point gap</small></span></p>
   <div class="insight-contenders">{race.leaders.map(p => <div><div><span title={p.name}>{partyStyle(p.name)[0]}</span><strong>{formatNumber(p.votes)}</strong></div><span class="insight-contender-track"><i style={`width:${p.votes / top * 100}%;background:${partyStyle(p.name)[1]}`}/></span></div>)}</div>
-  <div class="insight-race-progress"><span>{race.progress.completed}/{race.progress.expected} districts reporting</span><strong>{race.progress.percent.toFixed(1)}%</strong><span class="insight-reporting-track"><i style={`width:${race.progress.percent}%`}/></span></div>
+  <div class="insight-race-progress"><ReportingStatus progress={race.progress}/></div>
   <a class="insight-text-link" href={href}>Follow this count →</a>
 </article>

@@ -47,7 +47,9 @@
   pointer-events: none;
 }
 .card.place-card { padding-top: 48px; }
-.card.council-seats { position: relative; padding-top: 52px; }
+/* The component adds this inset to its own padding, including compact layouts. */
+.card.council-seats { position: relative; --council-beadwork-height: 28px; }
+.card.council-seats::before { height: var(--council-beadwork-height); }
 article.overview-municipality { padding-top: 48px; }
 .coalition-screen .coalition-visual-panel { padding-top: 44px; }
 
@@ -148,7 +150,11 @@ article.overview-municipality { padding-top: 48px; }
 @media (max-width: 540px) {
   .header::before { width: 82%; bottom: -12px; background-size: auto, 168px 42px; opacity: .28; }
   .footer { padding-top: 48px; }
-  .card.place-card, .card.council-seats { padding-top: 46px; }
+  .card.place-card { padding-top: 36px; }
+  .card.council-seats { --council-beadwork-height: 0px; }
+  .card.council-seats::before { display: none; }
+  .card.scope-card { padding-bottom: 24px; }
+  .scope-card::after { display: none; }
 }
 
 /* Keep decorative artwork out of printed results and high-contrast interfaces. */

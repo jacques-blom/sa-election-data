@@ -1,3 +1,4 @@
+import { comparableParty } from './identity.ts';
 import { ELECTIONS } from '../data/catalogue.ts';
 import { summaryVoteTotals } from '../data/summary-votes.ts';
 import type { Result } from '../places/results.ts';
@@ -34,9 +35,7 @@ export function partyMovement(result: Result, party: Party, requested: VoteBasis
   const before = result.previous;
   const basis = before && combinedOnly(before) ? 'source_total' : requested;
   const base: Movement = { previousYear, basis, combinedFallback: basis !== requested, delta: null, previousShare: null, currentShare: null };
-  if (party.entry_type === 'aggregate' || !party.party_id || party.party_id === '0' || party.candidate_name
-    || party.party_name_source === 'unavailable'
-    || /^(ind|independents?|independent candidates?|unnamed(?: party)?)$/i.test(party.party_name.trim()))
+  if (!comparableParty(party))
     return { ...base, reason: 'Grouped or independent entries are not matched across elections.' };
   if (!before || before.year !== previousYear || before.level !== result.level || before.id !== result.id || before.municipalityId !== result.municipalityId)
     return { ...base, reason: `No matching result is available for ${previousYear}.` };

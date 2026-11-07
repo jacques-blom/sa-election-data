@@ -26,7 +26,7 @@ const prompts = [
     <label for="counted-mcp-url">MCP server URL</label>
     <div class="ai-copy-row">
       <input id="counted-mcp-url" type="url" value={serverUrl} readonly spellcheck="false"/>
-      <button class="button" type="button" data-ai-copy="counted-mcp-url" hidden>Copy URL</button>
+      <button class="button" type="button" data-ai-copy="counted-mcp-url" disabled>Copy URL</button>
     </div>
     <p>Choose your assistant below for setup instructions.</p>
   </div>
@@ -64,7 +64,7 @@ const prompts = [
     <h2 id="ai-prompts-heading">Start with a question</h2>
     <p>Copy a prompt, or swap in your own municipality.</p>
     <div class="ai-prompt-grid">{prompts.map(prompt => <div class="ai-prompt">
-      <div class="ai-prompt-heading"><h3>{prompt.title}</h3><button class="button" type="button" data-ai-copy={`counted-ai-${prompt.id}`} aria-label={`Copy prompt: ${prompt.title}`} hidden>Copy</button></div>
+      <div class="ai-prompt-heading"><h3>{prompt.title}</h3><button class="button" type="button" data-ai-copy={`counted-ai-${prompt.id}`} aria-label={`Copy prompt: ${prompt.title}`} disabled>Copy</button></div>
       <p id={`counted-ai-${prompt.id}`} class="ai-prompt-text">{prompt.text}</p>
     </div>)}</div>
     <p>AI features and custom connections depend on your plan and workspace settings. Check the linked sources and any limitations in the answer.</p>
@@ -75,7 +75,7 @@ const prompts = [
 
 <script>
   function enableCopyButtons() {
-    document.querySelectorAll<HTMLButtonElement>('[data-ai-copy]').forEach(button => { button.hidden = false; });
+    document.querySelectorAll<HTMLButtonElement>('[data-ai-copy]').forEach(button => { button.disabled = false; });
   }
 
   async function copyAIText(id: string) {

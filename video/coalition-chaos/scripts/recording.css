@@ -1,0 +1,65 @@
+/* Recording-only presentation. Injected into a browser tab, never shipped to the site.
+   All parties, game rules, draws, seats and outcomes stay intact. */
+astro-dev-toolbar,.related-news,.council-government,.coalition-story,.chaos-home,.coalition-province,.coalition-random,.coalition-location h1 svg,.coalition-context,.coalition-news,.coalition-data-context,footer,.chaos-data-note,.chaos-history,.coalition-reset,.chaos-share,.chaos-party-role,.chaos-speech{display:none!important}
+body{background:#fff8e5!important}
+body:has(.coalition-screen) main{padding:0 24px!important}
+.chaos-intro{padding:22px 0 18px!important}
+.coalition-location{display:block!important}
+.coalition-location h1{font-size:40px!important}
+.coalition-visual-panel{position:relative!important;padding:18px 20px 14px!important;box-shadow:5px 5px 0 #bac6ac!important}
+.chaos-label{font-size:14px!important;margin-bottom:5px!important}
+.chaos-score [data-coalition-total]{font-size:60px!important}
+.chaos-score-unit{font-size:16px!important}
+.chaos-target{margin-right:85px!important}
+.chaos-target strong{font-size:25px!important}
+.chaos-target span{font-size:16px!important}
+.coalition-meter{height:18px!important;margin-top:18px!important}
+.majority-marker{height:26px!important;width:4px!important}
+.chaos-speaker-line{position:absolute!important;right:8px;top:20px;min-height:0!important}
+.chaos-speaker-line .speaker-sprite{width:96px!important;height:96px!important}
+.chaos-play-area{padding-top:22px!important}
+.chaos-party-heading{margin:0 0 12px!important}
+.chaos-party-heading h2{font-size:24px!important}
+.coalition-party-grid{gap:10px!important;max-height:385px!important;overflow-y:auto!important;scrollbar-width:thin;overscroll-behavior:contain}
+.coalition-party{min-height:120px!important;grid-template-columns:64px minmax(0,1fr) 20px!important;column-gap:10px!important;padding:12px!important}
+.coalition-party .leader-sprite,.coalition-party-logo{width:64px!important;height:64px!important}
+.coalition-party-name{font-size:18px!important}
+.chaos-party-seats{font-size:14px!important}
+.chaos-party-seats strong{font-size:32px!important}
+.coalition-toggle-symbol{font-size:24px!important}
+.chaos-action-bar{margin-top:16px!important;padding-top:10px!important;background:#fff8e5!important;box-shadow:none!important}
+.chaos-action-bar>.chaos-primary{min-height:70px!important;font-size:24px!important}
+.chaos-dialog{inset:0!important;margin:auto!important;max-height:100vh!important;width:100%!important;max-width:540px!important;min-height:960px!important;padding:30px 22px!important;border:0!important;box-shadow:none!important;background:#fff8e5!important;overflow:hidden!important}
+.chaos-dialog-top{min-height:32px;justify-content:center!important}
+.chaos-dialog-top .chaos-eyebrow{font-size:12px!important}
+.chaos-dialog-top .chaos-scenario-badge{font-size:18px!important}
+.chaos-close,.chaos-roll-baseline,.chaos-cast,.chaos-fiction,[data-twist-title],[data-twist-story],[data-twist-rule],.chaos-dialog-actions,.chaos-skip,.chaos-loading-message,.chaos-loading-progress{display:none!important}
+.chaos-loading{padding-top:285px!important}
+.chaos-dice{width:126px!important;height:126px!important;gap:14px!important;padding:20px!important;border-width:5px!important;box-shadow:8px 8px 0 #193b32!important}
+.chaos-loading h2{font-size:32px!important;margin-top:58px!important}
+.chaos-walkout-scene{margin:85px 0 38px!important}
+.chaos-walkout-scene canvas{width:496px!important;height:186px!important;max-width:none!important}
+.chaos-walkout-scene figcaption{font-size:28px!important;margin-top:28px!important}
+.chaos-twist-result{margin:35px 0!important;padding:28px!important;border-left-width:6px!important}
+.chaos-twist-result>span{font-size:49px!important;letter-spacing:-2px!important;margin:0 0 25px!important;white-space:nowrap!important}
+.chaos-outcome-meter{height:22px!important;margin:20px 0 30px!important}
+.chaos-twist-result strong{font-size:29px!important;line-height:1.2!important}
+.chaos-twist-result .chaos-twist-margin{font-size:23px!important;margin-top:10px!important}
+
+/* Johannesburg has 22 parties. Keep all of them in a scrollable roster. */
+.chaos-data-note{display:block!important;font-size:12px!important;line-height:1.4!important;margin:8px 0!important}
+
+/* Keep the same film framing after the site's new scrollable outcome layout.
+   The film's persistent disclosure and the dialog's fiction badge stay visible. */
+.chaos-scenario-banner,.chaos-lesson,.chaos-involved-link{display:none!important}
+.chaos-dialog-top{padding:0!important;border:0!important;background:transparent!important}
+.chaos-dialog-body{padding:0!important;overflow:visible!important;max-height:none!important}
+.chaos-twist-result>.chaos-twist-maths{display:block!important;margin:0 0 25px!important}
+.chaos-twist-maths>[data-twist-maths]{font-size:49px!important;letter-spacing:-2px!important;white-space:nowrap!important}
+.chaos-twist-maths>span{display:block!important;font-size:14px!important;margin-top:4px!important}
+
+/* Keep the score panel registered as totals change from one to three digits. */
+.chaos-score>div:first-child{flex:0 0 215px!important}
+.chaos-score-unit{white-space:nowrap!important}
+.chaos-target{position:absolute!important;right:92px!important;top:32px!important;margin:0!important;max-width:150px!important}
+.chaos-test-feedback{display:none!important}

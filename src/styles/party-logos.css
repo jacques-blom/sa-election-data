@@ -16,8 +16,8 @@
 .map-party-heading .party-identity{align-self:center}
 .map-party-heading .map-party-share{flex:none;align-self:center}
 /* Reserve space for the logo while preserving the existing bar and vote columns. */
-.card .party-row:has(.party-logo){grid-template-columns:118px minmax(0,1fr) minmax(92px,max-content)}
+.card .party-row:has(.party-logo),.card .party-row.other-parties-summary{grid-template-columns:118px minmax(0,1fr) minmax(92px,max-content)}
 .overview-mini-bars>div:has(.party-logo),.overview-province-bars>div:has(.party-logo){grid-template-columns:88px minmax(0,1fr) 45px}
 .ward-card .ward-vote-bars>div{grid-template-columns:85px minmax(0,1fr) 40px}
-@media(min-width:541px) and (max-width:1050px){.card .party-row:has(.party-logo){grid-template-columns:110px minmax(0,1fr) minmax(85px,max-content)}}
-@media(max-width:540px){.card .party-row:has(.party-logo){grid-template-columns:minmax(0,1fr) minmax(85px,max-content)}}
+@media(min-width:541px) and (max-width:1050px){.card .party-row:has(.party-logo),.card .party-row.other-parties-summary{grid-template-columns:110px minmax(0,1fr) minmax(85px,max-content)}}
+@media(max-width:540px){.card .party-row:has(.party-logo),.card .party-row.other-parties-summary{grid-template-columns:minmax(0,1fr) minmax(85px,max-content)}}

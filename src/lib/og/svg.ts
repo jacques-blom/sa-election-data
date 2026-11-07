@@ -43,7 +43,7 @@ export function ogSvg(page: OgPage, icon: string, map: OgMap = nationalOgMap()) 
     if (last < 0 || width(`${subtitle[last]} ${word}`, 26) > 620) subtitle.push(word);
     else subtitle[last] += ` ${word}`;
   }
-  const electionHeading = page.year ? `LOCAL ELECTIONS ${page.year}` : 'SOUTH AFRICAN ELECTIONS';
+  const electionHeading = page.fictional ? 'FICTIONAL SCENARIO' : page.year ? `LOCAL ELECTIONS ${page.year}` : 'SOUTH AFRICAN ELECTIONS';
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_WIDTH}" height="${OG_HEIGHT}" viewBox="0 0 ${OG_WIDTH} ${OG_HEIGHT}">
     <defs><linearGradient id="og-boundary-fill" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#afd8be"/><stop offset=".55" stop-color="#7ebbc0"/><stop offset="1" stop-color="#e3c786"/>
@@ -58,7 +58,7 @@ export function ogSvg(page: OgPage, icon: string, map: OgMap = nationalOgMap()) 
       ${lines.map((line, i) => text(line, 56, titleY + i * size * 1.12, size, paper, 700)).join('')}
       ${subtitle.slice(0, 2).map((line, i) => text(line, 60, 449 + i * 31, 26, muted)).join('')}
       <path d="M60 518H1140" stroke="#3e5c4f"/>
-      ${text('South African local election coverage', 60, 565, 24, muted)}
+      ${text(page.fictional ? 'Satirical game · Invented political scenarios' : 'South African local election coverage', 60, 565, 24, muted)}
       <text x="1140" y="565" text-anchor="end" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="700" fill="${gold}">counted.co.za</text>
     </g>
     <svg x="742" y="155" width="412" height="322" viewBox="${escapeXml(map.viewBox)}" preserveAspectRatio="xMidYMid meet">

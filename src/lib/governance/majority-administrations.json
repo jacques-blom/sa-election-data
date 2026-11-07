@@ -1,0 +1,27 @@
+[
+  {
+    "municipalityId": "1117",
+    "election": 2021,
+    "partyKey": "ANC",
+    "arrangement": "single-party-majority",
+    "periodLabel": "2021 council term",
+    "evidencePeriod": "2024/25 municipal annual report",
+    "evidenceThrough": "2025-06-30",
+    "electionSeats": 61,
+    "totalSeats": 100,
+    "notes": "Buffalo City’s 2024/25 annual report records that the ANC formed the city government after winning a council majority in November 2021. The seat figures are the 2021 election allocation, not a new 2026 result.",
+    "sources": [
+      {
+        "title": "Buffalo City annual report 2024/25, political governance (p. 61)",
+        "url": "https://www.buffalocity.gov.za/CM/uploads/documents/202602020217700263271.BCMMANNUALREPORT2024-2025V9.pdf",
+        "kind": "government"
+      },
+      {
+        "title": "IEC 2021 Buffalo City seat calculation",
+        "url": "https://results.elections.org.za/home/LGEPublicReports/1091/Seat%20Calculation%20Detail/EC/BUF.pdf",
+        "kind": "election"
+      }
+    ]
+  }
+]
+

@@ -40,6 +40,8 @@ Use **Node 24** (the exact development version is in `.node-version`) and
 **pnpm 12.16.1** (pinned in `package.json`). The importer uses Node's built-in
 SQLite support. You do not need a Cloudflare account or IEC credentials for local
 result development; importing data does require internet access.
+The shared dev-server launcher targets the Linux dev box and requires `flock`
+(provided by `util-linux`).
 
 ```sh
 git clone https://github.com/jacques-blom/sa-election-data.git
@@ -100,7 +102,13 @@ hostnames, then start with `pnpm dev:local --host 0.0.0.0`.
 | Command | Purpose |
 | --- | --- |
 | `pnpm dev:local` | Develop against your local D1/R2 data without Cloudflare authentication |
-| `pnpm dev` | Maintainer mode: read live results through authenticated remote bindings |
+| `pnpm dev` | Reuse the shared server, or start it with live result bindings |
+| `pnpm dev:live` | Explicitly request live result bindings |
+| `pnpm dev:chat` | Local chat preview with SerpAPI disabled |
+| `pnpm dev --info` | Show the shared server's URL, mode, PID and log path |
+| `pnpm dev --logs` | Show the last 200 server log lines |
+| `pnpm dev --restart` | Restart the shared server in its current mode |
+| `pnpm dev --stop` | Stop the shared server for all threads |
 | `pnpm check` | Regenerate Worker types and check Astro/TypeScript |
 | `pnpm test` | Run unit tests and isolated local D1/R2 integration tests |
 | `pnpm build` | Build the production Worker and static assets |
@@ -114,13 +122,39 @@ hostnames, then start with `pnpm dev:local --host 0.0.0.0`.
 | `pnpm sync:dry-run` | Validate the sync Worker bundle without deploying |
 | `pnpm deploy:dry-run` | Build and validate the frontend Worker bundle without deploying |
 
-`pnpm dev` is an opt-in live-data workflow in this repository: it selects the
+With no server running, `pnpm dev` is an opt-in live-data workflow: it selects the
 `live` environment in `wrangler.jsonc`, whose result bindings point at the
 maintainer's Cloudflare resources. It requires authorized Cloudflare access;
 forks should use `pnpm dev:local` or configure their own remote resources.
 Geography and map tiles stay local in that environment. See Cloudflare's
 [local development guide](https://developers.cloudflare.com/workers/local-development/)
 for how remote bindings differ from local emulation.
+
+### Shared server across Codex threads
+
+All dev commands use one detached Astro server per checkout, following Fudge's
+shared-entry-point approach. The launcher uses Astro's
+[native background server](https://docs.astro.build/en/reference/cli-reference/#--background)
+with a Linux `flock` around lifecycle operations, so simultaneous starts cannot
+create duplicate servers. It prints the URL and exits once ready; the server stays
+up across thread endings until explicitly stopped. Separate worktrees have their
+own source trees and server state.
+
+Always run `pnpm dev --info` to discover the current URL before a browser test.
+`pnpm dev` joins whichever mode is running. Explicit mode commands reject a
+mismatch without restarting someone else's work. To deliberately change modes,
+use e.g. `pnpm dev:chat --restart`; this affects every thread in the checkout.
+Restarts retain the current host and port unless you pass `--host` or `--port`.
+The initial default is `http://127.0.0.1:4321`; occupied ports fail instead of
+silently incrementing.
+
+Start, restart and stop commands must run outside Codex's sandbox. Its isolated
+PID namespace cannot reliably see the host daemon. Status and log commands are
+safe inside the sandbox: status reports recorded details with liveness marked
+unverified, and never deletes state. The ignored `.dev/server.json` backs up
+Astro's `.astro/dev.json`; logs live in `.astro/dev.log` and reset on restart.
+Do not run raw `astro dev`, `--ignore-lock`, per-thread configs, or remove lock
+files to start another instance. See [agent instructions](AGENTS.md).
 
 ## MCP access
 
@@ -129,6 +163,13 @@ Streamable HTTP endpoint at `/mcp` when running this version. See
 [MCP setup and design](docs/mcp.md) for its sixteen tools, result images, page aggregates, API docs and Python analysis
 guide, methodology resource, client configuration and deployment settings.
 No API key or separate skill/plugin installation is needed.
+
+## Election chat
+
+`/chat` provides a streaming election assistant using the same MCP tools, embedded
+TypeScript analysis, sourced charts and cached news search. It is disabled until a
+personal OpenRouter key, the chat usage migration and the enable flag are configured.
+See [chat setup, costs and verification](docs/chat.md).
 
 ## How IEC syncing works
 
@@ -280,3 +321,6 @@ IEC results, government boundary data, party logos, fonts and map assets retain
 their source attribution and applicable terms. See [map attribution](docs/maps.md#sources-and-attribution),
 [the API source notes](docs/api.md) and the bundled font licenses. Their inclusion
 does not imply endorsement by the IEC, political parties or data providers.
+
+
+Coalition and government context comes from the versioned MISTRA 2026 v1.0 import (175 administrations, 80 municipalities), with coverage through 28 February 2026. Run `pnpm data:governance --check` to verify the generated records. See [government data and confirmation workflow](docs/governance.md) and [attribution and reuse terms](data/mistra/2026-v1.0/NOTICE.md). The app keeps election seat outcomes separate from verified governing arrangements.

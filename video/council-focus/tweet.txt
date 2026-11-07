@@ -1,0 +1,5 @@
+I’ve updated Counted to put councils front and centre: seats, majorities and how your council has changed.
+
+We’ve also pulled in coalition history, so you can see how control shifted even where no party had a majority.
+
+https://counted.co.za/councils

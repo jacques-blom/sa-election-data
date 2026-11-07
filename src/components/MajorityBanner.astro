@@ -1,10 +1,11 @@
 ---
+import ChaosPromo from './ChaosPromo.astro';
 import { env } from 'cloudflare:workers';
 import { councilSeats, type CouncilSeats } from '../lib/seats/allocation.ts';
 import { getBuilderResult } from '../lib/seats/directory.ts';
 import { majorityWinner } from '../lib/seats/majority.ts';
 interface Props { name?: string; href?: string; featured?: boolean; seats?: CouncilSeats; municipalityId?: string | null }
-const { name, href = '/majority-builder', featured = false, seats, municipalityId } = Astro.props;
+const { name, href = '/chaos', featured = false, seats, municipalityId } = Astro.props;
 let allocation = seats;
 let failed = false;
 // Ward and voting-district invitations use the parent council's seats, never local votes.
@@ -15,13 +16,4 @@ if (!allocation && municipalityId) {
   } catch { failed = true; }
 }
 ---
-{!failed && !majorityWinner(allocation) && <aside class:list={['majority-banner', { 'majority-banner--featured': featured }]} aria-label="Try the majority builder">
-  <div class="majority-banner-tokens" aria-hidden="true">{Array.from({length:9},(_,i)=><i class:list={{filled:i<5}}/>)}</div>
-  <div class="majority-banner-copy"><strong>{featured ? 'Are you a political mastermind?' : name ? `Can you build a majority in ${name}?` : 'Ready to build a majority?'}</strong><p>{featured ? 'Pick a council. Mix and match parties. Build your majority.' : 'Pick your parties. Can you get over the line?'}</p></div>
-  <a class="button primary" href={href}>{featured ? 'Take the challenge' : name ? 'Try this council' : 'Choose a council'} <span aria-hidden="true">→</span></a>
-</aside>}
-<style>
-  .majority-banner{display:flex;align-items:center;gap:18px;padding:18px 22px;margin:20px 0;border-radius:16px;background:#e6edda;border:1px solid #d2ddc4}.majority-banner-copy{flex:1;min-width:0}.majority-banner-copy>strong{font-size:18px;font-weight:600;letter-spacing:-.4px;line-height:1.3;display:block}.majority-banner p{font-size:12px;line-height:1.6;margin:5px 0 0;color:var(--muted)}.majority-banner .button{flex-shrink:0;min-height:44px;font-size:12px}.majority-banner-tokens{display:grid;grid-template-columns:repeat(3,9px);gap:4px;flex-shrink:0;transform:rotate(-9deg)}.majority-banner-tokens i{height:9px;border-radius:3px;background:#b4c2a7}.majority-banner-tokens .filled{background:#35654b}
-  .majority-banner--featured{margin:0 0 16px;background:#163a30;color:#fffdf6;border:0;padding:19px 22px}.majority-banner--featured .majority-banner-copy>strong{font-size:23px;letter-spacing:-.7px}.majority-banner--featured p{color:#d9e7cc}.majority-banner--featured .button{background:#e2bc65;color:#163a30;border-color:#e2bc65}.majority-banner--featured .button:hover{background:#f0cf87}.majority-banner--featured .majority-banner-tokens{grid-template-columns:repeat(3,12px);gap:5px}.majority-banner--featured .majority-banner-tokens i{height:12px;background:#52715a}.majority-banner--featured .majority-banner-tokens .filled{background:#e2bc65}
-  @media(max-width:650px){.majority-banner{flex-wrap:wrap;padding:16px;gap:12px}.majority-banner-copy{flex-basis:calc(100% - 55px)}.majority-banner .button{margin-left:auto}.majority-banner-copy>strong{font-size:17px}.majority-banner--featured .majority-banner-copy>strong{font-size:21px}.majority-banner p{font-size:11px}}
-</style>
+{!failed && !majorityWinner(allocation) && <ChaosPromo name={name} href={href} featured={featured}/>}

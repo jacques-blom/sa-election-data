@@ -10,6 +10,7 @@ export type MapLeader = {
   share: number | null;
   status: 'leading' | 'highest-shown' | 'tied' | 'awaiting' | 'unavailable';
   delayed: boolean;
+  government?: string | null;
   movement?: Movement | null;
 };
 export type MapLeadersResponse = { level: BoundaryLevel; areas: MapLeader[] };

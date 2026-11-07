@@ -1,4 +1,6 @@
 /* Counted: warm paper, clear data and original South African pattern studies. */
+/* Five navigation links, including Game, fit narrow mobile headers. */
+@media(max-width:540px){.header-inner>.nav{gap:3px}.header-inner>.nav>a{padding-inline:8px}}
 :root{
   --ink:#163a30;--muted:#5c715f;--line:#dce2d2;--paper:#fffdf5;
   --sage:#e7eddb;--indigo:#587994;
@@ -56,7 +58,7 @@ h2{font-size:26px;font-weight:550;letter-spacing:-.8px}
 .scope-card{position:relative;overflow:hidden;background:#e7eddb;border:0;padding-bottom:30px}
 .scope-card h2{font-size:24px}.scope-card p{font-size:13px;line-height:1.75}.scope-card .button{background:#fffdf5bb}
 .ward-grid{gap:13px}.ward-card{border-radius:var(--radius-surface);padding:21px;border-color:#e0e5d6;transition:background .16s,border-color .16s;min-width:0}
-.ward-card:hover{background:#edf2e4;border-color:#acbf9c}.ward-card strong{font-size:21px;letter-spacing:-.5px}.ward-card span{font-size:11px;line-height:1.6;color:#61745b;margin-top:10px}
+.ward-card:hover{background:#edf2e4;border-color:#acbf9c}.ward-card>strong{font-size:21px;letter-spacing:-.5px}.ward-card>span{font-size:11px;line-height:1.6;color:#61745b;margin-top:10px}
 .filter{gap:9px;margin-bottom:20px}.filter label{font-size:11px}.filter input{font-size:12px;border-radius:var(--radius-control);border-color:#cbd6c1;padding:12px;width:110px}
 .links{font-size:11px;gap:16px;line-height:1.7}.links a{text-underline-offset:4px}
 .empty{background:#e7eddb;border-radius:var(--radius-surface);padding:28px;margin-top:18px;font-size:14px}.empty h1{font-size:40px}.empty h2{font-size:24px}
@@ -78,10 +80,10 @@ h2{font-size:26px;font-weight:550;letter-spacing:-.8px}
   .breadcrumbs{font-size:9px;gap:7px;margin-bottom:23px}.tabs{margin:19px 0}.tabs a{font-size:11px;padding:9px 11px}.ballot-total{font-size:10px;gap:15px}.ballot-total strong{font-size:28px}
   .party-row{grid-template-columns:66px minmax(0,1fr) 94px;gap:9px;margin:20px 0}.party-name{font-size:12px}.party-votes{font-size:14px}.party-name small{font-size:9px}.bar-track,.bar{height:23px}.small{font-size:10px}
   .aside-stack{grid-template-columns:1fr}.progress-visual{width:155px;height:155px}.progress-visual .progress-number{font-size:40px}.scope-card h2{font-size:24px}.scope-card p{font-size:12px}
-  .ward-grid{gap:10px}.ward-card{padding:18px 15px;min-width:0}.ward-card strong{font-size:19px}.ward-card span{font-size:10px}.filter label{width:100%}
+  .ward-grid{gap:10px}.ward-card{padding:18px 15px;min-width:0}.ward-card>strong{font-size:19px}.ward-card>span{font-size:10px}.filter label{width:100%}
   .coverage-note{font-size:10px;margin-top:20px}.footer{margin-inline:20px;font-size:10px}.footer-links{font-size:10px;gap:15px}.footer strong{font-size:18px}
 }
-@media(max-width:360px){.hero h1{font-size:44px}.hero-art{padding-inline:0}.hero-art .country-outline{height:205px}.nav{gap:4px}.nav>a{padding-inline:10px}.page-top h1{font-size:37px}.page-top img{width:62px}.result-card{padding-inline:17px}.party-row{grid-template-columns:57px minmax(0,1fr) 94px;gap:7px}.ward-card{padding:16px 12px}.ward-card strong{font-size:17px}}
+@media(max-width:360px){.hero h1{font-size:44px}.hero-art{padding-inline:0}.hero-art .country-outline{height:205px}.nav{gap:4px}.nav>a{padding-inline:10px}.page-top h1{font-size:37px}.page-top img{width:62px}.result-card{padding-inline:17px}.party-row{grid-template-columns:57px minmax(0,1fr) 94px;gap:7px}.ward-card{padding:16px 12px}.ward-card>strong{font-size:17px}}
 @media(max-width:540px){
   .party-row{grid-template-columns:minmax(0,1fr) 94px;gap:6px 12px;margin:19px 0}
   .party-name{grid-column:1/-1;overflow-wrap:break-word;font-size:11px;line-height:1.5}
@@ -95,6 +97,43 @@ h2{font-size:26px;font-weight:550;letter-spacing:-.8px}
 @media(min-width:541px) and (max-width:950px){.header-inner{flex-wrap:wrap;gap:14px;padding-bottom:7px}.header-inner>.nav{order:3;width:100%;margin-left:0}}
 @media(max-width:540px){.nav{gap:2px;flex-wrap:wrap}.nav>a{padding:8px 9px;font-size:10px}}
 
-/* Keep page gestures at the app scale; maps handle their own zoom gestures. */
-html,body{touch-action:pan-x pan-y}
+/* Allow browser zoom; interactive maps manage their own gestures. */
+html,body{touch-action:pan-x pan-y pinch-zoom}
 @media(max-width:760px){input,select,textarea,.search-box input,.hero .search-box input,.filter input{font-size:16px}}
+
+/* Phone layouts reserve space for results and keep controls easy to tap. */
+.footer-more>summary{font-weight:400;cursor:pointer}
+.footer-more>summary::after{content:'+';margin-left:10px}.footer-more[open]>summary::after{content:'−'}
+.footer-more>div{display:flex;flex-wrap:wrap;gap:4px 20px;padding-top:8px}
+@media(max-width:650px){
+  main{padding:20px max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left))}
+  .header-inner{padding:12px 16px 0;gap:8px 16px;min-height:0;flex-wrap:wrap}
+  .header-inner>.nav{order:3;width:100%;margin:0}
+  .header-search{margin-left:auto}
+  .brand{min-height:44px}
+  .nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:0 0 8px;font-size:12px}
+  .nav>a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 4px;font-size:12px}
+  .card{padding:20px 18px;border-radius:16px}
+  .card.result-card{padding:20px 18px}
+  .page-top h1{font-size:clamp(30px,8.8vw,40px);line-height:1.1;margin-bottom:0;overflow-wrap:anywhere}
+  .page-top .eyebrow{font-size:11px;letter-spacing:.4px;margin-bottom:8px}
+  .page-top .eyebrow::before{display:none}
+  .page-top{margin-bottom:20px}
+  .breadcrumbs{font-size:11px;gap:4px 8px;margin-bottom:14px;align-items:center}
+  .breadcrumbs a{display:inline-flex;align-items:center;min-height:32px}
+  .small,.notice,.comparison-note,.coverage-note{font-size:12px;line-height:1.6}
+  .chart-key{font-size:11px}
+  .tabs{max-width:100%;flex-wrap:wrap}
+  .tabs a{display:flex;align-items:center;min-height:44px;font-size:13px}
+  .party-name{font-size:13px}.party-name small,.party-votes small{font-size:11px}
+  .party-votes{font-size:16px}
+  .more-parties>summary,details.notice>summary,.trend-details>summary,.coalition-context>details>summary{min-height:44px;align-content:center;font-size:13px}
+  .button,.share-trigger{min-height:44px;font-size:13px}
+  .links{gap:4px 16px;font-size:12px}.links a{display:inline-flex;align-items:center;min-height:44px}
+  .history-years a{min-height:44px;display:grid;place-items:center;font-size:11px}
+  .election-history input{min-height:44px}
+  .footer{margin-inline:16px;font-size:12px}
+  .footer-links{gap:0 20px;font-size:12px}
+  .footer-links>a,.footer-more>summary,.footer-more a{display:flex;align-items:center;min-height:44px}
+  .footer-more{flex-basis:100%;font-size:12px}.footer-more>div{padding:0}
+}

@@ -1,0 +1,9 @@
+---
+import Icon from './Icon.astro';
+interface Props { name:string; scope?:string; year:number; level:string; areaId:string; parents?:{name:string;href:string}[]; result?:boolean }
+const {name,scope,parents=[]}=Astro.props;
+---
+<header class="area-header">
+  {parents.length>0&&<nav class="breadcrumbs area-breadcrumbs" aria-label="Explore wider areas">{parents.map((parent,i)=><>{i>0&&<Icon name="chevronRight" size={16}/>}<a href={parent.href} data-explore-link>{parent.name}</a></>)}</nav>}
+  <div class="area-heading"><div class="area-name">{scope&&<p class="eyebrow">{scope}</p>}<h1>{name}</h1></div></div>
+</header>

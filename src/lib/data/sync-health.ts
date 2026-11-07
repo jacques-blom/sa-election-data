@@ -1,6 +1,16 @@
 import { budgetPeriod, budgetWindowStart, BUDGET_WINDOW_DAYS, SYNC_LIMITS } from '../../../workers/sync/budget.ts';
 
 export async function syncHealth(db: D1Database) {
+  const districtCoverage = await db.prepare(`SELECT COUNT(*) AS sources,SUM(payload IS NOT NULL) AS loaded_sources,
+    SUM(last_error IS NOT NULL) AS failed_sources,SUM(successful_at IS NULL OR successful_at<?) AS overdue_sources,
+    MAX(published_at) AS latest_result_publication,MAX(successful_at) AS latest_successful_check
+    FROM district_results`).bind(new Date(Date.now()-900_000).toISOString()).first<{
+      sources:number; loaded_sources:number; failed_sources:number; overdue_sources:number;
+      latest_result_publication:string|null; latest_successful_check:string|null;
+    }>().catch(error => {
+      if (/no such table: (?:main\.)?district_results/i.test(String(error))) return null;
+      throw error;
+    });
   const [status, coverage, budget] = await db.batch([
     db.prepare("SELECT last_started_at,last_completed_at,last_error,enqueued_count,backoff_until FROM sync_status WHERE id='live'"),
     db.prepare(`SELECT COUNT(*) AS sources,SUM(d.active_snapshot_id IS NOT NULL) AS loaded_sources,
@@ -34,10 +44,12 @@ export async function syncHealth(db: D1Database) {
   const cpuMeterOverdue = !usage?.cpu_meter_seen_at || Date.now() - Date.parse(String(usage.cpu_meter_seen_at)) > 180_000;
   return {
     year: 2026,
-    status: usage?.exhausted_resource ? 'budget_paused' : !scheduler ? 'not_started' : cpuMeterOverdue || schedulerOverdue || scheduler.last_error || sources.failed_sources || sources.overdue_sources || backoff ? 'degraded' : 'healthy',
+    status: usage?.exhausted_resource ? 'budget_paused' : !scheduler ? 'not_started' : cpuMeterOverdue || schedulerOverdue || scheduler.last_error || sources.failed_sources || sources.overdue_sources || districtCoverage?.failed_sources || districtCoverage?.overdue_sources || backoff ? 'degraded' : 'healthy',
     refresh_mode: scheduler ? 'scheduled_polling' : 'manual_import',
     summary_poll_seconds: 60,
     municipality_reconciliation_seconds: 600,
+    district_poll_seconds: 300,
+    districts: districtCoverage,
     stale_after_seconds: 900,
     scheduler_overdue: schedulerOverdue,
     scheduler: scheduler ?? null,
@@ -46,6 +58,7 @@ export async function syncHealth(db: D1Database) {
       cpu_meter_overdue: cpuMeterOverdue,
       note: 'CPU telemetry and operation ceilings cover ingestion; public traffic and other projects share account allowances.' },
     ...sources,
+    latest_result_publication: [sources.latest_result_publication,districtCoverage?.latest_result_publication].filter((v):v is string => !!v).sort().at(-1) ?? null,
     caveat: 'A successful check means we fetched the IEC source; it does not mean new votes were counted or results declared.',
   };
 }

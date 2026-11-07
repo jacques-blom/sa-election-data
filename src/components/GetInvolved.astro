@@ -1,0 +1,62 @@
+---
+import Icon from './Icon.astro';
+import type { Place } from '../lib/places/types.ts';
+import { civicResources, councillorDirectory } from '../lib/civic/resources.ts';
+interface Props { place: Pick<Place, 'slug' | 'name'> }
+const { place } = Astro.props;
+const resources = civicResources(place);
+const date = (value: string) => new Date(`${value}T12:00:00Z`).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Johannesburg' });
+---
+<section class="get-involved" id="get-involved" aria-labelledby="get-involved-title">
+  <header>
+    <div><p class="involved-eyebrow">Beyond the game</p><h2 id="get-involved-title" tabindex="-1">Get involved in {place.name}</h2></div>
+    <a class="involved-change" href="/search">Find my municipality <Icon name="arrowRight" size={15}/></a>
+  </header>
+  <p class="involved-intro">Follow the decisions. Raise a local priority. Your part in local politics can continue between elections.</p>
+  <div class="involved-actions">
+    <article>
+      <Icon name="mapPin" size={23}/><h3>Find your ward and representative</h3>
+      <p>Find your ward on the map, then look up your representative. Check the council term before using contact details.</p>
+      <a class="involved-action" href={resources.wardUrl}>Find your ward <Icon name="arrowRight" size={15}/></a>
+      <a class="involved-secondary" href={councillorDirectory.url} target="_blank" rel="noopener noreferrer">IEC councillor lookup <Icon name="arrowUpRight" size={14}/></a>
+    </article>
+    <article>
+      <Icon name="landmark" size={23}/><h3>Follow council decisions</h3>
+      <p>{resources.meetings?.note ?? 'Ask the municipal office for public council meeting dates, agendas and minutes. The Speaker’s office can help with attendance arrangements.'}</p>
+      <a class="involved-action" href={(resources.meetings ?? resources.contact).url} target="_blank" rel="noopener noreferrer">{(resources.meetings ?? resources.contact).label} <Icon name="arrowUpRight" size={15}/></a>
+      <a class="involved-secondary" href={`${resources.guideUrl}#meetings`}>What to look for <Icon name="arrowRight" size={14}/></a>
+    </article>
+    <article>
+      <Icon name="users" size={23}/><h3>Have a say on local priorities</h3>
+      <p>{resources.participation?.note ?? 'Ask about ward meetings and opportunities to comment on the budget or Integrated Development Plan (IDP), which sets municipal priorities.'}</p>
+      {resources.participation ? <a class="involved-action" href={resources.participation.url} target="_blank" rel="noopener noreferrer">{resources.participation.label} <Icon name="arrowUpRight" size={15}/></a>
+        : <a class="involved-action" href={`${resources.guideUrl}#priorities`}>How to take part <Icon name="arrowRight" size={15}/></a>}
+      <a class="involved-secondary" href={resources.contact.url} target="_blank" rel="noopener noreferrer">{resources.participation ? 'Contact the municipal office' : resources.contact.label} <Icon name="arrowUpRight" size={14}/></a>
+    </article>
+  </div>
+  <details class="involved-sources"><summary>About these local links</summary>
+    <p>Notices and documents can cover past consultation periods. Check dates and submission instructions on the official page. After an election, confirm that a councillor directory covers the current term.</p>
+    <p>{resources.contact.note} <a href={resources.contact.url} target="_blank" rel="noopener noreferrer">Government directory ↗</a> · Link listed on {date(resources.contact.checkedAt)}.</p>
+    {(resources.meetings || resources.participation) && <p>Municipal resource pages reviewed {date((resources.participation ?? resources.meetings)!.checkedAt)}. These links do not mean a consultation is currently open.</p>}
+  </details>
+</section>
+<style>
+  .get-involved{margin:28px 0;padding:24px;background:#edf1e2;border:1px solid #c8d1ba;border-top:4px solid #567157;color:#163a30;scroll-margin-top:24px}
+  .get-involved header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .involved-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 7px}
+  .get-involved h2{font-size:25px;letter-spacing:-.5px;line-height:1.2;margin:0}
+  .get-involved h2:focus-visible{outline:2px solid #567157;outline-offset:6px}
+  .involved-change{font-size:12px;display:flex;gap:6px;align-items:center;min-height:44px;text-underline-offset:3px}
+  .involved-intro{font-size:14px;line-height:1.65;margin:12px 0 20px;max-width:65ch}
+  .involved-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .involved-actions article{display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:18px;background:#fffdf5;border:1px solid #d5ddc9}
+  .involved-actions h3{font-size:16px;line-height:1.4;margin:12px 0 6px}
+  .involved-actions p{font-size:13px;line-height:1.65;margin:0 0 12px;color:#425741;flex:1}
+  .involved-action,.involved-secondary{display:flex;align-items:center;gap:6px;min-height:44px;line-height:1.5;font-size:12px;text-underline-offset:3px}
+  .involved-action{font-weight:600}.involved-action .ui-icon,.involved-secondary .ui-icon{flex-shrink:0}
+  .involved-secondary{color:#425741}
+  .involved-sources{margin-top:16px;font-size:12px;line-height:1.65;color:#425741}
+  .involved-sources summary{cursor:pointer;min-height:44px;display:flex;align-items:center;text-decoration:underline;text-underline-offset:3px}
+  .involved-sources p{max-width:85ch;margin:6px 0}
+  @media(max-width:760px){.get-involved{padding:18px}.involved-actions{grid-template-columns:1fr}.get-involved h2{font-size:23px}.get-involved header{gap:4px}.involved-actions article{padding:16px}.involved-actions h3{margin-top:8px}}
+</style>

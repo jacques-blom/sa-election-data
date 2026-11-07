@@ -4,6 +4,7 @@ import { hintHash, LIVE_YEAR, PENDING_TIMEOUT_MS, RECHECK_MS, JOBS_PER_MESSAGE, 
 import { reserveBudget } from './budget.ts';
 import { election, partyNames, refreshSource } from './publish.ts';
 import { acquireLock, backoffSeconds, clearPending, ensureSource, recordFailure, releaseLock } from './state.ts';
+import { enqueueDistricts } from './districts.ts';
 
 async function saveDiscovery(db: D1Database, root: Record<string, unknown>) {
   const hints = new Map<string, string>();
@@ -95,7 +96,11 @@ export async function scheduledSync(env: SyncEnv) {
       summaryError = String(error).slice(0, 1000);
     }
     // An unavailable index cannot prevent independent detail reconciliation.
-    const enqueued = await backoffSeconds(db) ? 0 : await enqueueDue(env);
+    let enqueued = 0;
+    if (!await backoffSeconds(db)) {
+      enqueued = await enqueueDue(env);
+      enqueued += await enqueueDistricts(env);
+    }
     await db.prepare(`UPDATE sync_status SET last_completed_at=?,last_error=?,enqueued_count=? WHERE id='live'`)
       .bind(new Date().toISOString(), summaryError, enqueued).run();
     console.log(JSON.stringify({ event: 'scheduler_completed', enqueued, summary_error: summaryError }));

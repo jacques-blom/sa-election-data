@@ -1,0 +1,16 @@
+---
+import Icon from './Icon.astro';
+import { latestYear } from '../lib/history/comparison.ts';
+import { COUNCIL_DECLARATION_NOTICE } from '../lib/seats/majority.ts';
+interface Props { year: number; prominent?: boolean }
+const { year, prominent = false } = Astro.props;
+---
+{year === latestYear && <div class:list={['council-declaration', { 'council-declaration--prominent': prominent }]} data-council-declaration>
+  <Icon name="clock" size={prominent ? 16 : 13}/><span>{COUNCIL_DECLARATION_NOTICE}</span>
+</div>}
+<style>
+  .council-declaration{display:flex;align-items:baseline;gap:6px;margin:6px 0 0;color:var(--council-declaration-color,#745414);font-size:12px;line-height:1.5;font-weight:500}
+  .council-declaration :global(svg){flex:none;align-self:flex-start;margin-top:2px}
+  .council-declaration--prominent{gap:8px;margin:0;font-size:14px}
+  @media(max-width:540px){.council-declaration--prominent{font-size:12px}}
+</style>

@@ -1,4 +1,5 @@
 import { resultsApi } from '../api/results.ts';
+import { governmentContext } from '../governance/index.ts';
 import { findDirectoryPlace, searchDirectory } from '../places/directory.ts';
 import { placeUrl } from '../places/catalogue.ts';
 import { getUpdates, type FeedOptions } from '../updates/feed.ts';
@@ -96,7 +97,7 @@ export function createDataReader(bindings: McpBindings, origin: string, cache?: 
         provinces: data.provinces.map(p => ({ id: p.province.id, name: p.province.name, summary: p.result ? areaCard(p.result) : null })),
         metros: data.metros.map(m => ({ slug: m.place.slug, name: m.place.name, summary: m.result ? areaCard(m.result) : null })),
         councils: data.councils ? { ...data.councils, entries: undefined,
-          note: 'Only complete IEC-reported allocations enter majority counts. Estimates, missing imported councils and unavailable packed outcome state remain pending. Coalition membership is not supplied.' } : null,
+          note: 'Only complete IEC-reported allocations enter majority counts. Estimates, missing imported councils and unavailable packed outcome state remain pending. Separate dated government context is available through get_government_history; seat outcomes do not identify government.' } : null,
         municipality_page: pageInfo(data.municipalities.length, limit, offset),
         municipalities: data.municipalities.slice(offset, offset + limit).map(m => ({ id: m.id, name: m.name,
           province_id: m.provinceId, url: publicUrl(m.placeHref ?? m.href) })),
@@ -119,6 +120,7 @@ export function createDataReader(bindings: McpBindings, origin: string, cache?: 
       const whole = relationships.some(r => r.level === 'municipality' && r.relation === 'equals');
       return { slug: place.slug, name: place.name, kind: place.kind, province: place.province,
         mapping_year: 2026, scope: whole ? 'whole_municipality' : 'whole_overlapping_wards_not_town_only',
+        governments: relationships.filter(r => r.level === 'municipality').map(r => governmentContext(r.areaId)).filter(Boolean),
         description: place.description, boundary_context: place.boundaryContext ?? null, sources: place.sources,
         url: publicUrl(placeUrl(place)),
         ...pageInfo(relationships.length, limit, offset),

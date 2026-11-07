@@ -1,4 +1,5 @@
 ---
+import Icon from '../../../components/Icon.astro';
 import { env } from 'cloudflare:workers';
 import Site from '../../../layouts/Site.astro';
 import DirectoryPagination from '../../../components/DirectoryPagination.astro';
@@ -25,6 +26,6 @@ const canonical = wardDirectoryUrl(year, province?.slug, page);
   <div class="page-top"><div><p class="eyebrow">{year} local elections</p><h1>{province ? `Wards in ${province.name}` : 'Browse all wards'}</h1><p class="lead">{data.total.toLocaleString('en-ZA')} wards with published results. Each ward links to its voting districts.</p></div></div>
   <nav aria-label="Browse wards by province"><div class="links"><a href={wardDirectoryUrl(year)}>All provinces</a>{provinces.map(p => <a href={wardDirectoryUrl(year, p.slug)} aria-current={p.id === province?.id ? 'page' : undefined}>{p.name}</a>)}</div></nav>
   {failed ? <p class="notice">The ward directory is temporarily unavailable. <a href={canonical}>Try again</a>.</p> : <><ul class="ward-directory">{data.wards.map(w => <li><a href={wardUrl(w.area_id, year)}><strong>Ward {wardNumber(w.area_id)}</strong><span>{w.municipalityName ? municipalityName(w.municipalityName) : w.municipality_id} · {w.area_id}</span></a></li>)}</ul>{!data.total && <p class="notice">Ward results are not available for this selection yet.</p>}<DirectoryPagination page={page} total={data.total} pageSize={directoryPageSize} href={n => wardDirectoryUrl(year, province?.slug, n)}/></>}
-  <div class="links"><a href="/places">Browse towns and municipalities →</a></div>
+  <div class="links"><a href="/places">Browse towns and municipalities <Icon name="arrowRight" size={14}/></a></div>
 </Site>
 <style>.ward-directory{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 24px;margin-top:28px}.ward-directory li{border-bottom:1px solid var(--line);min-width:0}.ward-directory a{display:block;padding:16px 0;text-decoration:none;overflow-wrap:anywhere}.ward-directory strong{display:block;font-weight:500}.ward-directory span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:6px}@media(max-width:800px){.ward-directory{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:540px){.ward-directory{grid-template-columns:1fr}}</style>

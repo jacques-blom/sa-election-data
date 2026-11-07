@@ -2,6 +2,7 @@
 import { movementText } from '../../lib/history/comparison.ts';
 import shapes from '../../lib/overview/province-shapes.json';
 import PartyLogo from '../PartyLogo.astro';
+import Icon from '../Icon.astro';
 import { provinceMapLabels } from '../../lib/overview/province-map.ts';
 import type { getNationalOverview } from '../../lib/overview/results.ts';
 import '../../styles/province-results-map.css';
@@ -12,7 +13,7 @@ const labels = provinceMapLabels(Astro.props.entries,Astro.props.year);
 const parties = [...new Map(labels.filter(label => label.party).map(label => [label.partyName, label])).values()];
 ---
 <figure id="province-results-map" class:list={['province-results-map', { 'home-results-map': compact }]} aria-labelledby="province-map-caption">
-  <figcaption id="province-map-caption"><strong>{compact ? 'Results map' : 'Results by province'}</strong><a href="/map">{compact ? 'Explore ↗' : 'Explore local voting areas ↗'}</a></figcaption>
+  <figcaption id="province-map-caption"><strong>{compact ? 'Results map' : 'Results by province'}</strong><a href="/map">{compact ? 'Explore' : 'Explore local voting areas'} <Icon name="arrowUpRight" size={14}/></a></figcaption>
   <svg viewBox="0 0 610 490" role="group" aria-label="Preliminary election results by province" aria-describedby="province-map-note">
     <defs><pattern id="province-map-unknown" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#dce1d5"/><path d="M0 8L8 0" stroke="#b5c1ae" stroke-width="1"/></pattern></defs>
     {labels.map(label => {

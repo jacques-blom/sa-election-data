@@ -3,6 +3,7 @@ import { drawShareImage } from './image.ts';
 import { publicShareUrl, shareCaption, type ShareCard, type ShareFormat } from './model.ts';
 import { trackShare, type ShareContext } from './analytics.ts';
 import { resultsUrl } from '../history/view.ts';
+import { selectHistoryShareCard } from './history.ts';
 
 type Selection = { card: ShareCard | null; url: string; title: string; text: string; kind: ShareContext['kind']; source: ShareContext['source'] };
 let current: Selection | null = null;
@@ -57,7 +58,7 @@ function showShare() {
   const sheet = dialog();
   const hasImage = !!current.card;
   sheet.classList.toggle('share-dialog--page', !hasImage);
-  sheet.querySelector('h2')!.textContent = current.card?.kind === 'coalition' ? 'Share scenario' : hasImage ? 'Share results' : 'Share this page';
+  sheet.querySelector('h2')!.textContent = current.card?.kind === 'history' ? current.card.history?.metric==='seats'?'Share council history':'Share vote history' : current.card?.kind === 'coalition' ? 'Share scenario' : hasImage ? 'Share results' : 'Share this page';
   sheet.querySelectorAll<HTMLElement>('.share-preview, .share-formats, [data-share-save]').forEach(el => { el.hidden = !hasImage; });
   sheet.querySelector<HTMLButtonElement>('[data-share-native]')!.disabled = hasImage;
   sheet.querySelector<HTMLElement>('[data-share-help]')!.hidden = true;
@@ -78,6 +79,21 @@ export function openShare(card: ShareCard, url: string, source: ShareContext['so
 document.addEventListener('click', async event => {
   const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('button') : null;
   if (!button || button.disabled) return;
+  if (button.hasAttribute('data-share-history')) {
+    const chart=button.closest<HTMLElement>('[data-vote-history]');
+    if (!chart) return;
+    const cards=JSON.parse(button.dataset.shareHistory!) as Record<string,ShareCard>;
+    const metric=chart.dataset.selectedMetric??chart.dataset.defaultMetric??'votes';
+    const base=cards[metric]??cards.votes;
+    if (!base) return;
+    const card=selectHistoryShareCard(base,{year:Number(chart.dataset.selectedYear??chart.dataset.defaultYear),party:chart.dataset.selectedParty||null});
+    const url=resultsUrl();
+    url.searchParams.set('metric',metric);
+    url.searchParams.set('history-year',String(card.history!.year));
+    if(card.history!.party)url.searchParams.set('party',card.history!.party);else url.searchParams.delete('party');
+    openShare(card,`${publicShareUrl(url.href)}#vote-history`,'history');
+    return;
+  }
   if (button.hasAttribute('data-share-page')) {
     // Read the current result trigger on each click, including after live updates.
     const result = button.dataset.sharePage === 'result' ? document.querySelector<HTMLButtonElement>('main [data-share-result]') : null;
@@ -93,7 +109,10 @@ document.addEventListener('click', async event => {
     return;
   }
   if (button.hasAttribute('data-share-result')) {
-    openShare(JSON.parse(button.dataset.shareResult!) as ShareCard, publicShareUrl(resultsUrl().href, button.dataset.shareBallot as 'pr' | 'ward' | undefined));
+    const card=JSON.parse(button.dataset.shareResult!) as ShareCard;
+    const url=resultsUrl();
+    if(card.council){url.searchParams.delete('ballot');url.searchParams.delete('history-year');}
+    openShare(card, publicShareUrl(url.href, button.dataset.shareBallot as 'pr' | 'ward' | undefined));
     return;
   }
   if (!button.closest('[data-share-dialog]')) return;

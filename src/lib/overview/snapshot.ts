@@ -1,9 +1,12 @@
 import type { AreaRecord } from '../data/normalize.ts';
 import { councilSeats } from '../seats/allocation.ts';
+import { historicalCouncilSeats } from '../history/seats.ts';
+import { latestYear } from '../history/comparison.ts';
+import type { HistoricalCorrection } from '../history/corrections.ts';
 
 type Payload = AreaRecord['payload'];
 export type CouncilParty = { id: string; name: string; count: number };
-export type SeatSummary = { status: 'reported' | 'estimated'; total: number; majority: number; parties: CouncilParty[] };
+export type SeatSummary = { status: 'reported' | 'estimated'; total: number; majority: number; parties: CouncilParty[]; correction?: HistoricalCorrection };
 export type VoteShare = { id: string; name: string; share: number };
 export type CountProgress = { completed: number; expected: number; percent: number };
 export type CloseRace = { id: string; margin: number; marginPoints: number; progress: CountProgress;
@@ -77,18 +80,19 @@ export function closeCouncilRace(record: AreaRecord): CloseRace | null {
 }
 
 /** Small derived read model; source results remain untouched. Published atomically with the source. */
-export function councilSnapshot(records: readonly AreaRecord[]): CouncilSnapshot | null {
+export function councilSnapshot(records: readonly AreaRecord[], year = latestYear): CouncilSnapshot | null {
   const council = records.find(r => r.level === 'municipality');
   if (!council) return null;
-  const allocation = councilSeats('municipality', council.payload);
+  const allocation = year === latestYear ? councilSeats('municipality', council.payload) : historicalCouncilSeats('municipality', council.payload,{year,id:council.id});
   const wards = records.filter(r => r.level === 'ward' && r.municipalityId === council.id);
   return { version: COUNCIL_SNAPSHOT_VERSION, id: council.id, reportedAt: council.reportedAt, progress: countProgress(council.payload),
     seats: allocation.status === 'unavailable' ? null : { status: allocation.status, total: allocation.total,
-      majority: allocation.majority, parties: allocation.parties.map(p => ({ id: p.party_id!, name: p.party_name, count: p.count })) },
+      majority: allocation.majority, parties: allocation.parties.map(p => ({ id: p.party_id ?? p.source_entry_id, name: p.party_name, count: p.count })),
+      ...('correction' in allocation && allocation.correction ? {correction:allocation.correction as HistoricalCorrection} : {}) },
     votes: comparisonShares(council.payload), pendingRace: closeCouncilRace(council), wardsCovered: wards.length,
     // Each council's closest six suffice for the nationwide closest six (same ordering).
     races: wards.flatMap(w => { const race = closeRace(w); return race ? [race] : []; })
       .sort((a, b) => a.marginPoints - b.marginPoints || a.margin - b.margin || a.id.localeCompare(b.id)).slice(0, 6) };
 }
 
-export const majorityParty = (seats: SeatSummary | null) => seats?.parties.find(p => p.id !== '0' && p.count >= seats.majority) ?? null;
+export const majorityParty = (seats: SeatSummary | null) => seats?.parties.find(p => p.id !== '0' && p.id !== '-2' && p.count >= seats.majority) ?? null;

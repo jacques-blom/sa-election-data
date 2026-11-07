@@ -1,4 +1,11 @@
 import { ELECTIONS } from '../data/catalogue.ts';
+import { governmentContext, governmentHistory, governmentMunicipalityIds, governmentSource } from '../governance/index.ts';
+import { readElectionHistory } from '../history/data.ts';
+import { latestYear, type VoteBasis } from '../history/comparison.ts';
+import { attachPrevious } from '../history/results.ts';
+import { electionMajorityBaseline } from '../history/seats.ts';
+import { resultFromRow } from '../places/results.ts';
+import { historicalResultNotes } from '../history/corrections.ts';
 import type { AreaRecord, Level } from '../data/normalize.ts';
 import { resultQuality } from '../data/quality.ts';
 import { syncHealth } from '../data/sync-health.ts';
@@ -79,10 +86,33 @@ export async function resultsApi(request: Request, env: Pick<Env, 'RESULTS_DB' |
   const parts = url.pathname.slice('/api/v1'.length).split('/').filter(Boolean);
   try {
     const db = env.RESULTS_DB;
+    if (parts[0] === 'governments') {
+      if (parts.length === 2) {
+        const history = governmentHistory(parts[1]!);
+        return respond(request, history ?? { error: 'Municipality not found. Use a 2026 municipal ID, code or slug.' }, history ? 200 : 404);
+      }
+      if (parts.length !== 1) return respond(request, { error: 'Not found' }, 404);
+      let page;
+      try { page = pagination(url); } catch { return respond(request, { error: 'limit must be 1–200 and offset a non-negative safe integer' }, 400); }
+      const ids = governmentMunicipalityIds;
+      return respond(request, { source: governmentSource, ...page, total: ids.length,
+        municipalities: ids.slice(page.offset, page.offset + page.limit).map(id => governmentContext(id)) });
+    }
+    if (parts[0] === 'history') {
+      if (parts.length !== 3 || !levels.includes(parts[1] as Level)) return respond(request, { error: 'Use /api/v1/history/{level}/{area_id}' }, 404);
+      const throughText = url.searchParams.get('through') ?? String(latestYear);
+      const through = ELECTIONS.find(e => String(e.year) === throughText)?.year;
+      const basis = url.searchParams.get('ballot') ?? (['ward','voting-district'].includes(parts[1]!) ? 'ward' : 'source_total');
+      if (!through || !['pr','ward','source_total'].includes(basis)) return respond(request, { error: 'Use a supported election year and ballot=pr, ward or source_total.' }, 400);
+      if (['national','province'].includes(parts[1]!) && basis !== 'source_total') return respond(request, { error: 'Summary history supports source_total only.' }, 400);
+      const history = await readElectionHistory(db, env.RAW_RESULTS, { level:parts[1] as Level,id:parts[2]!,through,basis:basis as VoteBasis });
+      if (!history.elections.length) return respond(request, { error: history.warning ?? 'No imported history for this area.' }, history.warning ? 503 : 404);
+      return respond(request, history);
+    }
     if (!parts.length) {
       const health = await syncHealth(db);
       return respond(request, { version: 'v1', documentation: '/api.md', documentation_html: '/api', elections: '/api/v1/elections',
-        sync: '/api/v1/sync', refresh_mode: health.refresh_mode, sync_status: health.status, caveats });
+        sync: '/api/v1/sync', governments: '/api/v1/governments', history: '/api/v1/history/{level}/{area_id}?through=2026', refresh_mode: health.refresh_mode, sync_status: health.status, caveats });
     }
     if (parts[0] === 'sync' && parts.length === 1) return respond(request, await syncHealth(db));
     if (parts[0] !== 'elections') return respond(request, { error: 'Not found' }, 404);
@@ -159,7 +189,11 @@ export async function resultsApi(request: Request, env: Pick<Env, 'RESULTS_DB' |
           party_directory_url: 'https://results.elections.org.za/dashboards/lge/MapsJason/2016/PartyList.js',
         } : {}),
       };
-      return respond(request, { election, area: area(row), source: provenance, results, quality: resultQuality(results), caveats });
+      const [withHistory] = year === latestYear && row.level === 'municipality'
+        ? await attachPrevious(db, [resultFromRow({...row,year})], env.RAW_RESULTS) : [];
+      const government = governmentContext(row.level === 'municipality' ? row.area_id : row.municipality_id ?? '', year, electionMajorityBaseline(withHistory?.previous));
+      return respond(request, { election, area: area(row), source: provenance, results, government,
+        historical_notes: historicalResultNotes(resultFromRow({...row,year})), quality: resultQuality(results), caveats });
     }
     return respond(request, { error: 'Not found' }, 404);
   } catch (error) {

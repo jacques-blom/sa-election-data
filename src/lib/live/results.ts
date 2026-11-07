@@ -9,7 +9,7 @@ export function updateResults(current: HTMLElement, next: HTMLElement, yearChang
   // a detached range input cannot restore its active pointer drag.
   morphdom(current, next, {
     childrenOnly: true,
-    skipFromChildren: element => element.matches('form, election-history, [data-place-search], [data-address-lookup], [data-ward-address]')
+    skipFromChildren: element => element.matches('form, election-history, [data-place-search], [data-address-lookup], [data-ward-address], [data-coalition-picker]')
       || element.hasAttribute('data-region-map'),
     onBeforeElUpdated(from, to) {
       // Headlines load independently; retain them across election-result polls.
@@ -27,11 +27,14 @@ export function updateResults(current: HTMLElement, next: HTMLElement, yearChang
         from.removeAttribute('aria-disabled');
       }
       // Search/autocomplete owns its form, input values, and event listeners.
-      if (from.matches('form, election-history, [data-place-search], [data-address-lookup], [data-ward-address]')) {
+      if (from.matches('form, election-history, [data-place-search], [data-address-lookup], [data-ward-address], [data-coalition-picker]')) {
         if (yearChange && from instanceof HTMLFormElement && to instanceof HTMLFormElement) from.action = to.action;
         return false;
       }
       if (from instanceof HTMLDetailsElement && to instanceof HTMLDetailsElement) to.open = from.open;
+      // The game owns its native modal. Removing `open` during a DOM patch can
+      // leave the document inert; let results:updated close invalidated twists.
+      if (from.hasAttribute('data-chaos-dialog') && from instanceof HTMLDialogElement && to instanceof HTMLDialogElement) to.open = from.open;
       if (from.hasAttribute('data-region-map')) {
         updateRegionMap(from, to);
         return false;
@@ -40,6 +43,10 @@ export function updateResults(current: HTMLElement, next: HTMLElement, yearChang
     },
     // Module scripts are already loaded; only the rendered content is updated.
     onBeforeNodeAdded(node) { return node.nodeName === 'SCRIPT' ? false : node; },
+    onBeforeNodeDiscarded(node) {
+      if (node instanceof Element && node.matches('[data-chaos-dialog], [data-coalition-picker]') && node instanceof HTMLDialogElement && node.open) node.close();
+      return true;
+    },
   });
   if (!yearChange) document.dispatchEvent(new Event('results:updated'));
 }
@@ -68,7 +75,7 @@ function startLiveResults() {
       if (!healthResponse.ok) throw new Error('Update status unavailable');
       const health = await healthResponse.json() as Record<string, unknown> | null;
       if (!health || health.year !== 2026 || !('latest_result_publication' in health)) throw new Error('Invalid update status');
-      const latest = JSON.stringify([health.latest_result_publication, health.status, health.failed_sources, health.overdue_sources]);
+      const latest = JSON.stringify([health.latest_result_publication, health.status, health.failed_sources, health.overdue_sources, health.districts]);
       // Refresh age-based source warnings and check timestamps at least every three minutes.
       if (latest === version && !confirmPublication && Date.now() - lastPageRefresh < 180_000) {
         clearStatus();

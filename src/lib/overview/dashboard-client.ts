@@ -1,4 +1,4 @@
-import { councilFilters, councilFilterUrl, matchesCouncil, partyMajorityChanges, inCouncilScope, type CouncilFilters, type CouncilKind } from './dashboard-filter.ts';
+import { COUNCIL_PAGE_SIZE, councilFilters, councilFilterUrl, matchesCouncil, partyMajorityChanges, inCouncilScope, type CouncilFilters, type CouncilKind } from './dashboard-filter.ts';
 
 const initialized = new WeakMap<HTMLFormElement, () => void>();
 function setupDashboard() {
@@ -14,12 +14,12 @@ function setupDashboard() {
   const provinceTrigger = provincePicker.querySelector('summary')!;
   const provinceOptions = [...provincePicker.querySelectorAll<HTMLAnchorElement>('[data-council-province]')];
   const automatic = typeof window.IntersectionObserver === 'function';
-  let limit = automatic ? 24 : Infinity, matched = 0, observed: Element | null = null;
+  let limit = automatic ? COUNCIL_PAGE_SIZE : Infinity, matched = 0, observed: Element | null = null;
   let urlSearch = location.search;
   const observer = automatic ? new window.IntersectionObserver(entries => {
     if (!form.isConnected) { observer?.disconnect(); return; }
     if (entries.some(entry => entry.isIntersecting) && matched > limit) {
-      limit += 24;
+      limit += COUNCIL_PAGE_SIZE;
       apply();
     }
   }, { rootMargin: '500px 0px' }) : null;
@@ -138,7 +138,7 @@ function setupDashboard() {
       searchRoot.dispatchEvent(new Event('place-search:sync-query'));
     }
   }
-  const resetLimit = () => { limit = automatic ? 24 : Infinity; };
+  const resetLimit = () => { limit = automatic ? COUNCIL_PAGE_SIZE : Infinity; };
   initialized.set(form, () => apply());
   apply();
   searchRoot.addEventListener('place-search:input', () => {

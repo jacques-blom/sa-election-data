@@ -1,0 +1,35 @@
+---
+import type { DistrictView } from '../lib/districts/results.ts';
+import { formatNumber, formatTime } from '../lib/places/format.ts';
+import CivicGuide from './CivicGuide.astro';
+import DistrictPartyRow from './DistrictPartyRow.astro';
+import OtherParties from './OtherParties.astro';
+import Icon from './Icon.astro';
+interface Props { data: DistrictView | null }
+const {data} = Astro.props;
+const result = data?.result;
+const visibleParties = 3;
+---
+<section class="district-votes" aria-labelledby="district-votes-heading">
+  <div class="card-heading"><h3 id="district-votes-heading">District votes</h3><button type="button" class="button share-trigger" data-share-page="page" aria-label="Share district results" aria-haspopup="dialog"><Icon name="share" size={16}/> Share</button></div>
+  {result && data ? <>
+    {data.stale && !(import.meta.env.DEV && import.meta.env.COUNTED_LOCAL_SNAPSHOT === true) && <p class="notice" role="status">Updates delayed. Showing the last available report.</p>}
+    {result.validVotes === 0 && <p class="notice">No district votes published yet.</p>}
+    {result.parties.slice(0,visibleParties).map(p => <DistrictPartyRow party={p}/>)}
+    {result.parties.length > visibleParties && <OtherParties votes={result.parties.slice(visibleParties).map(p => p.votes)} total={result.validVotes}>{result.parties.slice(visibleParties).map(p => <DistrictPartyRow party={p}/>)}</OtherParties>}
+  </> : <p class="notice" role="status">District results are temporarily unavailable.</p>}
+  <CivicGuide topic="district"/>
+  <details class="history-source-details"><summary><span class="detail-icon" aria-hidden="true">↗</span>Sources & district ballots <span class="detail-plus" aria-hidden="true">+</span></summary><div class="detail-content"><p>This ballot elects 40% of district councillors. It does not describe full council control.</p>{result&&data&&<><p>{formatNumber(result.validVotes)} valid votes · {formatNumber(result.spoiltVotes)} spoilt</p><p><a href={data.sourceUrl}>IEC report ↗</a> · <time datetime={result.reportedAt}>{formatTime(result.reportedAt)}</time></p></>}</div></details>
+</section>
+<style>
+  .district-votes h3{font-size:22px;margin:0}.district-votes .card-heading{align-items:center;flex-wrap:nowrap;margin-bottom:12px;gap:8px}.district-votes .share-trigger{gap:6px;padding:8px 10px}
+  .district-source{line-height:1.6}
+  .district-votes :global(.party-row){grid-template-columns:118px minmax(0,1fr) minmax(92px,max-content)}
+  @media(max-width:540px){
+    .district-votes :global(.party-row){grid-template-columns:minmax(76px,.9fr) minmax(24px,1fr) 94px;gap:8px;margin:12px 0;min-height:44px}
+    .district-votes :global(.party-name){grid-column:1;grid-row:1;min-width:0}
+    .district-votes :global(.bar-track){grid-column:2;grid-row:1;height:16px}
+    .district-votes :global(.bar){height:16px}
+    .district-votes :global(.party-votes){grid-column:3;grid-row:1}
+  }
+</style>

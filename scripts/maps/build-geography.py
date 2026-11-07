@@ -1,10 +1,11 @@
 """Reconcile government geography with the IEC directory and prepare D1/R2 assets.
-Requires shapely. Never allocates votes by area or by a town's centre point.
+Requires shapely and pyproj. Never allocates votes by area or by a town's centre point.
 """
 import collections,gzip,json,pathlib,re,sqlite3,unicodedata
 from shapely.geometry import shape,mapping,box
 from shapely import make_valid,union_all
 from shapely.strtree import STRtree
+from place_overlaps import WardOverlap,reconcile_place_overlaps,overlap_coverage
 root=pathlib.Path(__file__).resolve().parents[2]
 folder=root/'.data/geography'
 provinces={'Eastern Cape':('1','eastern-cape','EC'),'Free State':('2','free-state','FS'),'Gauteng':('3','gauteng','GT'),'KwaZulu-Natal':('4','kwazulu-natal','KZN'),'Mpumalanga':('5','mpumalanga','MP'),'Northern Cape':('6','northern-cape','NC'),'Limpopo':('7','limpopo','LIM'),'North West':('8','north-west','NW'),'Western Cape':('9','western-cape','WC')}
@@ -92,31 +93,38 @@ for f,g in zip(ward_features,ward_geoms):
 # Keep main-place scopes explicit. Exclude unnamed/non-urban remainders.
 named=[f for f in main_features if f['properties'].get('MP_NAME') and not re.search(r'\bNU\b|Non.?Urban',f['properties']['MP_NAME'],re.I)]
 name_counts=collections.Counter(slug(f['properties']['MP_NAME']) for f in named)
-reserved={p['slug'] for p in places};towns=[];unmatched=[];review=[]
+reserved={p['slug'] for p in places};towns=[];unmatched=[];review=[];sliver_corrections=[]
 for f in named:
  p=f['properties'];id=str(int(p['MP_CODE']));name=p['MP_NAME'].strip();g=make_valid(shape(f['geometry']))
  if g.is_empty or g.area==0:continue
- matches=[];covered=0
+ overlaps=[]
  for i in tree.query(g,predicate='intersects'):
-  area=g.intersection(ward_geoms[i]).area
+  intersection=g.intersection(ward_geoms[i])
   # Ignore zero-area touches and numerical slivers below about one square metre.
-  if area>1e-10:matches.append(ward_ids[i]);covered+=area
+  if intersection.area>1e-10:overlaps.append(WardOverlap(ward_ids[i],wards[ward_ids[i]]['municipality_id'],intersection))
+ source_municipality=mun_by_code.get(p['MN_MDB_C_2'],{}).get('area_id')
+ overlaps,correction=reconcile_place_overlaps(g,overlaps,source_municipality)
+ if correction:sliver_corrections.append({'id':id,'name':name,**correction})
+ matches=[o.ward_id for o in overlaps]
  if not matches:unmatched.append(id);continue
  matches.sort();mids=sorted({wards[w]['municipality_id'] for w in matches});munnames=[metadata['municipalities'][mid]['name'] for mid in mids]
  province=p['PR_NAME_20'];base=slug(name);s=base if name_counts[base]==1 and base not in reserved else base+'-town-'+slug(province)+'-'+id
  # Preserve existing URL and its specifically documented boundary discrepancy.
  if id=='366005':s='calvinia'
- source_match=len(mids)==1 and mun_by_code.get(p['MN_MDB_C_2'],{}).get('area_id')==mids[0]
- coverage=min(covered/g.area,1)
+ source_match=len(mids)==1 and source_municipality==mids[0]
+ coverage=overlap_coverage(g,overlaps)
  indexable=source_match and coverage>=0.995 and id!='366005'
  if not indexable:review.append({'id':id,'name':name,'coverage':coverage,'municipalities':mids,'sourceCode':p['MN_MDB_C_2']})
- rel=[dict(election=2026,level='municipality',areaId=mid,relation='within' if len(mids)==1 else 'overlaps',boundaryVersion='Stats SA main places 2016 / MDB 2026',method='Positive-area intersections with reconciled 2026 wards') for mid in mids]
- rel += [dict(election=2026,level='ward',areaId=wid,relation='overlaps',boundaryVersion='Stats SA main places 2016 / MDBWards2026',method='Positive-area polygon intersection, not a centroid lookup') for wid in matches]
+ correction_method='; negligible foreign-council edge slivers excluded within a 10-metre precision tolerance after checking the source municipality' if correction else ''
+ rel=[dict(election=2026,level='municipality',areaId=mid,relation='within' if len(mids)==1 else 'overlaps',boundaryVersion='Stats SA main places 2016 / MDB 2026',method='Positive-area intersections with reconciled 2026 wards'+correction_method) for mid in mids]
+ rel += [dict(election=2026,level='ward',areaId=wid,relation='overlaps',boundaryVersion='Stats SA main places 2016 / MDBWards2026',method='Positive-area polygon intersection, not a centroid lookup'+correction_method) for wid in matches]
  aliases={'Port Elizaberth':['Port Elizaberth','Port Elizabeth','Gqeberha'],'Mbombela':['Nelspruit'],'Polokwane':['Pietersburg'],'Port Elizabeth':['Gqeberha'],'Uitenhage':['Kariega'],'King William\'s Town':['Qonce'],'Queenstown':['Komani'],'Pietersburg':['Polokwane'],'Nelspruit':['Mbombela']}.get(name,[])
  notes=[f'This page uses the Stats SA statistical main-place boundary labelled 2016. It overlaps {len(matches)} of the 2026 wards; the everyday town boundary may differ.']
  if id=='366005':notes.append('Hantam’s 2024/25 report associates Calvinia with wards 1, 2 and 6; this broader statistical extent also overlaps ward 7.')
  display_name='Port Elizabeth' if name=='Port Elizaberth' else name
- town=dict(id='za-main-place-'+id,slug=s,name=display_name,kind='town',province=province,aliases=aliases,description=f'{display_name} is covered by '+', '.join(munnames)+'. Explore the wards overlapping its statistical place boundary.',indexable=indexable,bbox=list(g.bounds),geometry={'level':'town','id':id},municipalityName=', '.join(munnames),relationships=rel,boundaryContext={'notes':notes,'method':'Positive-area intersections of the 2016 Stats SA main-place polygon and the MDB 2026 ward polygons. Full-ward figures include votes outside the place; votes are never allocated by overlap area.'},sources=[{'label':'Stats SA main places, hosted by DPME','url':'https://dpmegis.dpme.gov.za/arcgis/rest/services/Adminboundaries/MapServer/7'},{'label':'MDB 2026 wards','url':'https://services7.arcgis.com/oeoyTUJC8HEeYsRB/arcgis/rest/services/MDBWards2026/FeatureServer/0'}])
+ method='Positive-area intersections of the 2016 Stats SA main-place polygon and the MDB 2026 ward polygons. Full-ward figures include votes outside the place; votes are never allocated by overlap area.'
+ if correction:method+=' Small boundary alignment differences were excluded using a 10-metre precision tolerance, a combined foreign area below 0.01% of the place, and agreement with the source municipality.'
+ town=dict(id='za-main-place-'+id,slug=s,name=display_name,kind='town',province=province,aliases=aliases,description=f'{display_name} is covered by '+', '.join(munnames)+'. Explore the wards overlapping its statistical place boundary.',indexable=indexable,bbox=list(g.bounds),geometry={'level':'town','id':id},municipalityName=', '.join(munnames),relationships=rel,boundaryContext={'notes':notes,'method':method},sources=[{'label':'Stats SA main places, hosted by DPME','url':'https://dpmegis.dpme.gov.za/arcgis/rest/services/Adminboundaries/MapServer/7'},{'label':'MDB 2026 wards','url':'https://services7.arcgis.com/oeoyTUJC8HEeYsRB/arcgis/rest/services/MDBWards2026/FeatureServer/0'}])
  archive('town',id,g,{'name':name,'slug':s,'url':'/2026/places/'+s});towns.append(town)
 pack.close()
 assert len({p['slug'] for p in [*places,*towns]})==len(places)+len(towns)
@@ -125,5 +133,5 @@ dump(root/'src/lib/maps/administrative-index.json',metadata)
 dump(folder/'directory-seed.json',{'places':places+towns,'geometries':geometry_rows})
 dump(folder/'administrative.geojson',{'type':'FeatureCollection','features':admin})
 dump(folder/'voting-districts.geojson',{'type':'FeatureCollection','features':vd_features})
-dump(folder/'validation.json',{'municipalities':len(places),'towns':len(towns),'indexedTowns':sum(t['indexable'] for t in towns),'unmatched':unmatched,'review':review,'unknownMunicipalityCodes':unknown_codes,'wardCount':len(wards),'votingDistrictCount':len(vds)})
+dump(folder/'validation.json',{'municipalities':len(places),'towns':len(towns),'indexedTowns':sum(t['indexable'] for t in towns),'unmatched':unmatched,'review':review,'sliverCorrections':sliver_corrections,'unknownMunicipalityCodes':unknown_codes,'wardCount':len(wards),'votingDistrictCount':len(vds)})
 print('Prepared',len(places),'municipalities,',len(towns),'places;',sum(t['indexable'] for t in towns),'eligible for indexing;',len(unmatched),'unmatched; review',len(review),flush=True)

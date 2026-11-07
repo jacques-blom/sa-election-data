@@ -1,5 +1,40 @@
 # Ingestion and live updates
 
+## District ballot results
+
+The 44 district municipalities use a separate public IEC source:
+`https://results.elections.org.za/home/LGEPublicReports/1887/Detailed%20Results/{province}/{DC-code}.xls`.
+Province folder codes are EC, FS, GP, KN, MP, NC, NP, NW and WP. These are BIFF
+Excel reports, parsed with the pinned official SheetJS distribution. The report
+summary contains party votes, total valid votes, spoilt votes, and a SAST report
+generation time. The source does not provide district counting progress or full
+council control. This ballot elects 40% of district councillors. It must never be
+added to the national/local combined-ballot totals or treated as a full council
+seat allocation.
+
+The sync Worker discovers the fixed district catalogue independently of the
+dashboard index and queues conditional fetches every five minutes, subject to the
+existing shared request throttle, upstream backoff and ingestion budget. This is
+our polling interval, not a claim about the IEC's report regeneration frequency.
+District jobs use version 2 messages in the existing queue. Version 1 municipality
+jobs remain supported. Apply migration `0008_district_results.sql` before deploying
+the updated sync Worker.
+
+Each validated report atomically replaces one `district_results` row. Wrong
+district/year/ballot, invalid counts, unreconciled party totals and older source
+timestamps reject the update and preserve the previous data. Newer downward
+corrections are allowed. Timestamp-only changes refresh source metadata without
+advancing the result publication time. The current and previous exact XLS files
+are retained in R2. Errors and checks appear in `/api/v1/sync` under `districts`;
+result publications refresh open pages through the existing live-update flow.
+
+For local development, `pnpm data:districts` fetches all districts directly into
+the local D1/R2 bindings; `--district DC4,DC42` limits the import. This command
+never writes production. Local district data survives `data:load` and is kept
+separate from the SQLite local/metro backfill. Production imports are owned by
+the scheduled Worker. District pages and `/api/v1/districts/{DC-code-or-slug}`
+serve the stored data with a 15-second cache; visitors never fetch the IEC.
+
 ## Working locally
 
 ```sh

@@ -1,90 +1,88 @@
 ---
-import PageShare from '../../../components/PageShare.astro';
-import ElectionHistory from '../../../components/ElectionHistory.astro';
-import RelatedNews from '../../../components/RelatedNews.astro';
-import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
+import CardCollection from '../../../components/CardCollection.astro';
+import Icon from '../../../components/Icon.astro';
 import { env } from 'cloudflare:workers';
-import { mapLink } from '../../../lib/maps/config.ts';
-import { administrative } from '../../../lib/maps/administrative.ts';
 import Site from '../../../layouts/Site.astro';
-import RegionMap from '../../../components/RegionMap.astro';
+import AreaHeader from '../../../components/AreaHeader.astro';
+import ElectionResults from '../../../components/ElectionResults.astro';
+import ResultStory from '../../../components/ResultStory.astro';
+import ResultDetails from '../../../components/ResultDetails.astro';
+import VoteHistory from '../../../components/VoteHistory.astro';
 import ResultChart from '../../../components/ResultChart.astro';
+import CouncilSeats from '../../../components/CouncilSeats.astro';
+import { electionCouncilSeats } from '../../../lib/history/seats.ts';
+import CouncilGovernment from '../../../components/CouncilGovernment.astro';
+import CivicGuide from '../../../components/CivicGuide.astro';
+import Wards from '../../../components/Wards.astro';
 import PlaceSearch from '../../../components/PlaceSearch.astro';
 import AddressResult from '../../../components/AddressResult.astro';
-import Wards from '../../../components/Wards.astro';
+import RegionMap from '../../../components/RegionMap.astro';
 import RelatedPlaces from '../../../components/RelatedPlaces.astro';
-import { districtUrl } from '../../../lib/maps/districts.ts';
-import { placeCouncilParents } from '../../../lib/places/hierarchy.ts';
-import { placeDirectoryUrl } from '../../../lib/places/browse.ts';
-import CouncilSeats from '../../../components/CouncilSeats.astro';
-import CivicGuide from '../../../components/CivicGuide.astro';
-import MajorityBanner from '../../../components/MajorityBanner.astro';
-import '../../../styles/municipality.css';
-import { placeUrl } from '../../../lib/places/catalogue.ts';
+import RelatedNews from '../../../components/RelatedNews.astro';
+import { electionYear,latestYear,nationalUrl } from '../../../lib/history/comparison.ts';
 import { findDirectoryPlace } from '../../../lib/places/directory.ts';
 import { getPlaceResults,type PlaceResults } from '../../../lib/places/results.ts';
+import { placeCouncilParents } from '../../../lib/places/hierarchy.ts';
+import { placeUrl } from '../../../lib/places/catalogue.ts';
 import { provinces,provinceUrl } from '../../../lib/overview/results.ts';
-const year = electionYear(Astro.params.year);
-if (!year) return new Response('Election not found', {status:404});
-let place:Awaited<ReturnType<typeof findDirectoryPlace>>;let data:PlaceResults|null=null;let failed=false;
-try{place=await findDirectoryPlace(env.GEOGRAPHY_DB??env.RESULTS_DB,Astro.params.slug??'');if(place && !(year !== latestYear && ['town','suburb'].includes(place.kind)))data=await getPlaceResults(env.RESULTS_DB,place,env.RAW_RESULTS,year);}catch{failed=true;}
-Astro.response.status=failed?503:!place?404:!data?.municipality?(year === latestYear ? 503 : 404):200;
+import { mapLink } from '../../../lib/maps/config.ts';
+import { districtUrl } from '../../../lib/maps/districts.ts';
+import '../../../styles/municipality.css';
+const year=electionYear(Astro.params.year);
+if(!year)return new Response('Election not found',{status:404});
+let place:Awaited<ReturnType<typeof findDirectoryPlace>>,data:PlaceResults|null=null,failed=false;
+try{place=await findDirectoryPlace(env.GEOGRAPHY_DB??env.RESULTS_DB,Astro.params.slug??'');}catch{failed=true;}
+const town=place?.kind==='town'||place?.kind==='suburb';
+// The place remains a familiar entry point; historical results belong to its named council.
+// Historical ward lists use the selected election's council, never today's town intersections.
+const parents=place?placeCouncilParents(place):[];
+const selected=parents.find(p=>p.municipality.relationships.some(r=>r.level==='municipality'&&r.areaId===Astro.url.searchParams.get('council')))??parents[0];
+const council=town?selected?.municipality:place;
+const councilId=council?.relationships.find(r=>r.level==='municipality'&&r.relation==='equals')?.areaId??'';
+try{if(place)data=await getPlaceResults(env.RESULTS_DB,town&&year!==latestYear&&council?council:place,env.RAW_RESULTS,year);}catch{failed=true;}
+const result=data?.municipalities.find(m=>m.id===councilId)??data?.municipality;
+const hasCouncilSeats=result&&electionCouncilSeats(result).status!=='unavailable';
+const wards=data?.wards.filter(w=>!councilId||w.municipalityId===councilId)??[];
+const province=provinces.find(p=>p.name===place?.province);
+const district=year===latestYear?selected?.district:undefined;
+const ballot=Astro.url.searchParams.get('ballot')==='ward'?'ward':'pr';
+const mapPlace=town&&year!==latestYear?council:place;
+const mapBoundary=mapPlace?.geometry;
+Astro.response.status=failed?503:!place?404:!result?(year===latestYear?503:404):200;
 Astro.response.headers.set('Cache-Control',Astro.response.status===200?'public, max-age=15, s-maxage=15':'no-store');
 if(Astro.response.status===503)Astro.response.headers.set('Retry-After','60');
-const ballot=Astro.url.searchParams.get('ballot')==='ward'?'ward':'pr';
-const parentIds=place?.relationships.filter(r=>r.level==='municipality'&&r.election===2026).map(r=>r.areaId)??[];
-const councilParents=place ? placeCouncilParents(place,year) : [];
-const parents=councilParents.map(p=>p.municipality);
-const town=place?.kind==='town'||place?.kind==='suburb';
-const province=provinces.find(p=>p.name===place?.province);
-const district=councilParents.length === 1 ? councilParents[0]!.district : undefined;
-const boundary=place?.geometry;
-const hasMap=!!place?.bbox && !!boundary;
+const crumbs=[{name:'South Africa',href:nationalUrl(year)},...(province?[{name:province.name,href:provinceUrl(province,year)}]:[]),...(town&&council?[{name:council.name,href:placeUrl(council,year)}]:[])];
 ---
-<Site liveResults={year === latestYear && Astro.response.status !== 404} title={place?`${place.name} election results ${year}`:'Area not found'} description={place?.description??'Find local election results by place name.'} noindex={!place?.indexable||Astro.response.status!==200}>
-<nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{province&&<><span>/</span><a href={provinceUrl(province,year)}>{province.name}</a></>}{district&&<><span>/</span><a href={districtUrl(district)}>{district.name} District</a></>}{town&&parents.length===1&&<><span>/</span><a href={placeUrl(parents[0]!,year)}>{parents[0]!.name}</a></>}{place&&<><span>/</span><span aria-current="page">{place.name}</span></>}</nav>
+<Site liveResults={year===latestYear&&Astro.response.status!==404} title={place?`${place.name} election results ${year}`:'Area not found'} description={place?`See what changed in ${place.name}, explore its council and wards, and compare previous elections.`:'Find local election results.'} noindex={!place?.indexable||Astro.response.status!==200}>
 {place?<>
-<div class="page-top page-share-heading"><div><p class="eyebrow">{place.province} · {place.kind==='metro'?'Metropolitan municipality':place.kind} · {year}</p><h1>{place.name}</h1></div><PageShare result/></div>
-{!town && <CivicGuide topic="government" hint={place.kind === 'metro' ? 'A metro combines local and district services in one city council.' : district ? `${place.name} handles local services and shares responsibilities with ${district.name} District.` : 'A local municipality provides local services and shares responsibilities with a district.'}/>}
-{!town && district && <nav class="place-parent" aria-label="Parent district"><a href={districtUrl(district)}>{district.name} District <span aria-hidden="true">→</span></a></nav>}
+  <AreaHeader name={place.name} scope={town?`Your municipality · ${council?.name??place.municipalityName}`:place.kind==='metro'?'Metropolitan council':'Municipal council'} year={year} level="municipality" areaId={councilId} parents={crumbs}/>
+  {town&&parents.length>1&&<nav class="area-councils" aria-label="Councils covering this place">{parents.map(p=>{const id=p.municipality.relationships.find(r=>r.level==='municipality'&&r.relation==='equals')?.areaId;return <a data-explore-link href={`?council=${id}`} aria-current={id===councilId?'page':undefined}>{p.municipality.name}</a>;})}</nav>}
+  {result?<>
+    <ResultStory result={result} compact/>
+    <ElectionResults year={year} level="municipality" areaId={councilId}>
+      <CouncilSeats result={result} href={placeUrl(council??place,year)} name={council?.name??place.name}/>
+      <details id="vote-results" class="result-breakdown vote-breakdown" open={!hasCouncilSeats||Astro.url.searchParams.has('ballot')}><summary><span class="detail-icon"><Icon name="vote" size={16}/></span><span>Vote breakdown</span><Icon name="plus" class="detail-plus"/></summary><div class="breakdown-content">
+        <ResultChart result={result} ballot={ballot} name={council?.name??place.name} compact/>
+      </div></details>
+    </ElectionResults>
+    <VoteHistory result={result}/>
+    {[2021,latestYear].includes(year)&&<CouncilGovernment municipalityId={result.id} result={result}/>}
+    <div class="explore-section-heading"><h2>Go closer</h2><a href={year===latestYear?"#find-your-ward":"#wards"}>{year===latestYear?"Find my ward":"Browse wards"} <Icon name="arrowDownRight" size={16}/></a></div>
 
-{town && year === latestYear && parents.length > 0 && <section class="town-municipalities" aria-labelledby="town-municipalities-heading">
-  <h2 id="town-municipalities-heading">Councils</h2>
-  <div class="town-municipality-grid">{councilParents.map(({municipality: parent, district: parentDistrict}) => <div class="town-council-group">
-    <a class="town-municipality-card" href={placeUrl(parent,year)}>
-      <div><p class="eyebrow">{parent.kind === 'metro' ? 'Metropolitan municipality' : 'Local municipality'}</p><h3>{parent.name}</h3></div>
-      <span class="town-municipality-action">View results <span aria-hidden="true">→</span></span>
-    </a>
-    {parentDistrict && <a class="town-district-link" href={districtUrl(parentDistrict)}>{parentDistrict.name} District <span aria-hidden="true">→</span></a>}
-  </div>)}</div>
-</section>}
-{town&&<p class="notice">Whole-ward results include areas outside {place.name}.</p>}
-{data?.municipality?<>
-<div id="municipality-seats">{!town&&<CouncilSeats result={data.municipality} href={placeUrl(place,year)} name={place.name}/>}</div>
-{!town?<div id="municipality-results" class="results-layout municipality-results">
-  <ResultChart result={data.municipality} ballot={ballot} name={place.name}/>
-  <aside class="municipality-tools" aria-label="Map and address lookup">
-    {hasMap&&place.bbox&&boundary&&<RegionMap compact historical={year !== latestYear} options={{bbox:place.bbox,level:boundary.level,id:boundary.id,code:administrative.municipalities[boundary.id]?.code}} title={`${place.name} and its wards`} href={mapLink(place.slug)} caption="Ward boundaries"><ElectionHistory slot="history" year={year} level="municipality" id={parentIds[0] ?? ''} embedded/></RegionMap>}
-    {!hasMap && <ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''}/>}
-    <section id="find-your-ward" class="card municipality-ward-finder" data-address-lookup aria-labelledby="ward-address-heading">
-      <h2 id="ward-address-heading">Find your ward by address</h2>
-      <PlaceSearch id="municipality-address" mode="address" action="/search" compact area={place.bbox ? {name:place.name,bbox:place.bbox} : undefined}/>
-      <AddressResult/>
-      <div class="links"><a href="#wards">Browse all {data.wards.length} wards ↓</a></div>
-      <noscript><p class="small">Address search needs JavaScript. Browse the wards below or <a href="/search">search by area name</a>.</p></noscript>
+    <section class="explore-map-layout">
+      {year===latestYear&&<section id="find-your-ward" class="card explore-address" data-address-lookup><h2><Icon name="locate" size={20}/>Find your ward</h2><PlaceSearch id="municipality-address" mode="address" action="/search" compact area={place.bbox?{name:place.name,bbox:place.bbox}:undefined}/><AddressResult/></section>}
+      {year===latestYear&&mapPlace?.bbox&&mapBoundary&&<RegionMap historical={year!==latestYear} options={{bbox:mapPlace.bbox,level:mapBoundary.level,id:mapBoundary.id,...(town&&year===latestYear?{wardIds:wards.map(w=>w.id)}:{})}} title={`${mapPlace.name} and its wards`} href={mapLink(mapPlace.slug)}/>}
+
     </section>
-  </aside>
-</div>:null}
-{!town && year === latestYear && <RelatedNews scope="municipality" area={place.slug}/>}
-<Wards preview={town} searchable={town} wards={data.wards} title={town?`Ward results around ${place.name}`:'Ward results'} note={town?'Whole-ward results':'Ward ballot'}/>
-{town&&year === latestYear&&place.bbox&&boundary&&<RegionMap options={{bbox:place.bbox,level:boundary.level,id:boundary.id,wardIds:place.relationships.filter(r=>r.level==='ward').map(r=>r.areaId)}} title={`${place.name} and its wards`} href={mapLink(place.slug)} caption="Dashed: statistical place boundary · Shaded: overlapping wards"><ElectionHistory slot="history" year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly embedded/></RegionMap>}
-{town&&!hasMap&&<ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly/>}
-{town&&<section class="card scope-card"><div class="card-heading"><h2>Which results cover {place.name}?</h2></div>{place.boundaryContext?.notes.map(note=><p>{note}</p>)}<div class="links">{parents.map(parent=><a href={placeUrl(parent,year)}>Whole {parent.name} council result ↗</a>)}<a href="/search">Find the ward at your address →</a></div><details><summary>How we matched this place to wards</summary><p>{place.boundaryContext?.method}</p><ul>{place.sources.map(s=><li><a href={s.url}>{s.label} ↗</a></li>)}</ul></details></section>}
-{data.missingWardIds.length>0&&<p class="notice">Results are not available for mapped wards: {data.missingWardIds.join(', ')}.</p>}
-
-</>:<><ElectionHistory year={year} level="municipality" id={parentIds[0] ?? ''} currentOnly={town}/><section class="empty"><h2>{year === latestYear ? town ? 'Results are temporarily unavailable.' : 'Council seats pending' : 'Historical results unavailable.'}</h2><p>{year === latestYear ? 'Please try again shortly.' : 'This area has no mapped result for this election. Select another year above.'}</p><a href={place.sources[0]?.url}>View the source →</a></section>{!town&&year===latestYear&&<MajorityBanner name={place.name} href={`${placeUrl(place)}/coalition`} municipalityId={parentIds[0]}/>}</>}
-{!data?.municipality && !town && year === latestYear && <RelatedNews scope="municipality" area={place.slug}/>}
-{year === latestYear && !town && parentIds[0] && <RelatedPlaces scope={{municipalityId: parentIds[0]}} directory={{municipality: place.slug}} name={place.name}/>}
-{year === latestYear && town && <nav class="links" aria-label="Explore related places">{parents.map(parent => <a href={placeDirectoryUrl({municipality: parent.slug})}>More places around {parent.name} →</a>)}{province && <a href={placeDirectoryUrl({province: province.slug})}>All places in {province.name} →</a>}</nav>}
-</>:<section class="empty"><div class="page-share-heading"><h1>{failed?'Results are temporarily unavailable.':'Area not found.'}</h1><PageShare/></div><a href="/search">Find your area →</a></section>}
+    <Wards wards={wards} title={town&&year===latestYear?`Wards covering ${place.name}`:`Wards in ${council?.name??place.name}`} note=""/>
+    <CivicGuide topic="government"/>
+    {district&&<CardCollection id="explore-cards-1" label="places"><nav class="explore-grid" data-card-grid aria-label="District council"><a href={districtUrl(district)}><span>District council</span><strong>{district.name}</strong><Icon name="arrowRight" size={18}/></a></nav></CardCollection>}
+    {year===latestYear&&<RelatedPlaces scope={{municipalityId:result.id}} directory={{municipality:council?.slug??place.slug}} name={council?.name??place.name}/>}
+    {year===latestYear&&<details class="result-breakdown"><summary><span class="detail-icon"><Icon name="news" size={16}/></span><span>Local news</span><Icon name="plus" class="detail-plus"/></summary><RelatedNews scope="municipality" area={council?.slug??place.slug}/></details>}
+    <ResultDetails result={result}>
+      {town&&<><p>The council results cover all of {council?.name}. Ward results include areas outside {place.name}.</p>{place.boundaryContext?.notes.map(note=><p>{note}</p>)}{year!==latestYear&&<p>Town-to-ward mappings are available for 2026 only. The historical wards above belong to the whole municipality in {year}.</p>}<p>{place.boundaryContext?.method}</p><div class="links">{place.sources.map(s=><a href={s.url}>{s.label} <Icon name="arrowUpRight" size={13}/></a>)}</div></>}
+      {(data?.missingWardIds.length ?? 0)>0&&<p>Unavailable ward results: {data?.missingWardIds.join(', ')}.</p>}
+    </ResultDetails>
+  </>:<ElectionResults year={year} level="municipality" areaId={councilId}><section class="empty"><h2>{year===latestYear?'Results unavailable':'No result for this election'}</h2><a href="/search">Find another place <Icon name="arrowRight" size={14}/></a></section></ElectionResults>}
+</>:<section class="empty"><h1>{failed?'Results unavailable':'Area not found'}</h1><a href="/search">Find your area <Icon name="arrowRight" size={14}/></a></section>}
 </Site>

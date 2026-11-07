@@ -1,11 +1,20 @@
 ---
+import CardCollection from '../../../components/CardCollection.astro';
+import ChaosPromo from '../../../components/ChaosPromo.astro';
+import Icon from '../../../components/Icon.astro';
 import PageShare from '../../../components/PageShare.astro';
 import CivicGuide from '../../../components/CivicGuide.astro';
-import ElectionHistory from '../../../components/ElectionHistory.astro';
+import AreaHeader from '../../../components/AreaHeader.astro';
+import ElectionResults from '../../../components/ElectionResults.astro';
+import ResultStory from '../../../components/ResultStory.astro';
+import ResultDetails from '../../../components/ResultDetails.astro';
+import VoteHistory from '../../../components/VoteHistory.astro';
+import GovernmentNote from '../../../components/GovernmentNote.astro';
+import { places } from '../../../lib/places/catalogue.ts';
+import { provinces,provinceUrl } from '../../../lib/overview/results.ts';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
 import Site from '../../../layouts/Site.astro';
-import MajorityBanner from '../../../components/MajorityBanner.astro';
 import RegionMap from '../../../components/RegionMap.astro';
 import ResultChart from '../../../components/ResultChart.astro';
 import { getVotingDistrictResults,type Result } from '../../../lib/places/results.ts';
@@ -29,14 +38,22 @@ if(/^\d{8,10}$/.test(id))try{
 Astro.response.status=failed?503:result?200:404;
 Astro.response.headers.set('Cache-Control',result?'public, max-age=15, s-maxage=15':'no-store');
 const parent=result?.municipalityId?administrative.municipalities[result.municipalityId]:null;
+const municipality=places.find(p=>p.relationships.some(r=>r.level==='municipality'&&r.relation==='equals'&&r.areaId===result?.municipalityId));
+const province=provinces.find(p=>p.name===municipality?.province);
 const title=result?.name.replace(/^\d+\s*-\s*/,'')??'Voting district unavailable';
 const ballot=Astro.url.searchParams.get('ballot')==='ward'?'ward':'pr';
 ---
 <Site liveResults={year === latestYear && Astro.response.status !== 404} title={`${title} — ${year} election results`} description={`Election results for voting district ${id}, with party vote shares and reporting progress.`} noindex>
-<nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a>{parent&&<><span>/</span><a href={parent.url.replace('/2026/',`/${year}/`)}>{parent.name}</a></>}{wardId&&<><span>/</span><a href={`/${year}/wards/${wardId}`}>Ward {wardNumber(wardId)}</a></>}</nav>
-{result?<><div class="page-top page-share-heading"><div><p class="eyebrow">Voting district {id} · {year}</p><h1>{title}</h1></div><PageShare result/></div>
+{result?<>
+<AreaHeader name={title} scope={`Voting district · ${id}`} year={year} level="voting-district" areaId={id} parents={[{name:'South Africa',href:nationalUrl(year)},...(province?[{name:province.name,href:provinceUrl(province,year)}]:[]),...(parent?[{name:parent.name,href:parent.url.replace('/2026/',`/${year}/`)}]:[]),...(wardId?[{name:`Ward ${wardNumber(wardId)}`,href:`/${year}/wards/${wardId}`}]:[])]}/>
+<ResultStory result={result}/>
+<ElectionResults year={year} level="voting-district" areaId={id}><ResultChart result={result} ballot={ballot} name={title} compact/></ElectionResults>
+<VoteHistory result={result}/>
 <CivicGuide topic="voting-district"/>
-<div id="district-majority" data-history-current-only hidden={year !== latestYear}>{year===latestYear&&parent&&<MajorityBanner name={parent.name} href={`${parent.url}/coalition`} municipalityId={result.municipalityId}/>}</div>
-
-<ResultChart result={result} ballot={ballot} name={title}/>{boundary?<RegionMap historical={year !== latestYear} options={{level:'voting-district',id,bbox:[boundary.minx,boundary.miny,boundary.maxx,boundary.maxy]}} title={`${title} voting district boundary`} href={mapLink(parent?.slug??'south-africa',boundary.ward_id)} caption="Voting district boundary. This does not confirm your registered voting station."><ElectionHistory slot="history" year={year} level="voting-district" id={id} embedded/></RegionMap>:<ElectionHistory year={year} level="voting-district" id={id}/>}<div class="links">{wardId&&<a href={`/${year}/wards/${wardId}`}>Whole ward result →</a>}</div></>:<section class="empty"><div class="page-share-heading"><h1>{title}</h1><PageShare/></div><p>{failed?'Please try again shortly.':'Try another district or browse the map.'}</p><a href="/map">Explore map →</a></section>}
+{year === latestYear && parent && <ChaosPromo name={parent.name} href={`${parent.url}/coalition`}/>}
+<div class="explore-section-heading"><h2>Go wider</h2></div><CardCollection id="explore-cards-1" label="places"><nav class="explore-grid" data-card-grid aria-label="Explore wider">{wardId&&<a href={`/${year}/wards/${wardId}`}><span>Ward</span><strong>Ward {wardNumber(wardId)}</strong><b aria-hidden="true">↑</b></a>}{parent&&<a href={parent.url.replace('/2026/',`/${year}/`)}><span>Municipality</span><strong>{parent.name}</strong><b aria-hidden="true">↑</b></a>}</nav></CardCollection>
+<GovernmentNote municipalityId={result.municipalityId} year={year} name={parent?.name??municipality?.name}/>
+{year===latestYear&&boundary&&<RegionMap historical={year !== latestYear} options={{level:'voting-district',id,bbox:[boundary.minx,boundary.miny,boundary.maxx,boundary.maxy]}} title={title} href={mapLink(parent?.slug??'south-africa',boundary.ward_id)}/>}
+<ResultDetails result={result}/>
+</>:<section class="empty"><div class="page-share-heading"><h1>{title}</h1><PageShare/></div><p>{failed?'Please try again shortly.':'Try another district or browse the map.'}</p><a href="/map">Explore map <Icon name="arrowRight" size={14}/></a></section>}
 </Site>

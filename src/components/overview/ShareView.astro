@@ -1,6 +1,7 @@
 ---
 import type { ShareCard } from '../../lib/sharing/model.ts';
+import Icon from '../Icon.astro';
 interface Props { card: ShareCard; ballot?: 'pr' | 'ward' }
 const { card, ballot } = Astro.props;
 ---
-<button type="button" class="button share-trigger" data-share-result={JSON.stringify(card)} data-share-ballot={ballot} aria-haspopup="dialog">Share ↗</button>
+<button type="button" class="button share-trigger" data-share-result={JSON.stringify(card)} data-share-ballot={ballot} aria-label={`Share ${card.ballot.toLowerCase()} for ${card.area}`} aria-haspopup="dialog"><Icon name="share" size={16}/> Share</button>

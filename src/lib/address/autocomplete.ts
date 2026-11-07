@@ -1,4 +1,6 @@
 /// <reference types="google.maps" />
+import { searchResultUrl } from '../history/navigation.ts';
+import { latestYear } from '../history/comparison.ts';
 import { loadGoogleMaps } from './google.ts';
 import { isWholeArea, type ResolvedArea, type AreaResolution } from './selection.ts';
 import { addressSearchBounds } from './scope.ts';
@@ -190,10 +192,11 @@ function initialize(root: HTMLElement) {
       if (!response.ok) throw new Error('Election areas unavailable');
       const data = await response.json() as { suggestions: ResolvedArea[] };
       if (version !== request) return;
-      areas = data.suggestions;
+      const searchYear=Number(root.dataset.searchYear??latestYear);
+      areas = data.suggestions.filter(area=>searchYear===latestYear||area.kind!=='district').map(area=>({...area,url:searchResultUrl(area.url,searchYear,new URL(window.location.href))}));
       renderSuggestions();
     })());
-    if (configured) tasks.push((async () => {
+    if (configured && Number(root.dataset.searchYear ?? latestYear) === latestYear) tasks.push((async () => {
       await loadGoogleMaps();
       const { AutocompleteSuggestion, AutocompleteSessionToken } = await google.maps.importLibrary('places') as google.maps.PlacesLibrary;
       if (version !== request) return;
@@ -266,6 +269,9 @@ function initialize(root: HTMLElement) {
       await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location', 'viewport', 'types', 'addressComponents'] });
       if (version !== selection) return;
       const types = [...new Set([...prediction.types, ...(place.types ?? [])])];
+      // Embedded experiences can resolve the same Google selection to their own destination.
+      const googleSelection = new CustomEvent('place-search:google', { bubbles: true, cancelable: true, detail: { place, name, types } });
+      if (!root.dispatchEvent(googleSelection)) { hidePanel(); return; }
       if (!isWholeArea(types)) {
         hidePanel();
         root.dispatchEvent(new CustomEvent('place-search:select', { bubbles: true, detail: place }));

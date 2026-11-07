@@ -14,7 +14,7 @@ import { publicUrl } from '../site.ts';
  * not introduce results into link previews. Add result support only alongside
  * verified, area-specific IEC declaration evidence, never reporting progress.
  */
-export type OgPage = { title: string; label: string; subtitle: string; year?: number; map?: OgMapTarget };
+export type OgPage = { title: string; label: string; subtitle: string; year?: number; map?: OgMapTarget; fictional?: boolean };
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 export const OG_IMAGE_VERSION = 'v4';
@@ -42,7 +42,8 @@ export const nationalOgPage = (year: number = latestYear): OgPage => ({
 export function ogImageUrl(canonical: string) {
   const url = new URL(canonical);
   const path = url.pathname.replace(/\/+$/, '');
-  return publicUrl(`/og/${OG_IMAGE_VERSION}/${path.slice(1) || 'index'}.png`);
+  const version = path.endsWith('/coalition') ? 'v5' : OG_IMAGE_VERSION;
+  return publicUrl(`/og/${version}/${path.slice(1) || 'index'}.png`);
 }
 
 export async function ogPageForPath(pathname: string, lookupPlace?: (slug: string) => Promise<Place | undefined>): Promise<OgPage | null> {
@@ -71,7 +72,7 @@ export async function ogPageForPath(pathname: string, lookupPlace?: (slug: strin
     const place = findPlace(id!) ?? await lookupPlace?.(id!);
     if (!place) return null;
     const map = year === latestYear ? place.geometry : undefined;
-    if (coalition) return { title: place.name, label: `Coalition playground · ${year}`, subtitle: 'Coalition playground · Hypothetical combinations', year, ...(map ? { map } : {}) };
+    if (coalition) return { title: place.name, label: 'Fictional scenario', subtitle: 'Coalition Chaos · Hypothetical combinations', year, fictional: true, ...(map ? { map } : {}) };
     const scope = place.kind === 'metro' ? 'Metropolitan municipality' : place.kind === 'municipality' ? 'Local municipality' : place.kind === 'town' ? 'Town' : 'Suburb';
     return { title: place.name, label, subtitle: `${scope} · ${place.province}`, year, ...(map ? { map } : {}) };
   }

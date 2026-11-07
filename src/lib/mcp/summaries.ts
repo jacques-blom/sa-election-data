@@ -1,8 +1,11 @@
 import { ballotResults, type Result } from '../places/results.ts';
 import { displayBallot, partyMovement as movement, previousElection, type VoteBasis } from '../history/comparison.ts';
 import { progressOf, resultDelay, summaryBallot } from '../overview/results.ts';
-import { councilSeats, estimateCaution } from '../seats/allocation.ts';
+import { estimateCaution } from '../seats/allocation.ts';
+import { electionCouncilSeats, electionMajorityBaseline } from '../history/seats.ts';
+import { historicalResultNotes } from '../history/corrections.ts';
 import { publicUrl } from '../site.ts';
+import { governmentContext, governmentComparison, compareGovernmentPartners, seatSnapshot } from '../governance/index.ts';
 
 export type RequestedBallot = VoteBasis | 'auto';
 export const comparisonCaveat = 'Exploratory same-ID comparison, not boundary-adjusted. Matching IDs do not establish unchanged boundaries. Missing or grouped parties are not assumed to have zero votes.';
@@ -14,7 +17,8 @@ export function areaSummary(result: Result, requested: RequestedBallot = 'auto',
   const basis = summary ? 'source_total' : displayBallot(result, wanted);
   const votes = summary ? summaryBallot(result) : ballotResults(result, basis);
   const leader = 'topShown' in votes ? votes.topShown : votes.leader;
-  const seats = councilSeats(result.level, result.results);
+  const seats = electionCouncilSeats(result);
+  const government = governmentContext(result.level === 'municipality' ? result.id : result.municipalityId ?? '', result.year, electionMajorityBaseline(result.previous));
   const page = result.results.parties.length;
   const seatMap = new Map(seats.status === 'unavailable' ? [] : seats.parties.map(p => [p.source_entry_id, p.count]));
   const parties = votes.parties.slice(partyOffset, partyOffset + partyLimit).map(p => ({
@@ -25,10 +29,11 @@ export function areaSummary(result: Result, requested: RequestedBallot = 'auto',
     movement: movement(result, p, basis),
   }));
   const majorityParty = seats.status === 'unavailable' ? null
-    : seats.parties.find(p => p.party_id !== '0' && p.count >= seats.majority) ?? null;
+    : seats.parties.find(p => p.party_id && p.party_id !== '0' && p.entry_type !== 'aggregate' && p.count >= seats.majority) ?? null;
   return {
     year: result.year, level: result.level, area_id: result.id, name: result.name,
     municipality_id: result.municipalityId,
+    government, government_comparison:governmentComparison(government), recorded_partner_comparison: result.level === 'municipality' && government ? compareGovernmentPartners(government, seatSnapshot(seats)) : null,
     result_status: result.year === 2026 ? 'provisional' : 'historical',
     ballot: { requested, basis, combined_fallback: basis === 'source_total' && wanted !== 'source_total',
       denominator: votes.total, denominator_basis: summary ? 'source_reported_valid_ballots' : 'sum_of_all_published_rows_for_ballot',
@@ -41,12 +46,15 @@ export function areaSummary(result: Result, requested: RequestedBallot = 'auto',
     progress: Object.fromEntries((['municipalities', 'wards', 'voting_districts', 'seats'] as const).map(key => [key, progressOf(result, key)])),
     council: seats.status === 'unavailable' ? { status: seats.status, reason: seats.reason } : {
       status: seats.status, total: seats.total, majority: seats.majority,
+      correction: seats.correction ?? null,
       majority_party: majorityParty ? { party_id: majorityParty.party_id, party_name: majorityParty.party_name, seats: majorityParty.count } : null,
       no_single_party_majority: !majorityParty,
-      caveat: seats.status === 'estimated' ? estimateCaution : 'IEC-reported allocations; 2026 remains provisional. Coalition membership is not supplied.',
+      caveat: seats.status === 'estimated' ? estimateCaution : 'IEC-reported allocations; 2026 remains provisional. Government context is separately sourced and dated; seats do not confirm a governing agreement.',
       allocations_in: 'parties[].council_allocation; follow party_page for all rows',
     },
     history: { previous_year: previousElection(result.year),
+      notes: historicalResultNotes(result),
+      trends_url: publicUrl(`/api/v1/history/${result.level}/${result.id}?through=${result.year}`),
       previous_source: result.previous?.source ?? null,
       status: previousElection(result.year) === null ? 'no_previous_election' : result.previous ? 'available' : 'unavailable',
       caveat: comparisonCaveat },

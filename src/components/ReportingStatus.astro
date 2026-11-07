@@ -1,0 +1,16 @@
+---
+import { progressLabel, type progressOf } from '../lib/overview/results.ts';
+import ReportingProgress from './ReportingProgress.astro';
+interface Props { progress: NonNullable<ReturnType<typeof progressOf>>; help?: boolean }
+const { progress, help = false } = Astro.props;
+---
+<span class="reporting-status">
+  <ReportingProgress progress={progress} variant="bar"/>
+  <span class="reporting-status-label"><strong>{progressLabel(progress)}</strong> {help ? <a href="/guide#reporting">reporting</a> : 'reporting'}</span>
+</span>
+<style>
+  .reporting-status{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;min-width:0;width:100%;font-size:11px;line-height:1.6;color:var(--muted)}
+  .reporting-status-label{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .reporting-status-label strong{font-weight:600;color:var(--ink)}
+  .reporting-status :global(.reporting-progress-bar){min-width:0}
+</style>

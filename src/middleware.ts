@@ -1,10 +1,14 @@
 import { defineMiddleware } from 'astro:middleware';
 import { matchesIfNoneMatch } from './lib/data/http-cache.ts';
+import { chatEnabled } from './lib/chat/availability.ts';
 
 // Cache public GET results before doing D1/R2 reads. HTTP freshness headers by
 // themselves do not make Worker responses use Cloudflare's Cache API.
 export const onRequest = defineMiddleware(async (context, next) => {
   const request = context.request;
+  if (!chatEnabled && /^\/(?:api\/)?chat(?:\/|$)/.test(context.url.pathname)) {
+    return new Response('Not found', { status: 404, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+  }
   // Development simulations never share the public results cache.
   if (context.url.searchParams.has('demo') && ['/updates', '/api/v1/updates'].includes(context.url.pathname)) return next();
   const publicPage = ['/', '/councils', '/updates', '/majority-builder'].includes(context.url.pathname) || /^\/(2000|2006|2011|2016|2021|2026)(\/|$)/.test(context.url.pathname);

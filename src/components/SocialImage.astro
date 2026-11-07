@@ -3,7 +3,7 @@ import { ogImageUrl, OG_WIDTH, OG_HEIGHT } from '../lib/og/model.ts';
 interface Props { canonical: string; title: string; description: string }
 const { canonical, title, description } = Astro.props;
 const image = ogImageUrl(canonical);
-const alt = `${title} · Counted — South African local elections`;
+const alt = `${title} · Counted — ${new URL(canonical).pathname.replace(/\/+$/, '').endsWith('/coalition') ? 'Fictional scenario · Satirical game' : 'South African local elections'}`;
 ---
 <meta property="og:locale" content="en_ZA"/>
 <meta property="og:image" content={image}/>

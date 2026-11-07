@@ -1,32 +1,45 @@
 ---
+import Icon from './Icon.astro';
+import CardCollection from './CardCollection.astro';
 import { wardNumber, wardUrl } from '../lib/places/catalogue.ts';
 import PartyMovement from './PartyMovement.astro';
-import ComparisonNote from './ComparisonNote.astro';
 import CivicGuide from './CivicGuide.astro';
-import { partyMovement, displayBallot, combinedOnly, latestYear } from '../lib/history/comparison.ts';
+import { partyMovement, displayBallot, latestYear } from '../lib/history/comparison.ts';
 import PartyLogo from './PartyLogo.astro';
-import { ballotResults, formatNumber, partyStyle, reporting, type Result } from '../lib/places/results.ts';
+import { ballotResults, formatNumber, partyStyle, type Result } from '../lib/places/results.ts';
+import { progressOf } from '../lib/overview/results.ts';
+import ReportingStatus from './ReportingStatus.astro';
 interface Props { wards: Result[]; title?: string; note?: string; preview?: boolean; searchable?: boolean }
 const { wards, title = 'Ward results', note = 'Ward ballot', searchable = true } = Astro.props;
 const filter = searchable ? Astro.url.searchParams.get('ward')?.trim() ?? '' : '';
 const filtered = wards.filter(w => !filter || String(wardNumber(w.id)) === filter || w.id === filter);
+const context = [...Astro.url.searchParams].filter(([key]) => ['council','ballot','metric','party'].includes(key));
+const allQuery = new URLSearchParams(context);
 ---
-<section id="wards"><div class="section-heading"><h2>{title}</h2><p>{wards.length} wards · {note}</p></div>
+<section id="wards"><div class="section-heading"><h2>{title}</h2><p>{wards.length} wards{note && ` · ${note}`}</p></div>
 <CivicGuide topic="ward"/>
-{searchable && wards.length > 10 && <form class="filter" action="#wards" method="get"><label for="ward-filter">Find a ward number</label><input id="ward-filter" name="ward" type="search" inputmode="numeric" value={filter} placeholder="e.g. 12"/><button class="button" type="submit">Find ward</button>{filter && <a class="small" href={Astro.url.pathname+'#wards'}>Show all wards</a>}</form>}
-{wards[0] && <ComparisonNote result={wards[0]} basis={displayBallot(wards[0],'ward')}/>}
-{wards[0] && combinedOnly(wards[0]) && <p class="small">Combined ballot totals · separate historical ward ballots unavailable.</p>}
-<div class="ward-grid">{filtered.map(w => { const p = reporting(w); const ballot = ballotResults(w,'ward'); const leading = ballot.leader; return <a class="ward-card ward-result-card" href={wardUrl(w.id, w.year)}>
-  <strong>Ward {wardNumber(w.id)} ↗</strong>
-  <div class="ward-result-lead"><b class="party-identity">{leading && <PartyLogo party={leading}/>}<span class="party-identity-text">{leading ? partyStyle(leading.party_name)[0] : ballot.tied ? 'Level on votes' : ballot.total === 0 ? 'Awaiting votes' : 'Lead unavailable'}</span></b>{leading && <b>{leading.share!.toFixed(1)}%</b>}</div>
-  {leading?.candidate_name && <span class="ward-candidate">{leading.candidate_name}</span>}
-  <div class="ward-vote-bars">{ballot.parties.slice(0,2).map(p => <div><span class="party-identity party-identity--compact" title={p.party_name}><PartyLogo party={p} size="small"/><span class="party-identity-text">{partyStyle(p.party_name)[0]}</span></span><i aria-hidden="true"><b style={`width:${p.share ?? 0}%;background:${partyStyle(p.party_name)[1]}`}></b></i><span>{p.share === null ? '—' : p.share.toFixed(1)+'%'}<PartyMovement movement={partyMovement(w,p,displayBallot(w,'ward'))}/></span></div>)}</div>
+{searchable && wards.length > 10 && <form class="filter ward-filter" action="#wards" method="get">{context.map(([name,value])=><input type="hidden" name={name} value={value}/>)}<label for="ward-filter">Ward number</label><input id="ward-filter" name="ward" type="search" inputmode="numeric" value={filter} placeholder="e.g. 12"/><button class="button" type="submit">Find ward</button>{filter && <a class="small" href={Astro.url.pathname+(allQuery.size?`?${allQuery}`:'')+'#wards'}>Show all wards</a>}</form>}
+
+
+<CardCollection id="ward-cards" label="wards"><div class="ward-grid" data-card-grid>{filtered.map(w => { const p = progressOf(w); const ballot = ballotResults(w,displayBallot(w,'ward')); const leading = ballot.leader; return <a class="ward-card ward-result-card" href={wardUrl(w.id, w.year)}>
+  <strong class="ward-card-title">Ward {wardNumber(w.id)}<Icon name="arrowUpRight" size={18}/></strong>
+  {!leading && <span class="ward-result-empty">{ballot.tied ? 'Tied lead' : ballot.total === 0 ? 'Awaiting votes' : 'Lead unavailable'}</span>}
+  <div class="ward-vote-bars">{ballot.parties.slice(0,2).map(p => <div><span class="party-identity party-identity--compact" title={p.party_name}><PartyLogo party={p} size="small"/><span class="party-identity-text">{partyStyle(p.party_name)[0]}</span></span><i aria-hidden="true"><b style={`width:${p.share ?? 0}%;background:${partyStyle(p.party_name)[1]}`}></b></i><span class="ward-vote-value">{p.share === null ? '—' : p.share.toFixed(1)+'%'}<PartyMovement movement={partyMovement(w,p,displayBallot(w,'ward'))}/></span>{leading?.source_entry_id===p.source_entry_id && p.candidate_name && <span class="ward-candidate"><span class="sr-only">Leading candidate: </span>{p.candidate_name}</span>}</div>)}</div>
   {ballot.leadVotes !== null && <span class="ward-result-margin">Lead: {formatNumber(ballot.leadVotes)} votes</span>}
-  {w.year === latestYear && <span class="ward-result-status">{p ? `${p.completed} of ${p.expected} districts reporting` : 'Reporting progress unavailable'}</span>}
-</a>})}</div>
+  {w.year === latestYear && p && <span class="ward-result-status"><ReportingStatus progress={p}/></span>}
+</a>})}</div></CardCollection>
 {filtered.length === 0 && <p class="empty">{filter ? 'No ward matches that number in this area.' : 'Ward results are not available yet.'}</p>}
 </section>
 <style>
-  .ward-result-lead{display:flex;justify-content:space-between;gap:10px;font-size:20px;letter-spacing:-.5px;margin-top:10px;align-items:baseline}.ward-result-lead>b:first-child{overflow-wrap:anywhere;min-width:0}.ward-result-lead>b:nth-child(2){white-space:nowrap;flex-shrink:0}.ward-result-card .ward-candidate{font-size:10px;overflow-wrap:anywhere;margin-top:5px}.ward-vote-bars{display:grid;gap:9px;margin-top:17px}.ward-vote-bars>div{display:grid;grid-template-columns:45px minmax(0,1fr) 94px;gap:7px;align-items:center}.ward-vote-bars span{margin:0;font-size:9px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.ward-vote-bars span:last-child{text-align:right}.ward-vote-bars i{height:7px;border-radius:2px;background:#e8ecdf;overflow:hidden}.ward-vote-bars b{display:block;height:100%;border-radius:2px}.ward-result-card .ward-result-margin{font-size:10px;margin-top:15px}.ward-result-card .ward-result-status{font-size:9px;border-top:1px solid var(--line);padding-top:11px;margin-top:14px}.ward-result-card>strong{font-size:19px}
-  @media(max-width:540px){.ward-grid{grid-template-columns:1fr}.ward-result-card{padding:18px}.ward-result-lead{font-size:23px}.ward-result-card .ward-vote-bars span{font-size:10px}.ward-result-card>strong{font-size:20px}}
+  .ward-vote-bars .ward-candidate{grid-column:1/-1;position:relative;white-space:normal}
+  .ward-grid{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+  .ward-result-card .ward-candidate{font-size:10px;overflow-wrap:anywhere;margin-top:5px}.ward-result-empty{font-size:12px;color:var(--muted)}.ward-vote-bars{display:grid;gap:9px;margin-top:17px}.ward-vote-bars>div:first-child>.party-identity{font-weight:600}.ward-vote-bars>div:first-child>.ward-vote-value{font-size:16px;font-weight:600}.ward-vote-bars>div{display:grid;grid-template-columns:45px minmax(0,1fr) 94px;gap:7px;align-items:center}.ward-vote-bars span{margin:0;font-size:9px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.ward-vote-bars .ward-vote-value{text-align:right;display:grid;justify-items:end;gap:3px;overflow:visible}.ward-vote-bars .party-identity{display:flex}.ward-vote-bars :global(.party-movement){margin:0;overflow:visible;display:inline-flex;align-items:center}.ward-vote-bars :global(.party-movement>span){margin:0;color:inherit}.ward-result-card .ward-vote-bars>div{grid-template-columns:65px minmax(0,1fr) 90px}.ward-vote-bars i{height:7px;border-radius:2px;background:#e8ecdf;overflow:hidden}.ward-vote-bars b{display:block;height:100%;border-radius:2px}.ward-result-card .ward-result-margin{font-size:10px;margin-top:15px}.ward-result-card .ward-result-status{font-size:9px;border-top:1px solid var(--line);padding-top:11px;margin-top:14px}.ward-result-card>strong{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:19px}
+  @media(max-width:650px){
+    .ward-result-card{padding:14px;scroll-snap-align:start;min-width:0}
+    .ward-result-card .ward-vote-bars span{font-size:10px}.ward-result-card>strong{font-size:18px}
+    .ward-result-card .ward-vote-bars>div{grid-template-columns:62px minmax(0,1fr) 75px}
+    .ward-filter{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;margin:12px 0}
+    .ward-filter label{font-size:12px}.ward-filter input{width:100%;max-width:none;min-height:44px;font-size:16px}
+    .ward-filter .small{grid-column:1/-1;min-height:44px;align-content:center}
+  }
 </style>

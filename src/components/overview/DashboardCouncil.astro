@@ -1,25 +1,36 @@
 ---
 import type { DashboardCouncil } from '../../lib/overview/dashboard.ts';
+import GovernmentNote from '../GovernmentNote.astro';
 import { matchesCouncil, type CouncilFilters } from '../../lib/overview/dashboard-filter.ts';
 import { partyStyle } from '../../lib/places/format.ts';
-import { progressLabel } from '../../lib/overview/results.ts';
+import ReportingStatus from '../ReportingStatus.astro';
+import { latestYear } from '../../lib/history/comparison.ts';
+import CouncilDeclaration from '../CouncilDeclaration.astro';
 
-interface Props { council: DashboardCouncil; filters: CouncilFilters; available: boolean; previousYear: number }
-const { council: c, filters, available, previousYear } = Astro.props;
+interface Props { council: DashboardCouncil; filters: CouncilFilters; available: boolean; previousYear: number; deferred?: boolean }
+const { council: c, filters, available, previousYear, deferred = false } = Astro.props;
 const s = c.seats;
 const status = available ? c.status : 'unavailable';
-const title = status === 'majority' ? `${partyStyle(c.winner!.name)[0]} outright majority`
+const district = c.districtVotes?.result;
+const title = district ? 'Council control unavailable' : status === 'majority' ? `${partyStyle(c.winner!.name)[0]} outright majority`
   : status === 'unavailable' ? 'Results unavailable'
   : status === 'no-majority' ? 'Hung council'
   : s?.status === 'estimated' ? 'Seats pending · estimate' : 'Seats pending';
 const parties = s?.parties.filter(p => p.count > 0) ?? [];
 ---
-<article id={`council-${c.id}`} class="dashboard-council" data-council-row data-search={c.search} data-province={c.provinceId} data-kind={c.kind} data-status={status} data-party={c.winnerId} data-changed={String(c.changed)} data-comparable={String(c.comparable)} data-previous-party={c.previousWinnerId} hidden={!matchesCouncil(c, filters)}>
+<article id={`council-${c.id}`} class="dashboard-council" data-council-row data-council-deferred={deferred || undefined} data-search={c.search} data-province={c.provinceId} data-kind={c.kind} data-status={status} data-party={c.winnerId} data-changed={String(c.changed)} data-comparable={String(c.comparable)} data-previous-party={c.previousWinnerId} hidden={deferred || !matchesCouncil(c, filters)}>
   <div class="dashboard-council-name">
     <h3><a class="dashboard-council-link" href={c.href}>{c.name}</a></h3>
     <p>{c.province}</p>
   </div>
-  <div class="dashboard-seat-graphic" hidden={!s && !(status === 'pending' && c.progress)}>
+  <div class="dashboard-seat-graphic" hidden={!s && !district && !(status === 'pending' && c.progress)}>
+    {district && <>
+      <div class="dashboard-seat-bar" role="img" aria-label={`District vote shares. ${district.parties.slice(0,3).map(p => `${p.abbreviation ?? p.name} ${p.share?.toFixed(1) ?? '0'}%`).join(', ')}`}>
+        {district.parties.map(p => <i style={`width:${p.share ?? 0}%;background:${partyStyle(p.name)[1]}`}/>)}
+      </div>
+      <div class="dashboard-seat-legend">{district.parties.slice(0,3).map(p => <span><i style={`background:${partyStyle(p.name)[1]}`} aria-hidden="true"/><abbr title={p.name}>{p.abbreviation ?? partyStyle(p.name)[0]}</abbr><strong>{p.share === null ? '—' : `${p.share.toFixed(1)}%`}</strong></span>)}</div>
+      <p class="dashboard-seat-note">District votes{c.districtVotes?.stale ? ' · updates delayed' : ''}</p>
+    </>}
     {s && <>
       <div class="dashboard-seat-bar" role="img" aria-label={`${s.status === 'estimated' ? 'Estimated seats. ' : ''}${parties.map(p => `${partyStyle(p.name)[0]} ${p.count}`).join(', ')}. ${s.majority} seats for a majority.`}>
         {parties.map(p => <i style={`width:${p.count / s.total * 100}%;background:${partyStyle(p.name)[1]}`}/>)}
@@ -31,11 +42,14 @@ const parties = s?.parties.filter(p => p.count > 0) ?? [];
       </div>
       <p class="dashboard-seat-note">{s.total} seats · {s.majority} for a majority</p>
     </>}
-    {status === 'pending' && c.progress && <p class="dashboard-reporting">{progressLabel(c.progress)} of voting districts reporting</p>}
+    {status === 'pending' && c.progress && <p class="dashboard-reporting"><ReportingStatus progress={c.progress}/></p>}
   </div>
   <div class="dashboard-council-outcome">
     <span class="dashboard-status"><span aria-hidden="true">{status === 'majority' ? '✓' : status === 'no-majority' ? '↔' : '…'}</span> {title}</span>
-    <span class="dashboard-outcome-meaning">{status === 'majority' ? 'More than half the seats' : status === 'no-majority' ? 'No party has more than half' : c.kind === 'district' ? 'District allocation not in this feed' : s?.status === 'estimated' ? 'Outcome may still change' : 'Outcome not yet known'}</span>
-    {c.changed && <span class="dashboard-change-label">From {c.previousWinner ? `${partyStyle(c.previousWinner.name)[0]} majority` : 'no majority'} in {previousYear}</span>}
+    {(status === 'majority' || status === 'no-majority') && <CouncilDeclaration year={latestYear}/>}
+    {c.kind === 'district' && <span class="dashboard-outcome-meaning">Direct ballot elects 40% of councillors</span>}
+    {c.previous?.seats?.status === 'reported' && <span class="dashboard-change-label">{previousYear} seats: {c.previousWinner ? `${partyStyle(c.previousWinner.name)[0]} majority · ${c.previousWinner.count}/${c.previous.seats.total}` : `No party majority · ${c.previous.seats.total} seats`}</span>}
+    {c.previous?.seats?.correction && <a class="small" href={c.previous.seats.correction.url}>Includes IEC recount correction ↗</a>}
+    <GovernmentNote context={c.government}/>
   </div>
 </article>

@@ -6,7 +6,10 @@ export function syncSearchState(next: Document) {
     const root = document.getElementById(template.id);
     if (!root) continue;
     const disabled = template.dataset.searchDisabled === 'true';
-    const changed = root.dataset.searchDisabled !== String(disabled);
+    const changed = root.dataset.searchDisabled !== String(disabled) || root.dataset.searchYear !== template.dataset.searchYear;
+    root.dataset.searchYear = template.dataset.searchYear;
+    const yearInput=root.querySelector<HTMLInputElement>('input[name=year]');
+    if(yearInput)yearInput.value=template.dataset.searchYear??String(latestYear);
     root.dataset.searchDisabled = String(disabled);
     if (disabled) root.setAttribute('aria-disabled', 'true'); else root.removeAttribute('aria-disabled');
     for (const control of root.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input, button:not([data-search-close])')) control.disabled = disabled;
@@ -24,6 +27,6 @@ export function syncSearchState(next: Document) {
       root.querySelector<HTMLElement>('[data-search-disabled-hint]')!.hidden = !disabled;
       root.querySelector<HTMLElement>('.place-search-hint')!.hidden = !disabled && root.dataset.configured === 'true';
     }
-    if (changed && disabled) root.dispatchEvent(new Event('place-search:disabled'));
+    if (changed) root.dispatchEvent(new Event('place-search:disabled'));
   }
 }

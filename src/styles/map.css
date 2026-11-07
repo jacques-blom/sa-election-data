@@ -34,6 +34,7 @@
 .map-area-name{font-size:13px;font-weight:550;line-height:1.4}
 .map-area-detail{font-size:11px;color:var(--muted)}
 .map-area-result{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);line-height:1.4;min-height:16px}
+.map-area-result:has(.map-area-government){flex-wrap:wrap}.map-area-government{flex-basis:100%;font-size:11px;line-height:1.6;color:#52634d}
 .map-area-row:has(.map-area-link) .map-area-result{padding-right:60px}
 .map-area-arrow{color:var(--muted);font-size:16px;align-self:flex-start;padding:0 3px}
 .map-area-link{position:absolute;right:0;bottom:4px;min-height:32px;display:flex;align-items:center;padding:0 3px;font-size:10px;color:var(--muted)}
@@ -41,6 +42,12 @@
 .map-result-scope{font-size:10px;line-height:1.6;color:var(--muted);margin:18px 0 0}
 .map-notice{font-size:11px;line-height:1.6;padding:10px;background:#eeeadd;border-radius:10px}
 .map-hint{font-size:12px;color:var(--muted);line-height:1.7;margin:16px 0}
+.map-reporting{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;margin:16px 0;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.map-reporting span{white-space:nowrap}
+.map-reporting progress{display:block;appearance:none;width:100%;min-width:0;height:6px;overflow:hidden;border:0;border-radius:6px;background:var(--sage);color:var(--indigo)}
+.map-reporting progress::-webkit-progress-bar{background:var(--sage)}
+.map-reporting progress::-webkit-progress-value{background:var(--indigo);border-radius:6px}
+.map-reporting progress::-moz-progress-bar{background:var(--indigo);border-radius:6px}
 .map-result-caption{font-size:11px;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--line)}
 .map-party{margin:20px 0}.map-party-heading{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px}
 .map-party-heading strong{font-weight:500;overflow-wrap:anywhere}.map-party-share{font-size:15px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -55,6 +62,9 @@
 @media(max-width:640px){.map-heading{align-items:flex-start;gap:12px;margin-bottom:20px}.map-heading h1{font-size:34px}.map-heading>.button{font-size:11px;padding:10px;margin-top:26px}.map-heading p:last-child{font-size:12px}.map-workspace{display:block}.map-toolbar{padding:12px}.map-toolbar form{max-width:none}.map-shell{border-radius:18px}#election-map{height:52svh;min-height:330px;max-height:500px}.map-panel{height:auto;max-height:520px;border-left:0;border-top:1px solid var(--line);padding:22px}.panel-intro h2{font-size:24px}.map-legend{font-size:9px;bottom:37px}.map-area-button{padding:15px 0}.map-area-name{font-size:14px}.map-area-link{min-height:36px}.map-result-scope{font-size:11px}}
 
 #map-area-description:empty,#map-view-status:empty{display:none}
+
+/* Keep asynchronous area results inside the same viewport as their loading state. */
+@media(max-width:640px){.map-panel{height:min(520px,70svh);min-height:320px}}
 
 .map-hover{position:absolute;top:12px;left:12px;z-index:3;margin:0;padding:10px 14px;border-radius:10px;background:var(--paper);font-size:12px;pointer-events:none}
 #map-search-status .button{margin:8px 8px 0 0}

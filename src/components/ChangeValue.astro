@@ -1,0 +1,8 @@
+---
+import Icon from './Icon.astro';
+import { changeValue } from '../lib/history/change.ts';
+interface Props { value:number; unit?:'pp'|'seats' }
+const {value,unit='pp'}=Astro.props;
+const change=changeValue(value,unit);
+---
+<span class={`change-value change-value--${change.direction}`} aria-label={change.description}><Icon name={change.direction==='up'?'arrowUpRight':change.direction==='down'?'arrowDownRight':'minus'} size={14}/><span aria-hidden="true">{change.text}</span></span>

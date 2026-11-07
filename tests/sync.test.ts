@@ -66,7 +66,8 @@ test('live ingestion uses isolated D1/R2 bindings and preserves publication inte
     metrics: async () => ({ backlogCount: sent.length, backlogBytes: 0 }),
     send: async (body) => { sent.push(...refreshJobs(body)!); return { metadata: { metrics: { backlogCount: sent.length, backlogBytes: 0 } } }; },
     sendBatch: async (messages) => {
-      for (const message of messages) sent.push(...refreshJobs(message.body)!);
+      // District reports use a separate, versioned queue message.
+      for (const message of messages) sent.push(...refreshJobs(message.body) ?? []);
       return { metadata: { metrics: { backlogCount: sent.length, backlogBytes: 0 } } };
     },
   } };

@@ -1,16 +1,22 @@
 ---
+import CardCollection from '../../../components/CardCollection.astro';
+import ChaosPromo from '../../../components/ChaosPromo.astro';
+import Icon from '../../../components/Icon.astro';
 import PageShare from '../../../components/PageShare.astro';
-import ElectionHistory from '../../../components/ElectionHistory.astro';
+import AreaHeader from '../../../components/AreaHeader.astro';
+import ElectionResults from '../../../components/ElectionResults.astro';
+import ResultStory from '../../../components/ResultStory.astro';
+import ResultDetails from '../../../components/ResultDetails.astro';
 import RelatedNews from '../../../components/RelatedNews.astro';
 import { electionYear, latestYear, nationalUrl } from '../../../lib/history/comparison.ts';
 import { env } from 'cloudflare:workers';
 import Site from '../../../layouts/Site.astro';
-import MajorityBanner from '../../../components/MajorityBanner.astro';
 import RegionMap from '../../../components/RegionMap.astro';
 import { districts, districtUrl } from '../../../lib/maps/districts.ts';
 import { placeDirectoryUrl, wardDirectoryUrl } from '../../../lib/places/browse.ts';
 import { administrative } from '../../../lib/maps/administrative.ts';
 import SummaryResults from '../../../components/overview/SummaryResults.astro';
+import VoteHistory from '../../../components/VoteHistory.astro';
 import MunicipalityCard from '../../../components/overview/MunicipalityCard.astro';
 import { provinces, provinceUrl, getProvinceOverview, progressOf, municipalBallot, overviewPartyStyle, matchesMunicipality } from '../../../lib/overview/results.ts';
 import '../../../styles/overview.css';
@@ -28,28 +34,30 @@ const councils = data ? progressOf(data.summary,'municipalities') : null;
 
 ---
 <Site liveResults={year === latestYear && Astro.response.status !== 404} title={province ? `${province.name} election results ${year}` : 'Province not found'} description={province ? `See ${year} local election party vote shares in ${province.name}, then explore municipal PR results and local leaders.` : 'Browse South African local election results by province.'} noindex={!data || !!query}>
-  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={nationalUrl(year)}>South Africa</a><span aria-hidden="true">/</span><span aria-current="page">{province?.name ?? 'Province not found'}</span></nav>
   {province ? <>
-    <header class="overview-province-heading page-share-heading"><div><p class="eyebrow">{year} local elections</p><h1>{province.name}</h1><p>{councils ? `${councils.expected} metro and local municipalities` : 'Municipality election results'}</p></div><PageShare result/></header>
-
+    <AreaHeader name={province.name} scope="Province · local elections" year={year} level="province" areaId={province.id} parents={[{name:'South Africa',href:nationalUrl(year)}]}/>
     {data ? <>
-      <div id="province-majority" data-history-current-only hidden={year !== latestYear}>{year === latestYear && <MajorityBanner href={`/majority-builder?province=${province.id}`}/>}</div>
-      <div id="province-results" class="overview-results-layout"><SummaryResults result={data.summary} name={province.name}/>    {administrative.provinces[province.id]&&<RegionMap historical={year !== latestYear} options={{level:'province',id:province.id,bbox:administrative.provinces[province.id]!.bbox,colors:data?.municipalities.map(m=>({id:m.id,color:municipalBallot(m.result).leader ? overviewPartyStyle(municipalBallot(m.result).leader!.party_name)[1] : '#dce1d5'}))}} title={`${province.name} and its municipalities`} caption="Municipal PR leaders"><ElectionHistory slot="history" year={year} level="province" id={province.id} embedded/></RegionMap>}
-      {!administrative.provinces[province.id] && <aside><ElectionHistory year={year} level="province" id={province.id}/></aside>}</div>
-      {year === latestYear && <RelatedNews scope="province" area={province.slug}/>}
+      <ResultStory result={data.summary}/>
+      <ElectionResults year={year} level="province" areaId={province.id}><SummaryResults result={data.summary} name={province.name} compact/></ElectionResults>
+      <VoteHistory result={data.summary}/>
+      {year === latestYear && <ChaosPromo/>}
+      <div class="explore-section-heading"><h2>Go closer</h2><a href="#municipality-heading">Municipalities ↘</a></div>
+      {year===latestYear&&administrative.provinces[province.id]&&<RegionMap historical={year !== latestYear} options={{level:'province',id:province.id,bbox:administrative.provinces[province.id]!.bbox,colors:data.municipalities.map(m=>({id:m.id,color:municipalBallot(m.result).leader ? overviewPartyStyle(municipalBallot(m.result).leader!.party_name)[1] : '#dce1d5'}))}} title={`${province.name} and its municipalities`} caption="Municipal PR leaders"/>}
       <section class="overview-municipalities" aria-labelledby="municipality-heading"><div class="overview-section-heading"><div><h2 id="municipality-heading">Municipality results</h2><p>{year === latestYear ? 'Municipal PR votes' : 'Combined ballot votes'}</p></div></div>
         <form action={`${provinceUrl(province,year)}#municipality-heading`} method="get" class="overview-directory-filter" role="search"><label for="municipality-query">Find a municipality</label><div><input id="municipality-query" name="q" type="search" value={query} maxlength="100" placeholder="Name or municipal code"/><button class="button" type="submit">Filter</button></div><p role="status" aria-live="polite" data-result-count>{shown} of {data.municipalities.length} municipalities</p></form>
         {councils && data.municipalities.length !== councils.expected && <p class="overview-warning">Results available for {data.municipalities.length} of {councils.expected} municipalities.</p>}
-        <div class="overview-municipality-grid">{data.municipalities.map(m => <div class="overview-municipality-wrapper" hidden={!matchesMunicipality(m,query)}><MunicipalityCard municipality={m}/></div>)}</div>
+        <CardCollection id="municipality-cards" label="municipalities"><div class="overview-municipality-grid" data-card-grid>{data.municipalities.map(m => <div class="overview-municipality-wrapper" hidden={!matchesMunicipality(m,query)}><MunicipalityCard municipality={m}/></div>)}</div></CardCollection>
         <p class="overview-empty" data-no-municipalities hidden={shown > 0}>No matching municipality. Try a different name or clear the filter.</p>
       </section>
-    </> : <><ElectionHistory year={year} level="province" id={province.id}/><section class="overview-unavailable" role="status"><h2>Results are temporarily unavailable.</h2><div class="links"><a href={provinceUrl(province,year)}>Try again ↻</a><a href="https://results.elections.org.za/dashboards/lge/">View IEC results ↗</a></div></section></>}
-    {!data && year === latestYear && <RelatedNews scope="province" area={province.slug}/>}
-    <section class="overview-other-provinces" aria-labelledby="explore-province-heading"><h2 id="explore-province-heading">Explore {province.name}</h2><div>{year === latestYear && <a href={placeDirectoryUrl({province: province.slug})}>Browse all towns and places →</a>}<a href={wardDirectoryUrl(year, province.slug)}>Browse all wards →</a></div>
-      {year === latestYear && <><h3 style="margin-top:28px">District municipalities</h3><div>{districts.filter(d => d.provinceId === province.id).map(d => <a href={districtUrl(d)}>{d.name} →</a>)}</div></>}
+    </> : <ElectionResults year={year} level="province" areaId={province.id}><section class="overview-unavailable" role="status"><h2>Results are temporarily unavailable.</h2><div class="links"><a href={provinceUrl(province,year)}>Try again ↻</a><a href="https://results.elections.org.za/dashboards/lge/">View IEC results <Icon name="arrowUpRight" size={13}/></a></div></section></ElectionResults>}
+
+    <section class="overview-other-provinces" aria-labelledby="explore-province-heading"><h2 id="explore-province-heading">Explore {province.name}</h2><div>{year === latestYear && <a href={placeDirectoryUrl({province: province.slug})}>Browse all towns and places <Icon name="arrowRight" size={14}/></a>}<a href={wardDirectoryUrl(year, province.slug)}>Browse all wards <Icon name="arrowRight" size={14}/></a></div>
+      {year === latestYear && <><h3 style="margin-top:28px">District municipalities</h3><div>{districts.filter(d => d.provinceId === province.id).map(d => <a href={districtUrl(d)}>{d.name} <Icon name="arrowRight" size={14}/></a>)}</div></>}
     </section>
-    <nav class="overview-other-provinces" aria-label="Other provinces"><h2>Explore another province</h2><div>{provinces.filter(p=>p.id!==province.id).map(p=><a href={provinceUrl(p,year)}>{p.name} ↗</a>)}</div></nav>
-  </> : <section class="overview-unavailable"><div class="page-share-heading"><h1>Province not found.</h1><PageShare/></div><a class="button" href="/#provinces">Choose a province →</a></section>}
+    <nav class="overview-other-provinces" aria-label="Other provinces"><h2>Explore another province</h2><div>{provinces.filter(p=>p.id!==province.id).map(p=><a href={provinceUrl(p,year)}>{p.name} <Icon name="arrowUpRight" size={13}/></a>)}</div></nav>
+    {year === latestYear && <details class="result-breakdown"><summary><span class="detail-icon"><Icon name="news" size={16}/></span><span>Province news</span><Icon name="plus" class="detail-plus"/></summary><RelatedNews scope="province" area={province.slug}/></details>}
+    {data && <ResultDetails result={data.summary}/>}
+  </> : <section class="overview-unavailable"><div class="page-share-heading"><h1>Province not found.</h1><PageShare/></div><a class="button" href="/#provinces">Choose a province <Icon name="arrowRight" size={14}/></a></section>}
 </Site>
 <script>
   const initialized = new WeakSet<HTMLFormElement>();

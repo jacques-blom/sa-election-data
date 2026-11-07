@@ -1,5 +1,6 @@
 import { dashboardHighlights, type DashboardCouncil } from './dashboard.ts';
 import { provinces } from './results.ts';
+import { compareGovernmentPartners } from '../governance/index.ts';
 
 /** Raw seat changes across exactly the same councils, including unchanged and hung outcomes. */
 export function councilSeatChanges(councils: DashboardCouncil[]) {
@@ -66,7 +67,12 @@ export function electionHighlights(councils: DashboardCouncil[]) {
   });
   const counting = councils.filter(c => c.status === 'pending' && c.progress && c.progress.percent > 0 && c.progress.percent < 100)
     .sort((a, b) => Number(b.metro) - Number(a.metro) || b.progress!.percent - a.progress!.percent || a.name.localeCompare(b.name));
-  return { ...highlights, reported: reported.length, hung: hung.length,
+  const recordedPartners = councils.flatMap(c => {
+    if (!c.government || (!c.government.latest && !c.government.beforeElection)) return [];
+    const comparison = compareGovernmentPartners(c.government, c.seats);
+    return comparison.status === 'reported' ? [{ council: c, comparison }] : [];
+  });
+  return { ...highlights, recordedPartners, governmentChanges: councils.filter(c => c.government?.afterElection && !['unconfirmed','retained'].includes(c.government.change.status)), reported: reported.length, hung: hung.length,
     pending: councils.filter(c => c.status === 'pending').length,
     changesToHung: highlights.changes.filter(c => !c.winner).length,
     changesFromHung: highlights.changes.filter(c => !c.previousWinner).length,

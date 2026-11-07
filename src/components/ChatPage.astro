@@ -1,0 +1,73 @@
+---
+import '../styles/chat-visuals.css';
+import Site from '../layouts/Site.astro';
+import Icon from './Icon.astro';
+import { env } from 'cloudflare:workers';
+import { chatEnabled } from '../lib/chat/availability.ts';
+import type { ThreadSnapshot } from '../lib/chat/contracts.ts';
+import { turnMarkup } from '../lib/chat/markup.server.ts';
+import '../styles/chat.css';
+interface Props { threadId?: string; snapshot?: ThreadSnapshot; loadError?: string }
+const { threadId = '', snapshot, loadError = '' } = Astro.props;
+const latest = snapshot?.turns.at(-1);
+const running = latest?.status === 'running';
+const phase = latest?.progress?.phase ?? 'thinking';
+const initialStatus = loadError || (running ? phase === 'tool' ? 'Using election tools' : latest.progress?.text ?? 'Thinking'
+  : latest?.status === 'error' ? latest.error ?? 'This answer was interrupted.' : latest ? 'Answer saved.' : '');
+Astro.response.headers.set('Cache-Control', 'no-store');
+Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+const available = chatEnabled && !!env.OPENROUTER_API_KEY;
+const suggestions = [
+  { label: 'Who could govern Johannesburg?', text: 'Which parties could form a majority in Johannesburg in 2026? Show me the council seats.', icon: 'users' as const },
+  { label: 'How has Cape Town’s vote changed?', text: 'Compare the DA vote share in Cape Town in 2021 and 2026. Show a chart and explain the limits of the comparison.', icon: 'chart' as const },
+  { label: 'How much of the count is in?', text: 'Give me an overview of the 2026 municipal results and how much of the count is reported.', icon: 'vote' as const },
+  { label: 'What’s the latest coalition news?', text: 'Find recent news articles about coalition negotiations in South Africa.', icon: 'news' as const },
+];
+---
+<Site title="Ask Counted" description="Ask questions about South African election results. Explore the data, compare places and see hypothetical coalitions with sources." noindex>
+  <div class="election-chat" data-election-chat data-thread-id={threadId} data-chat-state={threadId ? 'conversation' : 'home'} data-available={String(available)}
+    data-chat-cursor={snapshot?.seq} data-active-turn={running ? latest.id : undefined} data-started-at={running ? latest.startedAt : undefined}>
+    <div class="chat-heading" data-chat-heading hidden={!threadId}>
+      <h1 class="chat-title"><a href="/chat" class="chat-back">Ask Counted</a></h1>
+      <div class="chat-actions">
+        <button type="button" data-share aria-label="Copy share link" hidden><Icon name="share" size={16}/><span>Share</span></button>
+        <button type="button" data-reset><Icon name="plus" size={18}/><span>New chat</span></button>
+      </div>
+    </div>
+    <p class="chat-readonly" data-readonly hidden={!threadId}>This is a shared conversation. You can read it here, or <a href="/chat">start a new chat</a> to ask your own question.</p>
+    <section class="chat-welcome" data-welcome hidden={!!threadId}>
+      <h1>Ask Counted</h1>
+      <p class="chat-intro">Make sense of South Africa’s election results.</p>
+    </section>
+    {!available && <aside class="chat-unavailable" role="status"><strong>Election chat is getting ready.</strong><p>You’ll be able to ask your own questions here soon. For now, <a href="/">explore the results</a> or <a href="/ai">connect Counted to your own assistant</a>.</p></aside>}
+    <div class="chat-messages" data-messages role="log" aria-label="Conversation" aria-live="off" set:html={snapshot?.turns.map(turnMarkup).join('') ?? ''}></div>
+    <div class="chat-compose">
+      <div class="chat-progress" data-progress data-busy={String(running)} data-phase={phase} hidden={!initialStatus}><span class="chat-spinner" aria-hidden="true"></span><div><p class="chat-status" data-status role="status" aria-live="polite">{initialStatus}</p><p class="chat-tool-summary" data-tool-summary>{running ? latest.progress?.summary_for_user : ''}</p></div><span class="chat-elapsed" data-elapsed aria-hidden="true"></span></div>
+      <button class="chat-reconnect" type="button" data-reconnect hidden>Reconnect to conversation</button>
+      <form data-chat-form hidden={!!threadId}>
+        <label class="sr-only" for="election-question">Your question about the election results</label>
+        <textarea id="election-question" name="question" rows="2" maxlength="6000" placeholder="Ask about a place, party or coalition…" aria-describedby="chat-privacy" required disabled={!available}></textarea>
+        <div class="chat-compose-bottom">
+          <span class="chat-keyboard-hint"><kbd>Enter</kbd> to send · <kbd>Shift + Enter</kbd> for a new line</span>
+          <button type="submit" data-send disabled={!available}><span>Ask Counted</span><Icon name="arrowUp" size={18}/></button>
+          <button type="button" data-stop hidden><span>Stop</span><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor"/></svg></button>
+        </div>
+      </form>
+      <p class="chat-fineprint" id="chat-privacy">Chats are saved. Anyone with the link can read them. <a href="/privacy">Privacy</a></p>
+    </div>
+    <section class="chat-starters" aria-label="Questions to try">
+      <p class="chat-section-label">Try a question</p>
+      <div class="chat-suggestions">{suggestions.map(item => <button type="button" data-question={item.text} disabled={!available}><Icon name={item.icon} size={19}/><span>{item.label}</span><Icon name="arrowUpRight" size={16}/></button>)}</div>
+    </section>
+    <details class="chat-history" data-chat-history hidden>
+      <summary>Recent chats<Icon name="chevronDown" size={16}/></summary>
+      <div class="chat-recent" data-recent></div>
+    </details>
+    <details class="chat-about">
+      <summary>About this chat<Icon name="chevronDown" size={14}/></summary>
+      <p>AI can make mistakes. Check the linked sources. Coalitions are hypothetical unless supported by evidence. Your messages are sent to our AI provider; please don’t include personal details.</p>
+    </details>
+    <noscript><p>{threadId ? 'Saved messages are shown above. Turn on JavaScript for live updates and interactive charts.' : 'Turn on JavaScript to ask a question, or browse the results.'}</p></noscript>
+  </div>
+</Site>
+<script>import '../lib/chat/client.ts';</script>

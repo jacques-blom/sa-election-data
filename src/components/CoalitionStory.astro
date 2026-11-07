@@ -1,0 +1,53 @@
+---
+import type { CoalitionData } from '../lib/seats/coalition.ts';
+import { coalitionLeader, leaderSpriteStyle } from '../lib/seats/leaders.ts';
+import { gamePartyLabel } from '../lib/seats/game.ts';
+
+interface Props { model: CoalitionData }
+const { model } = Astro.props;
+const cast = model.parties.filter(p => p.selectable).map(party => ({
+  party, leader: coalitionLeader(party.short, model.municipalityId), label: gamePartyLabel(party),
+}));
+---
+<section class="coalition-story" id="meet-madam-speaker" aria-labelledby="coalition-story-title">
+  <header class="story-heading">
+    <span class="speaker-sprite" data-game-sprite="speaker" aria-hidden="true"></span>
+    <h2 id="coalition-story-title">Madam Speaker<br/>takes the floor.</h2>
+  </header>
+  <blockquote class="story-voice">
+    <p>“I’m Madam Speaker. Secretary bird. Keeper of the gavel. Please don’t make me use it.</p>
+    <p>Welcome to the bargaining table in {model.name}. One mayoral chain, several competing plans. You bring the partners. I’ll put the kettle on.”</p>
+  </blockquote>
+  <h3 id="coalition-story-cast">The honourable cast</h3>
+  <ul class="story-cast" role="list" tabindex="0" aria-labelledby="coalition-story-cast" aria-describedby="coalition-story-cameos">
+    {cast.map(({ party, leader, label }) => <li style={`--party:${party.color}`}>
+      <div class="story-portrait" aria-hidden="true">
+        {leader ? <span class="leader-sprite" data-game-sprite="leader" style={leaderSpriteStyle(leader.cell)}></span>
+          : party.logo ? <img data-game-sprite="badge" src={party.logo} width="48" height="48" alt="" loading="lazy"/>
+          : <span class="leader-fallback" data-game-sprite="badge">{label.slice(0, 3)}</span>}
+      </div>
+      <strong>{leader?.name ?? label}</strong>
+      {leader && <span>{label}</span>}
+    </li>)}
+  </ul>
+  <p class="story-caption" id="coalition-story-cameos"><strong>Fictional scenario.</strong> Party cameos, not a full list of local candidates.</p>
+</section>
+
+<style>
+  .coalition-story{margin:24px 0 12px;padding:20px 0 12px;border-top:2px dashed #bac6ac;color:var(--chaos-dark)}
+  .story-heading{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .story-heading .speaker-sprite{width:64px;height:64px}
+  .story-heading h2{margin:0;font-size:24px;line-height:1.15;letter-spacing:-.6px}
+  .story-voice{margin:0;max-width:60ch;font-size:14px;line-height:1.65}
+  .story-voice p{margin:0 0 12px}
+  .coalition-story h3{margin:20px 0 10px;font-family:Silkscreen,monospace;font-size:13px;font-weight:400}
+  .story-cast{display:flex;gap:12px;max-width:100%;margin:0;padding:0 0 10px;list-style:none;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:#a9b69c transparent}
+  .story-cast:focus-visible{outline:3px solid var(--chaos-orange);outline-offset:4px}
+  .story-cast li{flex:0 0 96px;min-width:0;text-align:center;scroll-snap-align:start}
+  .story-portrait{display:flex;justify-content:center;width:64px;margin:0 auto 8px;padding-bottom:5px;border-bottom:3px solid var(--party)}
+  .story-portrait img{object-fit:contain;background:#fff}
+  .story-cast strong{display:block;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+  .story-cast li>span{display:block;margin-top:2px;font-size:10px;line-height:1.4;color:var(--muted)}
+  .story-caption{margin:4px 0 0;font-size:12px;line-height:1.6;color:var(--chaos-dark)}
+  @media(min-width:600px){.coalition-story{padding-inline:16px}.story-heading h2{font-size:26px}.story-cast{gap:16px}}
+</style>

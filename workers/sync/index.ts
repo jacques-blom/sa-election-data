@@ -4,6 +4,7 @@ import { election, partyNames, refreshSource } from './publish.ts';
 import { scheduledSync } from './schedule.ts';
 import { backoffSeconds, clearPending, readState, recordFailure } from './state.ts';
 import { cpuBudgetReady } from './budget.ts';
+import { districtJobs, runDistrictJobs } from './districts.ts';
 
 export default {
   async scheduled(_controller, env) {
@@ -13,6 +14,12 @@ export default {
   async queue(batch, env) {
     if (!await cpuBudgetReady(env.RESULTS_DB)) { batch.retryAll({ delaySeconds: 300 }); return; }
     for (const message of batch.messages) {
+      const districts = districtJobs(message.body);
+      if (districts) {
+        const retry = await runDistrictJobs(env,districts,message.attempts);
+        if (retry) message.retry({delaySeconds:retry}); else message.ack();
+        continue;
+      }
       const jobs = refreshJobs(message.body);
       if (!jobs) {
         console.error(JSON.stringify({ event: 'invalid_refresh_job', message_id: message.id }));

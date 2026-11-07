@@ -1,11 +1,16 @@
 ---
+import CardCollection from '../components/CardCollection.astro';
+import ChaosPromo from '../components/ChaosPromo.astro';
 import { env } from 'cloudflare:workers';
 import Site from '../layouts/Site.astro';
 import CivicGuide from '../components/CivicGuide.astro';
 import PageShare from '../components/PageShare.astro';
+import GovernmentNote from '../components/GovernmentNote.astro';
+import CouncilDeclaration from '../components/CouncilDeclaration.astro';
 import PartyLogo from '../components/PartyLogo.astro';
 import MovementBoard from '../components/highlights/MovementBoard.astro';
 import RaceCard from '../components/highlights/RaceCard.astro';
+import ReportingStatus from '../components/ReportingStatus.astro';
 import SeatChanges from '../components/highlights/SeatChanges.astro';
 import DividedCouncils from '../components/highlights/DividedCouncils.astro';
 import { getCouncilDashboard, type CouncilDashboard } from '../lib/overview/dashboard.ts';
@@ -25,29 +30,26 @@ const previousYear = data?.previousYear ?? 2021;
 const balanceMax = Math.max(1, ...h?.balance.flatMap(p => [p.gained, p.lost]) ?? []);
 const outcomeKey = [{key:'majority',label:'Outright majority'}, {key:'noMajority',label:'Hung council'}, {key:'pending',label:'Seats pending'}, {key:'unavailable',label:'Unavailable'}] as const;
 ---
-<Site title="Election highlights" description="Majorities gained and lost, the biggest local vote-share swings, close pending races and the councils nearest a majority in South Africa’s 2026 local elections." canonicalPath="/highlights" noindex={!data} liveResults={!!data}>
+<Site title="What changed" description="Majorities gained and lost, the biggest local vote-share swings, close pending races and the councils nearest a majority in South Africa’s 2026 local elections." canonicalPath="/highlights" noindex={!data} liveResults={!!data}>
   <div class="election-insights">
     <header class="insights-header">
-      <div class="page-share-heading"><div><p class="eyebrow">{latestYear} local elections · The bigger picture</p><h1>Election highlights</h1></div><PageShare/></div>
-      <p class="insights-lead">Where majorities changed, support shifted, and the count is still close.</p>
-      <div class="insights-meta"><span class="insight-counting">{data ? 'Updates with the count' : 'Updates unavailable'}</span><a href="/updates">Latest announcements ↗</a></div>
+      <div class="page-share-heading"><div><p class="eyebrow">{latestYear} local elections</p><h1>What changed</h1></div><PageShare/></div>
+      <div class="insights-meta"><a href="/updates">Latest announcements ↗</a></div>
     </header>
-    <CivicGuide topic="outcomes"/>
     {data && h ? <>
-      {data.delayedCouncils > 0 && <p class="notice">Updates are delayed for {data.delayedCouncils} councils. These highlights use the last available results.</p>}
-      {data.summaryCoverage < data.total && <p class="notice">Detailed summaries are available for {data.summaryCoverage} of {data.total} councils. Rankings cover the available results.</p>}
+      {(data.delayedCouncils > 0 || data.summaryCoverage < data.total) && <p class="notice">{data.delayedCouncils > 0 && <>Updates delayed for {data.delayedCouncils} councils; showing the last available results. </>}{data.summaryCoverage < data.total && <>Rankings cover {data.summaryCoverage} of {data.total} councils.</>}</p>}
       <section class="insight-topline" aria-label="The election at a glance">
         <a class="insight-stat insight-stat--changes" href="#majority-changes"><span>Majorities changed</span><strong>{h.changes.length}<svg viewBox="0 0 80 60" fill="none" aria-hidden="true"><path d="M5 18h62L54 5m13 13L54 31M75 42H13l13-13M13 42l13 13" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></strong><small>Since {previousYear} · {h.comparable} comparable councils <b aria-hidden="true">↗</b></small></a>
         <a class="insight-stat insight-stat--hung" href="#majority-maths"><span>Hung councils</span><strong>{h.hung}<svg viewBox="0 0 80 60" fill="none" aria-hidden="true"><path d="M5 50V25h16v25M32 50V10h16v40M59 50V31h16v19M0 20h80" stroke="currentColor" stroke-width="3" stroke-dasharray="0"/><path d="M0 20h80" stroke="currentColor" stroke-width="2" stroke-dasharray="3 4"/></svg></strong><small>Of {h.reported} reported council allocations <b aria-hidden="true">↗</b></small></a>
         <a class="insight-stat insight-stat--pending" href="#close-races"><span>Councils still pending</span><strong>{h.pending}<svg viewBox="0 0 80 60" fill="none" aria-hidden="true"><circle cx="42" cy="30" r="24" stroke="currentColor" stroke-width="3" opacity=".35"/><path d="M42 6a24 24 0 0 1 24 24M42 14v17l11 7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></strong><small>Seat allocations still to be reported <b aria-hidden="true">↗</b></small></a>
       </section>
-      <nav class="insight-jumps" aria-label="Highlights sections"><a href="#majority-changes">Majorities & seats</a><a href="#vote-swings">Vote-share changes</a><a href="#close-races">Close races</a><a href="#majority-maths">Majority maths</a><a href="#province-picture">By province</a></nav>
+      <nav class="insight-jumps" aria-label="Highlights sections"><a href="#majority-changes">Majorities & seats</a><a href="#vote-swings">Vote-share changes</a><a href="#close-races">Close races</a><a href="#majority-maths">Majority maths</a><a href="#government-changes">Governments</a><a href="#province-picture">By province</a></nav>
 
       <section id="majority-changes" class="insight-section" aria-labelledby="majority-changes-title">
-        <div class="insight-section-heading"><div><p class="insight-eyebrow">01 · What changed</p><h2 id="majority-changes-title">Majorities and council seats</h2><p>Reported allocations, compared with {previousYear}.</p></div></div>
+        <div class="insight-section-heading"><div><h2 id="majority-changes-title">Majorities and council seats</h2><p>Reported allocations, compared with {previousYear}.</p><CouncilDeclaration year={latestYear}/></div></div>
         <div class="insight-two-up insight-party-charts">
-          <article class="insight-panel insight-balance"><h3>Outright majorities gained/lost</h3><p class="insight-caption">Each count represents one council with more than half its seats held by a party. Majorities lost to a hung council count as losses.</p>
-            {h.balance.length ? <><div class="insight-balance-key"><span>Party</span><span>Lost ←</span><span>→ Gained</span><span>Net</span></div><ul>{h.balance.map(p => <li>
+          <article class="insight-panel insight-balance"><h3>Outright majorities gained/lost</h3><p class="insight-caption">Councils where a party gained or lost a seat majority.</p>
+            {h.balance.length ? <><div class="insight-balance-key"><span aria-hidden="true"/><span>Lost ←</span><span>→ Gained</span><span>Net</span></div><ul>{h.balance.map(p => <li>
               <span class="insight-party"><PartyLogo party={{party_id:p.id}} size="small"/><abbr title={p.name}>{partyStyle(p.name)[0]}</abbr></span>
               <div class="insight-balance-bars" role="img" aria-label={`${p.lost} lost, ${p.gained} gained`}><span><i style={`width:${p.lost / balanceMax * 100}%`}/>{p.lost > 0 && <b>{p.lost}</b>}</span><span><i style={`width:${p.gained / balanceMax * 100}%`}/>{p.gained > 0 && <b>{p.gained}</b>}</span></div><strong class:list={{'is-gain':p.net>0,'is-loss':p.net<0}} aria-label={`Net ${p.net}`}>{p.net>0?'+':p.net<0?'−':''}{Math.abs(p.net)}</strong>
             </li>)}</ul></> : <p class="insight-empty">No changes in comparable reported allocations yet.</p>}
@@ -62,21 +64,22 @@ const outcomeKey = [{key:'majority',label:'Outright majority'}, {key:'noMajority
       </section>
 
       <section id="vote-swings" class="insight-section" aria-labelledby="vote-swings-title">
-        <div class="insight-section-heading"><div><p class="insight-eyebrow">02 · Shifts in support</p><h2 id="vote-swings-title">Where the vote moved most</h2><p>Percentage-point changes since {previousYear}, in {h.movementCoverage} comparable completed counts.</p></div><span class="insight-tag">Combined ward + PR ballots</span></div>
+        <div class="insight-section-heading"><div><h2 id="vote-swings-title">Where the vote moved most</h2><p>Percentage-point changes since {previousYear}, in {h.movementCoverage} comparable completed counts.</p></div><span class="insight-tag">Combined ward + PR ballots</span></div>
         <div class="insight-two-up"><MovementBoard rows={h.gains} kind="gains" previousYear={previousYear}/><MovementBoard rows={h.losses} kind="losses" previousYear={previousYear}/></div>
         <p class="insight-footnote">Each row is one party in one municipality. A party absent from a complete list is counted as 0%. These are local changes, not national party rankings.</p>
       </section>
 
       <section id="close-races" class="insight-section" aria-labelledby="close-races-title">
-        <div class="insight-section-heading"><div><p class="insight-eyebrow">03 · Still in play</p><h2 id="close-races-title">Close races still counting</h2><p>Within 2 percentage points, with at least half of districts reporting and counting unfinished.</p></div><a class="insight-text-link" href={councilFilterUrl({status: 'pending'})}>All pending councils →</a></div>
-        {h.councilRaces.length > 0 && <div class="insight-race-grid">{h.councilRaces.map(race => <RaceCard race={race}/>)}</div>}
-        {h.races.length > 0 && <><h3 class="insight-subheading">Close ward races</h3><div class="insight-race-grid">{h.races.map(race => <RaceCard race={race} ward/>)}</div></>}
-        {!h.councilRaces.length && !h.races.length && <div class="insight-panel"><h3>No qualifying close races right now</h3><p class="insight-caption">A race appears here when the published vote counts and reporting progress meet the criteria above.</p>{h.counting.length > 0 && <><h3 class="insight-subheading">Counts to watch</h3><div class="insight-watch-grid">{h.counting.slice(0,3).map(c => <a href={c.href}><strong>{c.name}</strong><span>{c.progress!.percent.toFixed(1)}% of districts reporting</span><span class="insight-reporting-track"><i style={`width:${c.progress!.percent}%`}/></span></a>)}</div></>}</div>}
+        <div class="insight-section-heading"><div><h2 id="close-races-title">Close races still counting</h2><p>Within 2 percentage points, with at least half of districts reporting and counting unfinished.</p></div><a class="insight-text-link" href={councilFilterUrl({status: 'pending'})}>All pending councils →</a></div>
+        {h.councilRaces.length > 0 && <CardCollection id="council-races" label="council races"><div class="insight-race-grid" data-card-grid>{h.councilRaces.map(race => <RaceCard race={race}/>)}</div></CardCollection>}
+        {h.races.length > 0 && <><h3 class="insight-subheading">Close ward races</h3><CardCollection id="ward-races" label="ward races"><div class="insight-race-grid" data-card-grid>{h.races.map(race => <RaceCard race={race} ward/>)}</div></CardCollection></>}
+        {!h.councilRaces.length && !h.races.length && <div class="insight-panel"><h3>No close races still counting</h3>{h.counting.length > 0 && <><h3 class="insight-subheading">Counts to watch</h3><CardCollection id="counting-cards" label="councils"><div class="insight-watch-grid" data-card-grid>{h.counting.slice(0,3).map(c => <a href={c.href}><strong>{c.name}</strong><ReportingStatus progress={c.progress!}/></a>)}</div></CardCollection></>}</div>}
         <p class="insight-footnote">Council cards compare municipal PR votes; ward cards compare ward votes. A vote lead does not establish a council majority. Missing ward progress is excluded.</p>
       </section>
 
+      <ChaosPromo/>
       <section id="majority-maths" class="insight-section" aria-labelledby="majority-maths-title">
-        <div class="insight-section-heading"><div><p class="insight-eyebrow">04 · The seat arithmetic</p><h2 id="majority-maths-title">Paths to a majority</h2><p>How far the largest parties are from more than half of the seats. Reported allocations only.</p></div><a class="insight-text-link" href="/majority-builder">Open majority builder →</a></div>
+        <div class="insight-section-heading"><div><h2 id="majority-maths-title">Paths to a majority</h2><p>How far the largest parties are from more than half of the seats. Reported allocations only.</p></div><a class="insight-text-link" href="/chaos">Play Coalition Chaos →</a></div>
         <div class="insight-two-up">
           <article class="insight-panel insight-maths"><h3>Closest to a majority</h3><p class="insight-caption">Hung councils, ranked by the largest party’s seat shortfall.</p>
             <ol class="insight-seat-list">{h.nearMajorities.slice(0,6).map(r => <li><a href={r.council.builderHref}><div class="insight-seat-heading"><span><strong>{r.council.name}</strong><small>{partyStyle(r.party.name)[0]} · {r.party.count} of {r.council.seats!.total} seats</small></span><span class="insight-seat-gap"><strong>{r.short}</strong><small>{r.short===1?'seat':'seats'} short</small></span></div><div class="insight-threshold-chart" role="img" aria-label={`${r.party.count} seats; ${r.council.seats!.majority} needed for a majority`}><span style={`width:${r.party.count/r.council.seats!.total*100}%;background:${partyStyle(r.party.name)[1]}`}/><i style={`left:${r.council.seats!.majority/r.council.seats!.total*100}%`}/></div><span class="insight-seat-caption">{r.council.seats!.majority} needed <b>Try a combination ↗</b></span></a></li>)}</ol>
@@ -86,13 +89,22 @@ const outcomeKey = [{key:'majority',label:'Outright majority'}, {key:'noMajority
         </div><p class="insight-footnote">Seat arithmetic does not imply coalition agreements. The closest list requires one largest party; the most divided list includes ties and ranks by seat share so council size does not dominate. Independent seats count towards the council total but are not treated as one party.</p>
       </section>
 
+      <section id="government-changes" class="insight-section" aria-labelledby="government-changes-title">
+        <div class="insight-section-heading"><div><h2 id="government-changes-title">Who governs</h2><p>Before & after the 2026 election</p></div><a href="/governments">All governments →</a></div>
+
+        {h.governmentChanges.length > 0 && <CardCollection id="government-changes-cards" label="councils"><div class="insight-two-up" data-card-grid>{h.governmentChanges.map(c => <article class="insight-panel"><h3><a href={`${c.href}#government`}>{c.name}</a></h3><GovernmentNote context={c.government}/></article>)}</div></CardCollection>}
+        <CardCollection id="government-partners-cards" label="councils"><div class="insight-two-up" data-card-grid>{h.recordedPartners.slice(0,6).map(({council:c,comparison}) => <article class="insight-panel"><h3><a href={`${c.href}#government`}>{c.name}</a></h3><GovernmentNote context={c.government}/><p><strong>{comparison.total} of {comparison.councilSize} seats</strong> · {comparison.majority} needed</p><p class="insight-caption">{comparison.shortfall ? `${comparison.shortfall} short of a hypothetical majority` : 'Enough seats for a hypothetical majority'}. {comparison.basis === 'verified-before-election' ? 'Verified pre-election members' : 'Original members'} only; outside supporters excluded.</p></article>)}</div></CardCollection>
+        {!h.recordedPartners.length && <p class="insight-caption">Partner comparisons will appear when complete reported seats and reliable party matches are available.</p>}
+      </section>
+
       <section id="province-picture" class="insight-section" aria-labelledby="province-picture-title">
-        <div class="insight-section-heading"><div><p class="insight-eyebrow">05 · Across the country</p><h2 id="province-picture-title">The picture by province</h2><p>How council outcomes are taking shape. Each bar represents all councils in a province.</p></div></div>
+        <div class="insight-section-heading"><div><h2 id="province-picture-title">The picture by province</h2><p>How council outcomes are taking shape. Each bar represents all councils in a province.</p></div></div>
         <div class="insight-panel insight-provinces"><div class="insight-outcome-key">{outcomeKey.filter(s=>s.key!=='unavailable'||h.provinceOutcomes.some(p=>p.unavailable)).map(s=><span><i class={`insight-outcome--${s.key}`}/>{s.label}</span>)}</div>
           <ul>{h.provinceOutcomes.map(p=><li><a href={councilFilterUrl({province:p.id})}><span class="insight-province-name"><strong>{p.name}</strong><small>{p.reported}/{p.total} allocations reported</small></span><span class="insight-province-bar" role="img" aria-label={`${p.majority} majority, ${p.noMajority} hung councils, ${p.pending} pending, ${p.unavailable} unavailable`}>{outcomeKey.map(s=>p[s.key]>0&&<span class={`insight-outcome--${s.key}`} title={`${p[s.key]} ${s.label.toLowerCase()}`} style={`width:${p.total?p[s.key]/p.total*100:0}%`}>{p[s.key]/p.total >= .08 ? p[s.key] : null}</span>)}</span><span class="insight-province-arrow" aria-hidden="true">↗</span></a></li>)}</ul>
         </div>
       </section>
-      <aside class="insight-methodology" aria-labelledby="insight-method-title"><h2 id="insight-method-title">How to read these highlights</h2><p>IEC results are provisional. “Reported” refers to the published seat allocation; completed district reporting is not an official declaration. Majorities describe seats, not governing agreements.</p><p>Comparisons match published municipal area IDs across elections, using complete party lists for combined ward and PR vote shares. Boundaries may differ. Missing comparisons and unfinished current counts are excluded from the swing rankings. “pp” means percentage points.</p><p>Seat changes compare ward + PR seats across the same councils with reported allocations in both elections. Parties are matched by ID; a party absent from a complete allocation has zero seats. Independent seats are combined as a group. Council sizes can change, so gains and losses need not balance.</p><p>{data.summaryCoverage}/{data.total} council summaries available. Local swings, close races and majority-threshold lists show up to six results each. The seat-change chart shows the eight largest net changes. All update as new results arrive.</p><div><a href="/">National vote shares & history →</a><a href="/updates">Latest announcements →</a><a href="/councils">Explore all councils →</a></div></aside>
+      <CivicGuide topic="outcomes"/>
+      <details class="insight-methodology"><summary>Sources & methodology</summary><p>IEC results are provisional. “Reported” refers to the published seat allocation; completed district reporting is not an official declaration. Majorities describe seats, not governing agreements.</p><p>Comparisons match published municipal area IDs across elections, using complete party lists for combined ward and PR vote shares. Boundaries may differ. Missing comparisons and unfinished current counts are excluded from the swing rankings. “pp” means percentage points.</p><p>Seat changes compare ward + PR seats across the same councils with reported allocations in both elections. Parties are matched by ID; a party absent from a complete allocation has zero seats. Independent seats are combined as a group. Council sizes can change, so gains and losses need not balance.</p><p>{data.summaryCoverage}/{data.total} council summaries available. Local swings, close races and majority-threshold lists show up to six results each. The seat-change chart shows the eight largest net changes. All update as new results arrive.</p><div><a href="/">National vote shares & history →</a><a href="/updates">Latest announcements →</a><a href="/councils">Explore all councils →</a></div></details>
     </> : <section class="insight-panel insight-unavailable" role="status"><h2>Highlights are temporarily unavailable</h2><p>We couldn’t load the council summaries. Please try again shortly.</p><a class="button" href="/highlights">Try again</a><a class="insight-text-link" href="/councils">Browse councils →</a></section>}
   </div>
 </Site>

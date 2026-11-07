@@ -1,14 +1,20 @@
-.party-movement{display:inline-flex;margin-left:5px;color:var(--muted);font-size:10px!important;font-weight:550;line-height:1.6;letter-spacing:0;white-space:nowrap;font-variant-numeric:tabular-nums;vertical-align:middle}
+.party-movement{display:inline-flex;align-items:center;gap:3px;margin-left:5px;color:var(--muted);font-size:10px!important;font-weight:550;line-height:1.6;letter-spacing:0;white-space:nowrap;font-variant-numeric:tabular-nums;vertical-align:middle}
 .party-movement--up{color:#346746}.party-movement--down{color:#a44139}.party-movement--missing{color:var(--muted)}
 .party-votes{white-space:nowrap}.comparison-note{font-size:10px;line-height:1.65;color:var(--muted);margin:12px 0}.comparison-note>span:first-child{color:var(--ink)}
-.election-history{display:block;min-width:0;width:100%;max-width:420px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:0}
-.election-history--embedded{max-width:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 18px}
-.history-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.history-heading label{font-size:11px;font-weight:500;color:var(--muted)}.history-heading output{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
-.election-history input{display:block;width:100%;margin:3px 0 0;min-height:28px;accent-color:#42634b;cursor:ew-resize}.election-history input:disabled{cursor:default}.history-years{display:flex;justify-content:space-between;gap:2px}.history-years a{min-width:30px;min-height:28px;padding:6px 3px;text-align:center;font-size:10px;text-decoration:none;color:var(--muted);border-radius:4px}.history-years a[aria-current]{background:#e4eadc;color:var(--ink);font-weight:600}.history-years a:hover{background:#e2e8db}.history-years a:focus-visible,.election-history input:focus-visible{outline:2px solid #42634b;outline-offset:2px}.election-history>p:not(.sr-only){margin:6px 0 0;font-size:10px;line-height:1.5;color:var(--muted)}
+.election-history{display:block;min-width:0;width:fit-content;margin:0}.election-history--embedded{padding:12px 18px}
+.history-select{display:flex;align-items:center;position:relative;gap:10px;min-height:44px;padding:0 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px}.history-select>span{font-size:11px;color:var(--muted)}.history-select select{appearance:none;border:0;background:none;color:var(--ink);font:inherit;font-size:14px;font-weight:600;min-height:44px;padding:0 25px 0 2px;cursor:pointer}.history-select>.ui-icon{position:absolute;right:12px;pointer-events:none}.history-select:focus-within{outline:2px solid #42634b;outline-offset:2px}.history-select select:focus{outline:none}.history-select:has(select:disabled){opacity:.7}.history-years{display:flex;flex-wrap:wrap;gap:6px}.history-years[hidden]{display:none}.history-years a{padding:12px;font-size:12px}.election-history>p:not(.sr-only){margin:6px 0 0;font-size:10px;line-height:1.5;color:var(--muted)}
 .race-share .party-movement{margin-left:8px;letter-spacing:0}.overview-province-vote>span,.home-metro-result>strong{white-space:nowrap}.overview-mini-bars>div>span:last-child,.ward-vote-bars>div>span:last-child,.overview-province-bars>div>span:last-child{overflow:visible;white-space:nowrap}.overview-mini-bars .party-movement,.ward-vote-bars .party-movement,.overview-province-bars .party-movement{font-size:9px!important}
-@media(max-width:540px){.election-history{padding:12px}.election-history--embedded{padding:12px 16px}}
+@media(max-width:540px){.election-history--embedded{padding:12px 16px}}
 [data-history-current-only][aria-disabled=true]{opacity:.45;pointer-events:none}
 [data-history-current-only][hidden]{display:none!important}
-/* Reserve the loading announcement's line so the card stays still during a drag. */
+/* Only show the status when a year is loading or needs a retry. */
 .election-history [data-history-status]{min-height:1.5em}
-.election-history [data-history-status][hidden]{display:block;visibility:hidden}
+.election-history [data-history-status][hidden]{display:none}
+
+/* Keep compact card deltas within their value column on every screen. */
+.overview-mini-bars>div>span:last-child,.overview-province-bars>div>span:last-child{display:grid;justify-items:end;gap:3px}
+.overview-mini-bars .party-movement,.overview-province-bars .party-movement{margin:0}
+.overview-mini-bars>div:has(.party-logo),.overview-province-bars>div:has(.party-logo){grid-template-columns:68px minmax(0,1fr) 65px}
+.overview-province-vote>span,.home-metro-result>strong{display:grid;justify-items:end;gap:4px}
+.overview-province-vote .party-movement,.home-metro-result .party-movement{margin:0}
+.overview-result-detail td .party-movement{display:flex;justify-content:flex-end;margin:3px 0 0}

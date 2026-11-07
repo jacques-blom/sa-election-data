@@ -1,0 +1,68 @@
+---
+import { env } from 'cloudflare:workers';
+import { readElectionHistory } from '../lib/history/data.ts';
+import { HISTORY_GAIN_THRESHOLD_PP, historyChart, initialHistoryMetric } from '../lib/history/chart.ts';
+import { formatNumber, type Result } from '../lib/places/results.ts';
+import Icon from './Icon.astro';
+import '../styles/history-visual.css';
+import ChangeValue from './ChangeValue.astro';
+import { historyFlow } from '../lib/history/flow.ts';
+import { historyShareCard } from '../lib/sharing/history.ts';
+interface Props { result: Result }
+const { result } = Astro.props;
+const history = await readElectionHistory(env.RESULTS_DB, env.RAW_RESULTS, {level:result.level,id:result.id,through:result.year,current:result});
+const hasSeats=result.level==='municipality' && history.elections.some(e=>e.seats);
+const charts = [ ...(hasSeats ? [{metric:'seats',label:'Seats',data:historyChart(history,'seats')}] : []),
+  {metric:'votes',label:'Votes %',data:historyChart(history,'votes')} ];
+const views=charts.map(chart=>({...chart,flow:historyFlow(chart.data)}));
+const selectedMetric=initialHistoryMetric(result.level,hasSeats,Astro.url.searchParams.get('metric'));
+const historyTitle=selectedMetric==='seats'?'How the council changed':'How the vote changed';
+const key=`history-${result.level}-${result.id}`;
+const selectedParty=history.defaultPartyIds.includes(Astro.url.searchParams.get('party')??'')?Astro.url.searchParams.get('party'):null;
+const inspectYear=history.years.find(y=>y===Number(Astro.url.searchParams.get('history-year')))??result.year;
+const shareCards=Object.fromEntries(charts.map(chart=>[chart.metric,historyShareCard(history,chart.metric==='seats'?'seats':'votes',result.name.replace(/^[A-Z0-9]+\s+-\s+/,''))]));
+const format=(value:number|null,metric:string)=>value===null?'—':metric==='seats'?formatNumber(value):`${value.toFixed(1)}%`;
+---
+{history.reportedElections > 0 && <section id="vote-history" class="history-visual" data-vote-history data-default-year={result.year} data-inspect-year={inspectYear} data-default-metric={selectedMetric} data-default-party={selectedParty} aria-labelledby={`${key}-heading`}>
+  <header class="history-visual-heading"><h2 id={`${key}-heading`} data-trend-title>{historyTitle}</h2>
+    <button class="button history-share" type="button" data-share-history={JSON.stringify(shareCards)} aria-label={`Share ${historyTitle.toLowerCase()}`} aria-haspopup="dialog"><Icon name="share" size={16}/><span>Share</span></button>
+  </header>
+  {charts.length>1&&<div class="history-controls"><div class="history-measures" aria-label="History measure">{charts.map(chart=><button type="button" data-trend-metric={chart.metric} aria-pressed={chart.metric===selectedMetric?'true':'false'}>{chart.label}</button>)}</div><span class="history-majority-key" data-trend-seat-key hidden={selectedMetric!=='seats'}><i aria-hidden="true"/>Majority</span></div>}
+  <div class="history-legend" aria-label="Highlight a party">{charts[0]!.data.series.map(p=><button type="button" data-trend-party={p.id} title={p.name} aria-label={`Highlight ${p.name}`} aria-pressed={selectedParty===p.id?'true':'false'} style={`--party:${p.color}`}><i aria-hidden="true"/><span>{p.short}</span></button>)}<span><i style="--party:#b1baa8" aria-hidden="true"/>Other</span></div>
+  {views.map(chart=><div class="history-metric-panel" data-trend-metric-panel={chart.metric} hidden={chart.metric!==selectedMetric}>
+    <div class="history-flow" role="group" aria-label={chart.metric==='seats'?'Council seats by election':'Vote share by election'}>
+      <div class="history-scale" aria-hidden="true">{(chart.metric==='votes'?[1,.5,0]:[1,0]).map(t=><span>{chart.metric==='votes'?`${t*100}%`:Math.round(chart.data.ceiling*t)}</span>)}</div>
+      <div class="history-flow-plot">
+        <svg class="history-flow-svg" viewBox={`0 0 ${chart.flow.width} ${chart.flow.height}`} preserveAspectRatio="none" aria-hidden="true">
+          {[0,.5,1].map(t=><line x1="0" x2={chart.flow.width} y1={t*chart.flow.height} y2={t*chart.flow.height} class="history-gridline"/>)}
+          {chart.flow.bands.map(band=><g data-trend-line={band.id} style={`opacity:${selectedParty===null||selectedParty===band.id?1:.14}`}><path class="history-band" d={band.path} fill={band.color}/></g>)}
+          {chart.flow.columns.map(column=><>
+            {column.nodes.filter(n=>n.known&&n.height>0).map(node=><rect data-trend-line={node.id} style={`opacity:${selectedParty===null||selectedParty===node.id?1:.14}`} x={column.x} y={node.top} width={chart.flow.barWidth} height={node.height} fill={node.color}/>)}
+            <rect data-trend-year-marker={column.year} x={column.x-5} y="-4" width={chart.flow.barWidth+10} height={chart.flow.height+8} rx="6" class="history-selection" opacity={column.year===inspectYear?1:0}/>
+            {column.available&&column.majority&&<line x1={column.x} x2={column.x+chart.flow.barWidth} y1={chart.flow.height-column.majority/chart.data.ceiling*chart.flow.height} y2={chart.flow.height-column.majority/chart.data.ceiling*chart.flow.height} class="history-majority-line"/>}
+          </>)}
+        </svg>
+        <div class="history-year-targets" data-trend-scrub style={`--columns:${history.years.length}`}>
+          {chart.data.columns.map(column=><button type="button" class="history-election" data-trend-year={column.year} aria-pressed={column.year===inspectYear?'true':'false'} aria-label={`${column.year}: ${column.available?column.segments.map(s=>`${s.short} ${format(s.value,chart.metric)}`).join(', '):'Unavailable'}`}>
+            {!column.available&&<span class="history-gap" aria-hidden="true">—</span>}<span class="history-year-label">{column.year}</span>
+          </button>)}
+        </div>
+      </div>
+    </div>
+    <p class="history-swipe-hint"><Icon name="arrowLeft" size={12}/> Swipe to see history <Icon name="arrowRight" size={12}/></p>
+    <div class="history-readouts" aria-live="polite">{chart.data.columns.map((column,index)=><div data-trend-panel={`${chart.metric}:${column.year}`} hidden={column.year!==inspectYear}>
+      <div class="history-readout-heading"><strong>{column.year}</strong><span>{chart.metric==='seats'?'Seats':'Vote %'}</span><span>{column.available && chart.data.columns[index-1]?.available ? `vs ${chart.data.columns[index-1]!.year}` : ''}</span></div>
+      <div class="history-party-values">{chart.data.readouts[index]!.values.map(p=><div data-trend-value={p.id} hidden={selectedParty!==null&&selectedParty!==p.id} style={`--party:${p.color}`}><span class="history-party-name" title={p.name}><i aria-hidden="true"/>{p.short}</span><strong>{format(p.value,chart.metric)}</strong>{p.delta!==null?<ChangeValue value={p.delta} unit={chart.metric==='seats'?'seats':'pp'}/>:<span class="history-no-change" aria-label="Comparison unavailable">—</span>}</div>)}</div>
+      {column.majority && <p class="history-seat-total">{column.majority} for a majority · {column.total} seats</p>}
+      {!column.available && <p class="small">{chart.metric==='seats'?'Seats unavailable for this election.':'No comparable votes for this election.'}</p>}
+    </div>)}</div>
+  </div>)}
+  <details class="history-source-details"><summary><span class="detail-icon"><Icon name="external" size={16}/></span> History data & sources <Icon name="plus" class="detail-plus"/></summary>
+    <div class="detail-content"><p>{history.ballotLabel}. Connecting bands show the same party’s share or seats between elections, not individual voters moving between parties. Select a year to inspect its values; use the year selector in the results section to explore its places.</p><p>The chart names the five largest parties across these elections. The vote list also names parties gaining at least {HISTORY_GAIN_THRESHOLD_PP} percentage points since the previous election; remaining votes are combined under Other. Other’s change compares the same group of parties in both elections. Missing values remain unavailable.</p>{history.warning&&<p>{history.warning}</p>}<ul>{history.caveats.map(c=><li>{c}</li>)}</ul>{history.elections.flatMap(e=>e.notes).map(note=><p>{note.note} <a href={note.url}>IEC correction <Icon name="arrowUpRight" size={13}/></a></p>)}<div class="links">{history.elections.map(e=><a href={e.source.url}>IEC {e.year} <Icon name="arrowUpRight" size={13}/></a>)}</div><a href={`/api/v1/history/${result.level}/${result.id}?through=${result.year}`}>All parties & exact values <Icon name="arrowUpRight" size={13}/></a></div>
+  </details>
+</section>}
+<script>
+import { setupVoteHistory } from '../lib/history/trend-client.ts';
+setupVoteHistory();
+document.addEventListener('results:updated',()=>setupVoteHistory());
+</script>

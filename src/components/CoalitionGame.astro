@@ -1,0 +1,89 @@
+---
+import type { CoalitionData } from '../lib/seats/coalition.ts';
+import { coalitionLeader, leaderSpriteStyle } from '../lib/seats/leaders.ts';
+import { coalitionDeal, gamePartyLabel } from '../lib/seats/game.ts';
+import { drawSpeakerComment } from '../lib/seats/commentary.ts';
+import { matchingPoliticalHistory } from '../lib/seats/political-history.ts';
+import Icon from './Icon.astro';
+interface Props { model: CoalitionData }
+const { model } = Astro.props;
+const deal = coalitionDeal(model, (Astro.url.searchParams.get('parties') ?? '').split(','));
+const selected = new Set(deal.parties.map(p => p.id));
+const speaker = drawSpeakerComment(model, selected);
+const backstory = speaker.history ?? matchingPoliticalHistory(model, deal.parties)[0];
+const description = `${deal.total} of ${model.total} seats selected. ${deal.status}. ${model.status === 'estimated' ? 'Estimated seats based on the current count.' : 'Provisional IEC-reported seats.'}`;
+const selectable = model.parties.filter(p => p.selectable);
+const leaders = Object.fromEntries(selectable.map(p => [p.short, coalitionLeader(p.short, model.municipalityId)]));
+const unavailableSeats = model.parties.filter(p => !p.selectable).reduce((sum, p) => sum + p.seats, 0);
+---
+<div class="coalition-game" data-speaker-memory={JSON.stringify(speaker)}>
+  <div class="chaos-board">
+    <section class="coalition-visual-panel" aria-label="Your hypothetical coalition">
+      <div class="chaos-scenario-banner"><span class="chaos-scenario-badge">Fictional scenario</span><span>Satirical game</span></div>
+      <div class="chaos-score"><div><span class="chaos-label">Your deal{model.status === 'estimated' ? ' · estimate' : ''}</span><strong data-coalition-total>{deal.total}</strong><span class="chaos-score-unit"> / {model.total} seats</span></div><div class="chaos-target"><strong data-coalition-status>{deal.majority ? deal.spare === 0 ? 'Just enough!' : `+${deal.spare} to spare` : `${deal.shortfall} to go`}</strong><span>{model.majority} for a majority</span></div></div>
+      <div class="coalition-meter" role="img" aria-label={`${description} Majority marker at ${model.majority} seats.`}>
+        <div class="coalition-meter-fill">{model.parties.map(p => <i data-coalition-segment={p.id} style={`width:${selected.has(p.id) ? p.seats / model.total * 100 : 0}%;background:${p.color}`}/>)}</div>
+        <i class="majority-marker" style={`left:${model.majority / model.total * 100}%`} aria-hidden="true"></i>
+      </div>
+      <div class="chaos-speaker-line">
+        <span class="speaker-sprite" data-game-sprite="speaker" data-speaker data-pose={deal.majority ? '1' : '0'} role="img" aria-label="Madam Speaker, a cartoon secretary bird with a gavel"></span>
+        <div class="chaos-speech"><strong data-deal-title hidden={!deal.majority}>{deal.title}</strong><span data-speaker-quote>{speaker.quote}</span></div>
+      </div>
+    </section>
+    <div class="chaos-play-area">
+      <section class="coalition-choices" aria-labelledby="coalition-choose-heading">
+        <div class="chaos-party-heading"><h2 id="coalition-choose-heading">Who’s in?</h2><button type="button" class="coalition-reset" data-coalition-reset disabled={!selected.size}>Reset ↺</button></div>
+        <div class="coalition-party-grid">{selectable.map(p => <button type="button" class="coalition-party" data-coalition-party={p.id} data-pivotal={String(deal.pivotal.some(partner => partner.id === p.id))} aria-pressed={selected.has(p.id) ? 'true' : 'false'} aria-label={`${p.name}, ${p.seats} ${model.status === 'estimated' ? 'estimated ' : ''}seats. ${selected.has(p.id) ? 'Remove from' : 'Add to'} your deal.${deal.pivotal.some(partner => partner.id === p.id) ? ' Key partner: your majority depends on them.' : ''}`} style={`--party:${p.color}`}>
+          {leaders[p.short] ? <span data-party-portrait data-game-sprite="leader" class="leader-sprite" style={leaderSpriteStyle(leaders[p.short]!.cell)} role="img" aria-label={`${leaders[p.short]!.name}, party caricature`}></span> : p.logo ? <img data-party-portrait data-game-sprite="badge" class="coalition-party-logo" src={p.logo} width="48" height="48" alt={`${p.short} logo`} loading="lazy"/> : <span data-party-portrait data-game-sprite="badge" class="leader-fallback" aria-hidden="true">{gamePartyLabel(p).slice(0, 3)}</span>}
+          <span class="coalition-party-name" title={p.name}>{gamePartyLabel(p)}</span><span class="coalition-toggle-symbol" aria-hidden="true">{selected.has(p.id) ? '✓' : '+'}</span>
+          <span class="chaos-party-seats"><strong>{p.seats}</strong> {p.seats === 1 ? 'seat' : 'seats'}</span><span class="chaos-party-role" data-party-role={p.id}>{deal.pivotal.some(partner => partner.id === p.id) ? 'Key partner' : ''}</span>
+        </button>)}</div>
+        {unavailableSeats > 0 && <p class="chaos-data-note">{unavailableSeats} independent seats are grouped in the source and can’t be invited separately.</p>}
+      </section>
+      <details class="chaos-history" data-coalition-history data-history-id={backstory?.id} hidden={!backstory}><summary>Historical context{backstory && ` · ${backstory.period}`}</summary><div data-history-content>{backstory && <><strong>{backstory.period}</strong><p>{backstory.fact}</p><div class="chaos-history-sources">{backstory.sources.map(source => <a href={source.url} target="_blank" rel="noopener noreferrer">{source.label} ↗</a>)}</div></>}</div></details>
+    </div>
+    <div class="chaos-action-bar" data-test-state={deal.majority ? 'ready' : 'waiting'}>
+      <p class="chaos-test-feedback" id="chaos-test-feedback" data-test-feedback hidden={!deal.majority}>{deal.majority ? 'Majority reached. See if your deal holds.' : ''}</p>
+      <button type="button" class="chaos-primary" data-chaos-test aria-describedby="chaos-test-feedback" aria-haspopup="dialog">Test the deal <span aria-hidden="true">↗</span></button><button type="button" class="chaos-share" data-coalition-share aria-haspopup="dialog" aria-label="Share this deal" hidden={!deal.majority} disabled={!selected.size}><Icon name="share" size={20}/></button>
+    </div>
+  </div>
+  <p class="chaos-data-note">Hypothetical deal · {model.status === 'estimated' ? 'Estimated' : 'Provisional IEC-reported'} seats · Fictional scenario</p>
+  <p class="chaos-data-note">Satire with sourced historical context. No affiliation or endorsement implied. <a href="/terms#satire">Game context</a> · <a href="/terms#liability">Terms & liability limits</a> · <a href="/terms#contact">Report a concern</a></p>
+  <dialog class="chaos-dialog" data-chaos-dialog aria-labelledby="chaos-twist-title" aria-describedby="chaos-scenario-notice chaos-twist-story">
+    <div class="chaos-dialog-top"><span class="chaos-scenario-badge" id="chaos-scenario-notice">Fictional scenario</span><button type="button" class="chaos-close" data-chaos-close aria-label="Close scenario">×</button></div>
+    <div class="chaos-dialog-body" data-chaos-scroll>
+    <section class="chaos-loading" data-chaos-loading hidden>
+      <div class="chaos-dice" data-chaos-dice aria-hidden="true">{Array.from({ length: 9 }, () => <i></i>)}</div>
+      <h2 id="chaos-loading-title" tabindex="-1">Behind closed doors…</h2>
+      <p class="chaos-loading-message" data-loading-message role="status">Muting the coalition group chat…</p>
+      <div class="chaos-loading-progress" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="chaos-roll-baseline" id="chaos-loading-baseline" data-loading-baseline></p>
+      <button type="button" class="chaos-skip" data-chaos-skip>Skip to result →</button>
+    </section>
+    <section class="chaos-outcome" data-chaos-outcome hidden>
+      <p class="chaos-roll-baseline" data-twist-baseline></p>
+      <figure class="chaos-walkout-scene" data-twist-scene hidden><canvas width="256" height="96" data-walkout-canvas aria-hidden="true"></canvas><figcaption data-walkout-caption></figcaption></figure>
+      <div class="chaos-cast" data-twist-cast role="img"></div>
+      <h2 id="chaos-twist-title" data-twist-title tabindex="-1"></h2><p id="chaos-twist-story" data-twist-story></p>
+      <div class="chaos-twist-result" data-twist-result>
+        <p data-twist-rule></p><p class="chaos-twist-maths"><strong data-twist-maths></strong><span>seats backing the deal</span></p>
+        <div class="chaos-outcome-meter" data-twist-meter role="img"><div data-twist-meter-remaining></div><div data-twist-meter-lost></div><i data-twist-meter-target></i></div>
+        <strong data-twist-verdict></strong><p class="chaos-twist-margin" data-twist-margin></p>
+      </div>
+      <aside class="chaos-lesson" data-twist-lesson aria-labelledby="chaos-lesson-label">
+        <span id="chaos-lesson-label" class="chaos-lesson-label">Why this matters</span>
+        <strong data-lesson-title></strong>
+        <p data-lesson-text></p>
+        <a data-lesson-link href="/guide#outcomes" target="_blank" rel="noopener noreferrer">How council majorities work ↗</a>
+      </aside>
+      <a class="chaos-involved-link" href="#get-involved" data-chaos-involved>Get involved in {model.name} <Icon name="arrowRight" size={15}/></a>
+      <details class="chaos-history" data-twist-history hidden><summary>Historical context</summary><div data-history-content></div></details>
+      <p class="chaos-fiction">This scenario is invented for the game. Lost support does not remove elected seats. Your original deal is unchanged; the majority target stays fixed.</p>
+    </section>
+    </div>
+    <div class="chaos-dialog-actions">
+      <button type="button" class="chaos-secondary" data-chaos-edit>Try another coalition</button>
+      <button type="button" class="chaos-primary" data-chaos-roll><span aria-hidden="true">⚄</span> Roll the dice<small data-roll-restart></small></button>
+    </div>
+  </dialog>
+</div>

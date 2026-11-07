@@ -43,9 +43,9 @@ function global(name: string, value: unknown) {
 const settle = async () => { for (let i=0;i<4;i++) await setImmediate(); };
 const event = (type: string, fields = {}) => Object.assign(new Event(type,{cancelable:true}),fields);
 
-async function mount({ configured = true, mobile = false, mobileInline = false, presentation = 'inline', resolution = async (_selection: object): Promise<object> => ({alternatives:[]}), electionAreas = async (_query: string): Promise<object[]> => [], predictions = async (_request: object) => [] as object[] } = {}) {
+async function mount({ year = 2026, configured = true, mobile = false, mobileInline = false, presentation = 'inline', resolution = async (_selection: object): Promise<object> => ({alternatives:[]}), electionAreas = async (_query: string): Promise<object[]> => [], predictions = async (_request: object) => [] as object[] } = {}) {
   const root = new ElementStub(), form = new ElementStub(), input = new ElementStub(), options = new ElementStub();
-  root.dataset = { mode: 'all', configured: String(configured), presentation, mobileInline: String(mobileInline) };
+  root.dataset = { searchYear:String(year), mode: 'all', configured: String(configured), presentation, mobileInline: String(mobileInline) };
   input.id = 'search';
   const panel = new ElementStub(), message = new ElementStub(), clear = new ElementStub(), home = new ElementStub(), dialog = new ElementStub(), mobileSlot = new ElementStub();
   root.queries = new Map([['form',form],['[data-search-panel]',panel],['[data-search-message]',message],['[data-search-clear]',clear],['[data-search-home]',home],['[data-search-mobile]',mobileSlot],['dialog',dialog],['[data-search-attribution]',new ElementStub()],['[data-search-close]',new ElementStub()]]);
@@ -57,7 +57,7 @@ async function mount({ configured = true, mobile = false, mobileInline = false, 
   const navigations: string[] = [], requests: {url:string;body:object}[] = [], googleRequests: object[] = [];
   const media = Object.assign(new EventTarget(),{matches:mobile});
   const body = new ElementStub();
-  global('window',{matchMedia:()=>media,innerHeight:800,location:{assign:(url:string)=>navigations.push(url)},
+  global('window',{matchMedia:()=>media,innerHeight:800,location:{href:'https://counted.co.za/',assign:(url:string)=>navigations.push(url)},
     setTimeout:(fn:()=>void)=>{timers.set(++timer,fn);return timer;},clearTimeout:(id:number)=>timers.delete(id)});
   global('document',Object.assign(new EventTarget(),{querySelectorAll:()=>[root],createElement:()=>new ElementStub(),body,activeElement:input}));
   global('InputEvent',class extends Event { isComposing = false; });
@@ -274,4 +274,29 @@ test('historical search disables pending suggestions and resumes with the retain
   ui.root.dataset.searchDisabled = 'false';
   await ui.type('Knysna'); await ui.choose();
   assert.deepEqual(ui.navigations, ['/2026/places/knysna']);
+});
+
+
+test('historical search opens the selected election and does not resolve current addresses',async()=>{
+  const ui=await mount({year:2021,electionAreas:async()=>[{id:'calvinia',name:'Calvinia',kind:'town',url:'/2026/places/calvinia',description:'Town'}]});
+  await ui.type('Calvinia'); await ui.choose();
+  assert.deepEqual(ui.navigations,['/2021/places/calvinia']);
+  assert.equal(ui.googleRequests.length,0);
+});
+
+test('an embedded game can handle Google towns and addresses without navigating to normal results', async () => {
+  for (const types of [['locality'], ['street_address']]) {
+    let details = 0;
+    const place = { displayName: 'Example place', types, fetchFields: async () => { details++; } };
+    const ui = await mount({ mobile: true, mobileInline: true, predictions: async () => [{ placeId: 'example', mainText: 'Example place', types, toPlace: () => place }] });
+    let selected: unknown;
+    ui.root.addEventListener('place-search:google', event => { event.preventDefault(); selected = (event as CustomEvent).detail; });
+    await ui.type('Example place'); await ui.choose();
+    assert.deepEqual(selected, { place, name: 'Example place', types });
+    assert.equal(details, 1);
+    assert.equal(ui.panel.hidden, true);
+    assert.equal(ui.dialog.open, false);
+    assert.deepEqual(ui.navigations, []);
+    assert.ok(ui.requests.every(request => request.url === '/api/search'));
+  }
 });

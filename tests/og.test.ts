@@ -40,7 +40,7 @@ test('directory towns retain their names and geographic scope without fetching r
 test('OG links discard addresses, search terms, ballot and coalition state', () => {
   assert.equal(ogImageUrl('https://counted.co.za/?address=private#result'), 'https://counted.co.za/og/v4/index.png');
   assert.equal(ogImageUrl('https://counted.co.za/search/?q=private&lat=-33'), 'https://counted.co.za/og/v4/search.png');
-  assert.equal(ogImageUrl('https://counted.co.za/2026/places/cape-town/coalition?parties=1,2'), 'https://counted.co.za/og/v4/2026/places/cape-town/coalition.png');
+  assert.equal(ogImageUrl('https://counted.co.za/2026/places/cape-town/coalition?parties=1,2'), 'https://counted.co.za/og/v5/2026/places/cape-town/coalition.png');
   assert.equal(ogImageUrl('http://localhost:4321/2026/places/witzenberg?ballot=ward'), 'https://counted.co.za/og/v4/2026/places/witzenberg.png');
   assert.equal(ogImageUrl('https://preview.example/api'), 'https://counted.co.za/og/v4/api.png');
 });

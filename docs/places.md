@@ -9,9 +9,10 @@ The static district catalogue adds 44 district municipalities, each with a dedic
 page and membership links to its local municipalities. All 257 councils appear at `/councils`.
 
 Each main-place polygon is intersected with 2026 MDB ward polygons. Only
-positive-area intersections are included; a centre point never determines the
-scope of a town page. Every mapped ward links to its whole-ward result, and all
-parent municipalities are retained when a place crosses municipal boundaries.
+positive-area intersections are included, with the conservative boundary-sliver
+reconciliation below; a centre point never determines the scope of a town page.
+Every mapped ward links to its whole-ward result, and substantive cross-council
+relationships are retained when a place crosses municipal boundaries.
 Votes are never apportioned by overlap area or presented as a town-only total.
 
 ## Data and search
@@ -71,10 +72,57 @@ No synthetic lastmod is emitted. Search engines decide what to index.
 Main places become eligible only when the old municipality code matches one
 current municipality and ward-union coverage is at least 99.5%. This is automated
 validation, not a claim that every boundary has been reviewed by a person.
-The other 1,957 places remain available but noindex and excluded from the
+Places that fail these checks remain available but noindex and excluded from the
 sitemap. Calvinia is explicitly excluded: its statistical extent overlaps
 wards 1, 2, 6 and 7, while the Hantam report describes the town in wards 1, 2 and 6.
 Noindex pages retain their scope explanation and links to useful ward pages.
+
+### Boundary precision
+
+`scripts/maps/place_overlaps.py` reconciles tiny foreign-council overlaps using
+the same rule for every place. It has no Pretoria exception. The source council
+must still exist and cover at least 99.5% of the place. All foreign overlaps
+combined must occupy at most 0.01% of the place, and must lie entirely within
+10 metres of both the place boundary and its intersection with the source
+council. The tolerance covers the combined simplification and coordinate
+rounding of the current place and ward imports. Measurements use a local metric
+projection; neither source boundary is changed.
+
+Only when every condition passes are the foreign ward and municipality
+relationships removed together. Small interior enclaves, substantial crossings,
+insufficient source coverage and missing or changed source councils retain their
+relationships for review. Small ward intersections within the source council
+are retained. Coverage uses the union of retained intersections, so overlapping
+wards cannot count the same land twice. Votes are never allocated by area.
+
+The geography build records every correction, removed ward/council ID and area
+measurement in `validation.json` under `sliverCorrections`. A read-only audit
+can be run before rebuilding; both scripts require Shapely and pyproj:
+
+```sh
+python -m unittest discover -s tests -p 'test_place_overlaps.py'
+python scripts/maps/audit-place-overlaps.py
+python scripts/maps/build-geography.py
+```
+
+The audit writes `.data/geography/overlap-audit.json`; it does not change the seed
+or database. The 7 November 2026 audit of all 13,804 named places found 708
+corrections meeting the rule and retained 1,164 multi-council mappings. Pretoria
+retains 49 Tshwane wards, and Pietermaritzburg retains 23 Msunduzi wards. Both
+pass indexing checks after reconciliation. Durban's 34 wards and Calvinia's
+four wards and explicit noindex restriction are preserved. These are automated
+classification results, not individual manual reviews of all 708 corrections.
+Rebuilding produces local data; the regenerated directory must be loaded or
+published separately before served pages or the sitemap change.
+
+The 708 corrections were published to production D1 on 7 November 2026, with
+the place search index refreshed. All affected records were read back and
+matched against the prepared data. Live HTML checks confirmed Pretoria's 49
+Tshwane wards and Pietermaritzburg's 23 Msunduzi wards with `index,follow`; all
+708 corrected URLs appeared in the live sitemap. Durban, Calvinia and the
+cross-council Groot Brakrivier page passed control checks. The backup, guarded
+rollback SQL and verification reports are stored locally under
+`.data/geography/sliver-publication-20261107/` (ignored by Git).
 
 ## Partial results
 

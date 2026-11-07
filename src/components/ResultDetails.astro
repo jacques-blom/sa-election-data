@@ -1,0 +1,27 @@
+---
+import Icon from './Icon.astro';
+import type { Result } from '../lib/places/results.ts';
+import { formatTime, freshness } from '../lib/places/results.ts';
+import { electionCouncilSeats } from '../lib/history/seats.ts';
+import SeatMethod from './SeatMethod.astro';
+import CivicGuide from './CivicGuide.astro';
+interface Props { result: Result }
+const { result } = Astro.props;
+const seats=result.level==='municipality'?electionCouncilSeats(result):null;
+---
+<details class="result-details" id={`source-${result.level}-${result.id}`}>
+  <summary><span class="detail-icon"><Icon name="external" size={16}/></span><span>Sources & result details</span><Icon name="plus" class="detail-plus"/></summary>
+  <div class="detail-content">
+    <p>IEC: {formatTime(result.source.reportedAt)} · checked {formatTime(result.source.checkedAt)}</p>
+    {result.year === 2026 && <p>Results remain provisional until declared by the IEC. Reporting progress measures voting districts, not turnout.</p>}
+    {freshness(result) && <p>{freshness(result)}</p>}
+    <p>Historical comparisons use published area results. Boundaries may change between elections. Vote shares use the ballot labelled on each chart; ballots are not individual voters.</p>
+    {['national','province'].includes(result.level)&&<p>Seat majorities count local and metro councils once, using reported seat allocations. District councils have a separate ballot. Changes compare councils with reported seats in both elections; pending allocations do not count as gains or losses.</p>}
+    {result.year===2026&&['national','province','municipality'].includes(result.level)&&<p>Government comparisons use the confirmed pre-election administration when available, otherwise the latest dated record. The new government appears when its membership is confirmed. A retained or changed government requires confirmed records on both sides; seats alone cannot establish it.</p>}
+    {result.level==='municipality'&&<p>Vote percentages beside council seats combine ward and municipal PR ballots. Seat counts include both ward and PR councillors.</p>}
+    {seats&&seats.status!=='unavailable'&&<SeatMethod seats={seats} result={result}/>}
+    <CivicGuide topic={['national','province'].includes(result.level)?'national':'ballots'}/>
+    <a href={result.source.url}>IEC source figures <Icon name="arrowUpRight" size={13}/></a>
+    <slot/>
+  </div>
+</details>

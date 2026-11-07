@@ -1,0 +1,14 @@
+---
+import Icon from './Icon.astro';
+import '../styles/card-collection.css';
+interface Props { id: string; label: string; collapsible?: boolean }
+const { id, label, collapsible = true } = Astro.props;
+---
+<card-collection class="card-collection" id={id} data-label={label} data-collapsible={String(collapsible)}>
+  <p class="card-collection-hint" hidden><span data-card-hint></span><Icon name="arrowRight" size={14}/></p>
+  <slot/>
+  <button class="button card-collection-toggle" type="button" aria-expanded="false" aria-controls={`${id}-grid`} hidden>View all</button>
+</card-collection>
+<script>
+  import '../lib/card-collection.ts';
+</script>

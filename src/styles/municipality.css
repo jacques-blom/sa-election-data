@@ -31,5 +31,4 @@
 @media(max-width:900px){
   .municipality-results{grid-template-columns:minmax(0,1fr)}
   .municipality-tools{display:contents}
-  .municipality-ward-finder{grid-row:1}
 }

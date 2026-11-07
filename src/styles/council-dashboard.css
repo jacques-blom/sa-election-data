@@ -136,3 +136,17 @@
   .dashboard-highlight ul{margin-top:6px}
   .dashboard-highlight li{margin-top:6px}
 }
+
+@media(max-width:650px){
+  .dashboard-hero .page-share-heading{display:grid;grid-template-columns:minmax(0,1fr) 44px}
+  .dashboard-council{grid-template-columns:minmax(0,1fr);gap:10px;padding:20px 0}
+  .dashboard-council-name{grid-column:1;grid-row:1}
+  .dashboard-council-outcome{grid-column:1;grid-row:2;text-align:left}
+  .dashboard-seat-graphic{grid-column:1;grid-row:3}
+  .dashboard-status{font-size:13px}
+  .dashboard-council h3{font-size:22px}
+  .dashboard-council-name p,.dashboard-seat-note,.dashboard-reporting,.dashboard-change-label,.dashboard-coverage{font-size:12px}
+  .council-province-options a{min-height:44px;font-size:13px}
+  .council-outcome-option{min-height:44px}
+  .council-more-options{width:min(275px,calc(100vw - 32px))}
+}

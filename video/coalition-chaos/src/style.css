@@ -1,0 +1,4 @@
+@font-face {font-family:Pixel;src:url('../public/fonts/Silkscreen-Regular.ttf') format('truetype');font-display:block}
+@font-face {font-family:Space;src:url('../public/fonts/SpaceGrotesk.ttf') format('truetype');font-display:block;font-weight:300 700}
+* {box-sizing:border-box}
+.hero {position:absolute;width:100%;text-align:center;font-family:Pixel;line-height:1.12;letter-spacing:-5px;color:#fff8e5;padding:0 36px}

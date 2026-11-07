@@ -1,0 +1,85 @@
+---
+import Icon from './Icon.astro';
+import { partyStyle } from '../lib/places/format.ts';
+import { latestYear } from '../lib/history/comparison.ts';
+import type { CouncilOutcomeStory, StoryCouncil } from '../lib/overview/council-story.ts';
+import { governmentHistory } from '../lib/governance/index.ts';
+import { governmentStory } from '../lib/governance/story.ts';
+import CouncilDeclaration from './CouncilDeclaration.astro';
+import GovernmentTransition from './GovernmentTransition.astro';
+interface Props { data: CouncilOutcomeStory; scope: string }
+const { data, scope } = Astro.props;
+const outcome = (c:StoryCouncil|null, year:number) => c?.party ? {label:`${partyStyle(c.party.name)[0]} majority`,color:partyStyle(c.party.name)[1]}
+  : {label:!c || (c.outcome==='pending' && year!==latestYear)?'—':c.outcome==='pending'?'Pending':'No party majority',color:'#8c9982'};
+const governments = new Map([...new Set(data.groups.flatMap(g=>g.entries.map(e=>e.council.id)))].map(id=>[id,governmentStory(data.year===2026?governmentHistory(id):null,data.year)]));
+const groups = data.groups.map(g => {
+  const [label, color] = g.party ? partyStyle(g.party.name) : [g.id === 'pending' ? data.year === latestYear ? 'Pending' : 'Unavailable' : 'No majority', '#8c9982'];
+  return { ...g, label, color, target:`council-outcomes-${scope}-${g.id}`, description:g.party ? `${label} majority` : label };
+});
+---
+<div class="story-councils" aria-label={`${data.year} council seat majorities`}>
+  <div class="story-councils-heading"><span>Seat majorities <strong>{data.total}</strong></span>{data.comparable > 0 && <span>vs {data.previousYear}</span>}</div>
+  <CouncilDeclaration year={data.year}/>
+  <div class="story-councils-bar" aria-label="Explore council outcomes">
+    {groups.filter(g=>g.count>0).map(g=><button type="button" popovertarget={g.target} class:list={{'is-pending':g.id==='pending'}} style={`--party:${g.color};flex-grow:${g.count}`} aria-label={`${g.description}: ${g.count} councils`} title={`${g.description}: ${g.count}`}/>)}
+  </div>
+  <div class="story-councils-key">{groups.map(g=><button type="button" popovertarget={g.target} title={`${g.description}: ${g.count} councils`} aria-label={`${g.description}: ${g.count} councils${g.delta !== null ? `; ${g.delta>0?'+':''}${g.delta} vs ${data.previousYear} across ${data.comparable} comparable councils` : ''}`}>
+    <span class="story-council-label"><i class:list={{'is-pending':g.id==='pending'}} style={`--party:${g.color}`} aria-hidden="true"/>{g.label}</span>
+    <span class="story-council-count"><strong>{g.count}</strong>{g.delta !== null && g.delta !== 0 && <span class:list={['change-value',g.delta>0?'change-value--up':'change-value--down']}><Icon name={g.delta>0?'arrowUpRight':'arrowDownRight'} size={12}/>{g.delta>0?'+':'−'}{Math.abs(g.delta)}</span>}</span>
+  </button>)}</div>
+  {groups.map(g=><div class="story-councils-popover" id={g.target} popover role="dialog" aria-labelledby={`${g.target}-title`}>
+    <header><h3 id={`${g.target}-title`}><i style={`--party:${g.color}`} aria-hidden="true"/>{g.description}<span>{g.count}</span></h3><button type="button" popovertarget={g.target} popovertargetaction="hide" aria-label="Close council list"><Icon name="x" size={20}/></button></header>
+    <div class="council-popover-declaration"><CouncilDeclaration year={data.year}/></div>
+    <nav aria-label={`${g.description} councils and changes in ${data.year}`}>{g.entries.map(({council:c,before})=>{
+      const was=outcome(before,data.previousYear??0), now=outcome(c,data.year);
+      const government=governments.get(c.id);
+      return <div class="council-modal-row"><a class="council-result-link" href={c.href}>
+        <span class="council-change-name">{c.name}<Icon name="chevronRight" size={16}/></span>
+      </a>
+      {government&&<GovernmentTransition story={government} href={`${c.href}#government`} compact/>}
+      <a class="council-seat-link" href={c.href}>
+        <span class="council-transition" aria-label="Election seat majorities">
+          {data.previousYear&&<><span class="council-election-outcome"><small>{data.previousYear} seats</small><span><i style={`--party:${was.color}`} aria-hidden="true"/>{was.label}</span></span><Icon name="arrowRight" size={12}/></>}
+          <span class="council-election-outcome"><small>{data.year} seats</small><span><i style={`--party:${now.color}`} aria-hidden="true"/>{now.label}</span></span>
+        </span>
+      </a></div>;
+    })}</nav>
+    {g.delta !== null && <p>Election seat majorities compared across {data.comparable} councils in {data.previousYear} and {data.year}.{data.year===2026&&' Government changes compare confirmed administrations before and after this election. Older records keep their dates.'}</p>}
+  </div>)}
+</div>
+<style>
+  .story-councils{grid-column:1/-1;min-width:0;padding-top:14px;border-top:1px solid #cbd6bd}
+  .story-councils-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted)}
+  .story-councils-heading strong{font-weight:550;margin-left:5px;color:var(--ink)}
+  .story-councils-bar{display:flex;gap:2px;margin:8px 0 4px;min-height:44px;align-items:center}
+  .story-councils-bar button{position:relative;flex-basis:0;min-width:3px;height:44px;border:0;background:none;padding:0;cursor:pointer}
+  .story-councils-bar button:before{content:'';position:absolute;inset:10px 0;background:var(--party)}
+  .story-councils-bar button:first-child:before{border-radius:5px 0 0 5px}.story-councils-bar button:last-child:before{border-radius:0 5px 5px 0}
+  .story-councils-bar button:only-child:before{border-radius:5px}
+  .story-councils-bar .is-pending:before{background:transparent;border:1px dashed #8c9982}
+  .story-councils-bar button:hover:before{filter:brightness(1.1)}
+  .story-councils-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 8px}
+  .story-councils-key>button{display:grid;align-content:start;justify-items:start;gap:5px;padding:7px 0;min-height:52px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;border-radius:5px}
+  .story-councils-key>button:hover:not(:disabled){background:#ffffff50}.story-councils-key>button:disabled{cursor:default}
+  .story-council-label{display:flex;align-items:center;gap:5px;font-size:11px;line-height:1.4}
+  .story-council-label i,.story-councils-popover h3 i{width:8px;height:8px;border-radius:2px;background:var(--party);flex:none}
+  .story-council-label .is-pending{background:none;border:1px dashed #8c9982}
+  .story-council-count{display:flex;align-items:center;gap:7px;padding-left:13px;font-variant-numeric:tabular-nums}
+  .story-council-count>strong{font-size:23px;line-height:1;font-weight:550;letter-spacing:-.6px}
+  .story-council-count :global(.change-value){font-size:10px;gap:1px}
+  .story-councils-popover{position:fixed;inset:0;margin:auto;width:min(440px,calc(100% - 32px));max-height:min(560px,80dvh);padding:0;border:1px solid var(--line);border-radius:16px;background:var(--paper);color:var(--ink);box-shadow:0 12px 60px #163a3030;overflow:auto}
+  .story-councils-popover::backdrop{background:#163a3026}
+  .council-popover-declaration{padding:0 18px}
+  .story-councils-popover header{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:10px 10px 10px 18px;gap:8px;background:var(--paper);border-bottom:1px solid var(--line)}
+  .story-councils-popover h3{display:flex;align-items:center;gap:8px;margin:0;font-size:17px;letter-spacing:-.3px}.story-councils-popover h3 span{color:var(--muted);font-weight:400;font-size:13px}
+  .story-councils-popover header button{display:grid;place-items:center;width:44px;height:44px;border:0;background:none;color:var(--ink);cursor:pointer;border-radius:8px}
+  .story-councils-popover nav{display:grid;padding:6px 14px}
+  .council-result-link,.council-seat-link{display:grid;gap:8px;min-height:44px;padding:12px 4px;text-decoration:none;font-size:13px}
+  .council-modal-row{border-bottom:1px solid #d9dfd180}.council-modal-row:last-child{border:0}.story-councils-popover a:hover{background:var(--sage)}
+  .council-change-name{display:flex;align-items:center;gap:8px;font-weight:550}.council-change-name>:global(svg){margin-left:auto;flex:none;color:var(--muted)}
+  .council-transition{display:grid;grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr);gap:10px;align-items:center;color:var(--muted);font-size:11px}
+  .council-election-outcome{display:grid;gap:4px;min-width:0}.council-election-outcome small{font-size:10px;font-variant-numeric:tabular-nums}
+  .council-election-outcome>span{display:flex;align-items:center;gap:5px;min-width:0;overflow-wrap:anywhere}.council-transition i{width:7px;height:7px;border-radius:2px;background:var(--party);flex:none}
+  .story-councils-popover p{font-size:11px;line-height:1.5;color:var(--muted);margin:0;padding:12px 18px;border-top:1px solid var(--line)}
+  @media(min-width:650px){.story-councils-key{grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px 24px}}
+</style>

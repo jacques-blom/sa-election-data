@@ -1,8 +1,6 @@
 ---
-import ComparisonNote from '../ComparisonNote.astro';
-import CivicGuide from '../CivicGuide.astro';
-import { partyMovement } from '../../lib/history/comparison.ts';
 import PartyRow from '../PartyRow.astro';
+import OtherParties from '../OtherParties.astro';
 import ShareView from './ShareView.astro';
 import ResultStatus from '../ResultStatus.astro';
 import { resultShareCard } from '../../lib/sharing/results.ts';
@@ -10,21 +8,23 @@ import { summaryBallot } from '../../lib/overview/results.ts';
 import { formatNumber, type Result } from '../../lib/places/results.ts';
 interface Props { result: Result; name: string; compact?: boolean }
 const { result, name, compact = false } = Astro.props;
+const Heading = compact ? 'h3' : 'h2';
 const ballot = summaryBallot(result);
-const visibleParties = compact ? 5 : 7;
+const visibleParties = compact ? 3 : 7;
+const remaining = ballot.parties.slice(visibleParties);
+const unlisted = ballot.unlisted !== null && ballot.unlisted > 0 ? ballot.unlisted : null;
 ---
-<section class:list={['card overview-vote-summary', { 'home-overall': compact }]} aria-label={`${name} party vote shares`}>
-  <div class="overview-vote-heading"><div>{!compact && <p class="eyebrow">{name}</p>}<h2>{compact ? 'Overall results' : 'Party vote shares'}</h2></div><ShareView card={resultShareCard(result, name)}/></div>
+<section class:list={['card overview-vote-summary', { 'home-overall compact-result': compact }]} aria-label={`${name} party vote shares`}>
+  <div class="overview-vote-heading"><div>{!compact && <p class="eyebrow">{name}</p>}<Heading>Party vote shares</Heading></div><ShareView card={resultShareCard(result, name)}/></div>
   <p class="overview-ballot-caption">Ward + municipal PR votes</p>
-  <CivicGuide topic="national" hint="Combined local election votes. Each council is decided separately."/>
-  <ResultStatus result={result} showProgress={!compact}/>
-  <ComparisonNote result={result} compact={compact}/>
-  <div class="chart-key"><span>Party</span><span>Vote % · votes</span></div>
-  {ballot.parties.slice(0,visibleParties).map(p => <PartyRow party={p} movement={partyMovement(result,p,'source_total')}/>)}
-  {ballot.parties.length > visibleParties && <details class="more-parties"><summary>Show all {ballot.parties.length} parties</summary>{ballot.parties.slice(visibleParties).map(p => <PartyRow party={p} movement={partyMovement(result,p,'source_total')}/>)}</details>}
-  {ballot.unlisted !== null && ballot.unlisted > 0 && <div class="overview-unlisted"><span>Unlisted parties</span><strong>{(ballot.unlisted / ballot.total! * 100).toFixed(1)}%<small>{formatNumber(ballot.unlisted)} votes</small></strong></div>}
+  <ResultStatus result={result}/>
+  {ballot.parties.slice(0,visibleParties).map(p => <PartyRow party={p}/>)}
+  {(remaining.length > 0 || unlisted !== null) && <OtherParties votes={[...remaining.map(p => p.votesForBallot), ...(unlisted !== null ? [unlisted] : [])]} total={ballot.total} expandable={remaining.length > 0}>
+    {remaining.map(p => <PartyRow party={p}/>)}
+    {unlisted !== null && <div class="overview-unlisted"><span>Unlisted parties</span><strong>{(unlisted / ballot.total! * 100).toFixed(1)}%<small>{formatNumber(unlisted)} votes</small></strong></div>}
+  </OtherParties>}
   {ballot.total === null && <p class="notice">Published figures don’t support reliable vote shares.</p>}
   {ballot.total === 0 && <p class="notice">No votes have been published yet.</p>}
   {ballot.discrepancy !== null && <details class="overview-vote-note"><summary>Source totals differ by {formatNumber(Math.abs(ballot.discrepancy))} votes</summary><p>Percentages use the IEC’s reported valid-ballot total. This small difference does not change the shares rounded to one decimal place.</p></details>}
-  {(ballot.total !== null || ballot.partial) && <p class="overview-vote-note">{ballot.total !== null && <><strong>{formatNumber(ballot.total)}</strong> valid ballots</>}{ballot.partial && result.level === 'province' && <>{ballot.total !== null && ' · '}Selected parties shown</>}</p>}
+  {ballot.partial && result.level === 'province' && <p class="overview-vote-note">Selected parties shown</p>}
 </section>

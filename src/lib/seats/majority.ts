@@ -1,6 +1,10 @@
 import type { CouncilSeats } from './allocation.ts';
 import { partyStyle } from '../places/format.ts';
 
+// The live source has no verified IEC declaration signal. A complete allocation
+// still needs this qualification; reporting progress must never remove it.
+export const COUNCIL_DECLARATION_NOTICE = 'Provisional — awaiting IEC declaration';
+
 export function majorityWinner(seats: CouncilSeats | null | undefined) {
   return seats && seats.status !== 'unavailable'
     ? seats.parties.find(p => p.party_id !== '0' && p.entry_type !== 'aggregate' && p.count >= seats.majority) ?? null

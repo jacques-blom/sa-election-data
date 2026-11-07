@@ -1,4 +1,5 @@
 ---
+import ChaosPromo from '../components/ChaosPromo.astro';
 import { env } from 'cloudflare:workers';
 import Site from '../layouts/Site.astro';
 import CivicGuide from '../components/CivicGuide.astro';
@@ -9,7 +10,7 @@ import PartyLogo from '../components/PartyLogo.astro';
 import DashboardCouncil from '../components/overview/DashboardCouncil.astro';
 import DashboardHighlights from '../components/overview/DashboardHighlights.astro';
 import { getCouncilDashboard, dashboardCouncils, type CouncilDashboard } from '../lib/overview/dashboard.ts';
-import { councilFilters, matchesCouncil, councilFilterUrl, partyMajorityChanges, inCouncilScope } from '../lib/overview/dashboard-filter.ts';
+import { COUNCIL_PAGE_SIZE, councilFilters, matchesCouncil, councilFilterUrl, partyMajorityChanges, inCouncilScope } from '../lib/overview/dashboard-filter.ts';
 import { provinces } from '../lib/overview/results.ts';
 import { partyStyle } from '../lib/places/format.ts';
 import { latestYear } from '../lib/history/comparison.ts';
@@ -25,6 +26,7 @@ const filters = councilFilters(Astro.url.searchParams);
 const councils = data?.councils ?? dashboardCouncils().map(c => ({ ...c, status: 'unavailable' as const }));
 const scope = councils.filter(c => inCouncilScope(c, filters));
 const shown = councils.filter(c => matchesCouncil(c, filters));
+const deferred = new Set(shown.slice(COUNCIL_PAGE_SIZE).map(c => c.id));
 const filtered = Object.values(filters).some(Boolean);
 const reported = scope.filter(c => c.status === 'majority' || c.status === 'no-majority').length;
 const partyCounts = new Map<string, { id: string; name: string; count: number; provinceCount: number }>();
@@ -54,9 +56,9 @@ const previousYear = data?.previousYear ?? 2021;
       <AddressResult/><noscript><a href="/search">Find local results</a></noscript>
     </div>
   </section>
+  <ChaosPromo/>
   {!data && <p class="notice" role="status">Council summaries unavailable. Individual results are still accessible. <a href="/councils">Retry</a>.</p>}
   {data && data.delayedCouncils > 0 && <p class="notice dashboard-delay">Updates delayed for {data.delayedCouncils} {data.delayedCouncils === 1 ? 'council' : 'councils'}. Showing the last available results.</p>}
-  <CivicGuide topic="outcomes"/>
   <section class="dashboard-directory" id="councils" aria-label="Council results">
     <div class="dashboard-toolbar">
       <p class="dashboard-coverage" data-dashboard-available={String(!!data)}><span data-reported-count>{data ? reported : '—'}</span> of <span data-scope-count>{scope.length}</span> seat allocations reported</p>
@@ -93,13 +95,15 @@ const previousYear = data?.previousYear ?? 2021;
     </div>
     <div class="dashboard-council-list">
       {councils.map((c, index) => <Fragment>
-        <DashboardCouncil council={c} filters={filters} available={!!data} previousYear={previousYear}/>
+        <DashboardCouncil council={c} filters={filters} available={!!data} previousYear={previousYear} deferred={deferred.has(c.id)}/>
         {index === 7 && <DashboardHighlights data={data} hidden={filtered}/>}
       </Fragment>)}
     </div>
     <div class="dashboard-empty" data-council-empty hidden={shown.length > 0}><p>No matching councils.</p><a href="/councils#councils" data-council-clear>Clear filters</a></div>
-    <div id="council-scroll-sentinel" data-council-sentinel aria-hidden="true" hidden></div>
-    <details class="dashboard-directory-note"><summary>About these results</summary><p>All 257 councils: 8 metros, 205 local municipalities and 44 districts. District council votes and seats are unavailable in our current feed. Estimates remain pending until seat allocations are reported. The bar’s marker is at 50%; a majority needs more than half the seats. A seat majority does not establish a governing agreement.</p></details>
+    <div id="council-scroll-sentinel" data-council-sentinel aria-hidden="true" hidden={shown.length <= COUNCIL_PAGE_SIZE}></div>
+    <noscript><style is:inline>[data-council-deferred][hidden] { display: grid !important; }</style></noscript>
+    <details class="dashboard-directory-note"><summary>About these results</summary><p>All 257 councils: 8 metros, 205 local municipalities and 44 districts. District bars show vote shares for the directly elected 40% of councillors; full district council control is unavailable. Local and metro bars show seats, with a marker at 50%. Estimates remain pending until allocations are reported. A seat majority does not establish a governing agreement.</p><p>Recorded administrations name their members at formation, using MISTRA’s coverage through 28 February 2026. Current government and before/after changes require separate verification. <a href="/governments">Coalition history & sources →</a></p></details>
   </section>
+  <CivicGuide topic="outcomes"/>
 </Site>
 <script>import '../lib/overview/dashboard-client.ts';</script>

@@ -17,3 +17,7 @@
 
 [data-address-status]:empty{display:none}
 [data-address-wards]:empty{display:none}
+@media(max-width:650px){
+  .address-ward-links{flex-wrap:nowrap;overflow-x:auto;gap:8px;margin:10px 0;padding:2px 2px 8px;scrollbar-width:thin}
+  .address-ward-links a,.address-ward-links button,.municipality-ward-finder .address-ward-links a{flex:none;width:auto;max-width:260px;min-height:44px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}

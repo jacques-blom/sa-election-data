@@ -70,6 +70,14 @@ path explicitly. Do not substitute summary rows for a full dataset.
 
 ## Tables and joins
 
+Government context has a separate source and time basis. Use
+get_government_history or /api/v1/governments/{municipality} for administrations.
+MISTRA v1.0 ends on 28 February 2026; party roles and officeholders describe
+inauguration, with subsequent changes possibly only in notes. Do not infer
+current control from an Active row or join a 2026 government onto older election
+results. Keep source dates, notes and issue flags. Verified before/after records
+are separate; even final seat results cannot prove a coalition formed or changed.
+
 - results.jsonl preserves full area responses: election, area, source, results,
   quality and caveats. Use it for fields not flattened into CSV.
 - areas.csv has one row per (year, level, area_id), including source/snapshot,

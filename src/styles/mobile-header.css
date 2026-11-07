@@ -1,0 +1,14 @@
+.nav>.nav-game { display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#f3c85b; color:var(--ink); font-weight:700; box-shadow:inset 0 0 0 1px #163a3024; }
+.nav>.nav-game:hover { background:#ffdb77; color:var(--ink); }
+.nav>.nav-game.active { background:#f3c85b; box-shadow:inset 0 0 0 2px var(--ink); }
+
+/* Smaller visual chrome, with full 44px touch targets. */
+@media (max-width:650px) {
+  body>.header>.header-inner { min-height:0; padding:max(2px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left)); gap:0 12px; }
+  body>.header>.header-inner>.nav { grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; padding:0 0 2px; }
+  body>.header>.header-inner>.nav>a { min-height:44px; padding:4px 2px; font-size:11px; }
+  .header .header-search-trigger { position:relative; border:0; border-radius:0; background:transparent; }
+  .header .header-search-trigger::before { content:''; position:absolute; inset:6px; border:1px solid var(--line); border-radius:8px; background:var(--paper); z-index:-1; }
+  .header .header-search-trigger:hover::before { background:var(--sage); }
+  .header .header-search-trigger svg { width:17px; height:17px; }
+}

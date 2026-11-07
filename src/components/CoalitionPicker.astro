@@ -1,0 +1,27 @@
+---
+import Icon from './Icon.astro';
+import PlaceSearch from './PlaceSearch.astro';
+import { builderCouncils } from '../lib/seats/directory.ts';
+import { provinces } from '../lib/overview/results.ts';
+interface Props { provinceId?: string; councilId?: string }
+const { provinceId = '', councilId } = Astro.props;
+const councils = builderCouncils();
+---
+<dialog id="coalition-picker" class="chaos-dialog chaos-picker" data-coalition-picker data-current-province={provinceId} aria-labelledby="coalition-picker-title">
+  <div class="chaos-dialog-top"><span class="chaos-eyebrow">Coalition Chaos · Choose your arena</span><button type="button" class="chaos-close" data-picker-close aria-label="Back to the game">×</button></div>
+  <h2 id="coalition-picker-title" tabindex="-1" autofocus>Choose your council</h2>
+  <p class="chaos-picker-intro">New council. New chaos. Where will you make a deal?</p>
+  <PlaceSearch id="coalition-search" mode="all" placeholder="Council, town or address" mobilePlaceholder="Council, town or address" mobileInline compact directoryHref="#coalition-council-list" directoryLabel="Browse councils"/>
+  <p class="chaos-picker-hint">Search anywhere in South Africa. Towns and addresses take you straight to their council.</p>
+  <p class="chaos-picker-status" data-picker-status role="status" aria-live="polite" hidden></p>
+  <div data-picker-browse>
+    <div class="chaos-picker-toolbar"><button type="button" data-picker-provinces><Icon name="arrowLeft" size={16}/><span data-picker-province-label>All provinces</span><Icon name="chevronDown" size={16}/></button><span data-picker-count></span></div>
+    <div class="chaos-picker-provinces" data-picker-province-list hidden>
+      {[{ id: '', name: 'All provinces' }, ...provinces].map(p => <button type="button" data-picker-province={p.id} data-province-name={p.name}><span>{p.name}</span><small>{councils.filter(c => !p.id || c.provinceId === p.id).length} councils</small><Icon name="arrowRight" size={18}/></button>)}
+    </div>
+    <div id="coalition-council-list" class="chaos-picker-councils" data-picker-councils>
+      {councils.map(c => <a href={c.href} data-picker-council={c.id} data-province={c.provinceId} aria-current={c.id === councilId ? 'true' : undefined}><span><strong>{c.name}</strong><small>{c.province}{c.metro ? ' · Metro' : ''}{c.id === councilId ? ' · Playing here' : ''}</small></span><span class="chaos-picker-play">Play <Icon name="arrowRight" size={16}/></span></a>)}
+    </div>
+  </div>
+</dialog>
+<script>import '../lib/seats/picker.ts';</script>

@@ -50,7 +50,10 @@ test('a party named Independent is distinct from grouped or candidate entries, a
   for(const row of [r,r.previous]){row.results.parties[0]!.party_id='45';row.results.parties[0]!.party_name='INDEPENDENT CIVIC ORGANISATION OF SOUTH AFRICA';}
   assert.equal(partyMovement(r,r.results.parties[0]!,'pr')?.delta,10);
   r.results.parties[0]!.candidate_name='An individual';
+  assert.equal(partyMovement(r,r.results.parties[0]!,'pr')?.delta,10,'The named candidate represents the same registered party');
+  r.results.parties[0]!.party_id='unmatched-person';
   assert.equal(partyMovement(r,r.results.parties[0]!,'pr')?.delta,null);
+  r.results.parties[0]!.party_id='45';
   r.results.parties[0]!.candidate_name=null;
   r.previous.results.parties[0]!.party_id=null;r.previous.results.parties[0]!.entry_type='aggregate';
   assert.equal(partyMovement(r,r.results.parties[0]!,'pr')?.delta,null);

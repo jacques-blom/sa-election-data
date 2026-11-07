@@ -54,7 +54,10 @@ test('MCP supports real legacy and modern clients without a database or sessions
     const client = await connect(unavailable, modern);
     try {
       const tools = await client.listTools();
-      assert.equal(tools.tools.length, 16);
+      assert.equal(tools.tools.length, 17);
+      assert.ok(tools.tools.some(tool => tool.name === 'get_government_history'));
+      const government = await call(client, 'get_government_history', { municipality: 'EC101' });
+      assert.equal((government.structuredContent!.data as { currentStatus: string }).currentStatus, 'unverified');
       assert.ok(tools.tools.every(tool => tool.annotations?.readOnlyHint && !tool.annotations?.destructiveHint));
       assert.ok(tools.tools.every(tool => tool.inputSchema.additionalProperties === false && tool.outputSchema));
       const resources = await client.listResources();

@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import type { FixedMapOptions } from '../lib/maps/fixed-types.ts';
 import '../styles/fixed-map.css';
 interface Props { options:FixedMapOptions; title:string; href?:string; caption?:string; compact?:boolean; historical?:boolean }
@@ -8,7 +9,7 @@ const {options,title,href='/map',caption,compact=false,historical=false}=Astro.p
   <div class="region-map-view">
   {historical ? <p class="region-map-history-note">Historical boundaries are unavailable for this election.</p> : <><div class="region-map-canvas" role="region" aria-label={title}></div><p class="region-map-status" role="status">Loading map…</p></>}
   </div>
-  <figcaption hidden={historical}><span data-map-caption>{caption??title}</span><a href={href}>Explore map ↗</a></figcaption>
+  <figcaption hidden={historical}><span data-map-caption>{caption??title}</span><a href={href}>Explore map <Icon name="arrowUpRight" size={14}/></a></figcaption>
   <slot name="history"/>
 </figure>
 <script>import '../lib/maps/fixed-loader.ts';</script>
